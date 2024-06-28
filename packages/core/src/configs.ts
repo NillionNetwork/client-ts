@@ -49,7 +49,7 @@ const testnet: NillionConfig = {
   },
 };
 
-const production: NillionConfig = {
+const petnet: NillionConfig = {
   chain: {
     endpoint: "",
     keys: [""],
@@ -64,4 +64,4 @@ const production: NillionConfig = {
   },
 };
 
-export const configs = { devnet, production, testnet };
+export const configs = { devnet, petnet, testnet };
