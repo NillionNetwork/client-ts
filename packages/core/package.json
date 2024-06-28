@@ -1,0 +1,15 @@
+{
+  "name": "@nillion/core",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "proto:generate": "protoc --plugin=../../node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src proto/nilchain.proto"
+  },
+  "dependencies": {
+    "debug": "^4.3.5",
+    "protobufjs": "^7.3.2",
+    "@nillion/client-wasm": "0.1.0"
+  }
+}
