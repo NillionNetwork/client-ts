@@ -1,0 +1,14 @@
+{
+  "extends": "@tsconfig/recommended",
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "jsx": "react",
+    "target": "es2022",
+    "module": "es2022",
+    "moduleResolution": "bundler"
+  }
+}
