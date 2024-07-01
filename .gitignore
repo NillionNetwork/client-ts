@@ -1,5 +1,7 @@
+.DS_Store
 node_modules
 .idea
 .vscode
 # generated protobuf codec
 packages/core/src/proto/nilchain.ts
+dist

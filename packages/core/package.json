@@ -1,15 +1,21 @@
 {
   "name": "@nillion/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
-  "main": "src/index.ts",
+  "browser": "dist/index.js",
   "types": "src/index.ts",
   "scripts": {
-    "proto:generate": "protoc --plugin=../../node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src proto/nilchain.proto"
+    "proto:generate": "protoc --plugin=../../node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src proto/nilchain.proto",
+    "clean": "rm -rf dist",
+    "build": "npx esbuild src/index.ts --bundle --format=esm --outfile=dist/index.js --external:debug --external:@nillion/client-wasm"
   },
   "dependencies": {
-    "debug": "^4.3.5",
-    "protobufjs": "^7.3.2",
-    "@nillion/client-wasm": "0.1.0"
+    "@nillion/client-wasm": "^0.1.0"
+  },
+  "peerDependencies": {
+    "debug": "^4.3.5"
+  },
+  "devDependencies": {
+    "protobufjs": "^7.3.2"
   }
 }

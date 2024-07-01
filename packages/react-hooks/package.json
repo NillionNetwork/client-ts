@@ -2,10 +2,11 @@
   "name": "@nillion/react-hooks",
   "version": "0.1.0",
   "type": "module",
-  "main": "src/index.ts",
+  "browser": "dist/index.js",
   "types": "src/index.ts",
   "scripts": {
-    "test": "jest"
+    "clean": "rm -rf dist",
+    "build": "npx esbuild src/index.ts --bundle --format=esm --outfile=dist/index.js --external:@nillion/core --external:react --external:debug"
   },
   "peerDependencies": {
     "debug": "^4.3.5",
