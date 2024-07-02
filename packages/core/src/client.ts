@@ -14,7 +14,7 @@ let INIT_CALLED = false;
 debug.enable("nillion:core");
 const logger = debug("nillion:core");
 
-type NetworkName = "devnet" | "testnet" | "petnet";
+type NetworkName = "tests" | "devnet" | "testnet" | "petnet";
 
 // don't rely on wasm types since that requires it to be initalised first
 // and then we introduce the coloring problem

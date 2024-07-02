@@ -64,4 +64,21 @@ const petnet: NillionConfig = {
   },
 };
 
-export const configs = { devnet, petnet, testnet };
+const tests: NillionConfig = {
+  chain: {
+    endpoint: "http://localhost:9191/nilchain",
+    keys: ["5c98e049ceca4e2c342516e1b81c689e779da9dbae64ea6b92d52684a92095e6"],
+  },
+  user: {
+    nodeSeed: "test",
+    userSeed: "test",
+  },
+  vm: {
+    bootnodes: [
+      "/ip4/127.0.0.1/tcp/14211/ws/p2p/12D3KooWCAGu6gqDrkDWWcFnjsT9Y8rUzUH8buWjdFcU3TfWRmuN",
+    ],
+    clusterId: "e2c959ca-ecb2-45b0-8f2b-d91abbfa3708",
+  },
+};
+
+export const configs = { devnet, petnet, testnet, tests };
