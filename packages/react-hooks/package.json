@@ -1,6 +1,6 @@
 {
   "name": "@nillion/react-hooks",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "browser": "dist/index.js",
   "types": "src/index.ts",
