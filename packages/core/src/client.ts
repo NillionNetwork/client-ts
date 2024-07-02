@@ -1,13 +1,15 @@
 import { NillionConfig, configs } from "./configs";
-import {
+import initWasm, {
   NodeKey,
   Operation,
   PriceQuote,
   UserKey,
   NillionClient as WasmClient,
+  NadaValues,
+  PaymentReceipt,
+  Permissions,
 } from "@nillion/client-wasm";
 import debug from "debug";
-import initWasm from "@nillion/client-wasm";
 
 let INIT_CALLED = false;
 
@@ -16,8 +18,8 @@ const logger = debug("nillion:core");
 
 type NetworkName = "tests" | "devnet" | "testnet" | "petnet";
 
-// don't rely on wasm types since that requires it to be initalised first
-// and then we introduce the coloring problem
+// don't rely on wasm types in the constructor because it requires wasm
+// initialization which hasn't occurred at this stage
 type NillionClientArgs = {
   bootnodes: string[];
   cluster: string;
@@ -75,9 +77,44 @@ export class NillionClient {
     return this.fromConfig(config);
   }
 
+  public get partyId(): string {
+    return this.wasm.party_id;
+  }
+
+  public get clusterId(): string {
+    return this.args.cluster;
+  }
+
   public async fetchQuote(operation: Operation): Promise<PriceQuote> {
-    // will always be an issue with this as we need to async init
-    logger(`requesting quote: ${operation.toString()}`);
-    return await this.wasm.request_price_quote(this.args.cluster, operation);
+    logger("requesting quote");
+    return await this.wasm.request_price_quote(this.clusterId, operation);
+  }
+
+  public async storeValues(
+    values: NadaValues,
+    receipt: PaymentReceipt,
+    permissions?: Permissions,
+  ) {
+    logger("storing values");
+    return await this.wasm.store_values(
+      this.clusterId,
+      values,
+      permissions,
+      receipt,
+    );
+  }
+
+  public async retrieveValue(
+    storeId: string,
+    name: string,
+    receipt: PaymentReceipt,
+  ) {
+    logger(`retrieving value: id=${storeId} and name=${name}`);
+    return await this.wasm.retrieve_value(
+      this.clusterId,
+      storeId,
+      name,
+      receipt,
+    );
   }
 }

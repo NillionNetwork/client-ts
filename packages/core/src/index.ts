@@ -3,6 +3,7 @@ export {
   NadaValues,
   Operation,
   PaymentReceipt,
+  PriceQuote,
 } from "@nillion/client-wasm";
 
 export * from "./client";
