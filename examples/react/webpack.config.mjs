@@ -35,10 +35,6 @@ export default {
     }),
   ],
   resolve: {
-    alias: {
-      react: path.resolve("./node_modules/react"),
-      "react-dom": path.resolve("./node_modules/react-dom"),
-    },
     extensions: [".ts", ".tsx", ".js"],
     fallback: {
       crypto: false,

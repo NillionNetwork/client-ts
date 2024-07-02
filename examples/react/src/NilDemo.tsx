@@ -1,7 +1,8 @@
 import { NadaValue, NadaValues, Operation } from "@nillion/client-wasm";
 import React, { useEffect, useState } from "react";
-import { pay } from "./utils";
+import { pay } from "./chain";
 import { useNillion } from "@nillion/react-hooks";
+import { logger } from "./index";
 
 type Step = {
   finished: boolean;
@@ -21,7 +22,7 @@ export function NilDemo() {
 
   useEffect(() => {
     async function run() {
-      console.log("🚀 starting");
+      logger("🚀 starting");
       const { client, config } = nillion;
       const secretName = "foo";
       const secretValue = "42";
@@ -31,75 +32,56 @@ export function NilDemo() {
         secretName,
         NadaValue.new_public_unsigned_integer(secretValue),
       );
-      const storeOperation = Operation.store_values(values, 1);
       addStep({
         finished: true,
-        message: `Prepare secret value: ${secretName}=${secretValue}`,
+        message: `Prepare value: ${secretName}=${secretValue}`,
       });
 
-      const quote = await client.fetchQuote(storeOperation);
+      let quote = await client.fetchQuote(Operation.store_values(values, 1));
       addStep({
         finished: true,
-        message: `Store value fee is ${quote.cost.total}unil`,
+        message: `Storage fee: ${quote.cost.total}unil`,
       });
 
-      const _storeReceipt = await pay(config, quote);
+      let receipt = await pay(config, quote);
       addStep({
         finished: true,
         message: "Paid",
       });
 
-      // const storeId = await client.store_values(
-      //   clusterId,
-      //   values,
-      //   undefined,
-      //   storeReceipt,
-      // );
-      // addStep({
-      //   finished: true,
-      //   message: "Secret value shredded and commited to the network",
-      // });
-      //
-      // addStep({
-      //   finished: true,
-      //   message: "Now lets reconstruct the value ...",
-      // });
-      // const retrieveOperation = Operation.retrieve_value();
-      // const retrieveQuote = await client.request_price_quote(
-      //   clusterId,
-      //   retrieveOperation,
-      // );
-      // addStep({
-      //   finished: true,
-      //   message: `Retrieve value fee is ${retrieveQuote.cost.total}unil`,
-      // });
-      //
-      // const retrieveReceipt = await pay(
-      //   client,
-      //   clusterId,
-      //   chainClient,
-      //   chainWallet,
-      //   retrieveOperation,
-      // );
-      // addStep({
-      //   finished: true,
-      //   message: "Paid",
-      // });
-      //
-      // const value = await client.retrieve_value(
-      //   clusterId,
-      //   storeId,
-      //   secretName,
-      //   retrieveReceipt,
-      // );
-      // addStep({
-      //   finished: true,
-      //   message: `Retrieve and reconstructed value: ${value.to_integer()}`,
-      // });
-      // addStep({
-      //   finished: true,
-      //   message: `Demo finished`,
-      // });
+      const storeId = await client.storeValues(values, receipt, undefined);
+      addStep({
+        finished: true,
+        message: `Value commited with id: ${storeId}`,
+      });
+
+      addStep({
+        finished: true,
+        message: "Reconstructing value ...",
+      });
+
+      quote = await client.fetchQuote(Operation.retrieve_value());
+      addStep({
+        finished: true,
+        message: `Retrieve fee is ${quote.cost.total}unil`,
+      });
+
+      receipt = await pay(config, quote);
+      addStep({
+        finished: true,
+        message: "Paid",
+      });
+
+      const value = await client.retrieveValue(storeId, secretName, receipt);
+      addStep({
+        finished: true,
+        message: `Retrieve and reconstructed value: ${value.to_integer()}`,
+      });
+
+      addStep({
+        finished: true,
+        message: `Demo finished`,
+      });
     }
 
     void run();
