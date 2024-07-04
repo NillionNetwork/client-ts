@@ -7,15 +7,16 @@
   "scripts": {
     "proto:generate": "protoc --plugin=../../node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src proto/nilchain.proto",
     "clean": "rm -rf dist",
-    "build": "npx esbuild src/index.ts --bundle --format=esm --outfile=dist/index.js --external:debug --external:@nillion/client-wasm"
+    "build": "node esbuild.config.mjs"
   },
   "dependencies": {
-    "@nillion/client-wasm": "^0.1.0"
-  },
-  "peerDependencies": {
-    "debug": "^4.3.5"
+    "@nillion/client-wasm": "^0.1.0",
+    "debug": "^4.3.5",
+    "protobufjs": "^7.3.2",
+    "winston": "^3.13.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "protobufjs": "^7.3.2"
+    "@keplr-wallet/types": "^0.12.107"
   }
 }
