@@ -12,7 +12,6 @@ export default [
   ...eslintTs.configs.recommended,
   {
     rules: {
-      "sort-keys": "warn",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
