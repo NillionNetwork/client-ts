@@ -1,276 +1,261 @@
-import { NadaValue, NadaValues, NillionClient, Operation } from "@nillion/core";
+import {
+  initializeNillion,
+  NadaValue,
+  NadaValues,
+  NillionClient,
+  Operation,
+} from "@nillion/core";
 import { Context, loadFixtureContext, strToByteArray } from "../helpers";
-import { pay } from "../helpers/chain";
 
 describe("Nillion Client", () => {
   let context: Context;
 
   beforeAll(async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
-
     context = await loadFixtureContext();
-
-    expect(context.vm.client).toBeDefined();
-    expect(context.vm.client).toBeInstanceOf(NillionClient);
-    expect(context.chain.client).toBeDefined();
-    expect(context.chain.client).toBeDefined();
+    expect(context.client).toBeInstanceOf(NillionClient);
   });
 
-  it("should not crash if wasm.init() is called twice", async () => {
-    await NillionClient.init();
+  it("gracefully handles multiple calls to initializeNillion()", async () => {
+    await initializeNillion();
+    await initializeNillion();
     expect(true).toBeTruthy();
   });
 
-  it("should have predictable party_id because of the hardcoded node key seed", () => {
-    const my_party_id = context.vm.client.partyId;
+  it("derives stable partyId from node key seed", () => {
+    const my_party_id = context.client.partyId;
     expect(my_party_id).toBeDefined();
 
-    expect(my_party_id).toEqual(context.test1.expected_party_id);
-    context.test1.party_id = my_party_id;
+    expect(my_party_id).toEqual(context.test1.partyId);
+    context.test1.partyId = my_party_id;
   });
 
-  it("should be able to get a price quote", async () => {
+  it("fetches a quote", async () => {
     const values = new NadaValues();
     values.insert("foo", NadaValue.new_secret_integer("1337"));
     values.insert("bar", NadaValue.new_secret_integer("-42"));
-    const operation = Operation.store_values(values, 1);
-    const now = new Date();
-
-    const quote = await context.vm.client.fetchQuote(operation);
+    const quote = await context.client.fetchQuote(
+      Operation.store_values(values, 1),
+    );
     expect(parseInt(quote.cost.total)).toBeGreaterThan(0);
-    expect(quote.expires_at.getTime()).toBeGreaterThan(now.getTime());
+    expect(quote.expires_at.getTime()).toBeGreaterThan(new Date().getTime());
     expect(quote.nonce).toBeTruthy();
-  }, 30000);
+  });
 
-  it("should be able to store secrets", async () => {
+  it("stores secret blob and secret integer", async () => {
+    const originalInteger = "-42";
     const bytes = strToByteArray(context.test1.input);
+
     const values = new NadaValues();
     values.insert("blob", NadaValue.new_secret_blob(bytes));
-    values.insert("int", NadaValue.new_secret_integer("-42"));
+    values.insert("int", NadaValue.new_secret_integer(originalInteger));
 
-    const operation = Operation.store_values(values, 1);
-    const quote = await context.vm.client.fetchQuote(operation);
-    const receipt = await pay(context, quote);
-    const store_id = await context.vm.client.storeValues(receipt, values);
+    const storeId = await context.client.storeValues(values, 1);
 
-    expect(store_id).toBeDefined();
-    expect(store_id).not.toBe("");
-    context.test1.store_id = store_id;
-    context.test1.original_blob = bytes;
-    context.test1.original_integer = "-42";
+    expect(storeId).not.toBe("");
+    context.test1.storeId = storeId;
+    context.test1.originalBlob = bytes;
+    context.test1.originalInteger = originalInteger;
   });
   //
   // it("should be able to retrieve a blob secret", async () => {
-  //   const receipt = await pay(context, nillion.Operation.retrieve_value());
-  //   const value = await context.vm.client.retrieve_value(
-  //     context.config.cluster_id,
-  //     context.test1.store_id,
+  //   const receipt = await getQuoteThenPay(context, Operation.retrieve_value());
+  //   const value = await context.vm.client.retrieveValue(
+  //     context.test1.storeId,
   //     "blob",
   //     receipt,
   //   );
-  //   expect(value.to_byte_array()).toEqual(context.test1.original_blob);
+  //   expect(value.to_byte_array()).toEqual(context.test1.originalBlob);
   // });
   //
   // it("should be able to retrieve an integer secret", async () => {
-  //   const receipt = await pay(context, nillion.Operation.retrieve_value());
-  //   const value = await context.vm.client.retrieve_value(
-  //     context.config.cluster_id,
-  //     context.test1.store_id,
+  //   const receipt = await getQuoteThenPay(context, Operation.retrieve_value());
+  //   const value = await context.vm.client.retrieveValue(
+  //     context.test1.storeId,
   //     "int",
   //     receipt,
   //   );
-  //   expect(value.to_integer()).toEqual(context.test1.original_integer);
+  //   expect(value.to_integer()).toEqual(context.test1.originalInteger);
   // });
   //
   // it("should be able to create a program binding", async () => {
-  //   const result = new nillion.ProgramBindings(context.test1.program_id);
-  //   context.test1.program_binding_simple = result;
-  //   expect(result).toBeInstanceOf(nillion.ProgramBindings);
+  //   const result = new ProgramBindings(context.test1.programId);
+  //   context.test1.programBindings = result;
+  //   expect(result).toBeInstanceOf(ProgramBindings);
   // });
-  //
+
   // // The parties of the simple program are
   // // - Dealer
   // // - Result
   // it("should be able to add_input_party to a program binding", async () => {
-  //   context.test1.program_binding_simple.add_input_party(
+  //   debugger;
+  //   context.test1.programBindings.add_input_party(
   //     "Dealer",
-  //     context.test1.party_id,
+  //     context.test1.partyId,
   //   );
-  //   // avoids the test complaining that there is no assertion, the above should succeed but has no output
   //   expect(true).toBeTruthy();
   // });
   //
   // it("should be able to add_output_party to a program binding", async () => {
-  //   context.test1.program_binding_simple.add_output_party(
+  //   debugger;
+  //   context.test1.programBindings.add_output_party(
   //     "Result",
-  //     context.test1.party_id,
+  //     context.test1.programId,
   //   );
-  //   // avoids the test complaining that there is no assertion, the above should succeed but has no output
   //   expect(true).toBeTruthy();
   // });
   //
   // it("should be able to prep compute inline secrets", async () => {
-  //   const compute_values = new nillion.NadaValues();
-  //   compute_values.insert(
+  //   const computeValues = new NadaValues();
+  //   computeValues.insert(
   //     "I00",
-  //     nillion.NadaValue.new_secret_non_zero_unsigned_integer("17517"),
+  //     NadaValue.new_secret_non_zero_unsigned_integer("17517"),
   //   );
-  //   compute_values.insert(
+  //   computeValues.insert(
   //     "I01",
-  //     nillion.NadaValue.new_secret_non_zero_unsigned_integer("5226"),
+  //     NadaValue.new_secret_non_zero_unsigned_integer("5226"),
   //   );
-  //   compute_values.insert(
+  //   computeValues.insert(
   //     "I02",
-  //     nillion.NadaValue.new_secret_non_zero_unsigned_integer("15981"),
+  //     NadaValue.new_secret_non_zero_unsigned_integer("15981"),
   //   );
-  //   context.test1.compute_values = compute_values;
+  //   context.test1.computeValues = computeValues;
   //
-  //   expect(context.test1.compute_values.length).toBe(3);
+  //   expect(context.test1.computeValues).toHaveSize(3);
   // });
   //
   // it("should be able to store secrets for compute", async () => {
-  //   const values = new nillion.NadaValues();
+  //   const values = new NadaValues();
   //   values.insert(
   //     "I03",
-  //     nillion.NadaValue.new_secret_non_zero_unsigned_integer("2877"),
+  //     NadaValue.new_secret_non_zero_unsigned_integer("2877"),
   //   );
   //   values.insert(
   //     "I04",
-  //     nillion.NadaValue.new_secret_non_zero_unsigned_integer("2564"),
+  //     NadaValue.new_secret_non_zero_unsigned_integer("2564"),
   //   );
-  //   const permissions = new nillion.Permissions();
+  //   const permissions = new Permissions();
   //   permissions.add_compute_permissions({
-  //     [context.vm.client.user_id]: [context.test1.program_id],
+  //     [context.vm.client.partyId]: [context.test1.programId],
   //   });
-  //   const receipt = await pay(
+  //   const receipt = await getQuoteThenPay(
   //     context,
-  //     nillion.Operation.store_values(values, 1),
+  //     Operation.store_values(values, 1),
   //   );
-  //   const store_uuid = await context.vm.client.store_values(
-  //     context.config.cluster_id,
+  //   const storeUuid = await context.vm.client.storeValues(
   //     values,
-  //     permissions,
   //     receipt,
+  //     permissions,
   //   );
-  //   expect(store_uuid).toBeDefined();
-  //   context.test1.compute_store_values_id = store_uuid;
+  //   expect(storeUuid).toBeDefined();
+  //   context.test1.computeStoreValuesId = storeUuid;
   // });
   //
   // it("should be able to compute program", async () => {
-  //   const bindings = new nillion.ProgramBindings(context.test1.program_id);
-  //   bindings.add_input_party("Dealer", context.test1.party_id);
-  //   bindings.add_output_party("Result", context.test1.party_id);
+  //   const bindings = new ProgramBindings(context.test1.programId);
+  //   bindings.add_input_party("Dealer", context.test1.partyId);
+  //   bindings.add_output_party("Result", context.test1.partyId);
   //
-  //   const receipt = await pay(
+  //   const receipt = await getQuoteThenPay(
   //     context,
-  //     nillion.Operation.compute(
-  //       context.test1.program_id,
-  //       context.test1.compute_values,
-  //     ),
+  //     Operation.compute(context.test1.programId, context.test1.computeValues),
   //   );
-  //   const compute_result_uuid = await context.vm.client.compute(
-  //     context.config.cluster_id,
+  //
+  //   const computeResultUuid = await context.vm.client.compute(
   //     bindings,
-  //     [context.test1.compute_store_values_id],
-  //     context.test1.compute_values,
+  //     [context.test1.computeStoreValuesId],
+  //     context.test1.computeValues,
   //     receipt,
   //   );
   //
-  //   expect(compute_result_uuid).toBeDefined();
-  //   expect(compute_result_uuid).not.toBe("");
-  //   context.test1.compute_id = compute_result_uuid;
+  //   expect(computeResultUuid).not.toBe("");
+  //   context.test1.computeId = computeResultUuid;
   // });
   //
   // it("should be able to get a result from compute operation", async () => {
-  //   const compute_result = await context.vm.client.compute_result(
-  //     context.test1.compute_id,
+  //   const result = await context.vm.client.getComputeResult(
+  //     context.test1.computeId,
   //   );
-  //   expect(compute_result).toBeDefined();
-  //   expect(compute_result).not.toBe("");
-  //   expect(compute_result).toEqual({
+  //
+  //   console.log("Compute result:", result);
+  //   expect(result).toBeDefined();
+  //   expect(result).not.toBe("");
+  //   expect(result).toEqual({
   //     Add0: BigInt(1462969515630),
   //   });
   // });
   //
   // it("should be able to return an array from a computation", async () => {
-  //   const program_id = `${context.config.programs_namespace}/array_new`;
-  //   const bindings = new nillion.ProgramBindings(program_id);
-  //   bindings.add_input_party("Party1", context.test1.party_id);
-  //   bindings.add_output_party("Party1", context.test1.party_id);
+  //   const programId = `${context.fixtureConfig.programsNamespace}/array_new`;
+  //   const bindings = new ProgramBindings(programId);
+  //   bindings.add_input_party("Party1", context.test1.partyId);
+  //   bindings.add_output_party("Party1", context.test1.partyId);
   //
-  //   const values = new nillion.NadaValues();
-  //   values.insert("I00", nillion.NadaValue.new_secret_integer("42"));
-  //   values.insert("I01", nillion.NadaValue.new_secret_integer("43"));
+  //   const values = new NadaValues();
+  //   values.insert("I00", NadaValue.new_secret_integer("42"));
+  //   values.insert("I01", NadaValue.new_secret_integer("43"));
   //
-  //   const receipt = await pay(
+  //   const receipt = await getQuoteThenPay(
   //     context,
-  //     nillion.Operation.compute(program_id, values),
+  //     Operation.compute(programId, values),
   //   );
-  //   const compute_result_uuid = await context.vm.client.compute(
-  //     context.config.cluster_id,
+  //   const resultId = await context.vm.client.compute(
   //     bindings,
   //     [],
   //     values,
   //     receipt,
   //   );
   //
-  //   const compute_result =
-  //     await context.vm.client.compute_result(compute_result_uuid);
+  //   const result = await context.vm.client.getComputeResult(resultId);
   //
-  //   expect(compute_result).toBeDefined();
-  //   expect(compute_result).not.toBe("");
-  //   expect(compute_result).toEqual({
+  //   expect(result).toBeDefined();
+  //   expect(result).not.toBe("");
+  //   expect(result).toEqual({
   //     my_output: [BigInt(42), BigInt(43)],
   //   });
   // });
   //
   // it("should be able to return a tuple from a computation", async () => {
-  //   const program_id = `${context.config.programs_namespace}/tuple_new`;
-  //   const bindings = new nillion.ProgramBindings(program_id);
-  //   bindings.add_input_party("Party1", context.test1.party_id);
-  //   bindings.add_output_party("Party1", context.test1.party_id);
+  //   const programId = `${context.fixtureConfig.programsNamespace}/tuple_new`;
+  //   const bindings = new ProgramBindings(programId);
+  //   bindings.add_input_party("Party1", context.test1.partyId);
+  //   bindings.add_output_party("Party1", context.test1.partyId);
   //
-  //   const values = new nillion.NadaValues();
-  //   values.insert("I00", nillion.NadaValue.new_secret_integer("42"));
-  //   values.insert("I01", nillion.NadaValue.new_secret_integer("43"));
+  //   const values = new NadaValues();
+  //   values.insert("I00", NadaValue.new_secret_integer("42"));
+  //   values.insert("I01", NadaValue.new_secret_integer("43"));
   //
-  //   const receipt = await pay(
+  //   const receipt = await getQuoteThenPay(
   //     context,
-  //     nillion.Operation.compute(program_id, values),
+  //     Operation.compute(programId, values),
   //   );
-  //   const compute_result_uuid = await context.vm.client.compute(
-  //     context.config.cluster_id,
+  //   const resultId = await context.vm.client.compute(
   //     bindings,
   //     [],
   //     values,
   //     receipt,
   //   );
   //
-  //   const compute_result =
-  //     await context.vm.client.compute_result(compute_result_uuid);
+  //   const result = await context.vm.client.getComputeResult(resultId);
   //
-  //   expect(compute_result).toBeDefined();
-  //   expect(compute_result).not.toBe("");
-  //   expect(compute_result).toEqual({
+  //   expect(result).toBeDefined();
+  //   expect(result).not.toBe("");
+  //   expect(result).toEqual({
   //     my_output: [BigInt(42), BigInt(43)],
   //   });
   // });
   //
   // it("should be able to update a secret", async () => {
-  //   const values = new nillion.NadaValues();
-  //   values.insert("another-int", nillion.NadaValue.new_secret_integer("1024"));
-  //   let receipt = await pay(
-  //     context,
-  //     nillion.Operation.update_values(values, 1),
-  //   );
-  //   await context.vm.client.update_values(
-  //     context.config.cluster_id,
+  //   const values = new NadaValues();
+  //   values.insert("another-int", NadaValue.new_secret_integer("1024"));
+  //   let receipt = await pay(context, Operation.update_values(values, 1));
+  //   await context.vm.client.updateValues(
   //     context.test1.store_id,
   //     values,
   //     receipt,
   //   );
   //
-  //   receipt = await pay(context, nillion.Operation.retrieve_value());
+  //   receipt = await pay(context, Operation.retrieve_value());
   //   const secret = await context.vm.client.retrieve_value(
   //     context.config.cluster_id,
   //     context.test1.store_id,
@@ -291,10 +276,7 @@ describe("Nillion Client", () => {
   //     .then((onfulfilled) => onfulfilled?.value);
   //
   //   expect(program).toBeDefined();
-  //   const receipt = await pay(
-  //     context,
-  //     nillion.Operation.store_program(program),
-  //   );
+  //   const receipt = await pay(context, Operation.store_program(program));
   //   const program_id = await context.vm.client.store_program(
   //     context.config.cluster_id,
   //     "addition_division",
@@ -316,14 +298,8 @@ describe("Nillion Client", () => {
   //     .then((onfulfilled) => onfulfilled?.value);
   //
   //   expect(program).toBeDefined();
-  //   const receipt1 = await pay(
-  //     context,
-  //     nillion.Operation.store_program(program),
-  //   );
-  //   const receipt2 = await pay(
-  //     context,
-  //     nillion.Operation.store_program(program),
-  //   );
+  //   const receipt1 = await pay(context, Operation.store_program(program));
+  //   const receipt2 = await pay(context, Operation.store_program(program));
   //   const promises = [
   //     context.vm.client.store_program(
   //       context.config.cluster_id,
@@ -342,27 +318,21 @@ describe("Nillion Client", () => {
   // });
   //
   // it("should be able to retrieve_permissions", async () => {
-  //   const receipt = await pay(
-  //     context,
-  //     nillion.Operation.retrieve_permissions(),
-  //   );
+  //   const receipt = await pay(context, Operation.retrieve_permissions());
   //   const result = await context.vm.client.retrieve_permissions(
   //     context.config.cluster_id,
   //     context.test1.store_id,
   //     receipt,
   //   );
   //   expect(result).toBeDefined();
-  //   expect(result).toBeInstanceOf(nillion.Permissions);
+  //   expect(result).toBeInstanceOf(Permissions);
   // });
   //
   // it("should be able to store and delete a secret", async () => {
-  //   const values = new nillion.NadaValues();
-  //   values.insert(
-  //     "I00",
-  //     nillion.NadaValue.new_secret_unsigned_integer("17517"),
-  //   );
-  //   values.insert("I01", nillion.NadaValue.new_secret_unsigned_integer("5226"));
-  //   let receipt = await pay(context, nillion.Operation.store_values(values, 1));
+  //   const values = new NadaValues();
+  //   values.insert("I00", NadaValue.new_secret_unsigned_integer("17517"));
+  //   values.insert("I01", NadaValue.new_secret_unsigned_integer("5226"));
+  //   let receipt = await pay(context, Operation.store_values(values, 1));
   //   const store_id = await context.vm.client.store_values(
   //     context.config.cluster_id,
   //     values,
@@ -372,7 +342,7 @@ describe("Nillion Client", () => {
   //   expect(store_id).toBeDefined();
   //   expect(store_id).not.toBe("");
   //   await context.vm.client.delete_values(context.config.cluster_id, store_id);
-  //   receipt = await pay(context, nillion.Operation.retrieve_value());
+  //   receipt = await pay(context, Operation.retrieve_value());
   //   await expectAsync(
   //     context.vm.client.retrieve_value(
   //       context.config.cluster_id,

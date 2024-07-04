@@ -1,71 +1,74 @@
 import {
-  MsgPayFor,
+  Builder,
+  NadaValues,
+  NetworkName,
   NillionClient,
   NillionConfig,
-  configs,
-  typeUrl,
+  ProgramBindings,
+  ResultId,
 } from "@nillion/core";
-import {
-  GasPrice,
-  SigningStargateClient,
-  SigningStargateClientOptions,
-} from "@cosmjs/stargate";
-import { DirectSecp256k1Wallet, Registry } from "@cosmjs/proto-signing";
+import fixtureConfig from "../src/fixture/local.json";
+import { initializeNillion } from "@nillion/core/src/init";
 
 export interface Context {
+  client: NillionClient;
   config: NillionConfig;
-  vm: {
-    client: NillionClient;
+  fixtureConfig: {
+    bootnodes: string[];
+    clusterId: string;
+    programsNamespace: string;
+    paymentsRpcEndpoint: string;
+    paymentsKey: string;
   };
-  chain: {
-    client: SigningStargateClient;
-    wallet: DirectSecp256k1Wallet;
+  test1: {
+    computeId: ResultId;
+    computeStoreValuesId: string;
+    computeValues: NadaValues;
+    input: string;
+    originalBlob: Uint8Array;
+    originalInteger: string;
+    partyId: string;
+    programBindings: ProgramBindings;
+    programId: string;
+    storeId: string;
   };
-  test1: any;
 }
 
 export const loadFixtureContext = async (): Promise<Context> => {
-  await NillionClient.init();
+  await initializeNillion();
+  const config = NillionConfig.get(NetworkName.LocalTestnet)!;
 
-  const config = configs.tests;
-  const nilVmClient = NillionClient.fromConfig(config);
-
-  const walletKey = Uint8Array.from(
-    config.chain.keys[0].match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
+  const signer = await Builder.createChainSignerFromKey(
+    fixtureConfig.payments_key,
   );
-  const nilChainWallet = await DirectSecp256k1Wallet.fromKey(
-    walletKey,
-    "nillion",
-  );
-
-  const registry = new Registry();
-  registry.register(typeUrl, MsgPayFor);
-
-  const options: SigningStargateClientOptions = {
-    gasPrice: GasPrice.fromString("0.025unil"),
-    registry,
-  };
-
-  const nilChainClient = await SigningStargateClient.connectWithSigner(
-    config.chain.endpoint,
-    nilChainWallet,
-    options,
+  const client = await Builder.createNillionClient(
+    config,
+    Builder.nodeKeyFromSeed("nillion-testnet-seed-1"),
+    signer,
+    Builder.userKeyFromSeed("nillion-testnet-seed-1"),
   );
 
   return {
-    chain: {
-      client: nilChainClient,
-      wallet: nilChainWallet,
-    },
+    client,
     config,
-    test1: {
-      expected_party_id: "12D3KooWGofQ8ah2De4HW559FcER1fwckUnufS6288iCYcNcKwGK",
-      input: "this is a test",
-      program_id:
-        "2j7jTVKsMezNLJV5ijcQEsNcMEKxEt4ERyAaDj1LdquDStrhukfvCyzBBvfDeiNGfittcAs4mD3KrChLN7SsY35Z/simple",
+    fixtureConfig: {
+      bootnodes: fixtureConfig.bootnodes,
+      clusterId: fixtureConfig.cluster_id,
+      paymentsKey: fixtureConfig.payments_key,
+      paymentsRpcEndpoint: fixtureConfig.payments_rpc_endpoint,
+      programsNamespace: fixtureConfig.programs_namespace,
     },
-    vm: {
-      client: nilVmClient,
+    test1: {
+      computeId: "" as ResultId,
+      computeStoreValuesId: "",
+      computeValues: new NadaValues(),
+      input: "this is a test",
+      originalBlob: new Uint8Array(),
+      originalInteger: "",
+      partyId: "12D3KooWGq5MCUuLARrwM95muvipNWy4MqmCk41g9k9JVth6AF6e",
+      programBindings: new ProgramBindings(""),
+      programId: `${fixtureConfig.programs_namespace}/simple`,
+      storeId: "",
     },
   };
 };
