@@ -4,7 +4,9 @@
     "esModuleInterop": true,
     "module": "es2022",
     "moduleResolution": "bundler",
+    "noEmit": true,
+    "skipLibCheck": true,
     "strict": true,
-    "target": "es2022",
+    "target": "es2022"
   }
 }
