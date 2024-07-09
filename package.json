@@ -3,20 +3,24 @@
   "version": "1.0.0",
   "license": "Apache-2.0",
   "private": true,
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "workspaces": [
-    "examples/*"
-  ],
   "engines": {
     "node": ">=20"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "types-build-watch": "npm -w packages/types run build -- --watch",
+    "core-build-watch": "npm -w packages/core run build -- --watch",
+    "payments-build-watch": "npm -w packages/payments run build -- --watch",
+    "functional-tests-build-watch": "npm -w packages/functional-tests run build -- --watch"
   },
   "devDependencies": {
     "@eslint/js": "^9.5.0",
     "@tsconfig/recommended": "^1.0.7",
     "@types/debug": "^4.1.12",
     "@types/jest": "^29.5.12",
+    "concurrently": "^8.2.2",
     "esbuild": "^0.21.5",
     "eslint": "^9.5.0",
     "globals": "^15.6.0",

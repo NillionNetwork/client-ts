@@ -1,3 +1,5 @@
+# TARGET-VERB-FLAGS
+
 all-release:
   @just all-build
   npm -w packages/core publish
@@ -34,3 +36,7 @@ core-pack:
     #!/usr/bin/env bash
     set -e
     npm -w packages/core pack
+
+all-build-watch:
+    #!/usr/bin/env bash
+    npx concurrently -c "auto" "npm:types-build-watch" "npm:core-build-watch" "npm:payments-build-watch" "npm:functional-tests-build-watch"
