@@ -1,9 +1,14 @@
 import { z } from "zod";
-import { ChainEndpoint, ChainId, ClusterId, Multiaddr } from "./values";
-import { NetworkName } from "@nillion/types";
+import {
+  ChainId,
+  ClusterId,
+  Multiaddr,
+  NetworkName,
+  Url,
+} from "@nillion/types";
 
 export const ConfigSchema = z.object({
-  chainEndpoint: ChainEndpoint,
+  chainEndpoint: Url,
   chainId: ChainId,
   clusterId: ClusterId,
   bootnodes: z.array(Multiaddr),
@@ -17,7 +22,7 @@ export type ConfigType = {
 
 export const Config: ConfigType = {
   [NetworkName.enum.Devnet]: ConfigSchema.parse({
-    chainEndpoint: "http://127.0.0.1:48102",
+    chainEndpoint: Url.parse("http://127.0.0.1:48102"),
     chainId: "nillion-chain-testnet",
     clusterId: "9e68173f-9c23-4acc-ba81-4f079b639964",
     bootnodes: [
@@ -25,7 +30,7 @@ export const Config: ConfigType = {
     ],
   }),
   [NetworkName.enum.Gluon]: ConfigSchema.parse({
-    chainEndpoint: "http://localhost:8080/nilchain",
+    chainEndpoint: Url.parse("http://localhost:8080/nilchain"),
     chainId: "nillion-chain-testnet-1",
     clusterId: "3272dd62-b126-466e-92f2-69fcc2c62ab6",
     bootnodes: [

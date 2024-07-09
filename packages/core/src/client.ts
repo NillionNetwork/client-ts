@@ -1,8 +1,14 @@
 import * as Wasm from "@nillion/client-wasm";
-import { ClusterId, Multiaddr } from "./values";
 import { Log } from "./logger";
-import { PartyId, PriceQuote } from "@nillion/types";
-import { z } from "zod";
+import {
+  ClusterId,
+  Multiaddr,
+  PartyId,
+  PaymentReceipt,
+  PriceQuote,
+  StoreId,
+} from "@nillion/types";
+import { Operation, OperationType, toWasmPaymentReceipt } from "./nilvm-types";
 
 export type NilVmClientArgs = {
   bootnodes: Multiaddr[];
@@ -22,11 +28,13 @@ export class NilVmClient {
     return this.client.party_id;
   }
 
-  async fetchQuote(operation: Wasm.Operation): Promise<PriceQuote> {
-    Log("fetching quote for operation");
+  async fetchQuote(operation: Operation): Promise<PriceQuote> {
+    Log(`fetch quote for: ${operation.toString()}`);
+    const wasmOperation = operation.toWasm();
+
     const quote = await this.client.request_price_quote(
       this.clusterId,
-      operation,
+      wasmOperation,
     );
 
     return PriceQuote.parse({
@@ -39,7 +47,32 @@ export class NilVmClient {
         preprocessing: quote.cost.preprocessing_fee,
         total: quote.cost.total,
       },
+      wasm: quote,
     });
+  }
+
+  async execute(args: OperationExecuteArgs): Promise<unknown> {
+    switch (args.operation.type) {
+      case OperationType.enum.StoreValues:
+        return await this.storeValues(args);
+      default:
+        throw `Operation not implemented: ${args.operation.type}`;
+    }
+  }
+
+  async storeValues(args: OperationStoreValuesArgs): Promise<StoreId> {
+    const { receipt, operation, permissions } = args;
+    const values = operation.values.toWasm();
+    const wasmReceipt = toWasmPaymentReceipt(receipt.quote.inner, receipt.hash);
+
+    const result = await this.client.store_values(
+      this.clusterId,
+      values,
+      permissions,
+      wasmReceipt,
+    );
+
+    return StoreId.parse(result);
   }
 
   static create(args: NilVmClientArgs): NilVmClient {
@@ -50,3 +83,12 @@ export class NilVmClient {
     return new NilVmClient(args.clusterId, nilvm);
   }
 }
+
+export type OperationExecuteArgs = {
+  receipt: PaymentReceipt;
+  operation: Operation;
+} & Record<string, unknown>;
+
+export type OperationStoreValuesArgs = OperationExecuteArgs & {
+  permissions?: Wasm.Permissions;
+};
