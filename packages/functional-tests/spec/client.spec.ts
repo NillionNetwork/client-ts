@@ -2,10 +2,12 @@ import {
   initializeNillion,
   NadaValue,
   NadaValues,
-  NillionClient,
+  NilVmClient,
   Operation,
 } from "@nillion/core";
+import { fetchQuoteThenPayThenExecute } from "@nillion/payments";
 import { Context, loadFixtureContext, strToByteArray } from "../helpers";
+import { Days, StoreId } from "@nillion/types";
 
 describe("Nillion Client", () => {
   let context: Context;
@@ -13,7 +15,7 @@ describe("Nillion Client", () => {
   beforeAll(async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
     context = await loadFixtureContext();
-    expect(context.client).toBeInstanceOf(NillionClient);
+    expect(context.nilvm).toBeInstanceOf(NilVmClient);
   });
 
   it("gracefully handles multiple calls to initializeNillion()", async () => {
@@ -23,36 +25,47 @@ describe("Nillion Client", () => {
   });
 
   it("derives stable partyId from node key seed", () => {
-    const my_party_id = context.client.partyId;
-    expect(my_party_id).toBeDefined();
+    const partyId = context.nilvm.partyId;
+    expect(partyId).toBeDefined();
 
-    expect(my_party_id).toEqual(context.test1.partyId);
-    context.test1.partyId = my_party_id;
+    expect(partyId).toEqual(context.test1.partyId);
+    context.test1.partyId = partyId;
   });
 
   it("fetches a quote", async () => {
-    const values = new NadaValues();
-    values.insert("foo", NadaValue.new_secret_integer("1337"));
-    values.insert("bar", NadaValue.new_secret_integer("-42"));
-    const quote = await context.client.fetchQuote(
-      Operation.store_values(values, 1),
-    );
-    expect(parseInt(quote.cost.total)).toBeGreaterThan(0);
-    expect(quote.expires_at.getTime()).toBeGreaterThan(new Date().getTime());
+    const values = NadaValues.create();
+    values
+      .insert("foo", NadaValue.newSecretInteger(1337))
+      .insert("bar", NadaValue.newSecretInteger(-42));
+
+    const operation = Operation.storeValues(values, Days.parse(1));
+    const quote = await context.nilvm.fetchQuote(operation);
+
+    expect(quote.inner).toBeDefined();
+    expect(quote.cost.total).toBeGreaterThan(0);
+    expect(quote.expires.getTime()).toBeGreaterThan(new Date().getTime());
     expect(quote.nonce).toBeTruthy();
   });
 
   it("stores secret blob and secret integer", async () => {
-    const originalInteger = "-42";
+    const originalInteger = -42;
     const bytes = strToByteArray(context.test1.input);
 
-    const values = new NadaValues();
-    values.insert("blob", NadaValue.new_secret_blob(bytes));
-    values.insert("int", NadaValue.new_secret_integer(originalInteger));
+    const values = NadaValues.create()
+      .insert("int", NadaValue.newSecretInteger(originalInteger))
+      .insert("blob", NadaValue.newSecretBlob(bytes));
 
-    const storeId = await context.client.storeValues(values, 1);
+    const operation = Operation.storeValues(values, Days.parse(1));
 
-    expect(storeId).not.toBe("");
+    const result = await fetchQuoteThenPayThenExecute({
+      nilvm: context.nilvm,
+      nilchain: context.nilchain,
+      operation,
+    });
+
+    const storeId = StoreId.parse(result.result);
+
+    expect(storeId).toBeDefined();
     context.test1.storeId = storeId;
     context.test1.originalBlob = bytes;
     context.test1.originalInteger = originalInteger;
