@@ -1,22 +1,17 @@
 {
   "name": "@nillion/core",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "type": "module",
   "browser": "dist/index.js",
   "types": "src/index.ts",
   "scripts": {
-    "proto:generate": "protoc --plugin=../../node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src proto/nilchain.proto",
     "clean": "rm -rf dist",
     "build": "node esbuild.config.mjs"
   },
   "dependencies": {
     "@nillion/client-wasm": "^0.1.0",
+    "@nillion/types": "file:../types",
     "debug": "^4.3.5",
-    "protobufjs": "^7.3.2",
-    "winston": "^3.13.0",
     "zod": "^3.23.8"
-  },
-  "devDependencies": {
-    "@keplr-wallet/types": "^0.12.107"
   }
 }

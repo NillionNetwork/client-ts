@@ -1,83 +1,52 @@
-import {
-  NadaValues,
-  NillionClient as WasmClient,
-  Operation,
-  PaymentReceipt,
-  Permissions,
-  PriceQuote,
-} from "@nillion/client-wasm";
-import { ClusterId, Multiaddr, StoreId } from "./values";
-import { SigningStargateClient } from "@cosmjs/stargate";
-import { OfflineSigner } from "@cosmjs/proto-signing";
+import * as Wasm from "@nillion/client-wasm";
+import { ClusterId, Multiaddr } from "./values";
 import { Log } from "./logger";
-import { MsgPayFor, typeUrl } from "./proto";
-import { Token } from "./token";
+import { PartyId, PriceQuote } from "@nillion/types";
+import { z } from "zod";
 
-type NillionClientArgs = {
+export type NilVmClientArgs = {
   bootnodes: Multiaddr[];
-  cluster: ClusterId;
-  clients: {
-    vm: WasmClient;
-    chain: SigningStargateClient;
-  };
-  chainSigner: OfflineSigner;
+  clusterId: ClusterId;
+  // TODO(tim): support key + generate options
+  userSeed: string;
+  nodeSeed: string;
 };
 
-export class NillionClient {
-  constructor(private args: NillionClientArgs) {}
+export class NilVmClient {
+  constructor(
+    public clusterId: ClusterId,
+    public client: Wasm.NillionClient,
+  ) {}
 
-  public get clients(): { vm: WasmClient; chain: SigningStargateClient } {
-    return this.args.clients;
+  public get partyId(): PartyId {
+    return this.client.party_id;
   }
 
-  public get partyId(): string {
-    return this.clients.vm.party_id;
-  }
-
-  public get clusterId(): string {
-    return this.args.cluster;
-  }
-
-  async fetchQuote(operation: Operation): Promise<PriceQuote> {
+  async fetchQuote(operation: Wasm.Operation): Promise<PriceQuote> {
     Log("fetching quote for operation");
-    return await this.clients.vm.request_price_quote(this.clusterId, operation);
-  }
-
-  async storeValues(
-    values: NadaValues,
-    ttlDays: number,
-    permissions?: Permissions,
-  ): Promise<StoreId> {
-    Log("store values: executing");
-    const operation = Operation.store_values(values, ttlDays);
-    const quote = await this.fetchQuote(operation);
-    const receipt = await this.pay(quote);
-    const result = await this.clients.vm.store_values(
+    const quote = await this.client.request_price_quote(
       this.clusterId,
-      values,
-      permissions,
-      receipt,
+      operation,
     );
 
-    return StoreId.parse(result);
+    return PriceQuote.parse({
+      expires: quote.expires_at,
+      nonce: quote.nonce,
+      cost: {
+        base: quote.cost.base_fee,
+        compute: quote.cost.compute_fee,
+        congestion: quote.cost.congestion_fee,
+        preprocessing: quote.cost.preprocessing_fee,
+        total: quote.cost.total,
+      },
+    });
   }
 
-  private async pay(quote: PriceQuote): Promise<PaymentReceipt> {
-    const accounts = await this.args.chainSigner.getAccounts();
-    const from = accounts[0].address;
+  static create(args: NilVmClientArgs): NilVmClient {
+    const userKey = Wasm.UserKey.from_seed(args.userSeed);
+    const nodeKey = Wasm.NodeKey.from_seed(args.nodeSeed);
+    const nilvm = new Wasm.NillionClient(userKey, nodeKey, args.bootnodes);
 
-    const payload: MsgPayFor = {
-      fromAddress: from,
-      resource: quote.nonce,
-      amount: [{ denom: Token.Unil, amount: quote.cost.total }],
-    };
-
-    const result = await this.clients.chain.signAndBroadcast(
-      from,
-      [{ typeUrl, value: payload }],
-      "auto",
-    );
-
-    return new PaymentReceipt(quote, result.transactionHash);
+    return new NilVmClient(args.clusterId, nilvm);
   }
 }

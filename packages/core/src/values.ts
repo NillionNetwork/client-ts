@@ -9,7 +9,7 @@ export type ResultId = z.infer<typeof ResultId>;
 export const ChainId = z.string().min(1).brand<"ChainId">();
 export type ChainId = z.infer<typeof ChainId>;
 
-export const ClusterId = z.string().min(1).brand<"ClusterId">();
+export const ClusterId = z.string().uuid().brand<"ClusterId">();
 export type ClusterId = z.infer<typeof ClusterId>;
 
 export const ChainEndpoint = z.string().url().brand<"ChainEndpoint">();
