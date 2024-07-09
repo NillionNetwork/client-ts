@@ -7,10 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "workspaces": [
-    "examples/react",
-    "packages/core",
-    "packages/core-e2e",
-    "packages/react-hooks"
+    "examples/*"
   ],
   "engines": {
     "node": ">=20"
