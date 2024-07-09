@@ -1,73 +1,46 @@
-import { z } from "zod";
+import { DirectSecp256k1Wallet, OfflineSigner } from "@cosmjs/proto-signing";
 import {
-  GasPrice,
-  SigningStargateClient,
-  SigningStargateClientOptions,
-} from "@cosmjs/stargate";
-import { MsgPayFor } from "./proto/nilchain";
-import {
-  DirectSecp256k1Wallet,
-  OfflineSigner,
-  Registry,
-} from "@cosmjs/proto-signing";
-import { PrivateKeyBase16, Token, Url } from "@nillion/types";
+  ChainId,
+  NilChainAddressPrefix,
+  PaymentReceipt,
+  PrivateKeyBase16,
+  Url,
+} from "@nillion/types";
 import { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
 import { Log } from "./logger";
+import { NilVmClient, Operation } from "@nillion/core";
+import { NilChainPaymentClient } from "./client";
 
-const typeUrl = "/nillion.meta.v1.MsgPayFor";
-const addressPrefix = "nillion";
-
-const ChainId = z.string().min(1).brand<"ChainId">();
-type ChainId = z.infer<typeof ChainId>;
-
-const TxHash = z.string().length(64).base64().brand<"TxHash">();
-type TxHash = z.infer<typeof TxHash>;
-
-const Address = z
-  .string()
-  .length(46)
-  .startsWith(addressPrefix)
-  .brand<"Address">();
-type Address = z.infer<typeof Address>;
-
-export const makePayment = async (
-  from: Address,
-  nonce: Uint8Array,
-  amountInUnil: number,
-  client: SigningStargateClient,
-): Promise<TxHash> => {
-  const value = MsgPayFor.create({
-    fromAddress: from,
-    resource: nonce,
-    amount: [{ denom: Token.Unil, amount: String(amountInUnil) }],
-  });
-
-  const result = await client.signAndBroadcast(
-    from,
-    [{ typeUrl, value }],
-    "auto",
-  );
-
-  return TxHash.parse(result.transactionHash);
+export type FetchQuoteThenPayThenExecuteArgs = {
+  nilvm: NilVmClient;
+  nilchain: NilChainPaymentClient;
+  operation: Operation;
+  args?: unknown;
 };
 
-export const createClient = async (
-  endpoint: Url,
-  signer: OfflineSigner,
-): Promise<SigningStargateClient> => {
-  const registry = new Registry();
-  registry.register(typeUrl, MsgPayFor);
+export type FetchQuoteThenPayThenExecuteResult = {
+  quote: unknown;
+  receipt: PaymentReceipt;
+  result: unknown;
+};
 
-  const options: SigningStargateClientOptions = {
-    gasPrice: GasPrice.fromString(Token.asUnil(0.0)),
-    registry,
+export const fetchQuoteThenPayThenExecute = async (
+  args: FetchQuoteThenPayThenExecuteArgs,
+): Promise<FetchQuoteThenPayThenExecuteResult> => {
+  const { nilvm, nilchain, operation } = args;
+  const quote = await nilvm.fetchQuote(operation);
+  const hash = await nilchain.pay(quote);
+  const receipt = PaymentReceipt.parse({ quote, hash, wasm: quote.inner });
+  const result = await nilvm.execute({
+    operation,
+    receipt,
+  });
+
+  return {
+    quote,
+    receipt,
+    result,
   };
-
-  return await SigningStargateClient.connectWithSigner(
-    endpoint,
-    signer,
-    options,
-  );
 };
 
 // expected base16, 64 chars long
@@ -80,46 +53,37 @@ export const createSignerFromKey = async (
     privateKey[j] = parseInt(key.slice(i, i + 2), 16);
   }
 
-  return await DirectSecp256k1Wallet.fromKey(privateKey, addressPrefix);
+  return await DirectSecp256k1Wallet.fromKey(privateKey, NilChainAddressPrefix);
 };
 
 export const createClientWithDirectSecp256k1Wallet = async (args: {
   endpoint: Url;
   key: PrivateKeyBase16;
-}): Promise<[SigningStargateClient, Address]> => {
+}): Promise<NilChainPaymentClient> => {
   const { endpoint, key } = args;
   const signer = await createSignerFromKey(key);
-  const accounts = await signer.getAccounts();
-  const address = Address.parse(accounts[0].address);
-
-  const client = await createClient(endpoint, signer);
-  return [client, address];
+  return await NilChainPaymentClient.create(endpoint, signer);
 };
 
 export const createClientWithKeplrWallet = async (args: {
   chainId: ChainId;
   endpoint: Url;
-}): Promise<[SigningStargateClient, Address]> => {
+}): Promise<NilChainPaymentClient> => {
   if (!window.keplr) {
     Log.log("failed to access window.keplr");
     return Promise.reject("failed to access window.keplr");
   } else {
     const { keplr } = window;
     const { chainId, endpoint } = args;
-
     await keplr.enable(chainId);
     const signer = keplr.getOfflineSigner(chainId);
-    const accounts = await signer.getAccounts();
-    // keplr only manages one pub/priv keypair, ref: https://docs.keplr.app/api/
-    const address = Address.parse(accounts[0].address);
-
-    const client = await createClient(endpoint, signer);
-    return [client, address];
+    return await NilChainPaymentClient.create(endpoint, signer);
   }
 };
 
 declare global {
-  interface Window extends KeplrWindow {}
+  interface Window extends KeplrWindow {
+  }
 }
 
 export const getKeplr = async (): Promise<Keplr | undefined> => {

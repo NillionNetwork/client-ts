@@ -5,7 +5,7 @@ const config = {
   bundle: true,
   format: "esm",
   outfile: "dist/index.js",
-  external: [],
+  external: ["crypto"],
   logLevel: "info",
 };
 
