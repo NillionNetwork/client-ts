@@ -1,0 +1,24 @@
+{
+  "name": "@nillion/payments",
+  "version": "0.1.0",
+  "type": "module",
+  "browser": "dist/index.js",
+  "types": "src/index.ts",
+  "scripts": {
+    "proto:generate": "protoc --plugin=node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src proto/nilchain.proto",
+    "clean": "rm -rf dist",
+    "build": "node esbuild.config.mjs"
+  },
+  "dependencies": {
+    "@cosmjs/proto-signing": "^0.32.4",
+    "@cosmjs/stargate": "^0.32.4",
+    "@nillion/types": "file:../types",
+    "debug": "^4.3.5",
+    "protobufjs": "^7.3.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@keplr-wallet/types": "^0.12.107",
+    "ts-proto": "^1.181.0"
+  }
+}
