@@ -15,8 +15,7 @@ export type FetchQuoteThenPayThenExecuteArgs = {
   nilvm: NilVmClient;
   nilchain: NilChainPaymentClient;
   operation: Operation;
-  args?: unknown;
-};
+} & Record<string, unknown>;
 
 export type FetchQuoteThenPayThenExecuteResult = {
   quote: unknown;
@@ -27,13 +26,15 @@ export type FetchQuoteThenPayThenExecuteResult = {
 export const fetchQuoteThenPayThenExecute = async (
   args: FetchQuoteThenPayThenExecuteArgs,
 ): Promise<FetchQuoteThenPayThenExecuteResult> => {
-  const { nilvm, nilchain, operation } = args;
+  const { nilvm, nilchain, operation, ...rest } = args;
   const quote = await nilvm.fetchQuote(operation);
   const hash = await nilchain.pay(quote);
   const receipt = PaymentReceipt.parse({ quote, hash, wasm: quote.inner });
+
   const result = await nilvm.execute({
     operation,
     receipt,
+    ...rest,
   });
 
   return {
@@ -82,8 +83,7 @@ export const createClientWithKeplrWallet = async (args: {
 };
 
 declare global {
-  interface Window extends KeplrWindow {
-  }
+  interface Window extends KeplrWindow {}
 }
 
 export const getKeplr = async (): Promise<Keplr | undefined> => {

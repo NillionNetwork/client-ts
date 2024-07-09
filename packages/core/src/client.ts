@@ -8,7 +8,8 @@ import {
   PriceQuote,
   StoreId,
 } from "@nillion/types";
-import { Operation, OperationType, toWasmPaymentReceipt } from "./nilvm-types";
+import { Operation, OperationType } from "./operation";
+import { NadaValue, NadaValues, NadaValueType, toTypedNadaValue } from "./nada";
 
 export type NilVmClientArgs = {
   bootnodes: Multiaddr[];
@@ -47,7 +48,7 @@ export class NilVmClient {
         preprocessing: quote.cost.preprocessing_fee,
         total: quote.cost.total,
       },
-      wasm: quote,
+      inner: quote,
     });
   }
 
@@ -55,15 +56,20 @@ export class NilVmClient {
     switch (args.operation.type) {
       case OperationType.enum.StoreValues:
         return await this.storeValues(args);
+      case OperationType.enum.RetrieveValue:
+        return await this.retrieveValue(args as OperationArgsValueRetrieve);
       default:
         throw `Operation not implemented: ${args.operation.type}`;
     }
   }
 
-  async storeValues(args: OperationStoreValuesArgs): Promise<StoreId> {
+  async storeValues(args: OperationArgsValuesStore): Promise<StoreId> {
     const { receipt, operation, permissions } = args;
     const values = operation.values.toWasm();
-    const wasmReceipt = toWasmPaymentReceipt(receipt.quote.inner, receipt.hash);
+    const wasmReceipt = new Wasm.PaymentReceipt(
+      receipt.quote.inner as Wasm.PriceQuote,
+      receipt.hash,
+    );
 
     const result = await this.client.store_values(
       this.clusterId,
@@ -73,6 +79,23 @@ export class NilVmClient {
     );
 
     return StoreId.parse(result);
+  }
+
+  async retrieveValue(args: OperationArgsValueRetrieve): Promise<NadaValue> {
+    const { receipt, storeId, valueId, type } = args;
+    const wasmReceipt = new Wasm.PaymentReceipt(
+      receipt.quote.inner as Wasm.PriceQuote,
+      receipt.hash,
+    );
+
+    const wasmNadaValue = await this.client.retrieve_value(
+      this.clusterId,
+      storeId,
+      valueId,
+      wasmReceipt,
+    );
+
+    return toTypedNadaValue(type, wasmNadaValue);
   }
 
   static create(args: NilVmClientArgs): NilVmClient {
@@ -89,6 +112,12 @@ export type OperationExecuteArgs = {
   operation: Operation;
 } & Record<string, unknown>;
 
-export type OperationStoreValuesArgs = OperationExecuteArgs & {
+export type OperationArgsValuesStore = OperationExecuteArgs & {
   permissions?: Wasm.Permissions;
+};
+
+export type OperationArgsValueRetrieve = OperationExecuteArgs & {
+  storeId: StoreId;
+  valueId: string;
+  type: NadaValueType;
 };

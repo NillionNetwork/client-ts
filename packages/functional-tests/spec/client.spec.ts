@@ -1,13 +1,13 @@
-import {
-  initializeNillion,
-  NadaValue,
-  NadaValues,
-  NilVmClient,
-  Operation,
-} from "@nillion/core";
+import { initializeNillion, NadaValueType, NilVmClient } from "@nillion/core";
 import { fetchQuoteThenPayThenExecute } from "@nillion/payments";
 import { Context, loadFixtureContext, strToByteArray } from "../helpers";
 import { Days, StoreId } from "@nillion/types";
+import {
+  NadaSecretBlob,
+  NadaSecretInteger,
+  NadaValues,
+} from "@nillion/core/src/nada";
+import { Operation } from "@nillion/core/src/operation";
 
 describe("Nillion Client", () => {
   let context: Context;
@@ -33,10 +33,9 @@ describe("Nillion Client", () => {
   });
 
   it("fetches a quote", async () => {
-    const values = NadaValues.create();
-    values
-      .insert("foo", NadaValue.newSecretInteger(1337))
-      .insert("bar", NadaValue.newSecretInteger(-42));
+    const values = NadaValues.create()
+      .insert("foo", NadaSecretInteger.create(1337))
+      .insert("bar", NadaSecretInteger.create(-42));
 
     const operation = Operation.storeValues(values, Days.parse(1));
     const quote = await context.nilvm.fetchQuote(operation);
@@ -47,20 +46,18 @@ describe("Nillion Client", () => {
     expect(quote.nonce).toBeTruthy();
   });
 
-  it("stores secret blob and secret integer", async () => {
+  it("store secret blob and secret integer", async () => {
     const originalInteger = -42;
     const bytes = strToByteArray(context.test1.input);
 
     const values = NadaValues.create()
-      .insert("int", NadaValue.newSecretInteger(originalInteger))
-      .insert("blob", NadaValue.newSecretBlob(bytes));
-
-    const operation = Operation.storeValues(values, Days.parse(1));
+      .insert("int", NadaSecretInteger.create(originalInteger))
+      .insert("blob", NadaSecretBlob.create(bytes));
 
     const result = await fetchQuoteThenPayThenExecute({
       nilvm: context.nilvm,
       nilchain: context.nilchain,
-      operation,
+      operation: Operation.storeValues(values, Days.parse(1)),
     });
 
     const storeId = StoreId.parse(result.result);
@@ -70,17 +67,22 @@ describe("Nillion Client", () => {
     context.test1.originalBlob = bytes;
     context.test1.originalInteger = originalInteger;
   });
-  //
-  // it("should be able to retrieve a blob secret", async () => {
-  //   const receipt = await getQuoteThenPay(context, Operation.retrieve_value());
-  //   const value = await context.vm.client.retrieveValue(
-  //     context.test1.storeId,
-  //     "blob",
-  //     receipt,
-  //   );
-  //   expect(value.to_byte_array()).toEqual(context.test1.originalBlob);
-  // });
-  //
+
+  it("retrieve a secret blob", async () => {
+    const result = await fetchQuoteThenPayThenExecute({
+      nilvm: context.nilvm,
+      nilchain: context.nilchain,
+      operation: Operation.retrieveValues(),
+      storeId: context.test1.storeId,
+      valueId: "blob",
+      type: NadaValueType.enum.SecretBlob,
+    });
+
+    const value = result.result as NadaSecretBlob;
+
+    expect(value.toByteArray()).toEqual(context.test1.originalBlob);
+  });
+
   // it("should be able to retrieve an integer secret", async () => {
   //   const receipt = await getQuoteThenPay(context, Operation.retrieve_value());
   //   const value = await context.vm.client.retrieveValue(
