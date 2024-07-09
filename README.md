@@ -15,3 +15,19 @@ An exploration into how we can deliver a better DX to the TS/JS ecosystem.
 @nillion/react
 @nillion/tests
 @nillion/examples
+
+## dep graph
+
+```mermaid
+graph BT
+    core["@nillion/core"] --> types["@nillion/types"]
+    core["@nillion/core"] --> wasm["@nillion/wasm"]
+    payments["@nillion/payments"] --> core["@nillion/core"]
+    payments["@nillion/payments"] --> types["@nillion/types"]
+    functional_tests["@nillion/functional-tests"] --> core["@nillion/core"]
+    functional_tests["@nillion/functional-tests"] --> types["@nillion/types"]
+    functional_tests["@nillion/functional-tests"] --> payments["@nillion/payments"]
+    react["@nillion/react"] --> core["@nillion/core"]
+    react["@nillion/react"] --> types["@nillion/types"]
+    react["@nillion/react"] --> payments["@nillion/payments"]
+```
