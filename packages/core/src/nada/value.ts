@@ -119,7 +119,7 @@ export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
   ): NadaValue<IntegerPublic> {
     return new NadaValue<IntegerPublic>(
       NadaValueType.enum.IntegerPublic,
-      IntegerPublic.parse(data),
+      IntegerPublic.parse(Number(data)),
     );
   }
 
@@ -128,7 +128,7 @@ export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
   ): NadaValue<IntegerPublicUnsigned> {
     return new NadaValue<IntegerPublicUnsigned>(
       NadaValueType.enum.IntegerPublicUnsigned,
-      IntegerPublicUnsigned.parse(data),
+      IntegerPublicUnsigned.parse(Number(data)),
     );
   }
 
@@ -137,7 +137,7 @@ export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
   ): NadaValue<IntegerSecret> {
     return new NadaValue<IntegerSecret>(
       NadaValueType.enum.IntegerSecret,
-      IntegerSecret.parse(data),
+      IntegerSecret.parse(Number(data)),
     );
   }
 
@@ -146,7 +146,7 @@ export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
   ): NadaValue<IntegerSecretUnsigned> {
     return new NadaValue<IntegerSecretUnsigned>(
       NadaValueType.enum.IntegerSecretUnsigned,
-      IntegerSecretUnsigned.parse(data),
+      IntegerSecretUnsigned.parse(Number(data)),
     );
   }
 }
