@@ -36,6 +36,14 @@ export type Multiaddr = z.infer<typeof Multiaddr>;
 export const StoreId = z.string().uuid();
 export type StoreId = z.infer<typeof StoreId>;
 
+// "namespace/friendly-name"
+export const ProgramId = z
+  .string()
+  .min(1)
+  // .refine((v) => v.length > 88 && v.indexOf("/") === 88)
+  .brand<"ProgramId">();
+export type ProgramId = z.infer<typeof ProgramId>;
+
 export const ComputeResultId = z.string().uuid().brand<"ComputeResultId">();
 export type ComputeResultId = z.infer<typeof ComputeResultId>;
 
