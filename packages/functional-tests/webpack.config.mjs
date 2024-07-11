@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 export default {
   mode: "development",
-  entry: glob.sync("spec/**/*.spec.ts"),
+  entry: glob.sync("tests/**/*.test.ts"),
   plugins: [
     new CopyPlugin({
       patterns: [{ from: "src/fixture", to: "fixture" }],
@@ -39,7 +39,7 @@ export default {
   },
   output: {
     filename: (pathData) => {
-      return pathData.chunk.name === "main" ? "spec/test.js" : "[name].js";
+      return pathData.chunk.name === "main" ? "test/test.js" : "[name].js";
     },
     path: path.resolve(__dirname, "dist"),
     clean: true,

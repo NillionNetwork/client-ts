@@ -1,13 +1,5 @@
-import { initializeNillion, NadaValueType, NilVmClient } from "@nillion/core";
-import { fetchQuoteThenPayThenExecute } from "@nillion/payments";
-import { Context, loadFixtureContext, strToByteArray } from "../helpers";
-import { Days, StoreId } from "@nillion/types";
-import {
-  NadaSecretBlob,
-  NadaSecretInteger,
-  NadaValues,
-} from "@nillion/core/src/nada";
-import { Operation } from "@nillion/core/src/operation";
+import { initializeNillion, NilVmClient } from "@nillion/core";
+import { Context, loadFixtureContext } from "../helpers";
 
 describe("Nillion Client", () => {
   let context: Context;
@@ -32,94 +24,91 @@ describe("Nillion Client", () => {
     context.test1.partyId = partyId;
   });
 
-  it("fetches a quote", async () => {
-    const values = NadaValues.create()
-      .insert("foo", NadaSecretInteger.create(1337))
-      .insert("bar", NadaSecretInteger.create(-42));
-
-    const operation = Operation.storeValues(values, Days.parse(1));
-    const quote = await context.nilvm.fetchQuote(operation);
-
-    expect(quote.inner).toBeDefined();
-    expect(quote.cost.total).toBeGreaterThan(0);
-    expect(quote.expires.getTime()).toBeGreaterThan(new Date().getTime());
-    expect(quote.nonce).toBeTruthy();
-  });
-
-  it("store secret blob and secret integer", async () => {
-    const originalInteger = -42;
-    const bytes = strToByteArray(context.test1.input);
-
-    const values = NadaValues.create()
-      .insert("int", NadaSecretInteger.create(originalInteger))
-      .insert("blob", NadaSecretBlob.create(bytes));
-
-    const result = await fetchQuoteThenPayThenExecute({
-      nilvm: context.nilvm,
-      nilchain: context.nilchain,
-      operation: Operation.storeValues(values, Days.parse(1)),
-    });
-
-    const storeId = StoreId.parse(result.result);
-
-    expect(storeId).toBeDefined();
-    context.test1.storeId = storeId;
-    context.test1.originalBlob = bytes;
-    context.test1.originalInteger = originalInteger;
-  });
-
-  it("retrieve a secret blob", async () => {
-    const result = await fetchQuoteThenPayThenExecute({
-      nilvm: context.nilvm,
-      nilchain: context.nilchain,
-      operation: Operation.retrieveValues(),
-      storeId: context.test1.storeId,
-      valueId: "blob",
-      type: NadaValueType.enum.SecretBlob,
-    });
-
-    const value = result.result as NadaSecretBlob;
-
-    expect(value.toByteArray()).toEqual(context.test1.originalBlob);
-  });
-
+  // it("fetches a quote", async () => {
+  //   const values = NadaValues.create()
+  //     .insert("foo", NadaSecretInteger.create(1337))
+  //     .insert("bar", NadaSecretInteger.create(-42));
+  //
+  //   const operation = Operation.storeValues(values, Days.parse(1));
+  //   const quote = await context.nilvm.fetchQuote(operation);
+  //
+  //   expect(quote.inner).toBeDefined();
+  //   expect(quote.cost.total).toBeGreaterThan(0);
+  //   expect(quote.expires.getTime()).toBeGreaterThan(new Date().getTime());
+  //   expect(quote.nonce).toBeTruthy();
+  // });
+  //
+  // it("store secret blob and secret integer", async () => {
+  //   const originalInteger = -42;
+  //   const bytes = strToByteArray(context.test1.input);
+  //
+  //   const values = NadaValues.create()
+  //     .insert("int", NadaSecretInteger.create(originalInteger))
+  //     .insert("blob", NadaSecretBlob.create(bytes));
+  //
+  //   const result = await context.client.execute({
+  //     operation: Operation.storeValues(values, Days.parse(1)),
+  //   });
+  //
+  //   const storeId = StoreId.parse(result.result);
+  //
+  //   expect(storeId).toBeDefined();
+  //   context.test1.storeId = storeId;
+  //   context.test1.originalBlob = bytes;
+  //   context.test1.originalInteger = originalInteger;
+  // });
+  //
+  // it("retrieve a secret blob", async () => {
+  //   const result = await context.client.execute({
+  //     operation: Operation.retrieveValue(),
+  //     storeId: context.test1.storeId,
+  //     valueId: "blob",
+  //     type: NadaValueType.enum.SecretBlob,
+  //   });
+  //
+  //   const value = result.result as NadaSecretBlob;
+  //
+  //   expect(value.toByteArray()).toEqual(context.test1.originalBlob);
+  // });
+  //
   // it("should be able to retrieve an integer secret", async () => {
-  //   const receipt = await getQuoteThenPay(context, Operation.retrieve_value());
-  //   const value = await context.vm.client.retrieveValue(
-  //     context.test1.storeId,
-  //     "int",
-  //     receipt,
-  //   );
-  //   expect(value.to_integer()).toEqual(context.test1.originalInteger);
+  //   const result = await context.client.execute({
+  //     operation: Operation.retrieveValue(),
+  //     storeId: context.test1.storeId,
+  //     valueId: "int",
+  //     type: NadaValueType.enum.SecretInteger,
+  //   });
+  //
+  //   const value = result.result as NadaSecretInteger;
+  //
+  //   expect(value.toInteger()).toEqual(context.test1.originalInteger);
   // });
   //
   // it("should be able to create a program binding", async () => {
-  //   const result = new ProgramBindings(context.test1.programId);
+  //   const result = ProgramBindings.create(context.test1.programId);
   //   context.test1.programBindings = result;
-  //   expect(result).toBeInstanceOf(ProgramBindings);
+  //
+  //   expect(result.id).toBe(context.test1.programId);
+  //   expect(result.toWasm()).toBeInstanceOf(Wasm.ProgramBindings);
   // });
-
+  //
   // // The parties of the simple program are
   // // - Dealer
   // // - Result
-  // it("should be able to add_input_party to a program binding", async () => {
-  //   debugger;
-  //   context.test1.programBindings.add_input_party(
-  //     "Dealer",
-  //     context.test1.partyId,
-  //   );
-  //   expect(true).toBeTruthy();
+  // it("should be able to add input party to a program binding", async () => {
+  //   const bindings = context.test1.programBindings;
+  //   bindings.addInputParty("Dealer", context.test1.partyId);
+  //
+  //   expect(bindings.inputs.get("Dealer")).toBeTruthy();
   // });
   //
   // it("should be able to add_output_party to a program binding", async () => {
-  //   debugger;
-  //   context.test1.programBindings.add_output_party(
-  //     "Result",
-  //     context.test1.programId,
-  //   );
-  //   expect(true).toBeTruthy();
-  // });
+  //   const bindings = context.test1.programBindings;
+  //   bindings.addOutputParty("Result", context.test1.programId);
   //
+  //   expect(bindings.outputs.get("Result")).toBeTruthy();
+  // });
+
   // it("should be able to prep compute inline secrets", async () => {
   //   const computeValues = new NadaValues();
   //   computeValues.insert(

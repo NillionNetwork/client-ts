@@ -13,11 +13,11 @@
   "devDependencies": {
     "@cosmjs/proto-signing": "^0.32.3",
     "@cosmjs/stargate": "^0.32.3",
+    "@nillion/client-wasm": "@nillion/client-wasm",
     "@nillion/core": "file:../core",
     "@nillion/types": "file:../types",
     "@nillion/payments": "file:../payments",
     "@types/jasmine": "^5.1.4",
-    "babel-loader": "^9.1.3",
     "copy-webpack-plugin": "^12.0.2",
     "cosmjs-types": "^0.9.0",
     "express-http-proxy": "^2.0.0",

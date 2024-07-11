@@ -1,11 +1,17 @@
-import { Config, NilVmClient, NilVmClientArgs } from "@nillion/core";
+import {
+  Config,
+  NilVmClient,
+  NilVmClientArgs,
+  ProgramBindings,
+} from "@nillion/core";
 import fixtureConfig from "../src/fixture/local.json";
 import { initializeNillion } from "@nillion/core/src/init";
-import { PartyId, PrivateKeyBase16 } from "@nillion/types";
+import { PartyId, PrivateKeyBase16, ProgramId } from "@nillion/types";
 import { NilChainPaymentClient } from "@nillion/payments/src/client";
-import { createSignerFromKey } from "@nillion/payments";
+import { createSignerFromKey, NillionClient } from "@nillion/payments";
 
 export interface Context {
+  client: NillionClient;
   nilvm: NilVmClient;
   nilchain: NilChainPaymentClient;
   config: Config;
@@ -24,8 +30,8 @@ export interface Context {
     originalBlob: Uint8Array;
     originalInteger: number;
     partyId: PartyId;
-    // programBindings: ProgramBindings;
-    // programId: string;
+    programBindings: ProgramBindings;
+    programId: ProgramId;
     storeId: string;
   };
 }
@@ -47,8 +53,14 @@ export const loadFixtureContext = async (): Promise<Context> => {
     config.chainEndpoint,
     signer,
   );
+  const client = NillionClient.create(nilvm, nilchain);
+
+  const programId = ProgramId.parse(
+    `${fixtureConfig.programs_namespace}/simple`,
+  );
 
   return {
+    client,
     nilvm,
     nilchain,
     config,
@@ -69,8 +81,8 @@ export const loadFixtureContext = async (): Promise<Context> => {
       partyId: PartyId.parse(
         "12D3KooWGq5MCUuLARrwM95muvipNWy4MqmCk41g9k9JVth6AF6e",
       ),
-      // programBindings: new ProgramBindings(""),
-      // programId: `${fixtureConfig.programs_namespace}/simple`,
+      programBindings: ProgramBindings.create(programId),
+      programId,
       storeId: "",
     },
   };

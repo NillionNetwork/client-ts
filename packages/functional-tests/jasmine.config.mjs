@@ -10,7 +10,7 @@ export default {
   port: 9191,
   srcDir: "src",
   srcFiles: [],
-  specDir: "dist/spec",
+  specDir: "dist/test",
   specFiles: ["test.js"],
   helpers: ["helpers"],
   env: {
