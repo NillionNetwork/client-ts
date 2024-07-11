@@ -13,15 +13,15 @@ declare global {
   var __NILLION: NillionGlobal;
 }
 
-globalThis.__NILLION = globalThis.__NILLION || { initialized: false };
-
 export function initializationGuard(): void | never {
   if (!globalThis.__NILLION.initialized) {
     throw new Error("wasm type accessed before initialization");
   }
 }
 
-export async function initializeNillion(): Promise<void> {
+export async function init(): Promise<void> {
+  globalThis.__NILLION = globalThis.__NILLION || { initialized: false };
+
   if (globalThis.__NILLION.initialized) {
     Log("nillion init called more than once, ignoring subsequent calls");
     return;
