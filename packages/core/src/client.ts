@@ -6,6 +6,7 @@ import {
   PartyId,
   PaymentReceipt,
   PriceQuote,
+  ProgramId,
   StoreId,
 } from "@nillion/types";
 import { Operation, OperationType } from "./operation";
@@ -52,7 +53,7 @@ export class NilVmClient {
     });
   }
 
-  async execute(args: OperationExecuteArgs): Promise<unknown> {
+  async execute(args: OperationExecuteArgs): Promise<ExecuteResult> {
     switch (args.operation.type) {
       case OperationType.enum.StoreValues:
         return await this.storeValues(args);
@@ -106,6 +107,8 @@ export class NilVmClient {
     return new NilVmClient(args.clusterId, nilvm);
   }
 }
+
+export type ExecuteResult = NadaValue | StoreId | ProgramId;
 
 export type OperationExecuteArgs = {
   receipt: PaymentReceipt;

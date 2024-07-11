@@ -1,4 +1,4 @@
-import { NilVmClient, Operation } from "@nillion/core";
+import { ExecuteResult, NilVmClient, Operation } from "@nillion/core";
 import { PaymentReceipt } from "@nillion/types";
 import { NilChainPaymentClient } from "@nillion/payments/src/client";
 import { Log } from "@nillion/payments/src/logger";
@@ -10,7 +10,7 @@ export type FetchQuoteThenPayThenExecuteArgs = {
 export type FetchQuoteThenPayThenExecuteResult = {
   quote: unknown;
   receipt: PaymentReceipt;
-  result: unknown;
+  result: ExecuteResult;
 };
 
 export class NillionClient {
