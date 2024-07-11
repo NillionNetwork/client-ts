@@ -9,7 +9,7 @@ import {
   StoreId,
 } from "@nillion/types";
 import { Operation, OperationType } from "./operation";
-import { NadaValue, NadaValues, NadaValueType, toTypedNadaValue } from "./nada";
+import { NadaValue, NadaValueType } from "./nada";
 
 export type NilVmClientArgs = {
   bootnodes: Multiaddr[];
@@ -95,7 +95,7 @@ export class NilVmClient {
       wasmReceipt,
     );
 
-    return toTypedNadaValue(type, wasmNadaValue);
+    return NadaValue.fromWasm(type, wasmNadaValue);
   }
 
   static create(args: NilVmClientArgs): NilVmClient {

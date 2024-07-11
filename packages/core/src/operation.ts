@@ -34,7 +34,7 @@ export class Operation {
     return new Operation(OperationType.enum.StoreValues, values, ttl);
   }
 
-  static retrieveValues(): Operation {
+  static retrieveValue(): Operation {
     return new Operation(
       OperationType.enum.RetrieveValue,
       NadaValues.create(),

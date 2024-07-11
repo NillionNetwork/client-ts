@@ -1,81 +1,152 @@
-import { Log } from "../logger";
 import { z } from "zod";
 import * as Wasm from "@nillion/client-wasm";
 
-export const NadaValueType = z.enum(["SecretInteger", "SecretBlob"]);
+export const NadaValueType = z.enum([
+  "BlobSecret",
+  "BooleanSecret",
+  "IntegerPublic",
+  "IntegerPublicUnsigned",
+  "IntegerSecret",
+  "IntegerSecretUnsigned",
+]);
 export type NadaValueType = z.infer<typeof NadaValueType>;
 
-export interface NadaValue {
-  type: NadaValueType;
-  toWasm: () => Wasm.NadaValue;
-}
+export const BlobSecret = z.instanceof(Uint8Array).brand<"BlobSecret">();
+export type BlobSecret = z.infer<typeof BlobSecret>;
 
-export class NadaSecretInteger implements NadaValue {
-  public type = NadaValueType.enum.SecretInteger;
+export const BooleanSecret = z.boolean().brand<"BooleanSecret">();
+export type BooleanSecret = z.infer<typeof BooleanSecret>;
 
-  private constructor(public data: number) {}
+export const IntegerPublic = z.number().int().brand<"IntegerPublic">();
+export type IntegerPublic = z.infer<typeof IntegerPublic>;
 
-  toString(): string {
-    return `${this.constructor.name}(data=${this.data})`;
-  }
+export const IntegerPublicUnsigned = z
+  .number()
+  .int()
+  .nonnegative()
+  .brand<"IntegerPublicUnsigned">();
+export type IntegerPublicUnsigned = z.infer<typeof IntegerPublicUnsigned>;
 
-  toInteger(): number {
-    return this.data;
-  }
+export const IntegerSecret = z.number().int().brand<"IntegerSecret">();
+export type IntegerSecret = z.infer<typeof IntegerSecret>;
 
-  toWasm(): Wasm.NadaValue {
-    return Wasm.NadaValue.new_secret_integer(String(this.data));
-  }
+export const IntegerSecretUnsigned = z
+  .number()
+  .int()
+  .nonnegative()
+  .brand<"IntegerSecretUnsigned">();
+export type IntegerSecretUnsigned = z.infer<typeof IntegerSecretUnsigned>;
 
-  // TODO(tim): Does it need to be `number | string | bigint`?
-  static create(value: number): NadaSecretInteger {
-    return new NadaSecretInteger(value);
-  }
+export type NadaWrappedValue = Uint8Array | boolean | number;
 
-  // TODO(tim): need discriminator on the wasm object since all Wasm.NadaValue
-  //  have to_integer, to_byte_array, etc, but each is only valid on a specific
-  //  nada type
-  static from(data: Wasm.NadaValue): NadaSecretInteger {
-    return new NadaSecretInteger(Number(data.to_integer()));
-  }
-}
-
-export class NadaSecretBlob implements NadaValue {
-  public type = NadaValueType.enum.SecretBlob;
-
-  private constructor(public data: Uint8Array) {}
+export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
+  private constructor(
+    public type: NadaValueType,
+    public data: T,
+  ) {}
 
   toString(): string {
     return `${this.constructor.name}(data=${this.data})`;
   }
 
-  toByteArray(): Uint8Array {
-    return this.data;
-  }
-
   toWasm(): Wasm.NadaValue {
-    return Wasm.NadaValue.new_secret_blob(this.data);
+    switch (this.type) {
+      case NadaValueType.enum.BlobSecret:
+        return Wasm.NadaValue.new_secret_blob(this.data as Uint8Array);
+
+      case NadaValueType.enum.BooleanSecret:
+        throw "return Wasm.NadaValue.new_secret_boolean(this.data as boolean);";
+
+      case NadaValueType.enum.IntegerPublic:
+        return Wasm.NadaValue.new_public_integer(String(this.data));
+
+      case NadaValueType.enum.IntegerPublicUnsigned:
+        return Wasm.NadaValue.new_public_unsigned_integer(String(this.data));
+
+      case NadaValueType.enum.IntegerSecret:
+        return Wasm.NadaValue.new_secret_integer(String(this.data));
+
+      case NadaValueType.enum.IntegerSecretUnsigned:
+        return Wasm.NadaValue.new_secret_unsigned_integer(String(this.data));
+
+      default:
+        throw new Error(`Unsupported NadaValueType: ${this.type}`);
+    }
   }
 
-  static create(data: Uint8Array): NadaSecretBlob {
-    return new NadaSecretBlob(data);
+  static fromWasm(type: NadaValueType, wasm: Wasm.NadaValue): NadaValue {
+    switch (type) {
+      case NadaValueType.enum.BlobSecret:
+        return NadaValue.createBlobSecret(wasm.to_byte_array());
+
+      case NadaValueType.enum.BooleanSecret:
+        throw "return NadaValue.createBooleanSecret(wasm.xyz())";
+
+      case NadaValueType.enum.IntegerPublic:
+        return NadaValue.createIntegerPublic(wasm.to_integer());
+
+      case NadaValueType.enum.IntegerPublicUnsigned:
+        return NadaValue.createIntegerPublicUnsigned(wasm.to_integer());
+
+      case NadaValueType.enum.IntegerSecret:
+        return NadaValue.createIntegerSecret(wasm.to_integer());
+
+      case NadaValueType.enum.IntegerSecretUnsigned:
+        return NadaValue.createIntegerSecretUnsigned(wasm.to_integer());
+    }
   }
 
-  static from(value: Wasm.NadaValue): NadaSecretBlob {
-    return new NadaSecretBlob(value.to_byte_array());
+  static createBlobSecret(
+    data: BlobSecret | Uint8Array,
+  ): NadaValue<BlobSecret> {
+    return new NadaValue<BlobSecret>(
+      NadaValueType.enum.BlobSecret,
+      BlobSecret.parse(data),
+    );
+  }
+
+  static createBooleanSecret(
+    data: BooleanSecret | boolean,
+  ): NadaValue<BooleanSecret> {
+    return new NadaValue<BooleanSecret>(
+      NadaValueType.enum.BooleanSecret,
+      BooleanSecret.parse(data),
+    );
+  }
+
+  static createIntegerPublic(
+    data: IntegerPublic | number | string,
+  ): NadaValue<IntegerPublic> {
+    return new NadaValue<IntegerPublic>(
+      NadaValueType.enum.IntegerPublic,
+      IntegerPublic.parse(data),
+    );
+  }
+
+  static createIntegerPublicUnsigned(
+    data: IntegerPublicUnsigned | number | string,
+  ): NadaValue<IntegerPublicUnsigned> {
+    return new NadaValue<IntegerPublicUnsigned>(
+      NadaValueType.enum.IntegerPublicUnsigned,
+      IntegerPublicUnsigned.parse(data),
+    );
+  }
+
+  static createIntegerSecret(
+    data: IntegerSecret | number | string,
+  ): NadaValue<IntegerSecret> {
+    return new NadaValue<IntegerSecret>(
+      NadaValueType.enum.IntegerSecret,
+      IntegerSecret.parse(data),
+    );
+  }
+
+  static createIntegerSecretUnsigned(
+    data: IntegerSecretUnsigned | number | string,
+  ): NadaValue<IntegerSecretUnsigned> {
+    return new NadaValue<IntegerSecretUnsigned>(
+      NadaValueType.enum.IntegerSecretUnsigned,
+      IntegerSecretUnsigned.parse(data),
+    );
   }
 }
-
-export const toTypedNadaValue = <T extends NadaValue>(
-  type: NadaValueType,
-  value: Wasm.NadaValue,
-): T => {
-  switch (type) {
-    case NadaValueType.enum.SecretInteger:
-      return NadaSecretInteger.from(value) as unknown as T;
-    case NadaValueType.enum.SecretBlob:
-      return NadaSecretBlob.from(value) as unknown as T;
-    default:
-      throw `conversion not implemented for type ${type}`;
-  }
-};

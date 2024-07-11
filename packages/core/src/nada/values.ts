@@ -7,6 +7,10 @@ export class NadaValues {
 
   private constructor() {}
 
+  get length() {
+    return this.values.size;
+  }
+
   insert(name: string, value: NadaValue): NadaValues {
     Log(`insert ${name}=${value}`);
 
