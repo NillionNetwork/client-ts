@@ -12,8 +12,6 @@ import { NilVmClient, Operation } from "@nillion/core";
 import { NilChainPaymentClient } from "./client";
 
 export type FetchQuoteThenPayThenExecuteArgs = {
-  nilvm: NilVmClient;
-  nilchain: NilChainPaymentClient;
   operation: Operation;
 } & Record<string, unknown>;
 
@@ -23,26 +21,46 @@ export type FetchQuoteThenPayThenExecuteResult = {
   result: unknown;
 };
 
-export const fetchQuoteThenPayThenExecute = async (
-  args: FetchQuoteThenPayThenExecuteArgs,
-): Promise<FetchQuoteThenPayThenExecuteResult> => {
-  const { nilvm, nilchain, operation, ...rest } = args;
-  const quote = await nilvm.fetchQuote(operation);
-  const hash = await nilchain.pay(quote);
-  const receipt = PaymentReceipt.parse({ quote, hash, wasm: quote.inner });
+export class NillionClient {
+  private constructor(
+    private vm: NilVmClient,
+    private chain: NilChainPaymentClient,
+  ) {}
 
-  const result = await nilvm.execute({
-    operation,
-    receipt,
-    ...rest,
-  });
+  /**
+   * Fetches a quote, pays and then executes the operation
+   */
+  async execute(
+    args: FetchQuoteThenPayThenExecuteArgs,
+  ): Promise<FetchQuoteThenPayThenExecuteResult> {
+    const { operation, ...rest } = args;
+    const quote = await this.vm.fetchQuote(operation);
 
-  return {
-    quote,
-    receipt,
-    result,
-  };
-};
+    Log(`quote: ${quote.cost.total}unil for ${operation.type}`);
+
+    const hash = await this.chain.pay(quote);
+    const receipt = PaymentReceipt.parse({ quote, hash, wasm: quote.inner });
+
+    const result = await this.vm.execute({
+      operation,
+      receipt,
+      ...rest,
+    });
+
+    return {
+      quote,
+      receipt,
+      result,
+    };
+  }
+
+  static create(
+    nilVm: NilVmClient,
+    nilChain: NilChainPaymentClient,
+  ): NillionClient {
+    return new NillionClient(nilVm, nilChain);
+  }
+}
 
 // expected base16, 64 chars long
 export const createSignerFromKey = async (

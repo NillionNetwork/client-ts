@@ -20,6 +20,9 @@ export type NetworkName = z.infer<typeof NetworkName>;
 export const PartyId = z.string().length(52);
 export type PartyId = z.infer<typeof PartyId>;
 
+export const PartyName = z.string().length(1);
+export type PartyName = z.infer<typeof PartyName>;
+
 export const ClusterId = z.string().uuid().brand<"ClusterId">();
 export type ClusterId = z.infer<typeof ClusterId>;
 
@@ -33,7 +36,7 @@ export type Multiaddr = z.infer<typeof Multiaddr>;
 // NilVm related types
 //
 
-export const StoreId = z.string().uuid();
+export const StoreId = z.string().uuid().brand<"StoreId">();
 export type StoreId = z.infer<typeof StoreId>;
 
 // "namespace/friendly-name"
