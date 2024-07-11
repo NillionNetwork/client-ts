@@ -1,5 +1,4 @@
 import * as Wasm from "@nillion/client-wasm";
-import { Log } from "./logger";
 import { Days } from "@nillion/types";
 import { z } from "zod";
 import { NadaValues } from "./nada";
@@ -31,6 +30,9 @@ export class Operation {
   }
 
   static storeValues(values: NadaValues, ttl: Days): Operation {
+    if (values.length === 0) {
+      throw new Error("Cannot create an operation with no values");
+    }
     return new Operation(OperationType.enum.StoreValues, values, ttl);
   }
 
