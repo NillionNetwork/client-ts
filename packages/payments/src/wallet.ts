@@ -1,4 +1,13 @@
-import { Window as KeplrWindow, Keplr } from "@keplr-wallet/types";
+import { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
+import { DirectSecp256k1Wallet, OfflineSigner } from "@cosmjs/proto-signing";
+import {
+  ChainId,
+  NilChainAddressPrefix,
+  PrivateKeyBase16,
+  Url,
+} from "@nillion/core";
+import { Log } from "./logger";
+import { NilChainPaymentClient } from "./client";
 
 declare global {
   interface Window extends KeplrWindow {}
@@ -27,17 +36,7 @@ export const getKeplr = async (): Promise<Keplr | undefined> => {
     document.addEventListener("readystatechange", documentStateChange);
   });
 };
-import { DirectSecp256k1Wallet, OfflineSigner } from "@cosmjs/proto-signing";
-import {
-  ChainId,
-  NilChainAddressPrefix,
-  PrivateKeyBase16,
-  Url,
-} from "@nillion/types";
-import { Log } from "./logger";
-import { NilChainPaymentClient } from "./client";
 
-// expected base16, 64 chars long
 export const createSignerFromKey = async (
   key: PrivateKeyBase16,
 ): Promise<OfflineSigner> => {

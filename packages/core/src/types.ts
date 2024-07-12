@@ -14,7 +14,7 @@ export type Days = z.infer<typeof Days>;
 // Network related types
 //
 
-export const NetworkName = z.enum(["Gluon", "Devnet"]);
+export const NetworkName = z.enum(["Gluon", "Devnet", "TestFixture"]);
 export type NetworkName = z.infer<typeof NetworkName>;
 
 export const PartyId = z.string().length(52);

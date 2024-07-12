@@ -1,11 +1,5 @@
 import { z } from "zod";
-import {
-  ChainId,
-  ClusterId,
-  Multiaddr,
-  NetworkName,
-  Url,
-} from "@nillion/types";
+import { ChainId, ClusterId, Multiaddr, NetworkName, Url } from "./types";
 
 export const ConfigSchema = z.object({
   chainEndpoint: Url,
@@ -21,8 +15,16 @@ export type ConfigType = {
 };
 
 export const Config: ConfigType = {
+  [NetworkName.enum.TestFixture]: ConfigSchema.parse({
+    chainEndpoint: Url.parse("http://localhost:9191/nilchain"),
+    chainId: "nillion-chain-devnet",
+    clusterId: "e2c959ca-ecb2-45b0-8f2b-d91abbfa3708",
+    bootnodes: [
+      "/ip4/127.0.0.1/tcp/14211/ws/p2p/12D3KooWCAGu6gqDrkDWWcFnjsT9Y8rUzUH8buWjdFcU3TfWRmuN",
+    ],
+  }),
   [NetworkName.enum.Devnet]: ConfigSchema.parse({
-    chainEndpoint: Url.parse("http://127.0.0.1:48102"),
+    chainEndpoint: Url.parse("http://localhost:8080/nilchain"),
     chainId: "nillion-chain-testnet",
     clusterId: "9e68173f-9c23-4acc-ba81-4f079b639964",
     bootnodes: [

@@ -5,7 +5,7 @@ import {
   Token,
   TxHash,
   Url,
-} from "@nillion/types";
+} from "@nillion/core";
 import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import {
   GasPrice,

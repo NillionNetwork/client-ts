@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@nillion/client-wasm": "^0.1.0",
-    "@nillion/types": "file:../types",
     "debug": "^4.3.5",
     "zod": "^3.23.8"
   }

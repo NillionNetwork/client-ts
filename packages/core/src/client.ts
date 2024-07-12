@@ -2,15 +2,16 @@ import * as Wasm from "@nillion/client-wasm";
 import { Log } from "./logger";
 import {
   ClusterId,
+  ComputeResultId,
   Multiaddr,
   PartyId,
   PaymentReceipt,
   PriceQuote,
   ProgramId,
   StoreId,
-} from "@nillion/types";
+} from "./types";
 import { Operation, OperationType } from "./operation";
-import { NadaValue, NadaValueType } from "./nada";
+import { NadaValue, NadaValueType, Permissions } from "./nada";
 
 export type NilVmClientArgs = {
   bootnodes: Multiaddr[];
@@ -55,13 +56,37 @@ export class NilVmClient {
 
   async execute(args: OperationExecuteArgs): Promise<ExecuteResult> {
     switch (args.operation.type) {
+      case OperationType.enum.Compute:
+        return await this.compute(args as OperationArgsCompute);
+
       case OperationType.enum.StoreValues:
         return await this.storeValues(args);
+
       case OperationType.enum.RetrieveValue:
         return await this.retrieveValue(args as OperationArgsValueRetrieve);
+
       default:
         throw `Operation not implemented: ${args.operation.type}`;
     }
+  }
+
+  async compute(args: OperationArgsCompute): Promise<ComputeResultId> {
+    const { receipt, operation, storeIds } = args;
+    const { values, bindings } = operation;
+    const wasmReceipt = new Wasm.PaymentReceipt(
+      receipt.quote.inner as Wasm.PriceQuote,
+      receipt.hash,
+    );
+
+    const result = await this.client.compute(
+      this.clusterId,
+      bindings.toWasm(),
+      storeIds,
+      values.toWasm(),
+      wasmReceipt,
+    );
+
+    return ComputeResultId.parse(result);
   }
 
   async storeValues(args: OperationArgsValuesStore): Promise<StoreId> {
@@ -75,7 +100,7 @@ export class NilVmClient {
     const result = await this.client.store_values(
       this.clusterId,
       values,
-      permissions,
+      permissions?.toWasm(),
       wasmReceipt,
     );
 
@@ -108,7 +133,7 @@ export class NilVmClient {
   }
 }
 
-export type ExecuteResult = NadaValue | StoreId | ProgramId;
+export type ExecuteResult = NadaValue | StoreId | ProgramId | ComputeResultId;
 
 export type OperationExecuteArgs = {
   receipt: PaymentReceipt;
@@ -116,11 +141,15 @@ export type OperationExecuteArgs = {
 } & Record<string, unknown>;
 
 export type OperationArgsValuesStore = OperationExecuteArgs & {
-  permissions?: Wasm.Permissions;
+  permissions?: Permissions;
 };
 
 export type OperationArgsValueRetrieve = OperationExecuteArgs & {
   storeId: StoreId;
   valueId: string;
   type: NadaValueType;
+};
+
+export type OperationArgsCompute = OperationExecuteArgs & {
+  storeIds: StoreId[];
 };

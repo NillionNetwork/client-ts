@@ -1,5 +1,9 @@
-import { ExecuteResult, NilVmClient, Operation } from "@nillion/core";
-import { PaymentReceipt } from "@nillion/types";
+import {
+  ExecuteResult,
+  NilVmClient,
+  Operation,
+  PaymentReceipt,
+} from "@nillion/core";
 import { NilChainPaymentClient } from "@nillion/payments/src/client";
 import { Log } from "@nillion/payments/src/logger";
 
@@ -22,6 +26,7 @@ export class NillionClient {
   /**
    * Fetches a quote, pays and then executes the operation
    */
+  // TODO(tim): expose correct arg types for operation
   async execute(
     args: FetchQuoteThenPayThenExecuteArgs,
   ): Promise<FetchQuoteThenPayThenExecuteResult> {
