@@ -1,5 +1,5 @@
 import * as Wasm from "@nillion/client-wasm";
-import { PartyId, PartyName, ProgramId } from "@nillion/types";
+import { PartyId, PartyName, ProgramId } from "../types";
 import { Log } from "../logger";
 
 export class ProgramBindings {
@@ -9,20 +9,20 @@ export class ProgramBindings {
   private constructor(public id: ProgramId) {}
 
   addInputParty(name: PartyName, id: PartyId): ProgramBindings {
-    Log(`add input party name=${name} with id=${this.id}`);
+    Log(`add input party name=${name} with id=${id}`);
     if (this.inputs.has(name)) {
       Log(`input party exists, overwriting`);
     }
-    this.inputs.set(name, id).set(name, id);
+    this.inputs.set(name, id);
     return this;
   }
 
   addOutputParty(name: PartyName, id: PartyId): ProgramBindings {
-    Log(`add output party name=${name} with id=${this.id}`);
+    Log(`add output party name=${name} with id=${id}`);
     if (this.outputs.has(name)) {
       Log(`output party exists, overwriting`);
     }
-    this.outputs.set(name, id).set(name, id);
+    this.outputs.set(name, id);
     return this;
   }
 

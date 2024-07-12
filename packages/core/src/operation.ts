@@ -1,9 +1,13 @@
 import * as Wasm from "@nillion/client-wasm";
-import { Days } from "@nillion/types";
+import { Days } from "./types";
 import { z } from "zod";
-import { NadaValues } from "./nada";
+import { NadaValues, ProgramBindings } from "./nada";
 
-export const OperationType = z.enum(["StoreValues", "RetrieveValue"]);
+export const OperationType = z.enum([
+  "Compute",
+  "RetrieveValue",
+  "StoreValues",
+]);
 export type OperationType = z.infer<typeof OperationType>;
 
 export class Operation {
@@ -12,6 +16,7 @@ export class Operation {
     public type: OperationType,
     public values: NadaValues,
     public ttl: Days,
+    public bindings: ProgramBindings,
   ) {}
 
   toString(): string {
@@ -20,20 +25,39 @@ export class Operation {
 
   toWasm(): Wasm.Operation {
     switch (this.type) {
+      case OperationType.enum.Compute:
+        return Wasm.Operation.compute(this.bindings.id, this.values.toWasm());
+
       case OperationType.enum.StoreValues:
         return Wasm.Operation.store_values(this.values.toWasm(), this.ttl);
+
       case OperationType.enum.RetrieveValue:
         return Wasm.Operation.retrieve_value();
+
       default:
         throw `unsupported wasm conversion for OperationType: ${this.type}`;
     }
+  }
+
+  static compute(bindings: ProgramBindings, values: NadaValues): Operation {
+    return new Operation(
+      OperationType.enum.Compute,
+      values,
+      Days.parse(1),
+      bindings,
+    );
   }
 
   static storeValues(values: NadaValues, ttl: Days): Operation {
     if (values.length === 0) {
       throw new Error("Cannot create an operation with no values");
     }
-    return new Operation(OperationType.enum.StoreValues, values, ttl);
+    return new Operation(
+      OperationType.enum.StoreValues,
+      values,
+      ttl,
+      ProgramBindings.create("foo/bar"),
+    );
   }
 
   static retrieveValue(): Operation {
@@ -41,6 +65,7 @@ export class Operation {
       OperationType.enum.RetrieveValue,
       NadaValues.create(),
       Days.parse(1),
+      ProgramBindings.create("foo/bar"),
     );
   }
 }
