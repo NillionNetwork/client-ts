@@ -12,6 +12,7 @@
   "scripts": {
     "types-build-watch": "npm -w packages/types run build -- --watch",
     "core-build-watch": "npm -w packages/core run build -- --watch",
+    "client-build-watch": "npm -w packages/client run build -- --watch",
     "payments-build-watch": "npm -w packages/payments run build -- --watch",
     "functional-tests-build-watch": "npm -w packages/functional-tests run build -- --watch"
   },

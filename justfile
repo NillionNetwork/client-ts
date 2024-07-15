@@ -39,4 +39,10 @@ core-pack:
 
 all-build-watch:
     #!/usr/bin/env bash
-    npx concurrently -c "auto" "npm:core-build-watch" "npm:payments-build-watch" "npm:functional-tests-build-watch"
+    npx concurrently -c "auto" "npm:core-build-watch" "npm:payments-build-watch" "npm:client-build-watch" "npm:functional-tests-build-watch"
+
+all-clean:
+    #!/usr/bin/env bash
+    npm -w packages/core run clean
+    npm -w packages/payments run clean
+    npm -w packages/functional-tests run clean

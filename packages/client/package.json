@@ -1,0 +1,17 @@
+{
+  "name": "@nillion/clent",
+  "version": "0.1.0",
+  "type": "module",
+  "browser": "dist/index.js",
+  "types": "src/index.ts",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "node esbuild.config.mjs"
+  },
+  "dependencies": {
+    "@nillion/core": "file:../core",
+    "@nillion/payments": "file:../payments",
+    "debug": "^4.3.5",
+    "zod": "^3.23.8"
+  }
+}
