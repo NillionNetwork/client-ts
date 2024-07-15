@@ -8,7 +8,7 @@ import {
 import { createSignerFromKey, NilChainPaymentClient } from "@nillion/payments";
 import { NillionClient } from "@nillion/clent";
 
-export interface Context<T> {
+export interface ClientsAndConfig {
   client: NillionClient;
   clientVm: NilVmClient;
   clientChain: NilChainPaymentClient;
@@ -20,22 +20,9 @@ export interface Context<T> {
     paymentsRpcEndpoint: string;
     paymentsKey: string;
   };
-  env: T;
-  // {
-  //   resultId: ComputeResultId;
-  //   computeValuesStoreId: StoreId;
-  //   computeValues: NadaValues;
-  //   input: string;
-  //   originalBlob: Uint8Array;
-  //   originalInteger: number;
-  //   partyId: PartyId;
-  //   programBindings: ProgramBindings;
-  //   programId: ProgramId;
-  //   storeId: string;
-  // };
 }
 
-export const loadFixtureContext = async <T>(env: T): Promise<Context<T>> => {
+export const loadClientsAndConfig = async <T>(): Promise<ClientsAndConfig> => {
   const configNetwork = Config.TestFixture;
   const { bootnodes, clusterId, chainEndpoint } = configNetwork;
   const {
@@ -68,6 +55,5 @@ export const loadFixtureContext = async <T>(env: T): Promise<Context<T>> => {
       paymentsRpcEndpoint,
       programsNamespace,
     },
-    env,
   };
 };
