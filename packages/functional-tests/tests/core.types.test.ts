@@ -1,6 +1,7 @@
 import {
   BlobSecret,
   BooleanSecret,
+  init,
   IntegerPublic,
   IntegerPublicUnsigned,
   IntegerSecret,
@@ -10,14 +11,19 @@ import {
   NadaWrappedValue,
   ProgramBindings,
 } from "@nillion/core";
+import { strToByteArray } from "../helpers";
 import * as Wasm from "@nillion/client-wasm";
 
-import { initializeNillion } from "@nillion/core";
-import { strToByteArray } from "../helpers";
+const SUITE_NAME = "@nillion/core > nada types";
 
-describe("types", () => {
+describe(SUITE_NAME, () => {
   beforeAll(async () => {
-    await initializeNillion();
+    console.log(`>>> Start ${SUITE_NAME}`);
+    await init();
+  });
+
+  afterAll(() => {
+    console.log(`<<< Finish ${SUITE_NAME}\n\n`);
   });
 
   describe("primitive type guards", () => {
@@ -126,7 +132,7 @@ describe("types", () => {
     it("empty set", async () => {
       const secrets = NadaValues.create();
 
-      const asWasm = secrets.toWasm();
+      const asWasm = secrets.into();
       expect(secrets.length).toHaveSize(0);
       expect(asWasm).toBeInstanceOf(Wasm.NadaValues);
       expect(asWasm.length).toHaveSize(0);
@@ -137,7 +143,7 @@ describe("types", () => {
       secrets.insert("one", NadaValue.createIntegerSecret(1337));
       secrets.insert("two", NadaValue.createIntegerSecret(1337));
 
-      const asWasm = secrets.toWasm();
+      const asWasm = secrets.into();
       expect(secrets).toHaveSize(2);
       expect(asWasm).toBeInstanceOf(Wasm.NadaValues);
       expect(asWasm).toHaveSize(2);
@@ -146,7 +152,7 @@ describe("types", () => {
   describe("program bindings", () => {
     it("create a program binding", async () => {
       const program = ProgramBindings.create("aaaa/simple");
-      const asWasm = program.toWasm();
+      const asWasm = program.into();
       expect(asWasm).toBeInstanceOf(Wasm.ProgramBindings);
     });
   });

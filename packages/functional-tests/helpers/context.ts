@@ -1,89 +1,73 @@
+import fixtureConfig from "../src/fixture/local.json";
 import {
   Config,
   NilVmClient,
   NilVmClientArgs,
-  ProgramBindings,
+  PrivateKeyBase16,
 } from "@nillion/core";
-import fixtureConfig from "../src/fixture/local.json";
-import { initializeNillion } from "@nillion/core/src/init";
-import { PartyId, PrivateKeyBase16, ProgramId } from "@nillion/types";
-import { NilChainPaymentClient } from "@nillion/payments/src/client";
-import { createSignerFromKey, NillionClient } from "@nillion/payments";
+import { createSignerFromKey, NilChainPaymentClient } from "@nillion/payments";
+import { NillionClient } from "@nillion/clent";
 
-export interface Context {
+export interface Context<T> {
   client: NillionClient;
-  nilvm: NilVmClient;
-  nilchain: NilChainPaymentClient;
-  config: Config;
-  fixtureConfig: {
+  clientVm: NilVmClient;
+  clientChain: NilChainPaymentClient;
+  configNetwork: Config;
+  configFixture: {
     bootnodes: string[];
     clusterId: string;
     programsNamespace: string;
     paymentsRpcEndpoint: string;
     paymentsKey: string;
   };
-  test1: {
-    // computeId: ResultId;
-    // computeStoreValuesId: string;
-    // computeValues: NadaValues;
-    input: string;
-    originalBlob: Uint8Array;
-    originalInteger: number;
-    partyId: PartyId;
-    programBindings: ProgramBindings;
-    programId: ProgramId;
-    storeId: string;
-  };
+  env: T;
+  // {
+  //   resultId: ComputeResultId;
+  //   computeValuesStoreId: StoreId;
+  //   computeValues: NadaValues;
+  //   input: string;
+  //   originalBlob: Uint8Array;
+  //   originalInteger: number;
+  //   partyId: PartyId;
+  //   programBindings: ProgramBindings;
+  //   programId: ProgramId;
+  //   storeId: string;
+  // };
 }
 
-export const loadFixtureContext = async (): Promise<Context> => {
-  await initializeNillion();
+export const loadFixtureContext = async <T>(env: T): Promise<Context<T>> => {
+  const configNetwork = Config.TestFixture;
+  const { bootnodes, clusterId, chainEndpoint } = configNetwork;
+  const {
+    payments_key: paymentsKey,
+    payments_rpc_endpoint: paymentsRpcEndpoint,
+    programs_namespace: programsNamespace,
+  } = fixtureConfig;
 
-  const config = Config.Devnet;
   const args: NilVmClientArgs = {
-    bootnodes: config.bootnodes,
-    clusterId: config.clusterId,
+    bootnodes: configNetwork.bootnodes,
+    clusterId: configNetwork.clusterId,
     userSeed: "nillion-testnet-seed-1",
     nodeSeed: "nillion-testnet-seed-1",
   };
-  const nilvm = NilVmClient.create(args);
+  const clientVm = NilVmClient.create(args);
   const key = PrivateKeyBase16.parse(fixtureConfig.payments_key);
   const signer = await createSignerFromKey(key);
-  const nilchain = await NilChainPaymentClient.create(
-    config.chainEndpoint,
-    signer,
-  );
-  const client = NillionClient.create(nilvm, nilchain);
-
-  const programId = ProgramId.parse(
-    `${fixtureConfig.programs_namespace}/simple`,
-  );
+  const clientChain = await NilChainPaymentClient.create(chainEndpoint, signer);
+  const client = NillionClient.create(clientVm, clientChain);
 
   return {
     client,
-    nilvm,
-    nilchain,
-    config,
-    fixtureConfig: {
-      bootnodes: fixtureConfig.bootnodes,
-      clusterId: fixtureConfig.cluster_id,
-      paymentsKey: fixtureConfig.payments_key,
-      paymentsRpcEndpoint: fixtureConfig.payments_rpc_endpoint,
-      programsNamespace: fixtureConfig.programs_namespace,
+    clientVm,
+    clientChain,
+    configNetwork,
+    configFixture: {
+      bootnodes,
+      clusterId,
+      paymentsKey,
+      paymentsRpcEndpoint,
+      programsNamespace,
     },
-    test1: {
-      // computeId: "" as ResultId,
-      // computeStoreValuesId: "",
-      // computeValues: new NadaValues(),
-      input: "this is a test",
-      originalBlob: new Uint8Array(),
-      originalInteger: 0,
-      partyId: PartyId.parse(
-        "12D3KooWGq5MCUuLARrwM95muvipNWy4MqmCk41g9k9JVth6AF6e",
-      ),
-      programBindings: ProgramBindings.create(programId),
-      programId,
-      storeId: "",
-    },
+    env,
   };
 };

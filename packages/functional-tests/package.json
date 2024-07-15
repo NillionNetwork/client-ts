@@ -5,7 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "workspace:prepare": "./prepare-workspace.py",
+    "clean": "rm -rf dist",
     "build": "npx webpack --config webpack.config.mjs",
     "test": "npx jasmine-browser-runner runSpecs --config=jasmine.config.mjs",
     "serve": "npx jasmine-browser-runner serve --config=jasmine.config.mjs"
@@ -13,9 +13,10 @@
   "devDependencies": {
     "@cosmjs/proto-signing": "^0.32.3",
     "@cosmjs/stargate": "^0.32.3",
-    "@nillion/client-wasm": "@nillion/client-wasm",
+    "@nillion/client-wasm": "0.1.0",
     "@nillion/core": "file:../core",
     "@nillion/payments": "file:../payments",
+    "@nillion/client": "file:../client",
     "@types/jasmine": "^5.1.4",
     "copy-webpack-plugin": "^12.0.2",
     "cosmjs-types": "^0.9.0",
