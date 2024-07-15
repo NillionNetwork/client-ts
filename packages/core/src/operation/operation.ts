@@ -27,14 +27,16 @@ import {
   ClusterDescriptorRetrieve,
   ClusterDescriptorRetrieveArgs,
 } from "./cluster";
-import { PriceQuoteRequest, PriceQuoteRequestArgs } from "./quote";
 import { ProgramStore, ProgramStoreArgs } from "./program";
+
+export interface Operation {
+  type: OperationType;
+}
 
 export const OperationType = z.enum([
   // non-paid
   "ClusterInfoRetrieve",
   "ComputeRetrieveResult",
-  "PriceQuoteRequest",
   "ValuesDelete",
 
   // paid
@@ -48,6 +50,11 @@ export const OperationType = z.enum([
 ]);
 export type OperationType = z.infer<typeof OperationType>;
 
+export const isPaidOperation = ({ type }: Operation) =>
+  type === OperationType.enum.ClusterInfoRetrieve ||
+  type === OperationType.enum.ComputeRetrieveResult ||
+  type === OperationType.enum.ValuesDelete;
+
 export type ExecuteOperationArgs = {
   vm: NilVmClient;
   chain: {
@@ -55,24 +62,22 @@ export type ExecuteOperationArgs = {
   };
 };
 
-export abstract class Operation {
+export const Operation = {
   // non-paid
-  static clusterDescriptorRetrieve = (args: ClusterDescriptorRetrieveArgs) =>
-    new ClusterDescriptorRetrieve(args);
-  static computeRetrieveResult = (args: ComputeRetrieveResultsArgs) =>
-    new ComputeRetrieveResult(args);
-  static priceQuoteRequest = (args: PriceQuoteRequestArgs) =>
-    new PriceQuoteRequest(args);
-  static valuesDelete = (args: ValuesDeleteArgs) => new ValuesDelete(args);
+  clusterDescriptorRetrieve: (args: ClusterDescriptorRetrieveArgs) =>
+    new ClusterDescriptorRetrieve(args),
+  computeRetrieveResult: (args: ComputeRetrieveResultsArgs) =>
+    new ComputeRetrieveResult(args),
+  valuesDelete: (args: ValuesDeleteArgs) => new ValuesDelete(args),
 
   // paid
-  static compute = (args: ComputeArgs) => new Compute(args);
-  static permissionsRetrieve = (args: PermissionsRetrieveArgs) =>
-    new PermissionsRetrieve(args);
-  static permissionsUpdate = (args: PermissionsUpdateArgs) =>
-    new PermissionsUpdate(args);
-  static programStore = (args: ProgramStoreArgs) => new ProgramStore(args);
-  static valueRetrieve = (args: ValueRetrieveArgs) => new ValueRetrieve(args);
-  static valuesStore = (args: ValuesStoreArgs) => new ValuesStore(args);
-  static valuesUpdate = (args: ValuesUpdateArgs) => new ValuesUpdate(args);
-}
+  compute: (args: ComputeArgs) => new Compute(args),
+  permissionsRetrieve: (args: PermissionsRetrieveArgs) =>
+    new PermissionsRetrieve(args),
+  permissionsUpdate: (args: PermissionsUpdateArgs) =>
+    new PermissionsUpdate(args),
+  programStore: (args: ProgramStoreArgs) => new ProgramStore(args),
+  valueRetrieve: (args: ValueRetrieveArgs) => new ValueRetrieve(args),
+  valuesStore: (args: ValuesStoreArgs) => new ValuesStore(args),
+  valuesUpdate: (args: ValuesUpdateArgs) => new ValuesUpdate(args),
+};

@@ -1,10 +1,12 @@
-import { ExecuteOperationArgs } from "./operation";
+import { ExecuteOperationArgs, Operation, OperationType } from "./operation";
 
 export type ClusterDescriptorRetrieveArgs = {
   program: Uint8Array;
 };
 
-export class ClusterDescriptorRetrieve {
+export class ClusterDescriptorRetrieve implements Operation {
+  type = OperationType.enum.ClusterInfoRetrieve;
+
   constructor(private args: ClusterDescriptorRetrieveArgs) {}
 
   toString(): string {

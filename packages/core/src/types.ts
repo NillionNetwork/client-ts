@@ -27,6 +27,9 @@ export type UserId = z.infer<typeof UserId>;
 export const PartyName = z.string().min(1).brand<"PartyName">();
 export type PartyName = z.infer<typeof PartyName>;
 
+export const ProgramName = z.string().min(1).brand<"ProgramName">();
+export type ProgramName = z.infer<typeof ProgramName>;
+
 export const ClusterId = z.string().uuid().brand<"ClusterId">();
 export type ClusterId = z.infer<typeof ClusterId>;
 
@@ -50,11 +53,14 @@ export type Multiaddr = z.infer<typeof Multiaddr>;
 // NilVm related types
 //
 
+export const ActionId = z.string().uuid().brand<"ActionId">();
+export type ActionId = z.infer<typeof ActionId>;
+
 export const StoreId = z.string().uuid().brand<"StoreId">();
 export type StoreId = z.infer<typeof StoreId>;
 
-export const ValueId = z.string().min(1).brand<"ValueId">();
-export type ValueId = z.infer<typeof ValueId>;
+export const ValueName = z.string().min(1).brand<"ValueName">();
+export type ValueName = z.infer<typeof ValueName>;
 
 // "namespace/friendly-name"
 export const ProgramId = z
@@ -99,37 +105,24 @@ export type TxHash = z.infer<typeof TxHash>;
 
 export const OperationCost = z
   .object({
-    base_fee: z.preprocess(Number, z.number()),
-    compute_fee: z.preprocess(Number, z.number()),
-    congestion_fee: z.preprocess(Number, z.number()),
-    preprocessing_fee: z.preprocess(Number, z.number()),
-    storage_fee: z.preprocess(Number, z.number()),
-    total: z.preprocess(Number, z.number()),
+    base: z.number(),
+    compute: z.number(),
+    congestion: z.number(),
+    preprocessing: z.number(),
+    storage: z.number(),
+    total: z.number(),
   })
-  .transform((data) => ({
-    base: data.base_fee,
-    compute: data.compute_fee,
-    congestion: data.congestion_fee,
-    preprocessing: data.preprocessing_fee,
-    storage: data.storage_fee,
-    total: data.total,
-  }))
   .brand<"OperationCost">();
 
 export type OperationCost = z.infer<typeof OperationCost>;
 
 export const PriceQuote = z
   .object({
-    expires_at: z.date(),
+    expires: z.date(),
     nonce: z.instanceof(Uint8Array),
     cost: OperationCost,
+    inner: z.custom<Wasm.PriceQuote>(),
   })
-  .transform((data) => ({
-    expires: data.expires_at,
-    nonce: data.nonce,
-    cost: data.cost,
-    inner: data as unknown as Wasm.PriceQuote,
-  }))
   .brand<"PriceQuote">();
 export type PriceQuote = z.infer<typeof PriceQuote>;
 
@@ -138,9 +131,5 @@ export const PaymentReceipt = z
     quote: PriceQuote,
     hash: TxHash,
   })
-  .transform((data) => ({
-    ...data,
-    into: () => new Wasm.PaymentReceipt(data.quote.inner, data.hash),
-  }))
   .brand<"PaymentReceipt">();
 export type PaymentReceipt = z.infer<typeof PaymentReceipt>;

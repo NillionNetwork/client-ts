@@ -1,13 +1,17 @@
 import { IntoWasmQuotableOperation } from "../wasm";
 import * as Wasm from "@nillion/client-wasm";
-import { ExecuteOperationArgs } from "./operation";
+import { ExecuteOperationArgs, Operation, OperationType } from "./operation";
+import { ProgramName } from "../types";
 
 export type ProgramStoreArgs = {
   program: Uint8Array;
+  name: ProgramName;
 };
 
-export class ProgramStore implements IntoWasmQuotableOperation {
-  constructor(private args: ProgramStoreArgs) {}
+export class ProgramStore implements Operation, IntoWasmQuotableOperation {
+  type = OperationType.enum.ProgramStore;
+
+  constructor(public args: ProgramStoreArgs) {}
 
   intoQuotable(): Wasm.Operation {
     return Wasm.Operation.store_program(this.args.program);

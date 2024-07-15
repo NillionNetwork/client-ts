@@ -1,11 +1,18 @@
 import { IntoWasmQuotableOperation } from "../wasm";
 import * as Wasm from "@nillion/client-wasm";
-import { ExecuteOperationArgs } from "./operation";
+import { ExecuteOperationArgs, Operation, OperationType } from "./operation";
+import { StoreId } from "../types";
+import { Permissions } from "../nada";
 
-export type PermissionsUpdateArgs = {};
+export type PermissionsUpdateArgs = {
+  id: StoreId;
+  permissions: Permissions;
+};
 
-export class PermissionsUpdate implements IntoWasmQuotableOperation {
-  constructor(private args: PermissionsUpdateArgs) {}
+export class PermissionsUpdate implements Operation, IntoWasmQuotableOperation {
+  type = OperationType.enum.PermissionsUpdate;
+
+  constructor(public args: PermissionsUpdateArgs) {}
 
   intoQuotable(): Wasm.Operation {
     return Wasm.Operation.update_permissions();
@@ -20,10 +27,16 @@ export class PermissionsUpdate implements IntoWasmQuotableOperation {
   }
 }
 
-export type PermissionsRetrieveArgs = {};
+export type PermissionsRetrieveArgs = {
+  id: StoreId;
+};
 
-export class PermissionsRetrieve implements IntoWasmQuotableOperation {
-  constructor(private args: PermissionsRetrieveArgs) {}
+export class PermissionsRetrieve
+  implements Operation, IntoWasmQuotableOperation
+{
+  type = OperationType.enum.PermissionsRetrieve;
+
+  constructor(public args: PermissionsRetrieveArgs) {}
 
   intoQuotable(): Wasm.Operation {
     return Wasm.Operation.retrieve_permissions();

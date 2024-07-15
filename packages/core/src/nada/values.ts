@@ -2,6 +2,7 @@ import * as Wasm from "@nillion/client-wasm";
 import { Log } from "../logger";
 import { IntoWasm } from "../wasm";
 import { NadaValue } from "./value";
+import { ValueName } from "../types";
 
 export class NadaValues implements IntoWasm<Wasm.NadaValues> {
   private values: Map<string, NadaValue> = new Map();
@@ -12,7 +13,7 @@ export class NadaValues implements IntoWasm<Wasm.NadaValues> {
     return this.values.size;
   }
 
-  insert(name: string, value: NadaValue): NadaValues {
+  insert(name: ValueName, value: NadaValue): NadaValues {
     Log(`insert ${name}=${value}`);
 
     if (this.values.get(name)) {
@@ -24,8 +25,9 @@ export class NadaValues implements IntoWasm<Wasm.NadaValues> {
   }
 
   toString(): string {
-    const values = JSON.stringify(this.values);
-    return `NadaValues(${values})`;
+    const values = Array.from(this.values);
+    const stringified = values.map(([key, value]) => `${key}=${value}`);
+    return `NadaValues([${stringified}])`;
   }
 
   into(): Wasm.NadaValues {

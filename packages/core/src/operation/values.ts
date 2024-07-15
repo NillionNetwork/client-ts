@@ -1,15 +1,18 @@
+import { ExecuteOperationArgs, Operation, OperationType } from "./operation";
 import { IntoWasmQuotableOperation } from "../wasm";
-import { Days, StoreId, ValueId } from "../types";
+import { Days, StoreId, ValueName } from "../types";
+import { NadaValue, NadaValues, NadaValueType, Permissions } from "../nada";
 import * as Wasm from "@nillion/client-wasm";
-import { NadaValue, NadaValues, Permissions } from "../nada";
-import { ExecuteOperationArgs } from "./operation";
 
 export type ValueRetrieveArgs = {
-  storeId: StoreId;
-  valueId: ValueId;
+  id: StoreId;
+  name: ValueName;
+  type: NadaValueType;
 };
 
-export class ValueRetrieve implements IntoWasmQuotableOperation {
+export class ValueRetrieve implements Operation, IntoWasmQuotableOperation {
+  type = OperationType.enum.ValueRetrieve;
+
   constructor(public args: ValueRetrieveArgs) {}
 
   intoQuotable(): Wasm.Operation {
@@ -26,11 +29,13 @@ export class ValueRetrieve implements IntoWasmQuotableOperation {
 }
 
 export type ValuesDeleteArgs = {
-  storeId: StoreId;
+  id: StoreId;
 };
 
 export class ValuesDelete {
-  constructor(private args: ValuesDeleteArgs) {}
+  type = OperationType.enum.ValuesDelete;
+
+  constructor(public args: ValuesDeleteArgs) {}
 
   toString(): string {
     return `Operation(type="ValuesDelete")`;
@@ -47,8 +52,10 @@ export type ValuesStoreArgs = {
   permissions?: Permissions;
 };
 
-export class ValuesStore implements IntoWasmQuotableOperation {
-  constructor(private args: ValuesStoreArgs) {}
+export class ValuesStore implements Operation, IntoWasmQuotableOperation {
+  type = OperationType.enum.ValuesStore;
+
+  constructor(public args: ValuesStoreArgs) {}
 
   intoQuotable(): Wasm.Operation {
     return Wasm.Operation.store_values(this.args.values.into(), this.args.ttl);
@@ -64,12 +71,15 @@ export class ValuesStore implements IntoWasmQuotableOperation {
 }
 
 export type ValuesUpdateArgs = {
+  id: StoreId;
   values: NadaValues;
   ttl: Days;
 };
 
-export class ValuesUpdate implements IntoWasmQuotableOperation {
-  constructor(private args: ValuesUpdateArgs) {}
+export class ValuesUpdate implements Operation, IntoWasmQuotableOperation {
+  type = OperationType.enum.ValuesUpdate;
+
+  constructor(public args: ValuesUpdateArgs) {}
 
   intoQuotable(): Wasm.Operation {
     return Wasm.Operation.update_values(this.args.values.into(), this.args.ttl);

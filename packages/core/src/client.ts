@@ -1,5 +1,6 @@
 import * as Wasm from "@nillion/client-wasm";
 import {
+  ActionId,
   ClusterDescriptor,
   ClusterId,
   ComputeResultId,
@@ -8,17 +9,24 @@ import {
   PaymentReceipt,
   PriceQuote,
   ProgramId,
+  ProgramName,
   StoreId,
   UserId,
-  ValueId,
+  ValueName,
 } from "./types";
 import { Log } from "./logger";
 import { Result } from "./result";
-import { IntoWasm, IntoWasmQuotableOperation } from "./wasm";
+import {
+  IntoWasm,
+  IntoWasmQuotableOperation,
+  paymentReceiptInto,
+  priceQuoteFrom,
+} from "./wasm";
 import {
   NadaValue,
   NadaValues,
   NadaValueType,
+  NadaWrappedValue,
   Permissions,
   ProgramBindings,
 } from "./nada";
@@ -57,19 +65,13 @@ export class NilVmClient {
   }
 
   async computeResultRetrieve(
-    resultId: ComputeResultId,
-  ): Promise<Result<NadaValue>> {
+    id: ComputeResultId,
+  ): Promise<Result<Map<string, NadaWrappedValue>>> {
     try {
-      const response = await this.client.compute_result(
-        // this.clusterId, TODO(tim): why does it not have cluster id as a param?
-        resultId,
-      );
-      const result = NadaValue.fromWasm(
-        NadaValueType.enum.IntegerSecret,
-        response,
-      );
-      Log(`retrieved compute result for id=${result} value=${result}`);
-      return Result.Ok(result);
+      // TODO(tim): why does it not have cluster id as a param?
+      const response = await this.client.compute_result(id);
+      Log(`retrieved compute result for id=${id} value=${response}`);
+      return Result.Ok(response);
     } catch (e) {
       return Result.Err(e as Error);
     }
@@ -83,7 +85,7 @@ export class NilVmClient {
         this.clusterId,
         operation.intoQuotable(),
       );
-      const result = PriceQuote.parse(response);
+      const result = priceQuoteFrom(response);
       Log(`quote ${result.cost.total} unil for ${operation.toString()}`);
       return Result.Ok(result);
     } catch (e) {
@@ -95,20 +97,20 @@ export class NilVmClient {
   async valueRetrieve(
     receipt: PaymentReceipt,
     storeId: StoreId,
-    valueId: ValueId,
+    valueId: ValueName,
+    type: NadaValueType,
   ): Promise<Result<NadaValue>> {
     try {
       const response = await this.client.retrieve_value(
         this.clusterId,
         storeId,
         valueId,
-        receipt.into(),
+        paymentReceiptInto(receipt),
       );
-      const result = NadaValue.fromWasm(
-        NadaValueType.enum.IntegerSecret,
-        response,
-      );
-      Log("NilVmClient::valueRetrieve payload: ", result);
+
+      const result = NadaValue.fromWasm(type, response);
+
+      Log(`trying to retrieve type=${type} got: `, result);
       return Result.Ok(result);
     } catch (e) {
       console.error(e);
@@ -119,17 +121,18 @@ export class NilVmClient {
   async permissionsRetrieve(
     receipt: PaymentReceipt,
     storeId: StoreId,
-  ): Promise<Result<Permissions>> {
+  ): Promise<Result<Wasm.Permissions>> {
     try {
       const response = await this.client.retrieve_permissions(
         this.clusterId,
         storeId,
-        receipt.into(),
+        paymentReceiptInto(receipt),
       );
 
-      const result = Permissions.fromWasm(response);
-      Log(`retrieved permissions for store=${storeId} acl=${result}`);
-      return Result.Ok(result);
+      // TODO(tim): permissions needs to be converted wasm side
+      // const result = Permissions.from(response);
+      Log(`retrieved permissions for store=${storeId} acl=${response}`);
+      return Result.Ok(response);
     } catch (e) {
       console.error(e);
       return Result.Err(e as Error);
@@ -146,7 +149,7 @@ export class NilVmClient {
         this.clusterId,
         storeId,
         permissions.into(),
-        receipt.into(),
+        paymentReceiptInto(receipt),
       );
 
       const result = response; // action id?
@@ -170,7 +173,7 @@ export class NilVmClient {
         bindings.into(),
         storeIds,
         values.into(),
-        receipt.into(),
+        paymentReceiptInto(receipt),
       );
 
       const result = ComputeResultId.parse(response);
@@ -184,7 +187,7 @@ export class NilVmClient {
 
   async programStore(
     receipt: PaymentReceipt,
-    name: string,
+    name: ProgramName,
     program: Uint8Array,
   ): Promise<Result<ProgramId>> {
     try {
@@ -192,7 +195,7 @@ export class NilVmClient {
         this.clusterId,
         name,
         program,
-        receipt.into(),
+        paymentReceiptInto(receipt),
       );
       const id = ProgramId.parse(response);
       Log(`program stored with id=${id}`);
@@ -203,11 +206,11 @@ export class NilVmClient {
     }
   }
 
-  async valueDelete(storeId: StoreId): Promise<Result<undefined>> {
+  async valueDelete(id: StoreId): Promise<Result<StoreId>> {
     try {
-      await this.client.delete_values(this.clusterId, storeId);
-      Log(`deleted value at store id=${storeId}`);
-      return Result.Ok(undefined);
+      await this.client.delete_values(this.clusterId, id);
+      Log(`deleted value at store id=${id}`);
+      return Result.Ok(id);
     } catch (e) {
       console.error(e);
       return Result.Err(e as Error);
@@ -218,16 +221,16 @@ export class NilVmClient {
     receipt: PaymentReceipt,
     storeId: StoreId,
     values: NadaValues,
-  ): Promise<Result<StoreId>> {
+  ): Promise<Result<ActionId>> {
     try {
       const response = await this.client.update_values(
         this.clusterId,
         storeId,
         values.into(),
-        receipt.into(),
+        paymentReceiptInto(receipt),
       );
-      const result = StoreId.parse(response);
-      Log(`updated values at ${storeId}, new store id=${result}`);
+      const result = ActionId.parse(response);
+      Log(`updated store id=${storeId}, action id=${result}`);
       return Result.Ok(result);
     } catch (e) {
       console.error(e);
@@ -245,10 +248,10 @@ export class NilVmClient {
         this.clusterId,
         values.into(),
         permissions?.into(),
-        receipt.into(),
+        paymentReceiptInto(receipt),
       );
       const result = StoreId.parse(response);
-      Log("NilVmClient::valuesStore payload: ", result);
+      Log(`${values} stored id=${result}`);
       return Result.Ok(result);
     } catch (e) {
       console.error(e);

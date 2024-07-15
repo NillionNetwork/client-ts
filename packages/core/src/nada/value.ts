@@ -37,7 +37,7 @@ export const IntegerSecretUnsigned = z
   .brand<"IntegerSecretUnsigned">();
 export type IntegerSecretUnsigned = z.infer<typeof IntegerSecretUnsigned>;
 
-export type NadaWrappedValue = Uint8Array | boolean | number;
+export type NadaWrappedValue = Uint8Array | boolean | number | bigint;
 
 export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
   private constructor(
@@ -46,7 +46,7 @@ export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
   ) {}
 
   toString(): string {
-    return `${this.constructor.name}(data=${this.data})`;
+    return `NadaValue(type=${this.type},data=${this.data})`;
   }
 
   toWasm(): Wasm.NadaValue {

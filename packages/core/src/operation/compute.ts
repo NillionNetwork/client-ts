@@ -1,19 +1,25 @@
 import { IntoWasmQuotableOperation } from "../wasm";
 import * as Wasm from "@nillion/client-wasm";
-import { ExecuteOperationArgs } from "./operation";
-import { ProgramId } from "../types";
-import { NadaValues } from "../nada";
+import { ExecuteOperationArgs, Operation, OperationType } from "./operation";
+import { ComputeResultId, StoreId } from "../types";
+import { NadaValues, NadaValueType, ProgramBindings } from "../nada";
 
 export type ComputeArgs = {
-  programId: ProgramId;
+  bindings: ProgramBindings;
   values: NadaValues;
+  storeIds: StoreId[];
 };
 
-export class Compute implements IntoWasmQuotableOperation {
-  constructor(private args: ComputeArgs) {}
+export class Compute implements Operation, IntoWasmQuotableOperation {
+  type = OperationType.enum.Compute;
+
+  constructor(public args: ComputeArgs) {}
 
   intoQuotable(): Wasm.Operation {
-    return Wasm.Operation.compute(this.args.programId, this.args.values.into());
+    return Wasm.Operation.compute(
+      this.args.bindings.id,
+      this.args.values.into(),
+    );
   }
 
   toString(): string {
@@ -26,12 +32,13 @@ export class Compute implements IntoWasmQuotableOperation {
 }
 
 export type ComputeRetrieveResultsArgs = {
-  programId: ProgramId;
-  values: NadaValues;
+  id: ComputeResultId;
 };
 
 export class ComputeRetrieveResult {
-  constructor(private args: ComputeRetrieveResultsArgs) {}
+  type = OperationType.enum.ComputeRetrieveResult;
+
+  constructor(public args: ComputeRetrieveResultsArgs) {}
 
   toString(): string {
     return `Operation(type="ComputeRetrieveResult")`;

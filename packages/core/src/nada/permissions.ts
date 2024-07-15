@@ -16,10 +16,6 @@ export class Permissions {
 
   private constructor() {}
 
-  into(): Wasm.Permissions {
-    throw "not done";
-  }
-
   allowCompute(users: UserId | UserId[], program: ProgramId): Permissions {
     const listOfUsers = Array.isArray(users) ? users : [users];
     for (const user of listOfUsers) {
@@ -83,6 +79,26 @@ export class Permissions {
     return this.updateAcl.has(user);
   }
 
+  into(): Wasm.Permissions {
+    const wasm = new Wasm.Permissions();
+    wasm.add_update_permissions(Array.from(this.updateAcl));
+    wasm.add_delete_permissions(Array.from(this.deleteAcl));
+    wasm.add_retrieve_permissions(Array.from(this.retrieveAcl));
+
+    const computeAcl: Map<UserId, ProgramId[]> = new Map();
+    this.computeAcl.forEach((programs, user) => {
+      computeAcl.set(user, Array.from(programs));
+    });
+
+    wasm.add_compute_permissions(computeAcl);
+    return wasm;
+  }
+
+  static from(wasm: Wasm.Permissions): Permissions {
+    // wasm type doesn't appear to expose actual permission map like we see on the cli
+    throw "not implemented";
+  }
+
   static create(): Permissions {
     return new Permissions();
   }
@@ -92,9 +108,5 @@ export class Permissions {
       .allowRetrieve(user)
       .allowUpdate(user)
       .allowDelete(user);
-  }
-
-  static fromWasm(_wasm: Wasm.Permissions): Permissions {
-    throw "permission from wasm";
   }
 }
