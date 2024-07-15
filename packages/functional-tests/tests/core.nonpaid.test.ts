@@ -7,7 +7,12 @@ import {
   NilVmClient,
   NilVmClientArgs,
   Operation,
+  Permissions,
+  ProgramBindings,
   ProgramId,
+  ProgramName,
+  StoreId,
+  ValueName,
 } from "@nillion/core";
 import fixtureConfig from "../src/fixture/local.json";
 import { loadProgram } from "../helpers";
@@ -59,11 +64,12 @@ describe(SUITE_NAME, () => {
     );
 
     const args = {
-      programId,
+      bindings: ProgramBindings.create(programId),
       values: NadaValues.create().insert(
-        "foo",
+        ValueName.parse("foo"),
         NadaValue.createIntegerSecret(1),
       ),
+      storeIds: [],
     };
     const operation = Operation.compute(args);
     const result = await client.priceQuoteRequest(operation);
@@ -72,7 +78,9 @@ describe(SUITE_NAME, () => {
   });
 
   it("can get quote for permissions retrieve", async () => {
-    const args = {};
+    const args = {
+      id: StoreId.parse("db0835de-ad48-437d-9b2d-3a58efe809f6"),
+    };
     const operation = Operation.permissionsRetrieve(args);
     const result = await client.priceQuoteRequest(operation);
     const quote = result.unwrap();
@@ -80,7 +88,10 @@ describe(SUITE_NAME, () => {
   });
 
   it("can get quote for permissions update", async () => {
-    const args = {};
+    const args = {
+      id: StoreId.parse("db0835de-ad48-437d-9b2d-3a58efe809f6"),
+      permissions: Permissions.create(),
+    };
     const operation = Operation.permissionsUpdate(args);
     const result = await client.priceQuoteRequest(operation);
     const quote = result.unwrap();
@@ -89,7 +100,7 @@ describe(SUITE_NAME, () => {
 
   it("can get quote for program store", async () => {
     const program = await loadProgram("addition_division.nada.bin");
-    const args = { program };
+    const args = { program, name: ProgramName.parse("foo") };
     const operation = Operation.programStore(args);
     const result = await client.priceQuoteRequest(operation);
     const quote = result.unwrap();
@@ -99,7 +110,7 @@ describe(SUITE_NAME, () => {
   it("can get quote for values store", async () => {
     const args = {
       values: NadaValues.create().insert(
-        "foo",
+        ValueName.parse("foo"),
         NadaValue.createIntegerSecret(3),
       ),
       ttl: Days.parse(1),
@@ -112,8 +123,9 @@ describe(SUITE_NAME, () => {
 
   it("can get quote for values update", async () => {
     const args = {
+      id: StoreId.parse("db0835de-ad48-437d-9b2d-3a58efe809f6"),
       values: NadaValues.create().insert(
-        "foo",
+        ValueName.parse("foo"),
         NadaValue.createIntegerSecret(3),
       ),
       ttl: Days.parse(1),

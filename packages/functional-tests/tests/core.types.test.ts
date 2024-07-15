@@ -10,6 +10,7 @@ import {
   NadaValues,
   NadaWrappedValue,
   ProgramBindings,
+  ValueName,
 } from "@nillion/core";
 import { strToByteArray } from "../helpers";
 import * as Wasm from "@nillion/client-wasm";
@@ -140,8 +141,14 @@ describe(SUITE_NAME, () => {
 
     it("build a set of secrets", async () => {
       const secrets = NadaValues.create();
-      secrets.insert("one", NadaValue.createIntegerSecret(1337));
-      secrets.insert("two", NadaValue.createIntegerSecret(1337));
+      secrets.insert(
+        ValueName.parse("one"),
+        NadaValue.createIntegerSecret(1337),
+      );
+      secrets.insert(
+        ValueName.parse("two"),
+        NadaValue.createIntegerSecret(1337),
+      );
 
       const asWasm = secrets.into();
       expect(secrets).toHaveSize(2);
