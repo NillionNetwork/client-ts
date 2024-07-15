@@ -1,6 +1,6 @@
 import * as Wasm from "@nillion/client-wasm";
-import { Log } from "./logger";
 import {
+  ClusterDescriptor,
   ClusterId,
   ComputeResultId,
   Multiaddr,
@@ -9,9 +9,19 @@ import {
   PriceQuote,
   ProgramId,
   StoreId,
+  UserId,
+  ValueId,
 } from "./types";
-import { Operation, OperationType } from "./operation";
-import { NadaValue, NadaValueType, Permissions } from "./nada";
+import { Log } from "./logger";
+import { Result } from "./result";
+import { IntoWasm, IntoWasmQuotableOperation } from "./wasm";
+import {
+  NadaValue,
+  NadaValues,
+  NadaValueType,
+  Permissions,
+  ProgramBindings,
+} from "./nada";
 
 export type NilVmClientArgs = {
   bootnodes: Multiaddr[];
@@ -27,101 +37,223 @@ export class NilVmClient {
     public client: Wasm.NillionClient,
   ) {}
 
-  public get partyId(): PartyId {
-    return this.client.party_id;
+  get partyId(): PartyId {
+    return PartyId.parse(this.client.party_id);
   }
 
-  async fetchQuote(operation: Operation): Promise<PriceQuote> {
-    Log(`fetch quote for: ${operation.toString()}`);
-    const wasmOperation = operation.toWasm();
-
-    const quote = await this.client.request_price_quote(
-      this.clusterId,
-      wasmOperation,
-    );
-
-    return PriceQuote.parse({
-      expires: quote.expires_at,
-      nonce: quote.nonce,
-      cost: {
-        base: quote.cost.base_fee,
-        compute: quote.cost.compute_fee,
-        congestion: quote.cost.congestion_fee,
-        preprocessing: quote.cost.preprocessing_fee,
-        total: quote.cost.total,
-      },
-      inner: quote,
-    });
+  get userId(): UserId {
+    return UserId.parse(this.client.user_id);
   }
 
-  async execute(args: OperationExecuteArgs): Promise<ExecuteResult> {
-    switch (args.operation.type) {
-      case OperationType.enum.Compute:
-        return await this.compute(args as OperationArgsCompute);
-
-      case OperationType.enum.StoreValues:
-        return await this.storeValues(args);
-
-      case OperationType.enum.RetrieveValue:
-        return await this.retrieveValue(args as OperationArgsValueRetrieve);
-
-      default:
-        throw `Operation not implemented: ${args.operation.type}`;
+  async clusterInfoRetrieve(): Promise<Result<ClusterDescriptor>> {
+    try {
+      const response = await this.client.cluster_information(this.clusterId);
+      const parsed = ClusterDescriptor.parse(response);
+      Log("NilVmClient::clusterInfoRetrieve payload: ", parsed);
+      return Result.Ok(parsed);
+    } catch (e) {
+      return Result.Err(e as Error);
     }
   }
 
-  async compute(args: OperationArgsCompute): Promise<ComputeResultId> {
-    const { receipt, operation, storeIds } = args;
-    const { values, bindings } = operation;
-    const wasmReceipt = new Wasm.PaymentReceipt(
-      receipt.quote.inner as Wasm.PriceQuote,
-      receipt.hash,
-    );
-
-    const result = await this.client.compute(
-      this.clusterId,
-      bindings.toWasm(),
-      storeIds,
-      values.toWasm(),
-      wasmReceipt,
-    );
-
-    return ComputeResultId.parse(result);
+  async computeResultRetrieve(
+    resultId: ComputeResultId,
+  ): Promise<Result<NadaValue>> {
+    try {
+      const response = await this.client.compute_result(
+        // this.clusterId, TODO(tim): why does it not have cluster id as a param?
+        resultId,
+      );
+      const result = NadaValue.fromWasm(
+        NadaValueType.enum.IntegerSecret,
+        response,
+      );
+      Log(`retrieved compute result for id=${result} value=${result}`);
+      return Result.Ok(result);
+    } catch (e) {
+      return Result.Err(e as Error);
+    }
   }
 
-  async storeValues(args: OperationArgsValuesStore): Promise<StoreId> {
-    const { receipt, operation, permissions } = args;
-    const values = operation.values.toWasm();
-    const wasmReceipt = new Wasm.PaymentReceipt(
-      receipt.quote.inner as Wasm.PriceQuote,
-      receipt.hash,
-    );
-
-    const result = await this.client.store_values(
-      this.clusterId,
-      values,
-      permissions?.toWasm(),
-      wasmReceipt,
-    );
-
-    return StoreId.parse(result);
+  async priceQuoteRequest(
+    operation: IntoWasmQuotableOperation,
+  ): Promise<Result<PriceQuote>> {
+    try {
+      const response = await this.client.request_price_quote(
+        this.clusterId,
+        operation.intoQuotable(),
+      );
+      const result = PriceQuote.parse(response);
+      Log(`quote ${result.cost.total} unil for ${operation.toString()}`);
+      return Result.Ok(result);
+    } catch (e) {
+      console.error(e);
+      return Result.Err(e as Error);
+    }
   }
 
-  async retrieveValue(args: OperationArgsValueRetrieve): Promise<NadaValue> {
-    const { receipt, storeId, valueId, type } = args;
-    const wasmReceipt = new Wasm.PaymentReceipt(
-      receipt.quote.inner as Wasm.PriceQuote,
-      receipt.hash,
-    );
+  async valueRetrieve(
+    receipt: PaymentReceipt,
+    storeId: StoreId,
+    valueId: ValueId,
+  ): Promise<Result<NadaValue>> {
+    try {
+      const response = await this.client.retrieve_value(
+        this.clusterId,
+        storeId,
+        valueId,
+        receipt.into(),
+      );
+      const result = NadaValue.fromWasm(
+        NadaValueType.enum.IntegerSecret,
+        response,
+      );
+      Log("NilVmClient::valueRetrieve payload: ", result);
+      return Result.Ok(result);
+    } catch (e) {
+      console.error(e);
+      return Result.Err(e as Error);
+    }
+  }
 
-    const wasmNadaValue = await this.client.retrieve_value(
-      this.clusterId,
-      storeId,
-      valueId,
-      wasmReceipt,
-    );
+  async permissionsRetrieve(
+    receipt: PaymentReceipt,
+    storeId: StoreId,
+  ): Promise<Result<Permissions>> {
+    try {
+      const response = await this.client.retrieve_permissions(
+        this.clusterId,
+        storeId,
+        receipt.into(),
+      );
 
-    return NadaValue.fromWasm(type, wasmNadaValue);
+      const result = Permissions.fromWasm(response);
+      Log(`retrieved permissions for store=${storeId} acl=${result}`);
+      return Result.Ok(result);
+    } catch (e) {
+      console.error(e);
+      return Result.Err(e as Error);
+    }
+  }
+
+  async permissionsUpdate(
+    receipt: PaymentReceipt,
+    storeId: StoreId,
+    permissions: Permissions,
+  ): Promise<Result<string>> {
+    try {
+      const response = await this.client.update_permissions(
+        this.clusterId,
+        storeId,
+        permissions.into(),
+        receipt.into(),
+      );
+
+      const result = response; // action id?
+      Log(`updated permissions for store=${storeId} to action=${result}`);
+      return Result.Ok(result);
+    } catch (e) {
+      console.error(e);
+      return Result.Err(e as Error);
+    }
+  }
+
+  async compute(
+    receipt: PaymentReceipt,
+    bindings: ProgramBindings,
+    storeIds: StoreId[],
+    values: NadaValues,
+  ): Promise<Result<string>> {
+    try {
+      const response = await this.client.compute(
+        this.clusterId,
+        bindings.into(),
+        storeIds,
+        values.into(),
+        receipt.into(),
+      );
+
+      const result = ComputeResultId.parse(response);
+      Log(`compute started resultId=${result}`);
+      return Result.Ok(result);
+    } catch (e) {
+      console.error(e);
+      return Result.Err(e as Error);
+    }
+  }
+
+  async programStore(
+    receipt: PaymentReceipt,
+    name: string,
+    program: Uint8Array,
+  ): Promise<Result<ProgramId>> {
+    try {
+      const response = await this.client.store_program(
+        this.clusterId,
+        name,
+        program,
+        receipt.into(),
+      );
+      const id = ProgramId.parse(response);
+      Log(`program stored with id=${id}`);
+      return Result.Ok(id);
+    } catch (e) {
+      console.error(e);
+      return Result.Err(e as Error);
+    }
+  }
+
+  async valueDelete(storeId: StoreId): Promise<Result<undefined>> {
+    try {
+      await this.client.delete_values(this.clusterId, storeId);
+      Log(`deleted value at store id=${storeId}`);
+      return Result.Ok(undefined);
+    } catch (e) {
+      console.error(e);
+      return Result.Err(e as Error);
+    }
+  }
+
+  async valuesUpdate(
+    receipt: PaymentReceipt,
+    storeId: StoreId,
+    values: NadaValues,
+  ): Promise<Result<StoreId>> {
+    try {
+      const response = await this.client.update_values(
+        this.clusterId,
+        storeId,
+        values.into(),
+        receipt.into(),
+      );
+      const result = StoreId.parse(response);
+      Log(`updated values at ${storeId}, new store id=${result}`);
+      return Result.Ok(result);
+    } catch (e) {
+      console.error(e);
+      return Result.Err(e as Error);
+    }
+  }
+
+  async valuesStore(
+    receipt: PaymentReceipt,
+    values: IntoWasm<Wasm.NadaValues>,
+    permissions?: IntoWasm<Wasm.Permissions>,
+  ): Promise<Result<StoreId>> {
+    try {
+      const response = await this.client.store_values(
+        this.clusterId,
+        values.into(),
+        permissions?.into(),
+        receipt.into(),
+      );
+      const result = StoreId.parse(response);
+      Log("NilVmClient::valuesStore payload: ", result);
+      return Result.Ok(result);
+    } catch (e) {
+      console.error(e);
+      return Result.Err(e as Error);
+    }
   }
 
   static create(args: NilVmClientArgs): NilVmClient {
@@ -132,24 +264,3 @@ export class NilVmClient {
     return new NilVmClient(args.clusterId, nilvm);
   }
 }
-
-export type ExecuteResult = NadaValue | StoreId | ProgramId | ComputeResultId;
-
-export type OperationExecuteArgs = {
-  receipt: PaymentReceipt;
-  operation: Operation;
-} & Record<string, unknown>;
-
-export type OperationArgsValuesStore = OperationExecuteArgs & {
-  permissions?: Permissions;
-};
-
-export type OperationArgsValueRetrieve = OperationExecuteArgs & {
-  storeId: StoreId;
-  valueId: string;
-  type: NadaValueType;
-};
-
-export type OperationArgsCompute = OperationExecuteArgs & {
-  storeIds: StoreId[];
-};

@@ -1,4 +1,4 @@
-import { PartyId, ProgramId } from "../types";
+import { ProgramId, UserId } from "../types";
 import * as Wasm from "@nillion/client-wasm";
 
 export type UserPermissions = {
@@ -9,14 +9,18 @@ export type UserPermissions = {
 };
 
 export class Permissions {
-  private computeAcl = new Map<PartyId, Set<ProgramId>>();
-  private deleteAcl = new Set<PartyId>();
-  private retrieveAcl = new Set<PartyId>();
-  private updateAcl = new Set<PartyId>();
+  computeAcl = new Map<UserId, Set<ProgramId>>();
+  deleteAcl = new Set<UserId>();
+  retrieveAcl = new Set<UserId>();
+  updateAcl = new Set<UserId>();
 
   private constructor() {}
 
-  allowCompute(users: PartyId | PartyId[], program: ProgramId): Permissions {
+  into(): Wasm.Permissions {
+    throw "not done";
+  }
+
+  allowCompute(users: UserId | UserId[], program: ProgramId): Permissions {
     const listOfUsers = Array.isArray(users) ? users : [users];
     for (const user of listOfUsers) {
       const programs = this.computeAcl.get(user) ?? new Set();
@@ -26,7 +30,7 @@ export class Permissions {
     return this;
   }
 
-  allowDelete(users: PartyId | PartyId[]): Permissions {
+  allowDelete(users: UserId | UserId[]): Permissions {
     if (Array.isArray(users)) {
       users.forEach(this.deleteAcl.add);
     } else {
@@ -35,7 +39,7 @@ export class Permissions {
     return this;
   }
 
-  allowRetrieve(users: PartyId | PartyId[]): Permissions {
+  allowRetrieve(users: UserId | UserId[]): Permissions {
     if (Array.isArray(users)) {
       users.forEach(this.retrieveAcl.add);
     } else {
@@ -44,7 +48,7 @@ export class Permissions {
     return this;
   }
 
-  allowUpdate(users: PartyId | PartyId[]): Permissions {
+  allowUpdate(users: UserId | UserId[]): Permissions {
     if (Array.isArray(users)) {
       users.forEach(this.updateAcl.add);
     } else {
@@ -53,7 +57,7 @@ export class Permissions {
     return this;
   }
 
-  getPermissionsByUser(user: PartyId): UserPermissions {
+  getPermissionsByUser(user: UserId): UserPermissions {
     return {
       compute: this.computeAcl.has(user),
       delete: this.deleteAcl.has(user),
@@ -62,47 +66,35 @@ export class Permissions {
     };
   }
 
-  isComputeAllowed(user: PartyId, program: ProgramId): boolean {
+  isComputeAllowed(user: UserId, program: ProgramId): boolean {
     const permissions = this.computeAcl.get(user);
     return permissions ? permissions.has(program) : false;
   }
 
-  isDeleteAllowed(user: PartyId): boolean {
+  isDeleteAllowed(user: UserId): boolean {
     return this.deleteAcl.has(user);
   }
 
-  isRetrieveAllowed(user: PartyId): boolean {
+  isRetrieveAllowed(user: UserId): boolean {
     return this.retrieveAcl.has(user);
   }
 
-  isUpdateAllowed(user: PartyId): boolean {
+  isUpdateAllowed(user: UserId): boolean {
     return this.updateAcl.has(user);
-  }
-
-  toWasm(): Wasm.Permissions {
-    const asWasm = new Wasm.Permissions();
-
-    asWasm.add_delete_permissions(Array.from(this.deleteAcl));
-    asWasm.add_update_permissions(Array.from(this.updateAcl));
-    asWasm.add_retrieve_permissions(Array.from(this.retrieveAcl));
-
-    const computePermissions = new Map<PartyId, ProgramId[]>();
-    this.computeAcl.forEach((programs, user) =>
-      computePermissions.set(user, Array.from(programs)),
-    );
-    asWasm.add_compute_permissions(computePermissions);
-
-    return asWasm;
   }
 
   static create(): Permissions {
     return new Permissions();
   }
 
-  static createDefaultForUser(user: PartyId): Permissions {
+  static createDefaultForUser(user: UserId): Permissions {
     return new Permissions()
       .allowRetrieve(user)
       .allowUpdate(user)
       .allowDelete(user);
+  }
+
+  static fromWasm(_wasm: Wasm.Permissions): Permissions {
+    throw "permission from wasm";
   }
 }

@@ -1,8 +1,9 @@
-import { Log } from "../logger";
-import { NadaValue } from "./value";
 import * as Wasm from "@nillion/client-wasm";
+import { Log } from "../logger";
+import { IntoWasm } from "../wasm";
+import { NadaValue } from "./value";
 
-export class NadaValues {
+export class NadaValues implements IntoWasm<Wasm.NadaValues> {
   private values: Map<string, NadaValue> = new Map();
 
   private constructor() {}
@@ -27,7 +28,7 @@ export class NadaValues {
     return `NadaValues(${values})`;
   }
 
-  toWasm(): Wasm.NadaValues {
+  into(): Wasm.NadaValues {
     const wasmValues = new Wasm.NadaValues();
     for (const [key, value] of this.values) {
       const wasmValue = value.toWasm();

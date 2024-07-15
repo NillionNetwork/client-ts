@@ -26,7 +26,7 @@ export class ProgramBindings {
     return this;
   }
 
-  toWasm(): Wasm.ProgramBindings {
+  into(): Wasm.ProgramBindings {
     if (this.inputs.size === 0 && this.outputs.size === 0) {
       Log("program has no inputs our outputs");
     }
