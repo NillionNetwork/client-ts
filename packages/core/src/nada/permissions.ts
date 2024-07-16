@@ -1,5 +1,6 @@
 import { ProgramId, UserId } from "../types";
 import * as Wasm from "@nillion/wasm";
+import { Log } from "../logger";
 
 export type UserPermissions = {
   delete: boolean;
@@ -95,8 +96,8 @@ export class Permissions {
   }
 
   static from(_wasm: Wasm.Permissions): Permissions {
-    // wasm type doesn't appear to expose actual permission map like we see on the cli
-    throw "not implemented";
+    Log("Converting Wasm.Permissions into native permissions not supported.");
+    return Permissions.create();
   }
 
   static create(): Permissions {

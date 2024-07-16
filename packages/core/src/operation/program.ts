@@ -4,8 +4,8 @@ import { ExecuteOperationArgs, Operation, OperationType } from "./operation";
 import { ProgramName } from "../types";
 
 export type ProgramStoreArgs = {
-  program: Uint8Array;
   name: ProgramName;
+  program: Uint8Array;
 };
 
 export class ProgramStore implements Operation, IntoWasmQuotableOperation {

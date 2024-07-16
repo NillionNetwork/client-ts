@@ -1,13 +1,10 @@
 import {
-  ActionId,
-  ComputeResultId,
   Days,
   init,
   NadaValue,
   NadaValues,
   NadaValueType,
   NilVmClient,
-  Operation,
   Permissions,
   ProgramBindings,
   ProgramId,
@@ -31,19 +28,17 @@ describe(SUITE_NAME, () => {
   let context: ClientsAndConfig;
 
   beforeAll(async () => {
-    console.log("starting @nillion/client test suite");
+    console.log(`>>> Start ${SUITE_NAME}`);
     await init();
 
-    // @ts-expect-error override as we need to build the correct structure through tests
-    context = await loadClientsAndConfig<TestData>();
-
+    context = await loadClientsAndConfig();
     expect(context.client).toBeInstanceOf(NillionClient);
     expect(context.clientVm).toBeInstanceOf(NilVmClient);
     expect(context.clientChain).toBeInstanceOf(NilChainPaymentClient);
   });
 
   afterAll(() => {
-    console.log("finished @nillion/client test suite");
+    console.log(`<<< Finish ${SUITE_NAME}\n\n`);
   });
 
   it("can fetch cluster information", async () => {
@@ -55,28 +50,27 @@ describe(SUITE_NAME, () => {
   testTypes.forEach((test: TestType) => {
     describe(test.type, () => {
       const { name, type, value } = test;
-      it("store", async () => {
+      it("store value", async () => {
         const { client } = context;
         const values = NadaValues.create().insert(name, value);
 
-        const { result: id } = await client.execute<StoreId>({
-          operation: Operation.valuesStore({ values, ttl: Days.parse(1) }),
+        const { data } = await client.storeValues({
+          values,
         });
-        test.id = id;
-        expect(id).toBeDefined();
+        test.id = data;
+        expect(data).toBeDefined();
       });
 
-      it("retrieve", async () => {
+      it("fetch value", async () => {
         const { client } = context;
-        const { result } = await client.execute<NadaValue>({
-          operation: Operation.valueRetrieve({
-            id: test.id,
-            name,
-            type,
-          }),
+
+        const result = await client.fetchValue({
+          id: test.id,
+          name,
+          type,
         });
 
-        let actual: unknown = result.data;
+        let actual = result.data;
         let expected: unknown = test.value.data;
 
         if (actual instanceof Uint8Array) {
@@ -86,30 +80,25 @@ describe(SUITE_NAME, () => {
         expect(expected).toEqual(actual);
       });
 
-      it("update", async () => {
+      it("update value", async () => {
         const { client } = context;
-
-        const { result: actionId } = await client.execute<ActionId>({
-          operation: Operation.valuesUpdate({
-            id: test.id,
-            values: NadaValues.create().insert(name, test.nextValue),
-            ttl: Days.parse(1),
-          }),
+        const { data } = await client.updateValue({
+          id: test.id,
+          values: NadaValues.create().insert(name, test.nextValue),
+          ttl: Days.parse(1),
         });
-        expect(actionId).toBeDefined();
+        expect(data).toBeDefined();
       });
 
-      it("retrieve", async () => {
+      it("retrieve after update", async () => {
         const { client } = context;
-        const { result } = await client.execute<NadaValue>({
-          operation: Operation.valueRetrieve({
-            id: test.id,
-            name,
-            type: test.type,
-          }),
+        const result = await client.fetchValue({
+          id: test.id,
+          name,
+          type,
         });
 
-        let actual: unknown = result.data;
+        let actual = result.data;
         let expected: unknown = test.nextValue.data;
 
         if (actual instanceof Uint8Array) {
@@ -121,32 +110,21 @@ describe(SUITE_NAME, () => {
 
       it("delete", async () => {
         const { client } = context;
-        const { result } = await client.execute<StoreId>({
-          operation: Operation.valuesDelete({
-            id: test.id,
-          }),
-        });
-
+        const result = await client.deleteValues({ id: test.id });
         expect(result).toEqual(test.id);
       });
 
       it("should fail to retrieve deleted value", async () => {
         try {
-          const { client } = context;
-          await client.execute<NadaValue>({
-            operation: Operation.valueRetrieve({
-              id: test.id,
-              name,
-              type,
-            }),
+          await context.client.fetchValue({
+            id: test.id,
+            name,
+            type,
           });
-          // should never be reached
-          expect(true).toBeFalse();
-
+          expect(true).toBeFalse(); // should never be reached
           // @ts-expect-error to avoid verbose type checking in test
         } catch (e: Error) {
-          const message = e.message;
-          expect(message).toContain("values not found");
+          expect(e.message).toContain("values not found");
         }
       });
     });
@@ -157,67 +135,53 @@ describe(SUITE_NAME, () => {
     const type = NadaValueType.enum.IntegerSecret;
     const value = NadaValue.createIntegerSecret(42);
     const values = NadaValues.create().insert(name, value);
-    let permissions = Permissions.create();
-    let operation = Operation.valuesStore({
-      values,
-      ttl: Days.parse(1),
-    });
     let id = "" as StoreId;
 
-    beforeAll(async () => {
-      permissions = Permissions.createDefaultForUser(context.clientVm.userId);
-      operation = Operation.valuesStore({
+    it("can store access controlled values", async () => {
+      const { client, clientVm } = context;
+      const { data } = await client.storeValues({
         values,
-        ttl: Days.parse(1),
-        permissions,
+        permissions: Permissions.createDefaultForUser(clientVm.userId),
       });
+      expect(data).toBeDefined();
+      id = data;
     });
 
-    it("can store access controlled values ", async () => {
-      const { result } = await context.client.execute<StoreId>({
-        operation,
-      });
-      expect(result).toBeDefined();
-      id = result;
-    });
-
-    it("can retrieve access controlled value when authorized", async () => {
-      const operation = Operation.valueRetrieve({
+    it("can fetch value when authorized", async () => {
+      const { client } = context;
+      const { data } = await client.fetchValue<number>({
         id,
         name,
         type,
       });
-      const { result } = await context.client.execute<NadaValue<number>>({
-        operation,
-      });
-      expect(result).toBeDefined();
-      expect(result.data).toBe(value.data);
+
+      expect(data).toBeDefined();
+      expect(data).toBe(value.data);
     });
 
-    it("can retrieve a store id's permissions", async () => {
-      const operation = Operation.permissionsRetrieve({ id });
-      const { result } = await context.client.execute({
-        operation,
+    it("can retrieve permissions", async () => {
+      const { client } = context;
+      const { data } = await client.fetchPermissions({
+        id,
       });
-
-      expect(result).toBeDefined();
+      expect(data).toBeDefined();
     });
 
     it("can update permissions", async () => {
+      const { client } = context;
       const permissions = Permissions.create();
-      const operation = Operation.permissionsUpdate({ id, permissions });
-      const { result } = await context.client.execute({
-        operation,
+      const { data } = await client.setPermissions({
+        id,
+        permissions,
       });
 
-      expect(result).toBeDefined();
+      expect(data).toBeDefined();
     });
 
-    it("cannot retrieve value when not authorized", async () => {
-      const operation = Operation.permissionsRetrieve({ id });
+    it("value fetch rejected when not authorized", async () => {
       try {
-        await context.client.execute({
-          operation,
+        await context.client.fetchPermissions({
+          id,
         });
         // should never be reached
         expect(true).toBeFalse();
@@ -235,14 +199,12 @@ describe(SUITE_NAME, () => {
       const { client } = context;
       const program = await loadProgram("addition_division.nada.bin");
 
-      const { result } = await client.execute<ProgramId>({
-        operation: Operation.programStore({
-          program,
-          name: ProgramName.parse("addition_division"),
-        }),
+      const { data } = await client.storeProgram({
+        program,
+        name: ProgramName.parse("addition_division"),
       });
 
-      expect(result).toBeDefined();
+      expect(data).toBeDefined();
     });
 
     it("can concurrently store programs", async () => {
@@ -253,19 +215,17 @@ describe(SUITE_NAME, () => {
       const names = ["addition_division_foo", "addition_division_bar"];
 
       const promises = names.map((name) =>
-        client.execute<ProgramId>({
-          operation: Operation.programStore({
-            program,
-            name: ProgramName.parse(name),
-          }),
+        client.storeProgram({
+          program,
+          name: ProgramName.parse(name),
         }),
       );
 
       const results = await Promise.all(promises);
       expect(results).toHaveSize(2);
 
-      const foo = results[0].result;
-      const bar = results[1].result;
+      const foo = results[0].data;
+      const bar = results[1].data;
       expect(foo).toBeDefined();
       expect(bar).toBeDefined();
     });
@@ -273,7 +233,7 @@ describe(SUITE_NAME, () => {
     testPrograms.forEach((test) => {
       describe(test.name, () => {
         beforeAll(async () => {
-          const { clientVm } = context;
+          const { client, clientVm } = context;
           test.id = ProgramId.parse(
             `${context.configFixture.programsNamespace}/${test.name}`,
           );
@@ -283,18 +243,16 @@ describe(SUITE_NAME, () => {
               test.id,
             );
 
-            const { result: storeId } = await context.client.execute<StoreId>({
-              operation: Operation.valuesStore({
-                values,
-                ttl: Days.parse(1),
-                permissions,
-              }),
+            const { data } = await client.storeValues({
+              values,
+              permissions,
             });
-            test.storeIds.push(storeId);
+            test.storeIds.push(data);
           }
         });
+
         it("can compute", async () => {
-          const { clientVm } = context;
+          const { client, clientVm } = context;
           const bindings = ProgramBindings.create(test.id);
 
           test.inputParties.forEach((party) => {
@@ -305,25 +263,21 @@ describe(SUITE_NAME, () => {
             bindings.addOutputParty(party, clientVm.partyId);
           });
 
-          const { result } = await context.client.execute<ComputeResultId>({
-            operation: Operation.compute({
-              bindings,
-              values: test.valuesToInput,
-              storeIds: test.storeIds,
-            }),
+          const { data } = await client.compute({
+            bindings,
+            values: test.valuesToInput,
+            storeIds: test.storeIds,
           });
 
-          test.result.id = result;
-          expect(result).toBeDefined();
+          test.result.id = data;
+          expect(data).toBeDefined();
         });
 
         it("can get result", async () => {
-          const { result } = await context.client.execute<object>({
-            operation: Operation.computeRetrieveResult({
-              id: test.result.id,
-            }),
+          const data = await context.client.fetchComputeResult({
+            id: test.result.id,
           });
-          expect(result).toEqual(test.result.expected);
+          expect(data).toEqual(test.result.expected);
         });
       });
     });

@@ -18,7 +18,7 @@ export type TestProgram = {
   storeIds: StoreId[];
   result: {
     id: ComputeResultId;
-    expected: object;
+    expected: any;
   };
 };
 

@@ -14,8 +14,8 @@ import {
 import {
   PermissionsRetrieve,
   PermissionsRetrieveArgs,
-  PermissionsUpdate,
-  PermissionsUpdateArgs,
+  PermissionsSet,
+  PermissionsSetArgs,
 } from "./permissions";
 import {
   Compute,
@@ -23,10 +23,6 @@ import {
   ComputeRetrieveResult,
   ComputeRetrieveResultsArgs,
 } from "./compute";
-import {
-  ClusterDescriptorRetrieve,
-  ClusterDescriptorRetrieveArgs,
-} from "./cluster";
 import { ProgramStore, ProgramStoreArgs } from "./program";
 
 export interface Operation {
@@ -35,7 +31,6 @@ export interface Operation {
 
 export const OperationType = z.enum([
   // non-paid
-  "ClusterInfoRetrieve",
   "ComputeRetrieveResult",
   "ValuesDelete",
 
@@ -59,8 +54,6 @@ export type ExecuteOperationArgs = {
 
 export const Operation = {
   // non-paid
-  clusterDescriptorRetrieve: (args: ClusterDescriptorRetrieveArgs) =>
-    new ClusterDescriptorRetrieve(args),
   computeRetrieveResult: (args: ComputeRetrieveResultsArgs) =>
     new ComputeRetrieveResult(args),
   valuesDelete: (args: ValuesDeleteArgs) => new ValuesDelete(args),
@@ -69,8 +62,7 @@ export const Operation = {
   compute: (args: ComputeArgs) => new Compute(args),
   permissionsRetrieve: (args: PermissionsRetrieveArgs) =>
     new PermissionsRetrieve(args),
-  permissionsUpdate: (args: PermissionsUpdateArgs) =>
-    new PermissionsUpdate(args),
+  permissionsSet: (args: PermissionsSetArgs) => new PermissionsSet(args),
   programStore: (args: ProgramStoreArgs) => new ProgramStore(args),
   valueRetrieve: (args: ValueRetrieveArgs) => new ValueRetrieve(args),
   valuesStore: (args: ValuesStoreArgs) => new ValuesStore(args),

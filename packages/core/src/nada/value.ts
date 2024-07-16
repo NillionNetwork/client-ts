@@ -142,7 +142,7 @@ export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
   }
 
   static createIntegerSecretUnsigned(
-    data: IntegerSecretUnsigned | number | string,
+    data: IntegerSecretUnsigned | number | string | bigint,
   ): NadaValue<IntegerSecretUnsigned> {
     return new NadaValue<IntegerSecretUnsigned>(
       NadaValueType.enum.IntegerSecretUnsigned,

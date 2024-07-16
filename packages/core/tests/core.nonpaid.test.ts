@@ -74,7 +74,7 @@ describe(SUITE_NAME, () => {
       storeIds: [],
     };
     const operation = Operation.compute(args);
-    const result = await client.priceQuoteRequest(operation);
+    const result = await client.priceQuoteRequest({ operation });
     const quote = result.unwrap();
     expect(quote.cost.total).toBeGreaterThan(1);
   });
@@ -84,7 +84,7 @@ describe(SUITE_NAME, () => {
       id: data.store,
     };
     const operation = Operation.permissionsRetrieve(args);
-    const result = await client.priceQuoteRequest(operation);
+    const result = await client.priceQuoteRequest({ operation });
     const quote = result.unwrap();
     expect(quote.cost.total).toBeGreaterThan(1);
   });
@@ -94,8 +94,8 @@ describe(SUITE_NAME, () => {
       id: data.store,
       permissions: Permissions.create(),
     };
-    const operation = Operation.permissionsUpdate(args);
-    const result = await client.priceQuoteRequest(operation);
+    const operation = Operation.permissionsSet(args);
+    const result = await client.priceQuoteRequest({ operation });
     const quote = result.unwrap();
     expect(quote.cost.total).toBeGreaterThan(1);
   });
@@ -104,7 +104,7 @@ describe(SUITE_NAME, () => {
     const program = await loadProgram("addition_division.nada.bin");
     const args = { program, name: ProgramName.parse("foo") };
     const operation = Operation.programStore(args);
-    const result = await client.priceQuoteRequest(operation);
+    const result = await client.priceQuoteRequest({ operation });
     const quote = result.unwrap();
     expect(quote.cost.total).toBeGreaterThan(1);
   });
@@ -118,7 +118,7 @@ describe(SUITE_NAME, () => {
       ttl: Days.parse(1),
     };
     const operation = Operation.valuesStore(args);
-    const result = await client.priceQuoteRequest(operation);
+    const result = await client.priceQuoteRequest({ operation });
     const quote = result.unwrap();
     expect(quote.cost.total).toBeGreaterThan(1);
   });
@@ -133,7 +133,7 @@ describe(SUITE_NAME, () => {
       ttl: Days.parse(1),
     };
     const operation = Operation.valuesUpdate(args);
-    const result = await client.priceQuoteRequest(operation);
+    const result = await client.priceQuoteRequest({ operation });
     const quote = result.unwrap();
     expect(quote.cost.total).toBeGreaterThan(1);
   });

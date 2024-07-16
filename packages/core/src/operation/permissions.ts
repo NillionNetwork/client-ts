@@ -4,22 +4,22 @@ import { ExecuteOperationArgs, Operation, OperationType } from "./operation";
 import { StoreId } from "../types";
 import { Permissions } from "../nada";
 
-export type PermissionsUpdateArgs = {
+export type PermissionsSetArgs = {
   id: StoreId;
   permissions: Permissions;
 };
 
-export class PermissionsUpdate implements Operation, IntoWasmQuotableOperation {
+export class PermissionsSet implements Operation, IntoWasmQuotableOperation {
   type = OperationType.enum.PermissionsUpdate;
 
-  constructor(public args: PermissionsUpdateArgs) {}
+  constructor(public args: PermissionsSetArgs) {}
 
   intoQuotable(): Wasm.Operation {
     return Wasm.Operation.update_permissions();
   }
 
   toString(): string {
-    return `Operation(type="PermissionsUpdate")`;
+    return `Operation(type="PermissionsSet")`;
   }
 
   async execute(_args: ExecuteOperationArgs): Promise<string> {
