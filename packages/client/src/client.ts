@@ -1,6 +1,5 @@
 import {
   Compute,
-  ComputeArgs,
   ComputeRetrieveResult,
   NilVmClient,
   Operation,

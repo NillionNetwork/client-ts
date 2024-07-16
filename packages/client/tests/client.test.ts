@@ -8,20 +8,22 @@ import {
   NadaValueType,
   NilVmClient,
   Operation,
-  PartyName,
   Permissions,
   ProgramBindings,
   ProgramId,
+  ProgramName,
   StoreId,
   ValueName,
 } from "@nillion/core";
 import {
   ClientsAndConfig,
   loadClientsAndConfig,
+  loadProgram,
   strToByteArray,
 } from "../test-helpers";
 import { NillionClient } from "@nillion/client";
 import { NilChainPaymentClient } from "@nillion/payments";
+import { tests } from "./programs";
 
 const SUITE_NAME = "@nillion/client";
 
@@ -186,7 +188,7 @@ describe(SUITE_NAME, () => {
     });
   });
 
-  fdescribe("permissions", () => {
+  describe("permissions", () => {
     const name = ValueName.parse("secretFoo");
     const type = NadaValueType.enum.IntegerSecret;
     const value = NadaValue.createIntegerSecret(42);
@@ -264,253 +266,102 @@ describe(SUITE_NAME, () => {
     });
   });
 
-  describe("program > simple_shares", () => {
-    const args: any = {
-      id: "" as ProgramId,
-      store: "" as StoreId,
-      dealer: PartyName.parse("Dealer"),
-      result: PartyName.parse("Result"),
-      // I00, I01 and I02 are passed as args
-      I00: {
-        name: ValueName.parse("I00"),
-        value: NadaValue.createIntegerSecretUnsigned(17517),
-      },
-      I01: {
-        name: ValueName.parse("I01"),
-        value: NadaValue.createIntegerSecretUnsigned(5226),
-      },
-      I02: {
-        name: ValueName.parse("I02"),
-        value: NadaValue.createIntegerSecretUnsigned(15981),
-      },
-      // I03 and I04 are stored in the network
-      I03: {
-        name: ValueName.parse("I03"),
-        value: NadaValue.createIntegerSecretUnsigned(2877),
-      },
-      I04: {
-        name: ValueName.parse("I04"),
-        value: NadaValue.createIntegerSecretUnsigned(2564),
-      },
-    };
+  describe("programs", () => {
+    it("can store a program", async () => {
+      const { client } = context;
+      const program = await loadProgram("addition_division.nada.bin");
 
-    beforeAll(async () => {
-      const { clientVm } = context;
-      args.id = ProgramId.parse(
-        `${context.configFixture.programsNamespace}/simple_shares`,
-      );
-
-      const { id, I03, I04 } = args;
-      const values = NadaValues.create()
-        .insert(I03.name, I03.value)
-        .insert(I04.name, I04.value);
-
-      const permissions = Permissions.create().allowCompute(
-        clientVm.userId,
-        id,
-      );
-
-      const { result: storeId } = await context.client.execute<StoreId>({
-        operation: Operation.valuesStore({
-          values,
-          ttl: Days.parse(1),
-          permissions,
+      const { result } = await client.execute<ProgramId>({
+        operation: Operation.programStore({
+          program,
+          name: ProgramName.parse("addition_division"),
         }),
       });
 
-      args.store = storeId;
+      expect(result).toBeDefined();
     });
 
-    // The parties of the simple_shares program are: 'Dealer' and 'Result'
-    it("compute program", async () => {
-      const { clientVm } = context;
-      const { I00, I01, I02, store } = args;
-      const values = NadaValues.create()
-        .insert(I00.name, I00.value)
-        .insert(I01.name, I01.value)
-        .insert(I02.name, I02.value);
+    it("can concurrently store programs", async () => {
+      pending("Fails due to: account sequence mismatch");
 
-      const bindings = ProgramBindings.create(args.id);
-      bindings
-        .addInputParty(args.dealer, clientVm.partyId)
-        .addOutputParty(args.result, clientVm.partyId);
+      const { client } = context;
+      const program = await loadProgram("addition_division.nada.bin");
+      const names = ["addition_division_foo", "addition_division_bar"];
 
-      const { result } = await context.client.execute({
-        operation: Operation.compute({
-          bindings,
-          values,
-          storeIds: [store],
+      const promises = names.map((name) =>
+        client.execute<ProgramId>({
+          operation: Operation.programStore({
+            program,
+            name: ProgramName.parse(name),
+          }),
         }),
-      });
+      );
 
-      const resultId = result as ComputeResultId;
-      expect(resultId).toBeDefined();
-      args.resultId = resultId;
+      const results = await Promise.all(promises);
+      expect(results).toHaveSize(2);
+
+      const foo = results[0].result;
+      const bar = results[1].result;
+      expect(foo).toBeDefined();
+      expect(bar).toBeDefined();
     });
 
-    it("get compute result", async () => {
-      const { result } = await context.client.execute<{ Add0: bigint }>({
-        operation: Operation.computeRetrieveResult({
-          id: args.resultId,
-        }),
+    tests.forEach((test) => {
+      describe(test.name, () => {
+        beforeAll(async () => {
+          const { clientVm } = context;
+          test.id = ProgramId.parse(
+            `${context.configFixture.programsNamespace}/${test.name}`,
+          );
+          for (const values of test.valuesToStore) {
+            const permissions = Permissions.create().allowCompute(
+              clientVm.userId,
+              test.id,
+            );
+
+            const { result: storeId } = await context.client.execute<StoreId>({
+              operation: Operation.valuesStore({
+                values,
+                ttl: Days.parse(1),
+                permissions,
+              }),
+            });
+            test.storeIds.push(storeId);
+          }
+        });
+        it("can compute", async () => {
+          const { clientVm } = context;
+          const bindings = ProgramBindings.create(test.id);
+
+          test.inputParties.forEach((party) => {
+            bindings.addInputParty(party, clientVm.partyId);
+          });
+
+          test.outputParties.forEach((party) => {
+            bindings.addOutputParty(party, clientVm.partyId);
+          });
+
+          const { result } = await context.client.execute<ComputeResultId>({
+            operation: Operation.compute({
+              bindings,
+              values: test.valuesToInput,
+              storeIds: test.storeIds,
+            }),
+          });
+
+          test.result.id = result;
+          expect(result).toBeDefined();
+        });
+
+        it("can get result", async () => {
+          const { result } = await context.client.execute<object>({
+            operation: Operation.computeRetrieveResult({
+              id: test.result.id,
+            }),
+          });
+          expect(result).toEqual(test.result.expected);
+        });
       });
-      expect(result.Add0).toEqual(1462969515630n);
     });
   });
-
-  //
-  //   it("retrieve compute result", async () => {
-  //     const result = await context.client.execute({
-  //       operation: Operation.computeResult(),
-  //       computeResultId: context.test1.resultId,
-  //     });
-  //
-  //     const final = result.result;
-  //
-  //     console.log("Compute result:", final);
-  //     expect(final).toBeDefined();
-  //     // expect(final).toEqual({
-  //     //   Add0: BigInt(1462969515630),
-  //     // });
-  //   });
-  //
-  //   // it("should be able to return an array from a computation", async () => {
-  //   //   const programId = `${context.fixtureConfig.programsNamespace}/array_new`;
-  //   //   const bindings = new ProgramBindings(programId);
-  //   //   bindings.add_input_party("Party1", context.test1.partyId);
-  //   //   bindings.add_output_party("Party1", context.test1.partyId);
-  //   //
-  //   //   const values = new NadaValues();
-  //   //   values.insert("I00", NadaValue.new_secret_integer("42"));
-  //   //   values.insert("I01", NadaValue.new_secret_integer("43"));
-  //   //
-  //   //   const receipt = await getQuoteThenPay(
-  //   //     context,
-  //   //     Operation.compute(programId, values),
-  //   //   );
-  //   //   const resultId = await context.vm.client.compute(
-  //   //     bindings,
-  //   //     [],
-  //   //     values,
-  //   //     receipt,
-  //   //   );
-  //   //
-  //   //   const result = await context.vm.client.getComputeResult(resultId);
-  //   //
-  //   //   expect(result).toBeDefined();
-  //   //   expect(result).not.toBe("");
-  //   //   expect(result).toEqual({
-  //   //     my_output: [BigInt(42), BigInt(43)],
-  //   //   });
-  //   // });
-  //   //
-  //   // it("should be able to return a tuple from a computation", async () => {
-  //   //   const programId = `${context.fixtureConfig.programsNamespace}/tuple_new`;
-  //   //   const bindings = new ProgramBindings(programId);
-  //   //   bindings.add_input_party("Party1", context.test1.partyId);
-  //   //   bindings.add_output_party("Party1", context.test1.partyId);
-  //   //
-  //   //   const values = new NadaValues();
-  //   //   values.insert("I00", NadaValue.new_secret_integer("42"));
-  //   //   values.insert("I01", NadaValue.new_secret_integer("43"));
-  //   //
-  //   //   const receipt = await getQuoteThenPay(
-  //   //     context,
-  //   //     Operation.compute(programId, values),
-  //   //   );
-  //   //   const resultId = await context.vm.client.compute(
-  //   //     bindings,
-  //   //     [],
-  //   //     values,
-  //   //     receipt,
-  //   //   );
-  //   //
-  //   //   const result = await context.vm.client.getComputeResult(resultId);
-  //   //
-  //   //   expect(result).toBeDefined();
-  //   //   expect(result).not.toBe("");
-  //   //   expect(result).toEqual({
-  //   //     my_output: [BigInt(42), BigInt(43)],
-  //   //   });
-  //   // });
-  //   //
-  //   //
-  //   // it("should be able to store a program", async () => {
-  //   //   const program_fetch = await fetch("__src__/addition_division");
-  //   //   if (!program_fetch.ok) {
-  //   //     fail(`program fetch failed: ${program_fetch.statusText}`);
-  //   //   }
-  //   //   const program = await program_fetch.body
-  //   //     ?.getReader()
-  //   //     .read()
-  //   //     .then((onfulfilled) => onfulfilled?.value);
-  //   //
-  //   //   expect(program).toBeDefined();
-  //   //   const receipt = await pay(context, Operation.store_program(program));
-  //   //   const program_id = await context.vm.client.store_program(
-  //   //     context.config.cluster_id,
-  //   //     "addition_division",
-  //   //     program!,
-  //   //     receipt,
-  //   //   );
-  //   //
-  //   //   expect(program_id).toBeDefined();
-  //   // });
-  //   //
-  //   // it("should be able to store the same program twice concurrently", async () => {
-  //   //   const program_fetch = await fetch("__src__/addition_division");
-  //   //   if (!program_fetch.ok) {
-  //   //     fail(`program fetch failed: ${program_fetch.statusText}`);
-  //   //   }
-  //   //   const program = await program_fetch.body
-  //   //     ?.getReader()
-  //   //     .read()
-  //   //     .then((onfulfilled) => onfulfilled?.value);
-  //   //
-  //   //   expect(program).toBeDefined();
-  //   //   const receipt1 = await pay(context, Operation.store_program(program));
-  //   //   const receipt2 = await pay(context, Operation.store_program(program));
-  //   //   const promises = [
-  //   //     context.vm.client.store_program(
-  //   //       context.config.cluster_id,
-  //   //       "foo1",
-  //   //       program!,
-  //   //       receipt1,
-  //   //     ),
-  //   //     context.vm.client.store_program(
-  //   //       context.config.cluster_id,
-  //   //       "foo2",
-  //   //       program!,
-  //   //       receipt2,
-  //   //     ),
-  //   //   ];
-  //   //   await Promise.all(promises);
-  //   // });
-  //   //
-  //   //
-  //   // it("should be able to store and delete a secret", async () => {
-  //   //   const values = new NadaValues();
-  //   //   values.insert("I00", NadaValue.new_secret_unsigned_integer("17517"));
-  //   //   values.insert("I01", NadaValue.new_secret_unsigned_integer("5226"));
-  //   //   let receipt = await pay(context, Operation.store_values(values, 1));
-  //   //   const store_id = await context.vm.client.store_values(
-  //   //     context.config.cluster_id,
-  //   //     values,
-  //   //     undefined,
-  //   //     receipt,
-  //   //   );
-  //   //   expect(store_id).toBeDefined();
-  //   //   expect(store_id).not.toBe("");
-  //   //   await context.vm.client.delete_values(context.config.cluster_id, store_id);
-  //   //   receipt = await pay(context, Operation.retrieve_value());
-  //   //   await expectAsync(
-  //   //     context.vm.client.retrieve_value(
-  //   //       context.config.cluster_id,
-  //   //       store_id,
-  //   //       "I00",
-  //   //       receipt,
-  //   //     ),
-  //   //   ).toBeRejectedWithError();
-  //   // });
-  // });
 });
