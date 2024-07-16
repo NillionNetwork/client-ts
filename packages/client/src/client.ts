@@ -3,6 +3,7 @@ import {
   ClusterDescriptor,
   ComputeResultId,
   Days,
+  IntoWasmQuotableOperation,
   NadaValue,
   NadaValues,
   NadaValueType,
@@ -19,9 +20,8 @@ import {
   ValueName,
 } from "@nillion/core";
 import { NilChainPaymentClient } from "@nillion/payments";
-import { IntoWasmQuotableOperation } from "@nillion/core/src/wasm";
 
-export type PaidOperationResult<T, U = Error> = {
+export type PaidOperationResult<T> = {
   quote: PriceQuote;
   receipt: PaymentReceipt;
   data: T;
@@ -57,6 +57,14 @@ export class NillionClient {
     const operation = Operation.compute(args);
     const [quote, receipt] = await this.pay({ operation });
     const result = await this.vm.compute({ receipt, operation });
+
+    // if (result.isErr()) {
+    //   return {
+    //     quote,
+    //     receipt,
+    //     error: result.error,
+    //   };
+    // }
     const data = result.unwrap();
     return {
       quote,

@@ -18,6 +18,7 @@ export type TestProgram = {
   storeIds: StoreId[];
   result: {
     id: ComputeResultId;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expected: any;
   };
 };

@@ -15,6 +15,29 @@ export class Result<T, E = Error> {
     return new Result<T, never>("Ok", value);
   }
 
+  static async try<T, E>(f: () => Promise<T>): Promise<Result<T, E>> {
+    try {
+      const result = await f();
+      return Result.Ok(result);
+    } catch (e: unknown) {
+      return Result.Err(e as E);
+    }
+  }
+
+  static async tryCatch<T, E>(args: {
+    try: () => Promise<T>;
+    catch: (e: unknown) => Promise<E>;
+  }) {
+    try {
+      return await args.try();
+    } catch (e: unknown) {
+      if (args.catch) {
+        const value = await args.catch(e);
+        return Result.Err(value);
+      }
+    }
+  }
+
   // Method to check if the result is Ok
   isOk(): this is Result<T, never> {
     return this._tag === "Ok";
