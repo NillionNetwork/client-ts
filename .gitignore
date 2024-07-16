@@ -2,6 +2,6 @@
 node_modules
 .idea
 .vscode
-# generated protobuf codec
-packages/core/src/proto/nilchain.ts
+packages/payments/src/proto/nilchain.ts # generated protobuf codec
 dist
+!packages/wasm/dist

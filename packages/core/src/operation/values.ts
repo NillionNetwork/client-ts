@@ -2,7 +2,7 @@ import { ExecuteOperationArgs, Operation, OperationType } from "./operation";
 import { IntoWasmQuotableOperation } from "../wasm";
 import { Days, StoreId, ValueName } from "../types";
 import { NadaValue, NadaValues, NadaValueType, Permissions } from "../nada";
-import * as Wasm from "@nillion/client-wasm";
+import * as Wasm from "@nillion/wasm";
 
 export type ValueRetrieveArgs = {
   id: StoreId;

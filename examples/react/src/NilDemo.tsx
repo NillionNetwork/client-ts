@@ -1,4 +1,4 @@
-import { NadaValue, NadaValues, Operation } from "@nillion/client-wasm";
+import { NadaValue, NadaValues, Operation } from "@nillion/wasm";
 import React, { useEffect, useState } from "react";
 import { pay } from "./chain";
 import { useNillion } from "@nillion/react-hooks";

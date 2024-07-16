@@ -1,5 +1,5 @@
 import { ProgramId, UserId } from "../types";
-import * as Wasm from "@nillion/client-wasm";
+import * as Wasm from "@nillion/wasm";
 
 export type UserPermissions = {
   delete: boolean;

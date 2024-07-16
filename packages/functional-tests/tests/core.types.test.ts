@@ -13,7 +13,7 @@ import {
   ValueName,
 } from "@nillion/core";
 import { strToByteArray } from "../helpers";
-import * as Wasm from "@nillion/client-wasm";
+import * as Wasm from "@nillion/wasm";
 
 const SUITE_NAME = "@nillion/core > nada types";
 

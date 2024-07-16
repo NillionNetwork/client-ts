@@ -1,4 +1,4 @@
-import * as Wasm from "@nillion/client-wasm";
+import * as Wasm from "@nillion/wasm";
 import { OperationCost, PaymentReceipt, PriceQuote } from "./types";
 
 export interface IntoWasmQuotableOperation {

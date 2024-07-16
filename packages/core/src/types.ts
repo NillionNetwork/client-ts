@@ -1,5 +1,5 @@
 import { z } from "zod";
-import * as Wasm from "@nillion/client-wasm";
+import * as Wasm from "@nillion/wasm";
 
 //
 // Common types

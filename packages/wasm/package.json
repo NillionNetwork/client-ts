@@ -1,0 +1,16 @@
+{
+  "name": "@nillion/wasm",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "type": "module",
+  "module": "dist/index.js",
+  "main": "dist/index.js",
+  "browser": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": [
+    "dist/snippets/**"
+  ],
+  "files": [
+    "dist"
+  ]
+}

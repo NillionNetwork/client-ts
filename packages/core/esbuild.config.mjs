@@ -5,7 +5,7 @@ const config = {
   bundle: true,
   format: "esm",
   outfile: "dist/index.js",
-  external: ["@nillion/client-wasm", "debug", "crypto"],
+  external: ["@nillion/wasm", "debug", "crypto"],
   logLevel: "info",
 };
 
