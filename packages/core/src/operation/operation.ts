@@ -1,6 +1,4 @@
 import { z } from "zod";
-import { NilVmClient } from "../client";
-import { PaymentReceipt, PriceQuote } from "../types";
 import {
   ValueRetrieve,
   ValueRetrieveArgs,
@@ -45,26 +43,16 @@ export const OperationType = z.enum([
 ]);
 export type OperationType = z.infer<typeof OperationType>;
 
-export type ExecuteOperationArgs = {
-  vm: NilVmClient;
-  chain: {
-    pay: (quote: PriceQuote) => Promise<PaymentReceipt>;
-  };
-};
-
 export const Operation = {
-  // non-paid
-  computeRetrieveResult: (args: ComputeRetrieveResultsArgs) =>
-    new ComputeRetrieveResult(args),
-  valuesDelete: (args: ValuesDeleteArgs) => new ValuesDelete(args),
-
-  // paid
   compute: (args: ComputeArgs) => new Compute(args),
-  permissionsRetrieve: (args: PermissionsRetrieveArgs) =>
+  deleteValues: (args: ValuesDeleteArgs) => new ValuesDelete(args),
+  fetchComputeResult: (args: ComputeRetrieveResultsArgs) =>
+    new ComputeRetrieveResult(args),
+  fetchPermissions: (args: PermissionsRetrieveArgs) =>
     new PermissionsRetrieve(args),
-  permissionsSet: (args: PermissionsSetArgs) => new PermissionsSet(args),
-  programStore: (args: ProgramStoreArgs) => new ProgramStore(args),
-  valueRetrieve: (args: ValueRetrieveArgs) => new ValueRetrieve(args),
-  valuesStore: (args: ValuesStoreArgs) => new ValuesStore(args),
-  valuesUpdate: (args: ValuesUpdateArgs) => new ValuesUpdate(args),
+  fetchValue: (args: ValueRetrieveArgs) => new ValueRetrieve(args),
+  setPermissions: (args: PermissionsSetArgs) => new PermissionsSet(args),
+  storeProgram: (args: ProgramStoreArgs) => new ProgramStore(args),
+  storeValues: (args: ValuesStoreArgs) => new ValuesStore(args),
+  updateValues: (args: ValuesUpdateArgs) => new ValuesUpdate(args),
 };

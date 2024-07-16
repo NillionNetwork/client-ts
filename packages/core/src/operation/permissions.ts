@@ -1,6 +1,6 @@
 import { IntoWasmQuotableOperation } from "../wasm";
 import * as Wasm from "@nillion/wasm";
-import { ExecuteOperationArgs, Operation, OperationType } from "./operation";
+import { Operation, OperationType } from "./operation";
 import { StoreId } from "../types";
 import { Permissions } from "../nada";
 
@@ -21,10 +21,6 @@ export class PermissionsSet implements Operation, IntoWasmQuotableOperation {
   toString(): string {
     return `Operation(type="PermissionsSet")`;
   }
-
-  async execute(_args: ExecuteOperationArgs): Promise<string> {
-    throw "not implemented";
-  }
 }
 
 export type PermissionsRetrieveArgs = {
@@ -44,9 +40,5 @@ export class PermissionsRetrieve
 
   toString(): string {
     return `Operation(type="PermissionsRetrieve")`;
-  }
-
-  async execute(_args: ExecuteOperationArgs): Promise<string> {
-    throw "not implemented";
   }
 }

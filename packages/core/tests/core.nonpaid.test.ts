@@ -83,7 +83,7 @@ describe(SUITE_NAME, () => {
     const args = {
       id: data.store,
     };
-    const operation = Operation.permissionsRetrieve(args);
+    const operation = Operation.fetchPermissions(args);
     const result = await client.priceQuoteRequest({ operation });
     const quote = result.unwrap();
     expect(quote.cost.total).toBeGreaterThan(1);
@@ -94,7 +94,7 @@ describe(SUITE_NAME, () => {
       id: data.store,
       permissions: Permissions.create(),
     };
-    const operation = Operation.permissionsSet(args);
+    const operation = Operation.setPermissions(args);
     const result = await client.priceQuoteRequest({ operation });
     const quote = result.unwrap();
     expect(quote.cost.total).toBeGreaterThan(1);
@@ -103,7 +103,7 @@ describe(SUITE_NAME, () => {
   it("can get quote for program store", async () => {
     const program = await loadProgram("addition_division.nada.bin");
     const args = { program, name: ProgramName.parse("foo") };
-    const operation = Operation.programStore(args);
+    const operation = Operation.storeProgram(args);
     const result = await client.priceQuoteRequest({ operation });
     const quote = result.unwrap();
     expect(quote.cost.total).toBeGreaterThan(1);
@@ -117,7 +117,7 @@ describe(SUITE_NAME, () => {
       ),
       ttl: Days.parse(1),
     };
-    const operation = Operation.valuesStore(args);
+    const operation = Operation.storeValues(args);
     const result = await client.priceQuoteRequest({ operation });
     const quote = result.unwrap();
     expect(quote.cost.total).toBeGreaterThan(1);
@@ -132,7 +132,7 @@ describe(SUITE_NAME, () => {
       ),
       ttl: Days.parse(1),
     };
-    const operation = Operation.valuesUpdate(args);
+    const operation = Operation.updateValues(args);
     const result = await client.priceQuoteRequest({ operation });
     const quote = result.unwrap();
     expect(quote.cost.total).toBeGreaterThan(1);

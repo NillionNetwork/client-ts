@@ -1,8 +1,8 @@
 import { IntoWasmQuotableOperation } from "../wasm";
 import * as Wasm from "@nillion/wasm";
-import { ExecuteOperationArgs, Operation, OperationType } from "./operation";
-import { ComputeResultId, StoreId } from "../types";
+import { Operation, OperationType } from "./operation";
 import { NadaValues, ProgramBindings } from "../nada";
+import { ComputeResultId, StoreId } from "../types";
 
 export type ComputeArgs = {
   bindings: ProgramBindings;
@@ -25,10 +25,6 @@ export class Compute implements Operation, IntoWasmQuotableOperation {
   toString(): string {
     return `Operation(type="Compute")`;
   }
-
-  async execute(_args: ExecuteOperationArgs): Promise<string> {
-    throw "not implemented";
-  }
 }
 
 export type ComputeRetrieveResultsArgs = {
@@ -42,9 +38,5 @@ export class ComputeRetrieveResult {
 
   toString(): string {
     return `Operation(type="ComputeRetrieveResult")`;
-  }
-
-  async execute(_args: ExecuteOperationArgs): Promise<string> {
-    throw "not implemented";
   }
 }

@@ -1,7 +1,7 @@
-import { ExecuteOperationArgs, Operation, OperationType } from "./operation";
+import { Operation, OperationType } from "./operation";
 import { IntoWasmQuotableOperation } from "../wasm";
 import { Days, StoreId, ValueName } from "../types";
-import { NadaValue, NadaValues, NadaValueType, Permissions } from "../nada";
+import { NadaValues, NadaValueType, Permissions } from "../nada";
 import * as Wasm from "@nillion/wasm";
 
 export type ValueRetrieveArgs = {
@@ -22,10 +22,6 @@ export class ValueRetrieve implements Operation, IntoWasmQuotableOperation {
   toString(): string {
     return `Operation(type="ValueRetrieve")`;
   }
-
-  async execute(_args: ExecuteOperationArgs): Promise<NadaValue> {
-    throw "not implemented";
-  }
 }
 
 export type ValuesDeleteArgs = {
@@ -39,10 +35,6 @@ export class ValuesDelete {
 
   toString(): string {
     return `Operation(type="ValuesDelete")`;
-  }
-
-  async execute(_args: ExecuteOperationArgs): Promise<StoreId> {
-    throw "not implemented";
   }
 }
 
@@ -64,10 +56,6 @@ export class ValuesStore implements Operation, IntoWasmQuotableOperation {
   toString(): string {
     return `Operation(type="ValuesStore")`;
   }
-
-  async execute(_args: ExecuteOperationArgs): Promise<StoreId> {
-    throw "not implemented";
-  }
 }
 
 export type ValuesUpdateArgs = {
@@ -87,9 +75,5 @@ export class ValuesUpdate implements Operation, IntoWasmQuotableOperation {
 
   toString(): string {
     return `Operation(type="ValuesUpdate")`;
-  }
-
-  async execute(_args: ExecuteOperationArgs): Promise<StoreId> {
-    throw "not implemented";
   }
 }

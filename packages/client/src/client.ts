@@ -21,21 +21,7 @@ import {
 import { NilChainPaymentClient } from "@nillion/payments";
 import { IntoWasmQuotableOperation } from "@nillion/core/src/wasm";
 
-export type FetchQuoteThenPayThenExecuteArgs = {
-  operation: Operation;
-} & Record<string, unknown>;
-
-export type FetchQuoteThenPayThenExecuteResult<T> =
-  | {
-      result: T;
-    }
-  | {
-      result: T;
-      quote: PriceQuote;
-      receipt: PaymentReceipt;
-    };
-
-export type PaidOperationResult<T> = {
+export type PaidOperationResult<T, U = Error> = {
   quote: PriceQuote;
   receipt: PaymentReceipt;
   data: T;
@@ -82,7 +68,7 @@ export class NillionClient {
   async fetchComputeResult<
     T extends Map<string, NadaWrappedValue> = Map<string, NadaWrappedValue>,
   >(args: { id: ComputeResultId }): Promise<T> {
-    const operation = Operation.computeRetrieveResult(args);
+    const operation = Operation.fetchComputeResult(args);
     const result = await this.vm.computeResultRetrieve(operation.args);
     return result.unwrap() as unknown as T;
   }
@@ -106,7 +92,7 @@ export class NillionClient {
     const parsedId = StoreId.parse(args.id);
     const parsedName = ValueName.parse(args.name);
 
-    const operation = Operation.valueRetrieve({
+    const operation = Operation.fetchValue({
       id: parsedId,
       name: parsedName,
       type: args.type,
@@ -131,7 +117,7 @@ export class NillionClient {
     name: ProgramName;
     program: Uint8Array;
   }): Promise<PaidOperationResult<ProgramId>> {
-    const operation = Operation.programStore(args);
+    const operation = Operation.storeProgram(args);
     const [quote, receipt] = await this.pay({ operation });
     const result = await this.vm.programStore({ receipt, operation });
     const data = result.unwrap();
@@ -179,7 +165,7 @@ export class NillionClient {
       values = asNadaValues;
     }
 
-    const operation = Operation.valuesStore({
+    const operation = Operation.storeValues({
       values,
       ttl: args.ttl ?? this.defaults.valueTtl,
       permissions: args.permissions,
@@ -200,7 +186,7 @@ export class NillionClient {
     values: NadaValues;
     ttl: Days;
   }): Promise<PaidOperationResult<ActionId>> {
-    const operation = Operation.valuesUpdate(args);
+    const operation = Operation.updateValues(args);
     const [quote, receipt] = await this.pay({ operation });
     const result = await this.vm.valuesUpdate({ receipt, operation });
     const data = result.unwrap();
@@ -215,7 +201,7 @@ export class NillionClient {
   async fetchPermissions(args: {
     id: StoreId;
   }): Promise<PaidOperationResult<unknown>> {
-    const operation = Operation.permissionsRetrieve(args);
+    const operation = Operation.fetchPermissions(args);
     const [quote, receipt] = await this.pay({ operation });
     const result = await this.vm.permissionsRetrieve({ receipt, operation });
     const data = result.unwrap();
@@ -230,7 +216,7 @@ export class NillionClient {
     id: StoreId;
     permissions: Permissions;
   }): Promise<PaidOperationResult<ActionId>> {
-    const operation = Operation.permissionsSet(args);
+    const operation = Operation.setPermissions(args);
     const [quote, receipt] = await this.pay({ operation });
     const result = await this.vm.permissionsUpdate({ receipt, operation });
     const data = result.unwrap();

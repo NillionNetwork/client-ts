@@ -1,6 +1,6 @@
 import { IntoWasmQuotableOperation } from "../wasm";
 import * as Wasm from "@nillion/wasm";
-import { ExecuteOperationArgs, Operation, OperationType } from "./operation";
+import { Operation, OperationType } from "./operation";
 import { ProgramName } from "../types";
 
 export type ProgramStoreArgs = {
@@ -19,9 +19,5 @@ export class ProgramStore implements Operation, IntoWasmQuotableOperation {
 
   toString(): string {
     return `Operation(type="ProgramStore")`;
-  }
-
-  async execute(_args: ExecuteOperationArgs): Promise<string> {
-    throw "not implemented";
   }
 }
