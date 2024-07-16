@@ -1,4 +1,5 @@
 import {
+  ClusterDescriptor,
   Compute,
   ComputeRetrieveResult,
   NilVmClient,
@@ -48,13 +49,6 @@ export class NillionClient {
     Log(`executing: ${JSON.stringify(args)}`);
 
     switch (args.operation.type) {
-      case OperationType.enum.ClusterInfoRetrieve: {
-        const result = await this.vm.clusterInfoRetrieve();
-        return {
-          result: result.unwrap() as T,
-        };
-      }
-
       case OperationType.enum.Compute: {
         const operation = args.operation as Compute;
         const [quote, receipt] = await this.pay(operation);
@@ -195,6 +189,11 @@ export class NillionClient {
     return [quote, receipt];
   }
 
+  async fetchClusterInfo(): Promise<ClusterDescriptor> {
+    const result = await this.vm.clusterInfoRetrieve();
+    return result.unwrap();
+  }
+
   // // global opts: all as signed, all as secret all as string
   // async createValue(value: number, options: any) {
   //   type Opts = {
@@ -207,7 +206,6 @@ export class NillionClient {
   // }
   //
   // async getPriceQuote() {}
-  // async getClusterInfo() {}
   //
   // async getValue(id: string, options: any) {
   //   throw "not implemented";

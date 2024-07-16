@@ -50,11 +50,6 @@ export const OperationType = z.enum([
 ]);
 export type OperationType = z.infer<typeof OperationType>;
 
-export const isPaidOperation = ({ type }: Operation) =>
-  type === OperationType.enum.ClusterInfoRetrieve ||
-  type === OperationType.enum.ComputeRetrieveResult ||
-  type === OperationType.enum.ValuesDelete;
-
 export type ExecuteOperationArgs = {
   vm: NilVmClient;
   chain: {

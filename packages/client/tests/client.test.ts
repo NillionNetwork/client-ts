@@ -46,13 +46,11 @@ describe(SUITE_NAME, () => {
     console.log("finished @nillion/client test suite");
   });
 
-  type Test = {
-    id: StoreId;
-    name: ValueName;
-    type: NadaValueType;
-    value: NadaValue;
-    nextValue: NadaValue;
-  };
+  it("can fetch cluster information", async () => {
+    const { client, clientVm } = context;
+    const result = await client.fetchClusterInfo();
+    expect(result.id).toEqual(clientVm.clusterId);
+  });
 
   testTypes.forEach((test: TestType) => {
     describe(test.type, () => {
