@@ -2,7 +2,7 @@ import { IntoWasmQuotableOperation } from "../wasm";
 import * as Wasm from "@nillion/wasm";
 import { ExecuteOperationArgs, Operation, OperationType } from "./operation";
 import { ComputeResultId, StoreId } from "../types";
-import { NadaValues, NadaValueType, ProgramBindings } from "../nada";
+import { NadaValues, ProgramBindings } from "../nada";
 
 export type ComputeArgs = {
   bindings: ProgramBindings;

@@ -94,7 +94,7 @@ export class Permissions {
     return wasm;
   }
 
-  static from(wasm: Wasm.Permissions): Permissions {
+  static from(_wasm: Wasm.Permissions): Permissions {
     // wasm type doesn't appear to expose actual permission map like we see on the cli
     throw "not implemented";
   }
