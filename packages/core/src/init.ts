@@ -13,17 +13,13 @@ declare global {
   var __NILLION: NillionGlobal;
 }
 
-export function initializationGuard(): void | never {
-  if (!globalThis.__NILLION.initialized) {
-    throw new Error("wasm type accessed before initialization");
-  }
-}
-
 export async function init(): Promise<void> {
+  supportedEnvironmentGuard();
+
   globalThis.__NILLION = globalThis.__NILLION || { initialized: false };
 
   if (globalThis.__NILLION.initialized) {
-    Log("nillion init called more than once, ignoring subsequent calls");
+    Log("Init warning: Nillion init called more than once.");
     return;
   }
 
@@ -38,24 +34,43 @@ export async function init(): Promise<void> {
     if (current === "") {
       localStorage.debug = "nillion:*";
     } else if (current.indexOf("nillion:") != -1) {
-      Log(`logging already enabled`);
+      Log(`Logging already enabled.`);
     } else {
       localStorage.debug = "nillion:*," + current;
     }
-    Log(`logging namespaces: ${localStorage.debug}`);
+    Log(`Logging namespaces: ${localStorage.debug}.`);
   };
 
   globalThis.__NILLION.enableWasmLogging = () => {
     Wasm.NillionClient.enable_remote_logging();
-    Log("remote logging initialised");
+    Log("Remote logging initialised.");
   };
 
   globalThis.__NILLION.enableTelemetry = (addr: string) => {
     Wasm.NillionClient.enable_tracking(addr);
-    Log("telemetry reported enabled");
+    Log("Telemetry reported enabled.");
   };
 
   globalThis.__NILLION.initialized = true;
 
-  Log("wasm client initialized");
+  Log("Wasm client initialized.");
 }
+
+export const initializationGuard = (): true | never => {
+  supportedEnvironmentGuard();
+
+  if (!globalThis.window.__NILLION?.initialized) {
+    throw new Error("Init error: wasm accessed before initialization.");
+  }
+
+  return true;
+};
+
+export const supportedEnvironmentGuard = (): true | never => {
+  if (typeof globalThis.window === "undefined") {
+    const message = "Init error: Only browser environments are supported.";
+    Log(message);
+    throw new Error(message);
+  }
+  return true;
+};
