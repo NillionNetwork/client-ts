@@ -8,7 +8,7 @@ import {
   ValueName,
 } from "@nillion/core";
 
-export type ProgramTest = {
+export type TestProgram = {
   name: string;
   id: ProgramId;
   inputParties: PartyName[];
@@ -22,7 +22,7 @@ export type ProgramTest = {
   };
 };
 
-export const tests: ProgramTest[] = [
+export const testPrograms: TestProgram[] = [
   {
     name: "simple_shares",
     id: "" as ProgramId,

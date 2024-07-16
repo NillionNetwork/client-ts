@@ -19,11 +19,11 @@ import {
   ClientsAndConfig,
   loadClientsAndConfig,
   loadProgram,
-  strToByteArray,
 } from "../test-helpers";
 import { NillionClient } from "@nillion/client";
 import { NilChainPaymentClient } from "@nillion/payments";
-import { tests } from "./programs";
+import { testPrograms } from "./programs";
+import { TestType, testTypes } from "./values";
 
 const SUITE_NAME = "@nillion/client";
 
@@ -54,41 +54,7 @@ describe(SUITE_NAME, () => {
     nextValue: NadaValue;
   };
 
-  const types = [
-    {
-      name: ValueName.parse("BlobSecret"),
-      type: NadaValueType.enum.BlobSecret,
-      value: NadaValue.createBlobSecret(strToByteArray("foo then bar...")),
-      nextValue: NadaValue.createBlobSecret(strToByteArray("... then baz!")),
-    },
-    {
-      name: ValueName.parse("IntegerSecret"),
-      type: NadaValueType.enum.IntegerSecret,
-      value: NadaValue.createIntegerSecret(-42),
-      nextValue: NadaValue.createIntegerSecret(102),
-    },
-    {
-      name: ValueName.parse("IntegerSecretUnsigned"),
-      type: NadaValueType.enum.IntegerSecretUnsigned,
-      value: NadaValue.createIntegerSecretUnsigned(1_000_000_000_000),
-      nextValue: NadaValue.createIntegerSecretUnsigned(1),
-    },
-    {
-      name: ValueName.parse("IntegerPublic"),
-      type: NadaValueType.enum.IntegerPublic,
-      value: NadaValue.createIntegerPublic(-107),
-      nextValue: NadaValue.createIntegerSecret(1_000),
-    },
-    {
-      name: ValueName.parse("IntegerPublicUnsigned"),
-      type: NadaValueType.enum.IntegerPublicUnsigned,
-      value: NadaValue.createIntegerPublicUnsigned(10_000_000_000),
-      nextValue: NadaValue.createIntegerSecret(10_000_000_001),
-    },
-  ];
-
-  // @ts-expect-error values collected during tests
-  types.forEach((test: Test) => {
+  testTypes.forEach((test: TestType) => {
     describe(test.type, () => {
       const { name, type, value } = test;
       it("store", async () => {
@@ -306,7 +272,7 @@ describe(SUITE_NAME, () => {
       expect(bar).toBeDefined();
     });
 
-    tests.forEach((test) => {
+    testPrograms.forEach((test) => {
       describe(test.name, () => {
         beforeAll(async () => {
           const { clientVm } = context;
