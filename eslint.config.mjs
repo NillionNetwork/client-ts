@@ -4,8 +4,10 @@ import eslintTs from "typescript-eslint";
 
 export default [
   {
-    files: ["**/*.{mjs,ts,tsx}"],
-    ignores: ["examples"],
+    ignores: ["examples", "**/dist", "packages/react-hooks"],
+  },
+  {
+    files: ["**/*.{ts,tsx}"],
     languageOptions: { globals: globals.browser },
   },
   eslintJs.configs.recommended,

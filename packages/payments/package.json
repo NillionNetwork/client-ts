@@ -7,7 +7,10 @@
   "scripts": {
     "proto:generate": "protoc --plugin=node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src proto/nilchain.proto",
     "clean": "rm -rf dist",
-    "build": "node esbuild.config.mjs"
+    "build": "node esbuild.config.mjs",
+    "build:test": "npx webpack --config webpack.config.mjs",
+    "test": "npx jasmine-browser-runner runSpecs --config=jasmine.config.mjs",
+    "serve": "npx jasmine-browser-runner serve --config=jasmine.config.mjs"
   },
   "dependencies": {
     "@cosmjs/proto-signing": "^0.32.4",

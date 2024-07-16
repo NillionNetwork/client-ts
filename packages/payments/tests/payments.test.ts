@@ -1,6 +1,6 @@
 import { createSignerFromKey, NilChainPaymentClient } from "@nillion/payments";
 import { Config, PriceQuote, PrivateKeyBase16 } from "@nillion/core";
-import fixtureConfig from "../src/fixture/local.json";
+import fixtureConfig from "../../fixture/network.json";
 
 const SUITE_NAME = "@nillion/payments";
 
@@ -29,15 +29,15 @@ describe(SUITE_NAME, () => {
 
   it("can make a payment", async () => {
     const quote = PriceQuote.parse({
-      expires_at: new Date(),
+      expires: new Date(),
       nonce: new Uint8Array(),
       cost: {
-        base_fee: "1",
-        compute_fee: "1",
-        congestion_fee: "1",
-        preprocessing_fee: "1",
-        storage_fee: "1",
-        total: "5",
+        base: 1,
+        compute: 1,
+        congestion: 1,
+        preprocessing: 1,
+        storage: 1,
+        total: 5,
       },
     });
 

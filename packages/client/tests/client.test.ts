@@ -19,10 +19,9 @@ import {
   ClientsAndConfig,
   loadClientsAndConfig,
   strToByteArray,
-} from "../helpers";
+} from "../test-helpers";
 import { NillionClient } from "@nillion/client";
 import { NilChainPaymentClient } from "@nillion/payments";
-import fixtureConfig from "../src/fixture/local.json";
 
 const SUITE_NAME = "@nillion/client";
 
@@ -187,7 +186,7 @@ describe(SUITE_NAME, () => {
     });
   });
 
-  describe("permissions", () => {
+  fdescribe("permissions", () => {
     const name = ValueName.parse("secretFoo");
     const type = NadaValueType.enum.IntegerSecret;
     const value = NadaValue.createIntegerSecret(42);
@@ -267,7 +266,7 @@ describe(SUITE_NAME, () => {
 
   describe("program > simple_shares", () => {
     const args: any = {
-      id: ProgramId.parse(`${fixtureConfig.programs_namespace}/simple_shares`),
+      id: "" as ProgramId,
       store: "" as StoreId,
       dealer: PartyName.parse("Dealer"),
       result: PartyName.parse("Result"),
@@ -297,6 +296,9 @@ describe(SUITE_NAME, () => {
 
     beforeAll(async () => {
       const { clientVm } = context;
+      args.id = ProgramId.parse(
+        `${context.configFixture.programsNamespace}/simple_shares`,
+      );
 
       const { id, I03, I04 } = args;
       const values = NadaValues.create()

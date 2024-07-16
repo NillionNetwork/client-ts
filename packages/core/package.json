@@ -6,7 +6,10 @@
   "types": "src/index.ts",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "node esbuild.config.mjs"
+    "build": "node esbuild.config.mjs",
+    "build:test": "npx webpack --config webpack.config.mjs",
+    "test": "npx jasmine-browser-runner runSpecs --config=jasmine.config.mjs",
+    "serve": "npx jasmine-browser-runner serve --config=jasmine.config.mjs"
   },
   "dependencies": {
     "@nillion/wasm": "^0.1.0",

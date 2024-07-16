@@ -12,7 +12,6 @@ import {
   ProgramBindings,
   ValueName,
 } from "@nillion/core";
-import { strToByteArray } from "../helpers";
 import * as Wasm from "@nillion/wasm";
 
 const SUITE_NAME = "@nillion/core > nada types";
@@ -65,7 +64,7 @@ describe(SUITE_NAME, () => {
 
   describe("nada value encode and decode", () => {
     it("BlobSecret", () => {
-      const expected = strToByteArray("hi mom");
+      const expected = new TextEncoder().encode("hi mom");
       const secret = NadaValue.createBlobSecret(expected);
 
       expect(secret.data).toEqual(expected);

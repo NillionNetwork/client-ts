@@ -14,16 +14,22 @@ import {
   StoreId,
   ValueName,
 } from "@nillion/core";
-import fixtureConfig from "../src/fixture/local.json";
-import { loadProgram } from "../helpers";
+import configFixture from "../../fixture/network.json";
 
 const SUITE_NAME = `@nillion/core > non-paid functions`;
 
 describe(SUITE_NAME, () => {
   let client: NilVmClient;
+  const data = {
+    store: StoreId.parse("aaaaaaaa-bbbb-cccc-dddd-ffffffffffff"),
+    program: ProgramId.parse(
+      `${configFixture.programs_namespace}/simple_shares`,
+    ),
+  };
 
   beforeAll(async () => {
     console.log(`>>> Start ${SUITE_NAME}`);
+    // jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
     await init();
   });
 
@@ -59,12 +65,8 @@ describe(SUITE_NAME, () => {
   });
 
   it("can get quote for compute", async () => {
-    const programId = ProgramId.parse(
-      `${fixtureConfig.programs_namespace}/simple_shares`,
-    );
-
     const args = {
-      bindings: ProgramBindings.create(programId),
+      bindings: ProgramBindings.create(data.program),
       values: NadaValues.create().insert(
         ValueName.parse("foo"),
         NadaValue.createIntegerSecret(1),
@@ -79,7 +81,7 @@ describe(SUITE_NAME, () => {
 
   it("can get quote for permissions retrieve", async () => {
     const args = {
-      id: StoreId.parse("db0835de-ad48-437d-9b2d-3a58efe809f6"),
+      id: data.store,
     };
     const operation = Operation.permissionsRetrieve(args);
     const result = await client.priceQuoteRequest(operation);
@@ -89,7 +91,7 @@ describe(SUITE_NAME, () => {
 
   it("can get quote for permissions update", async () => {
     const args = {
-      id: StoreId.parse("db0835de-ad48-437d-9b2d-3a58efe809f6"),
+      id: data.store,
       permissions: Permissions.create(),
     };
     const operation = Operation.permissionsUpdate(args);
@@ -123,7 +125,7 @@ describe(SUITE_NAME, () => {
 
   it("can get quote for values update", async () => {
     const args = {
-      id: StoreId.parse("db0835de-ad48-437d-9b2d-3a58efe809f6"),
+      id: data.store,
       values: NadaValues.create().insert(
         ValueName.parse("foo"),
         NadaValue.createIntegerSecret(3),
@@ -136,3 +138,18 @@ describe(SUITE_NAME, () => {
     expect(quote.cost.total).toBeGreaterThan(1);
   });
 });
+
+const loadProgram = async (name: string): Promise<Uint8Array> => {
+  const path = `__src__/${name}`;
+  console.log(path);
+  try {
+    const response = await fetch(path);
+    const body = response.body!;
+    const payload = await body.getReader().read();
+    return payload.value!;
+  } catch (e) {
+    console.error(`failed to load program: ${path}`);
+    console.error(`error: ${e}`);
+    throw e;
+  }
+};

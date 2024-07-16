@@ -1,4 +1,4 @@
-import fixtureConfig from "../src/fixture/local.json";
+import fixtureConfig from "../../fixture/network.json";
 import {
   Config,
   NilVmClient,
@@ -6,7 +6,7 @@ import {
   PrivateKeyBase16,
 } from "@nillion/core";
 import { createSignerFromKey, NilChainPaymentClient } from "@nillion/payments";
-import { NillionClient } from "@nillion/clent";
+import { NillionClient } from "@nillion/client";
 
 export interface ClientsAndConfig {
   client: NillionClient;
@@ -22,7 +22,7 @@ export interface ClientsAndConfig {
   };
 }
 
-export const loadClientsAndConfig = async <T>(): Promise<ClientsAndConfig> => {
+export const loadClientsAndConfig = async (): Promise<ClientsAndConfig> => {
   const configNetwork = Config.TestFixture;
   const { bootnodes, clusterId, chainEndpoint } = configNetwork;
   const {
