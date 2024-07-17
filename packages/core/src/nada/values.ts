@@ -11,7 +11,7 @@ export class NadaValues implements IntoWasm<Wasm.NadaValues> {
     return this.values.size;
   }
 
-  insert(name: ValueName, value: NadaValue): NadaValues {
+  insert(name: ValueName, value: NadaValue): this {
     Log(`insert ${name}=`, value);
     if (this.values.get(name)) {
       Log(`NadaValues ${name} overwritten`);

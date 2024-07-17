@@ -63,11 +63,7 @@ export const ValueName = z.string().min(1).brand<"ValueName">();
 export type ValueName = z.infer<typeof ValueName>;
 
 // "namespace/friendly-name"
-export const ProgramId = z
-  .string()
-  .min(1)
-  // .refine((v) => v.length > 88 && v.indexOf("/") === 88)
-  .brand<"ProgramId">();
+export const ProgramId = z.string().min(1).brand<"ProgramId">();
 export type ProgramId = z.infer<typeof ProgramId>;
 
 export const ComputeResultId = z.string().uuid().brand<"ComputeResultId">();
@@ -78,7 +74,7 @@ export type ComputeResultId = z.infer<typeof ComputeResultId>;
 //
 export const Token = {
   Unil: "unil",
-  asUnil: (amount: number | string) => `${amount}${Token.Unil}`,
+  asUnil: (amount: number | string) => `${String(amount)}${Token.Unil}`,
 };
 
 export const NilChainProtobufTypeUrl = "/nillion.meta.v1.MsgPayFor";

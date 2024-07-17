@@ -25,7 +25,7 @@ export class NilChainPaymentClient {
 
   pay(quote: PriceQuote): E.Effect<TxHash, UnknownException> {
     return E.tryPromise(async () => {
-      Log(`Paying ${quote.cost.total}unil`);
+      Log("Paying %d unil", quote.cost.total);
 
       const value = MsgPayFor.create({
         fromAddress: this.address,

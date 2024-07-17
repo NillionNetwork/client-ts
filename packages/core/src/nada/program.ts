@@ -9,7 +9,7 @@ export class ProgramBindings {
     public outputs = new Map<PartyName, PartyId>(),
   ) {}
 
-  addInputParty(name: PartyName, id: PartyId): ProgramBindings {
+  addInputParty(name: PartyName, id: PartyId): this {
     Log(`add input party name=${name} with id=${id}`);
     if (this.inputs.has(name)) {
       Log(`input party exists, overwriting`);
@@ -18,7 +18,7 @@ export class ProgramBindings {
     return this;
   }
 
-  addOutputParty(name: PartyName, id: PartyId): ProgramBindings {
+  addOutputParty(name: PartyName, id: PartyId): this {
     Log(`add output party name=${name} with id=${id}`);
     if (this.outputs.has(name)) {
       Log(`output party exists, overwriting`);

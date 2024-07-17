@@ -11,7 +11,7 @@ export default [
     languageOptions: { globals: globals.browser },
   },
   eslintJs.configs.recommended,
-  ...eslintTs.configs.recommendedTypeChecked,
+  ...eslintTs.configs.strictTypeChecked,
   ...eslintTs.configs.stylisticTypeChecked,
   {
     languageOptions: {

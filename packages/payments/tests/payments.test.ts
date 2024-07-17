@@ -6,6 +6,7 @@ import {
   PrivateKeyBase16,
 } from "@nillion/core";
 import fixtureConfig from "../../fixture/network.json";
+import { expectOk } from "../../fixture/helpers";
 
 const SUITE_NAME = "@nillion/payments";
 
@@ -48,7 +49,6 @@ describe(SUITE_NAME, () => {
 
     const effect = client.pay(quote);
     const result = await effectToResultAsync(effect);
-    const hash = result.ok!;
-    expect(hash).toBeDefined();
+    expectOk(result);
   });
 });

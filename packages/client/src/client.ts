@@ -10,6 +10,7 @@ import {
   NadaWrappedValue,
   NilVmClient,
   Operation,
+  OperationType,
   PaymentReceipt,
   Permissions,
   PriceQuote,
@@ -45,7 +46,7 @@ export class NillionClient {
   }
 
   pay(args: {
-    operation: IntoWasmQuotableOperation;
+    operation: IntoWasmQuotableOperation & { type: OperationType };
   }): E.Effect<PaymentReceipt, UnknownException> {
     return E.Do.pipe(
       E.bind("quote", () => this._vm.fetchOperationQuote(args)),
@@ -100,7 +101,7 @@ export class NillionClient {
   }
 
   fetchOperationQuote(args: {
-    operation: IntoWasmQuotableOperation;
+    operation: IntoWasmQuotableOperation & { type: OperationType };
   }): Promise<Result<PriceQuote, UnknownException>> {
     const effect = this._vm.fetchOperationQuote(args);
     return effectToResultAsync(effect);

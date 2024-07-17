@@ -65,7 +65,8 @@ export const createClientWithKeplrWallet = async (args: {
 }): Promise<NilChainPaymentClient> => {
   if (!window.keplr) {
     Log.log("failed to access window.keplr");
-    return Promise.reject("failed to access window.keplr");
+    const error = new Error("failed to access window.keplr");
+    return Promise.reject(error);
   } else {
     const { keplr } = window;
     const { chainId, endpoint } = args;

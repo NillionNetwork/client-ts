@@ -17,7 +17,7 @@ export class Permissions {
     public updateAcl = new Set<UserId>(),
   ) {}
 
-  allowCompute(users: UserId | UserId[], program: ProgramId): Permissions {
+  allowCompute(users: UserId | UserId[], program: ProgramId): this {
     const listOfUsers = Array.isArray(users) ? users : [users];
     for (const user of listOfUsers) {
       const programs = this.computeAcl.get(user) ?? new Set();
@@ -27,7 +27,7 @@ export class Permissions {
     return this;
   }
 
-  allowDelete(users: UserId | UserId[]): Permissions {
+  allowDelete(users: UserId | UserId[]): this {
     if (Array.isArray(users)) {
       users.forEach((u) => this.deleteAcl.add(u));
     } else {
@@ -36,7 +36,7 @@ export class Permissions {
     return this;
   }
 
-  allowRetrieve(users: UserId | UserId[]): Permissions {
+  allowRetrieve(users: UserId | UserId[]): this {
     if (Array.isArray(users)) {
       users.forEach((u) => this.retrieveAcl.add(u));
     } else {
@@ -45,7 +45,7 @@ export class Permissions {
     return this;
   }
 
-  allowUpdate(users: UserId | UserId[]): Permissions {
+  allowUpdate(users: UserId | UserId[]): this {
     if (Array.isArray(users)) {
       users.forEach((u) => this.updateAcl.add(u));
     } else {

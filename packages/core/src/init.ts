@@ -16,6 +16,7 @@ declare global {
 export async function init(): Promise<void> {
   supportedEnvironmentGuard();
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   globalThis.__NILLION = globalThis.__NILLION || { initialized: false };
 
   if (globalThis.__NILLION.initialized) {
@@ -30,15 +31,15 @@ export async function init(): Promise<void> {
     if (overwrite) {
       localStorage.debug = "";
     }
-    const current = (localStorage.debug as string) ?? "";
+    const current = (localStorage.debug ?? "") as string;
     if (current === "") {
       localStorage.debug = "nillion:*";
-    } else if (current.indexOf("nillion:") != -1) {
+    } else if (current.includes("nillion:")) {
       Log(`Logging already enabled.`);
     } else {
       localStorage.debug = "nillion:*," + current;
     }
-    Log(`Logging namespaces: ${localStorage.debug}.`);
+    Log(`Logging namespaces: ${localStorage.debug as string}.`);
   };
 
   globalThis.__NILLION.enableWasmLogging = () => {
@@ -59,7 +60,7 @@ export async function init(): Promise<void> {
 export const initializationGuard = (): true | never => {
   supportedEnvironmentGuard();
 
-  if (!globalThis.window.__NILLION?.initialized) {
+  if (!globalThis.window.__NILLION.initialized) {
     throw new Error("Init error: wasm accessed before initialization.");
   }
 

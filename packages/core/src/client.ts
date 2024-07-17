@@ -21,6 +21,7 @@ import {
 import { NadaValue, NadaWrappedValue, Permissions } from "./nada";
 import {
   Compute,
+  OperationType,
   PermissionsRetrieve,
   PermissionsSet,
   ProgramStore,
@@ -76,7 +77,7 @@ export class NilVmClient {
   }
 
   fetchOperationQuote(args: {
-    operation: IntoWasmQuotableOperation;
+    operation: IntoWasmQuotableOperation & { type: OperationType };
   }): E.Effect<PriceQuote, UnknownException> {
     return E.tryPromise(async () => {
       const { operation } = args;
@@ -85,7 +86,7 @@ export class NilVmClient {
         operation.intoQuotable(),
       );
       const result = priceQuoteFrom(response);
-      Log(`quote ${result.cost.total} unil for `, operation);
+      Log(`Quoted %d unil for %s`, result.cost.total, operation.type);
       return result;
     });
   }

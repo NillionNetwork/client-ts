@@ -55,7 +55,9 @@ export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
         return Wasm.NadaValue.new_secret_blob(this.data as Uint8Array);
 
       case NadaValueType.enum.BooleanSecret:
-        throw "return Wasm.NadaValue.new_secret_boolean(this.data as boolean);";
+        throw new Error(
+          "return Wasm.NadaValue.new_secret_boolean(this.data as boolean);",
+        );
 
       case NadaValueType.enum.IntegerPublic:
         return Wasm.NadaValue.new_public_integer(String(this.data));
@@ -80,7 +82,7 @@ export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
       }
 
       case NadaValueType.enum.BooleanSecret: {
-        throw "return NadaValue.createBooleanSecret(wasm.xyz())";
+        throw new Error("return NadaValue.createBooleanSecret(wasm.xyz())");
       }
 
       case NadaValueType.enum.IntegerPublic: {

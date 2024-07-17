@@ -18,8 +18,7 @@ describe(SUITE_NAME, () => {
   });
 
   it("window.__NILLION should be defined", () => {
-    const nillion = window?.__NILLION;
-
+    const nillion = globalThis.__NILLION;
     expect(nillion).toBeDefined();
     expect(nillion.initialized).toBeTruthy();
     expect(nillion.enableTelemetry).toBeDefined();
