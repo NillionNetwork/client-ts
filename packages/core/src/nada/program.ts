@@ -3,10 +3,11 @@ import { PartyId, PartyName, ProgramId } from "../types";
 import { Log } from "../logger";
 
 export class ProgramBindings {
-  inputs = new Map<PartyName, PartyId>();
-  outputs = new Map<PartyName, PartyId>();
-
-  private constructor(public id: ProgramId) {}
+  private constructor(
+    public id: ProgramId,
+    public inputs = new Map<PartyName, PartyId>(),
+    public outputs = new Map<PartyName, PartyId>(),
+  ) {}
 
   addInputParty(name: PartyName, id: PartyId): ProgramBindings {
     Log(`add input party name=${name} with id=${id}`);
@@ -44,9 +45,7 @@ export class ProgramBindings {
   }
 
   toString(): string {
-    const inputs = this.inputs.toString();
-    const outputs = this.outputs.toString();
-    return `ProgramBindings(id=${this.id},inputs=${inputs},outputs=${outputs})`;
+    return `ProgramBindings(id=${this.id})`;
   }
 
   static create(id: string): ProgramBindings {

@@ -100,36 +100,32 @@ describe(SUITE_NAME, () => {
     }
 
     it("IntegerSecret", () => {
-      encodeAndDecodeIntegerLike(
-        IntegerSecret.parse(-42),
-        NadaValue.createIntegerSecret,
+      encodeAndDecodeIntegerLike(IntegerSecret.parse(-42), (v) =>
+        NadaValue.createIntegerSecret(v),
       );
     });
 
     it("IntegerSecretUnsigned", () => {
-      encodeAndDecodeIntegerLike(
-        IntegerSecretUnsigned.parse(42),
-        NadaValue.createIntegerSecretUnsigned,
+      encodeAndDecodeIntegerLike(IntegerSecretUnsigned.parse(42), (v) =>
+        NadaValue.createIntegerSecretUnsigned(v),
       );
     });
 
     it("IntegerPublic", () => {
-      encodeAndDecodeIntegerLike(
-        IntegerPublic.parse(-100),
-        NadaValue.createIntegerPublic,
+      encodeAndDecodeIntegerLike(IntegerPublic.parse(-100), (v) =>
+        NadaValue.createIntegerPublic(v),
       );
     });
 
     it("IntegerPublicUnsigned", () => {
-      encodeAndDecodeIntegerLike(
-        IntegerPublicUnsigned.parse(42),
-        NadaValue.createIntegerPublicUnsigned,
+      encodeAndDecodeIntegerLike(IntegerPublicUnsigned.parse(42), (v) =>
+        NadaValue.createIntegerPublicUnsigned(v),
       );
     });
   });
 
   describe("nada values set", () => {
-    it("empty set", async () => {
+    it("empty set", () => {
       const secrets = NadaValues.create();
 
       const asWasm = secrets.into();
@@ -138,7 +134,7 @@ describe(SUITE_NAME, () => {
       expect(asWasm.length).toHaveSize(0);
     });
 
-    it("build a set of secrets", async () => {
+    it("build a set of secrets", () => {
       const secrets = NadaValues.create();
       secrets.insert(
         ValueName.parse("one"),
@@ -156,7 +152,7 @@ describe(SUITE_NAME, () => {
     });
   });
   describe("program bindings", () => {
-    it("create a program binding", async () => {
+    it("create a program binding", () => {
       const program = ProgramBindings.create("aaaa/simple");
       const asWasm = program.into();
       expect(asWasm).toBeInstanceOf(Wasm.ProgramBindings);

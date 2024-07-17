@@ -24,9 +24,9 @@ import { NilChainPaymentClient } from "@nillion/payments";
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
 
-export type ClientDefaults = {
+export interface ClientDefaults {
   valueTtl: Days;
-};
+}
 
 export class NillionClient {
   defaults: ClientDefaults = {
@@ -67,7 +67,7 @@ export class NillionClient {
     const effect: E.Effect<ComputeResultId, UnknownException> = E.Do.pipe(
       E.let("operation", () => Operation.compute(args)),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap(this._vm.runProgram),
+      E.flatMap((args) => this._vm.runProgram(args)),
     );
     return effectToResultAsync(effect);
   }
@@ -89,7 +89,7 @@ export class NillionClient {
   }): Promise<Result<StoreId, UnknownException>> {
     const effect = E.Do.pipe(
       E.bind("id", () => E.try(() => StoreId.parse(args.id))),
-      E.flatMap(this._vm.deleteValues),
+      E.flatMap((args) => this._vm.deleteValues(args)),
     );
     return effectToResultAsync(effect);
   }
@@ -122,7 +122,7 @@ export class NillionClient {
         }),
       ),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap(this._vm.fetchValue),
+      E.flatMap((args) => this._vm.fetchValue(args)),
       E.map((nada) => nada.data),
     );
     return effectToResultAsync(effect);
@@ -135,7 +135,7 @@ export class NillionClient {
     const effect = E.Do.pipe(
       E.let("operation", () => Operation.storeProgram(args)),
       E.bind("receipt", ({ operation }) => this.pay({ operation })),
-      E.flatMap(this._vm.storeProgram),
+      E.flatMap((args) => this._vm.storeProgram(args)),
     );
     return effectToResultAsync(effect);
   }
@@ -154,7 +154,7 @@ export class NillionClient {
         }),
       ),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap(this._vm.storeValues),
+      E.flatMap((args) => this._vm.storeValues(args)),
     );
     return effectToResultAsync(effect);
   }
@@ -167,7 +167,7 @@ export class NillionClient {
     const effect = E.Do.pipe(
       E.let("operation", () => Operation.updateValues(args)),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap(this._vm.updateValues),
+      E.flatMap((args) => this._vm.updateValues(args)),
     );
     return effectToResultAsync(effect);
   }
@@ -178,7 +178,7 @@ export class NillionClient {
     const effect = E.Do.pipe(
       E.let("operation", () => Operation.fetchPermissions(args)),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap(this._vm.fetchPermissions),
+      E.flatMap((args) => this._vm.fetchPermissions(args)),
     );
     return effectToResultAsync(effect);
   }
@@ -190,7 +190,7 @@ export class NillionClient {
     const effect = E.Do.pipe(
       E.let("operation", () => Operation.setPermissions(args)),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap(this._vm.setPermissions),
+      E.flatMap((args) => this._vm.setPermissions(args)),
     );
     return effectToResultAsync(effect);
   }

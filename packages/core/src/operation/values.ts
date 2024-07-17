@@ -4,11 +4,11 @@ import { Days, StoreId, ValueName } from "../types";
 import { NadaValues, NadaValueType, Permissions } from "../nada";
 import * as Wasm from "@nillion/wasm";
 
-export type ValueRetrieveArgs = {
+export interface ValueRetrieveArgs {
   id: StoreId;
   name: ValueName;
   type: NadaValueType;
-};
+}
 
 export class ValueRetrieve implements Operation, IntoWasmQuotableOperation {
   type = OperationType.enum.ValueRetrieve;
@@ -24,9 +24,9 @@ export class ValueRetrieve implements Operation, IntoWasmQuotableOperation {
   }
 }
 
-export type ValuesDeleteArgs = {
+export interface ValuesDeleteArgs {
   id: StoreId;
-};
+}
 
 export class ValuesDelete {
   type = OperationType.enum.ValuesDelete;
@@ -38,11 +38,11 @@ export class ValuesDelete {
   }
 }
 
-export type ValuesStoreArgs = {
+export interface ValuesStoreArgs {
   values: NadaValues;
   ttl: Days;
   permissions?: Permissions;
-};
+}
 
 export class ValuesStore implements Operation, IntoWasmQuotableOperation {
   type = OperationType.enum.ValuesStore;
@@ -58,11 +58,11 @@ export class ValuesStore implements Operation, IntoWasmQuotableOperation {
   }
 }
 
-export type ValuesUpdateArgs = {
+export interface ValuesUpdateArgs {
   id: StoreId;
   values: NadaValues;
   ttl: Days;
-};
+}
 
 export class ValuesUpdate implements Operation, IntoWasmQuotableOperation {
   type = OperationType.enum.ValuesUpdate;

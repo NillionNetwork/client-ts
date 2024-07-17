@@ -46,7 +46,7 @@ export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
   ) {}
 
   toString(): string {
-    return `NadaValue(type=${this.type},data=${this.data})`;
+    return `NadaValue(type=${this.type})`;
   }
 
   toWasm(): Wasm.NadaValue {
@@ -68,31 +68,36 @@ export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
 
       case NadaValueType.enum.IntegerSecretUnsigned:
         return Wasm.NadaValue.new_secret_unsigned_integer(String(this.data));
-
-      default:
-        throw new Error(`Unsupported NadaValueType: ${this.type}`);
     }
   }
 
   static fromWasm(type: NadaValueType, wasm: Wasm.NadaValue): NadaValue {
     switch (type) {
-      case NadaValueType.enum.BlobSecret:
-        return NadaValue.createBlobSecret(wasm.to_byte_array());
+      case NadaValueType.enum.BlobSecret: {
+        const copiedFromMemory = Array.from(wasm.to_byte_array());
+        const values = Uint8Array.from(copiedFromMemory);
+        return NadaValue.createBlobSecret(values);
+      }
 
-      case NadaValueType.enum.BooleanSecret:
+      case NadaValueType.enum.BooleanSecret: {
         throw "return NadaValue.createBooleanSecret(wasm.xyz())";
+      }
 
-      case NadaValueType.enum.IntegerPublic:
+      case NadaValueType.enum.IntegerPublic: {
         return NadaValue.createIntegerPublic(wasm.to_integer());
+      }
 
-      case NadaValueType.enum.IntegerPublicUnsigned:
+      case NadaValueType.enum.IntegerPublicUnsigned: {
         return NadaValue.createIntegerPublicUnsigned(wasm.to_integer());
+      }
 
-      case NadaValueType.enum.IntegerSecret:
+      case NadaValueType.enum.IntegerSecret: {
         return NadaValue.createIntegerSecret(wasm.to_integer());
+      }
 
-      case NadaValueType.enum.IntegerSecretUnsigned:
+      case NadaValueType.enum.IntegerSecretUnsigned: {
         return NadaValue.createIntegerSecretUnsigned(wasm.to_integer());
+      }
     }
   }
 

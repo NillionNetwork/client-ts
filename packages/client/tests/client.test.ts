@@ -14,17 +14,12 @@ import {
   StoreId,
   ValueName,
 } from "@nillion/core";
-import {
-  ClientsAndConfig,
-  loadClientsAndConfig,
-  loadProgram,
-  expectOk,
-  expectErr,
-} from "../test-helpers";
+import { ClientsAndConfig, loadClientsAndConfig } from "../test-helpers";
 import { NillionClient } from "@nillion/client";
 import { NilChainPaymentClient } from "@nillion/payments";
 import { testPrograms } from "./programs";
 import { TestType, testTypes } from "./values";
+import { expectOk, expectErr, loadProgram } from "../../fixture/helpers";
 
 const SUITE_NAME = "@nillion/client";
 
@@ -293,6 +288,7 @@ describe(SUITE_NAME, () => {
             id: test.result.id,
           });
           if (expectOk(result)) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             expect(result.ok).toEqual(test.result.expected);
           }
         });

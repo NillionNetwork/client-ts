@@ -10,6 +10,7 @@ import { Log } from "./logger";
 import { NilChainPaymentClient } from "./client";
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface Window extends KeplrWindow {}
 }
 

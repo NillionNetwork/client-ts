@@ -8,7 +8,7 @@ import {
   ValueName,
 } from "@nillion/core";
 
-export type TestProgram = {
+export interface TestProgram {
   name: string;
   id: ProgramId;
   inputParties: PartyName[];
@@ -21,7 +21,7 @@ export type TestProgram = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expected: any;
   };
-};
+}
 
 export const testPrograms: TestProgram[] = [
   {

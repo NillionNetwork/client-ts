@@ -16,7 +16,7 @@ import {
   ValueName,
 } from "@nillion/core";
 import configFixture from "../../fixture/network.json";
-import { expectOk, loadProgram } from "../test-helpers";
+import { expectOk, loadProgram } from "../../fixture/helpers";
 
 const SUITE_NAME = `@nillion/core > non-paid functions`;
 

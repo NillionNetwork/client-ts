@@ -4,11 +4,11 @@ import { Operation, OperationType } from "./operation";
 import { NadaValues, ProgramBindings } from "../nada";
 import { ComputeResultId, StoreId } from "../types";
 
-export type ComputeArgs = {
+export interface ComputeArgs {
   bindings: ProgramBindings;
   values: NadaValues;
   storeIds: StoreId[];
-};
+}
 
 export class Compute implements Operation, IntoWasmQuotableOperation {
   type = OperationType.enum.Compute;
@@ -27,9 +27,9 @@ export class Compute implements Operation, IntoWasmQuotableOperation {
   }
 }
 
-export type ComputeRetrieveResultsArgs = {
+export interface ComputeRetrieveResultsArgs {
   id: ComputeResultId;
-};
+}
 
 export class ComputeRetrieveResult {
   type = OperationType.enum.ComputeRetrieveResult;

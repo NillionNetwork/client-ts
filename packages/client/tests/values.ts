@@ -1,13 +1,13 @@
 import { NadaValue, NadaValueType, StoreId, ValueName } from "@nillion/core";
-import { strToByteArray } from "../test-helpers";
+import { strToByteArray } from "../../fixture/helpers";
 
-export type TestType = {
+export interface TestType {
   id: StoreId;
   name: ValueName;
   type: NadaValueType;
   value: NadaValue;
   nextValue: NadaValue;
-};
+}
 
 export const testTypes: TestType[] = [
   {

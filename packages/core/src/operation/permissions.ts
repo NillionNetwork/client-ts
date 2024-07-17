@@ -4,10 +4,10 @@ import { Operation, OperationType } from "./operation";
 import { StoreId } from "../types";
 import { Permissions } from "../nada";
 
-export type PermissionsSetArgs = {
+export interface PermissionsSetArgs {
   id: StoreId;
   permissions: Permissions;
-};
+}
 
 export class PermissionsSet implements Operation, IntoWasmQuotableOperation {
   type = OperationType.enum.PermissionsUpdate;
@@ -23,9 +23,9 @@ export class PermissionsSet implements Operation, IntoWasmQuotableOperation {
   }
 }
 
-export type PermissionsRetrieveArgs = {
+export interface PermissionsRetrieveArgs {
   id: StoreId;
-};
+}
 
 export class PermissionsRetrieve
   implements Operation, IntoWasmQuotableOperation

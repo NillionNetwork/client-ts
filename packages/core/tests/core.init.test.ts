@@ -3,7 +3,7 @@ import { init } from "@nillion/core";
 const SUITE_NAME = `@nillion/core > initialization`;
 
 describe(SUITE_NAME, () => {
-  beforeAll(async () => {
+  beforeAll(() => {
     console.log(`>>> Start ${SUITE_NAME}`);
   });
 

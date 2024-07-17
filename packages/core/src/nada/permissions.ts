@@ -2,20 +2,20 @@ import { ProgramId, UserId } from "../types";
 import * as Wasm from "@nillion/wasm";
 import { Log } from "../logger";
 
-export type UserPermissions = {
+export interface UserPermissions {
   delete: boolean;
   retrieve: boolean;
   update: boolean;
   compute: boolean;
-};
+}
 
 export class Permissions {
-  computeAcl = new Map<UserId, Set<ProgramId>>();
-  deleteAcl = new Set<UserId>();
-  retrieveAcl = new Set<UserId>();
-  updateAcl = new Set<UserId>();
-
-  private constructor() {}
+  private constructor(
+    public computeAcl = new Map<UserId, Set<ProgramId>>(),
+    public deleteAcl = new Set<UserId>(),
+    public retrieveAcl = new Set<UserId>(),
+    public updateAcl = new Set<UserId>(),
+  ) {}
 
   allowCompute(users: UserId | UserId[], program: ProgramId): Permissions {
     const listOfUsers = Array.isArray(users) ? users : [users];
@@ -29,7 +29,7 @@ export class Permissions {
 
   allowDelete(users: UserId | UserId[]): Permissions {
     if (Array.isArray(users)) {
-      users.forEach(this.deleteAcl.add);
+      users.forEach((u) => this.deleteAcl.add(u));
     } else {
       this.deleteAcl.add(users);
     }
@@ -38,7 +38,7 @@ export class Permissions {
 
   allowRetrieve(users: UserId | UserId[]): Permissions {
     if (Array.isArray(users)) {
-      users.forEach(this.retrieveAcl.add);
+      users.forEach((u) => this.retrieveAcl.add(u));
     } else {
       this.retrieveAcl.add(users);
     }
@@ -47,7 +47,7 @@ export class Permissions {
 
   allowUpdate(users: UserId | UserId[]): Permissions {
     if (Array.isArray(users)) {
-      users.forEach(this.updateAcl.add);
+      users.forEach((u) => this.updateAcl.add(u));
     } else {
       this.updateAcl.add(users);
     }
@@ -86,7 +86,7 @@ export class Permissions {
     wasm.add_delete_permissions(Array.from(this.deleteAcl));
     wasm.add_retrieve_permissions(Array.from(this.retrieveAcl));
 
-    const computeAcl: Map<UserId, ProgramId[]> = new Map();
+    const computeAcl = new Map<UserId, ProgramId[]>();
     this.computeAcl.forEach((programs, user) => {
       computeAcl.set(user, Array.from(programs));
     });

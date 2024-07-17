@@ -31,35 +31,19 @@ import {
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
 
-export type NilVmClientArgs = {
+export interface NilVmClientArgs {
   bootnodes: Multiaddr[];
   clusterId: ClusterId;
   // TODO(tim): support key + generate options
   userSeed: string;
   nodeSeed: string;
-};
+}
 
 export class NilVmClient {
   constructor(
     public clusterId: ClusterId,
     public client: Wasm.NillionClient,
-  ) {
-    // E.tryPromise seems to bind 'this' when used in this class so that when these
-    // are lazily invoked 'this.client' doesn't exist. So, we bind to preserve 'this'.
-    // Oddly this isn't needed for fetchClusterInfo.
-    this.deleteValues = this.deleteValues.bind(this);
-    this.fetchValue = this.fetchValue.bind(this);
-    this.storeValues = this.storeValues.bind(this);
-    this.updateValues = this.updateValues.bind(this);
-
-    this.fetchPermissions = this.fetchPermissions.bind(this);
-    this.setPermissions = this.setPermissions.bind(this);
-
-    this.runProgram = this.runProgram.bind(this);
-    this.storeProgram = this.storeProgram.bind(this);
-
-    this.fetchClusterInfo = this.fetchClusterInfo.bind(this);
-  }
+  ) {}
 
   get partyId(): PartyId {
     return PartyId.parse(this.client.party_id);
@@ -82,9 +66,11 @@ export class NilVmClient {
   }): E.Effect<Map<string, NadaWrappedValue>, UnknownException> {
     return E.tryPromise(async () => {
       const { id } = args;
-      // TODO(tim): why does it not have cluster id as a param?
-      const response = await this.client.compute_result(id);
-      Log(`retrieved compute result for id=${id} value=${response}`);
+      const response = (await this.client.compute_result(id)) as Map<
+        string,
+        NadaWrappedValue
+      >;
+      Log(`retrieved compute result for id=${id} value=`, response);
       return response;
     });
   }
@@ -99,7 +85,7 @@ export class NilVmClient {
         operation.intoQuotable(),
       );
       const result = priceQuoteFrom(response);
-      Log(`quote ${result.cost.total} unil for ${operation.toString()}`);
+      Log(`quote ${result.cost.total} unil for `, operation);
       return result;
     });
   }
@@ -117,9 +103,9 @@ export class NilVmClient {
         name,
         paymentReceiptInto(receipt),
       );
-      const result = NadaValue.fromWasm(type, response);
 
-      Log(`Retrieve type=${type} at store=${id}: ${result}`);
+      const result = NadaValue.fromWasm(type, response);
+      Log(`Fetched ${type} from ${id} result)=`, result);
       return result;
     });
   }
@@ -138,7 +124,7 @@ export class NilVmClient {
       );
 
       const result = Permissions.from(response);
-      Log(`Fetched store=${id} permissions=${result}`);
+      Log(`Fetched permissions for ${id} result=`, result);
       return result;
     });
   }
@@ -158,7 +144,7 @@ export class NilVmClient {
       );
 
       const result = ActionId.parse(response);
-      Log(`Set permissions for store=${id} to action=${result}`);
+      Log(`Set permissions for ${id}`);
       return result;
     });
   }
@@ -208,7 +194,7 @@ export class NilVmClient {
     return E.tryPromise(async () => {
       const { id } = args;
       await this.client.delete_values(this.clusterId, id);
-      Log(`deleted value at store id=${id}`);
+      Log(`Deleted values at ${id}`);
       return id;
     });
   }
@@ -227,7 +213,7 @@ export class NilVmClient {
         paymentReceiptInto(receipt),
       );
 
-      Log(`updated store id=${id}, action id=${response}`);
+      Log(`Updated values at ${id}`);
       return ActionId.parse(response);
     });
   }
@@ -247,8 +233,7 @@ export class NilVmClient {
         paymentReceiptInto(receipt),
       );
 
-      Log(`${values} stored id=${response}`);
-
+      Log(`Stored values ${values.toString()} at ${response}`);
       return StoreId.parse(response);
     });
   }
@@ -256,7 +241,7 @@ export class NilVmClient {
   static create(args: NilVmClientArgs): NilVmClient {
     const userKey = Wasm.UserKey.from_seed(args.userSeed);
     const nodeKey = Wasm.NodeKey.from_seed(args.nodeSeed);
-    const nilvm = new Wasm.NillionClient(userKey, nodeKey, args.bootnodes);
-    return new NilVmClient(args.clusterId, nilvm);
+    const nilVm = new Wasm.NillionClient(userKey, nodeKey, args.bootnodes);
+    return new NilVmClient(args.clusterId, nilVm);
   }
 }

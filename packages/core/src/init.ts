@@ -25,12 +25,12 @@ export async function init(): Promise<void> {
 
   await Wasm.default();
 
-  globalThis.__NILLION.enableLogging = (overwrite: boolean = false) => {
+  globalThis.__NILLION.enableLogging = (overwrite = false) => {
     // It is possible that the debug key is set, if so allow the user to overwrite or preserve
     if (overwrite) {
       localStorage.debug = "";
     }
-    const current: string = localStorage.debug ?? "";
+    const current = (localStorage.debug as string) ?? "";
     if (current === "") {
       localStorage.debug = "nillion:*";
     } else if (current.indexOf("nillion:") != -1) {

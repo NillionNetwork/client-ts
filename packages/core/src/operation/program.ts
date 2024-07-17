@@ -3,10 +3,10 @@ import * as Wasm from "@nillion/wasm";
 import { Operation, OperationType } from "./operation";
 import { ProgramName } from "../types";
 
-export type ProgramStoreArgs = {
+export interface ProgramStoreArgs {
   name: ProgramName;
   program: Uint8Array;
-};
+}
 
 export class ProgramStore implements Operation, IntoWasmQuotableOperation {
   type = OperationType.enum.ProgramStore;

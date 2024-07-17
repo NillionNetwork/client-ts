@@ -11,7 +11,16 @@ export default [
     languageOptions: { globals: globals.browser },
   },
   eslintJs.configs.recommended,
-  ...eslintTs.configs.recommended,
+  ...eslintTs.configs.recommendedTypeChecked,
+  ...eslintTs.configs.stylisticTypeChecked,
+  {
+    languageOptions: {
+      parserOptions: {
+        project: true,
+        tsconfigDirName: import.meta.dirname,
+      },
+    },
+  },
   {
     rules: {
       "@typescript-eslint/no-unused-vars": [

@@ -5,16 +5,14 @@ import { NadaValue } from "./value";
 import { ValueName } from "../types";
 
 export class NadaValues implements IntoWasm<Wasm.NadaValues> {
-  private values: Map<string, NadaValue> = new Map();
-
-  private constructor() {}
+  private constructor(private values: Map<string, NadaValue> = new Map()) {}
 
   get length() {
     return this.values.size;
   }
 
   insert(name: ValueName, value: NadaValue): NadaValues {
-    Log(`insert ${name}=${value}`);
+    Log(`insert ${name}=`, value);
     if (this.values.get(name)) {
       Log(`NadaValues ${name} overwritten`);
     }
@@ -24,7 +22,9 @@ export class NadaValues implements IntoWasm<Wasm.NadaValues> {
 
   toString(): string {
     const values = Array.from(this.values);
-    const stringified = values.map(([key, value]) => `${key}=${value}`);
+    const stringified = values
+      .map(([key, value]) => `${key}=${value.toString()}`)
+      .join(",");
     return `NadaValues([${stringified}])`;
   }
 

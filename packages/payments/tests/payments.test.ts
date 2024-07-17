@@ -12,7 +12,7 @@ const SUITE_NAME = "@nillion/payments";
 describe(SUITE_NAME, () => {
   let client: NilChainPaymentClient;
 
-  beforeAll(async () => {
+  beforeAll(() => {
     console.log(`>>> Start ${SUITE_NAME}`);
   });
 
