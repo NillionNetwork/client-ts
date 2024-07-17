@@ -15,11 +15,9 @@ export class NadaValues implements IntoWasm<Wasm.NadaValues> {
 
   insert(name: ValueName, value: NadaValue): NadaValues {
     Log(`insert ${name}=${value}`);
-
     if (this.values.get(name)) {
       Log(`NadaValues ${name} overwritten`);
     }
-
     this.values.set(name, value);
     return this;
   }
@@ -36,7 +34,6 @@ export class NadaValues implements IntoWasm<Wasm.NadaValues> {
       const wasmValue = value.toWasm();
       wasmValues.insert(key, wasmValue);
     }
-
     return wasmValues;
   }
 

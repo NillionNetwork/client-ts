@@ -1,5 +1,10 @@
 import { createSignerFromKey, NilChainPaymentClient } from "@nillion/payments";
-import { Config, PriceQuote, PrivateKeyBase16 } from "@nillion/core";
+import {
+  Config,
+  effectToResultAsync,
+  PriceQuote,
+  PrivateKeyBase16,
+} from "@nillion/core";
 import fixtureConfig from "../../fixture/network.json";
 
 const SUITE_NAME = "@nillion/payments";
@@ -41,7 +46,9 @@ describe(SUITE_NAME, () => {
       },
     });
 
-    const result = await client.pay(quote);
-    expect(result).toBeDefined();
+    const effect = client.pay(quote);
+    const result = await effectToResultAsync(effect);
+    const hash = result.ok!;
+    expect(hash).toBeDefined();
   });
 });

@@ -12,8 +12,10 @@ import {
   SigningStargateClient,
   SigningStargateClientOptions,
 } from "@cosmjs/stargate";
-import { MsgPayFor } from "./proto/nilchain";
+import { MsgPayFor } from "./proto";
 import { Log } from "./logger";
+import { Effect as E } from "effect";
+import { UnknownException } from "effect/Cause";
 
 export class NilChainPaymentClient {
   private constructor(
@@ -21,25 +23,26 @@ export class NilChainPaymentClient {
     public address: NilChainAddress,
   ) {}
 
-  async pay(quote: PriceQuote): Promise<TxHash> {
-    Log(`Paying ${quote.cost.total}unil`);
+  pay(quote: PriceQuote): E.Effect<TxHash, UnknownException> {
+    return E.tryPromise(async () => {
+      Log(`Paying ${quote.cost.total}unil`);
 
-    const value = MsgPayFor.create({
-      fromAddress: this.address,
-      resource: quote.nonce,
-      amount: [{ denom: Token.Unil, amount: String(quote.cost.total) }],
+      const value = MsgPayFor.create({
+        fromAddress: this.address,
+        resource: quote.nonce,
+        amount: [{ denom: Token.Unil, amount: String(quote.cost.total) }],
+      });
+
+      const result = await this.client.signAndBroadcast(
+        this.address,
+        [{ typeUrl: NilChainProtobufTypeUrl, value }],
+        "auto",
+      );
+
+      const hash = TxHash.parse(result.transactionHash);
+      Log(`transaction hash ${hash}`);
+      return hash;
     });
-
-    const result = await this.client.signAndBroadcast(
-      this.address,
-      [{ typeUrl: NilChainProtobufTypeUrl, value }],
-      "auto",
-    );
-
-    const hash = TxHash.parse(result.transactionHash);
-    Log(`transaction hash ${hash}`);
-
-    return hash;
   }
 
   static async create(

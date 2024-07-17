@@ -3,8 +3,8 @@ import {
   ClusterDescriptor,
   ComputeResultId,
   Days,
+  effectToResultAsync,
   IntoWasmQuotableOperation,
-  NadaValue,
   NadaValues,
   NadaValueType,
   NadaWrappedValue,
@@ -12,227 +12,179 @@ import {
   Operation,
   PaymentReceipt,
   Permissions,
-  PriceQuote,
   ProgramBindings,
   ProgramId,
   ProgramName,
+  Result,
   StoreId,
   ValueName,
 } from "@nillion/core";
 import { NilChainPaymentClient } from "@nillion/payments";
+import { Effect as E } from "effect";
+import { UnknownException } from "effect/Cause";
 
-export type PaidOperationResult<T> = {
-  quote: PriceQuote;
-  receipt: PaymentReceipt;
-  data: T;
+export type ClientDefaults = {
+  valueTtl: Days;
 };
 
 export class NillionClient {
-  defaults = {
+  defaults: ClientDefaults = {
     valueTtl: Days.parse(30),
   };
 
   private constructor(
-    private vm: NilVmClient,
-    private chain: NilChainPaymentClient,
-  ) {}
-
-  async pay(args: {
-    operation: IntoWasmQuotableOperation;
-  }): Promise<[PriceQuote, PaymentReceipt]> {
-    const quote = (await this.vm.priceQuoteRequest(args)).unwrap();
-    const hash = await this.chain.pay(quote);
-    const receipt = PaymentReceipt.parse({
-      quote,
-      hash,
-    });
-    return [quote, receipt];
+    public _vm: NilVmClient,
+    public _chain: NilChainPaymentClient,
+    defaults: Partial<ClientDefaults> = {},
+  ) {
+    this.defaults = {
+      ...this.defaults,
+      ...defaults,
+    };
   }
 
-  async compute(args: {
+  pay(args: {
+    operation: IntoWasmQuotableOperation;
+  }): E.Effect<PaymentReceipt, UnknownException> {
+    return E.Do.pipe(
+      E.bind("quote", () => this._vm.fetchOperationQuote(args)),
+      E.bind("hash", ({ quote }) => this._chain.pay(quote)),
+      E.map(({ quote, hash }) =>
+        PaymentReceipt.parse({
+          quote,
+          hash,
+        }),
+      ),
+    );
+  }
+
+  runProgram(args: {
     bindings: ProgramBindings;
     values: NadaValues;
     storeIds: StoreId[];
-  }): Promise<PaidOperationResult<ComputeResultId>> {
-    const operation = Operation.compute(args);
-    const [quote, receipt] = await this.pay({ operation });
-    const result = await this.vm.compute({ receipt, operation });
-
-    // if (result.isErr()) {
-    //   return {
-    //     quote,
-    //     receipt,
-    //     error: result.error,
-    //   };
-    // }
-    const data = result.unwrap();
-    return {
-      quote,
-      receipt,
-      data,
-    };
+  }): Promise<Result<ComputeResultId, UnknownException>> {
+    const effect: E.Effect<ComputeResultId, UnknownException> = E.Do.pipe(
+      E.let("operation", () => Operation.compute(args)),
+      E.bind("receipt", (args) => this.pay(args)),
+      E.flatMap(this._vm.runProgram),
+    );
+    return effectToResultAsync(effect);
   }
 
-  async fetchComputeResult<
-    T extends Map<string, NadaWrappedValue> = Map<string, NadaWrappedValue>,
-  >(args: { id: ComputeResultId }): Promise<T> {
-    const operation = Operation.fetchComputeResult(args);
-    const result = await this.vm.computeResultRetrieve(operation.args);
-    return result.unwrap() as unknown as T;
+  fetchRunProgramResult(args: {
+    id: ComputeResultId;
+  }): Promise<Result<Map<string, NadaWrappedValue>, UnknownException>> {
+    const effect = E.Do.pipe(
+      E.let("operation", () => Operation.fetchComputeResult(args)),
+      E.flatMap(({ operation }) =>
+        this._vm.fetchRunProgramResult(operation.args),
+      ),
+    );
+    return effectToResultAsync(effect);
   }
 
-  async deleteValues(args: { id: StoreId | string }): Promise<StoreId> {
-    const parsed = StoreId.parse(args.id);
-    const result = await this.vm.valuesDelete({ id: parsed });
-    return result.unwrap();
+  deleteValues(args: {
+    id: StoreId | string;
+  }): Promise<Result<StoreId, UnknownException>> {
+    const effect = E.Do.pipe(
+      E.bind("id", () => E.try(() => StoreId.parse(args.id))),
+      E.flatMap(this._vm.deleteValues),
+    );
+    return effectToResultAsync(effect);
   }
 
-  async fetchClusterInfo(): Promise<ClusterDescriptor> {
-    const result = await this.vm.clusterInfoRetrieve();
-    return result.unwrap();
+  fetchClusterInfo(): Promise<Result<ClusterDescriptor, UnknownException>> {
+    const effect = this._vm.fetchClusterInfo();
+    return effectToResultAsync(effect);
   }
 
-  async fetchValue<T = unknown>(args: {
+  fetchValue(args: {
     id: StoreId | string;
     name: ValueName | string;
     type: NadaValueType;
-  }): Promise<PaidOperationResult<T>> {
-    const parsedId = StoreId.parse(args.id);
-    const parsedName = ValueName.parse(args.name);
-
-    const operation = Operation.fetchValue({
-      id: parsedId,
-      name: parsedName,
-      type: args.type,
-    });
-    const [quote, receipt] = await this.pay({ operation });
-
-    const result = await this.vm.valueRetrieve({
-      receipt,
-      operation,
-    });
-
-    const data = result.unwrap().data as unknown as T;
-
-    return {
-      quote,
-      receipt,
-      data,
-    };
+  }): Promise<Result<NadaWrappedValue, UnknownException>> {
+    const effect = E.Do.pipe(
+      E.bind("id", () => E.try(() => StoreId.parse(args.id))),
+      E.bind("name", () => E.try(() => ValueName.parse(args.name))),
+      E.let("operation", ({ id, name }) =>
+        Operation.fetchValue({
+          id,
+          name,
+          type: args.type,
+        }),
+      ),
+      E.bind("receipt", (args) => this.pay(args)),
+      E.flatMap(this._vm.fetchValue),
+      E.map((nada) => nada.data),
+    );
+    return effectToResultAsync(effect);
   }
 
-  async storeProgram(args: {
+  storeProgram(args: {
     name: ProgramName;
     program: Uint8Array;
-  }): Promise<PaidOperationResult<ProgramId>> {
-    const operation = Operation.storeProgram(args);
-    const [quote, receipt] = await this.pay({ operation });
-    const result = await this.vm.programStore({ receipt, operation });
-    const data = result.unwrap();
-
-    return {
-      quote,
-      receipt,
-      data,
-    };
+  }): Promise<Result<ProgramId, UnknownException>> {
+    const effect = E.Do.pipe(
+      E.let("operation", () => Operation.storeProgram(args)),
+      E.bind("receipt", ({ operation }) => this.pay({ operation })),
+      E.flatMap(this._vm.storeProgram),
+    );
+    return effectToResultAsync(effect);
   }
 
-  async storeValues(args: {
-    values:
-      | NadaValues
-      | { name: NadaValue | string; value: NadaWrappedValue }[];
+  storeValues(args: {
+    values: NadaValues;
     ttl?: Days;
     permissions?: Permissions;
-  }): Promise<PaidOperationResult<StoreId>> {
-    let values = args.values;
-    if (Array.isArray(values)) {
-      const asNadaValues = NadaValues.create();
-      values.forEach(({ name, value }) => {
-        const parsedNamed = ValueName.parse(name);
-        if (value instanceof Uint8Array) {
-          asNadaValues.insert(parsedNamed, NadaValue.createBlobSecret(value));
-        } else if (typeof value === "boolean") {
-          asNadaValues.insert(
-            parsedNamed,
-            NadaValue.createBooleanSecret(value),
-          );
-        } else if (typeof value === "number") {
-          asNadaValues.insert(
-            parsedNamed,
-            NadaValue.createIntegerSecret(value),
-          );
-        } else if (typeof value === "bigint") {
-          asNadaValues.insert(
-            parsedNamed,
-            NadaValue.createIntegerSecretUnsigned(value),
-          );
-        } else {
-          throw `unknown value type: ${typeof value}`;
-        }
-      });
-      values = asNadaValues;
-    }
-
-    const operation = Operation.storeValues({
-      values,
-      ttl: args.ttl ?? this.defaults.valueTtl,
-      permissions: args.permissions,
-    });
-    const [quote, receipt] = await this.pay({ operation });
-    const result = await this.vm.valuesStore({ receipt, operation });
-    const data = result.unwrap();
-
-    return {
-      quote,
-      receipt,
-      data,
-    };
+  }): Promise<Result<StoreId, UnknownException>> {
+    const effect = E.Do.pipe(
+      E.let("operation", () =>
+        Operation.storeValues({
+          values: args.values,
+          ttl: args.ttl ?? this.defaults.valueTtl,
+          permissions: args.permissions,
+        }),
+      ),
+      E.bind("receipt", (args) => this.pay(args)),
+      E.flatMap(this._vm.storeValues),
+    );
+    return effectToResultAsync(effect);
   }
 
-  async updateValue(args: {
+  updateValue(args: {
     id: StoreId;
     values: NadaValues;
     ttl: Days;
-  }): Promise<PaidOperationResult<ActionId>> {
-    const operation = Operation.updateValues(args);
-    const [quote, receipt] = await this.pay({ operation });
-    const result = await this.vm.valuesUpdate({ receipt, operation });
-    const data = result.unwrap();
-
-    return {
-      quote,
-      receipt,
-      data,
-    };
+  }): Promise<Result<ActionId, UnknownException>> {
+    const effect = E.Do.pipe(
+      E.let("operation", () => Operation.updateValues(args)),
+      E.bind("receipt", (args) => this.pay(args)),
+      E.flatMap(this._vm.updateValues),
+    );
+    return effectToResultAsync(effect);
   }
 
-  async fetchPermissions(args: {
+  fetchPermissions(args: {
     id: StoreId;
-  }): Promise<PaidOperationResult<unknown>> {
-    const operation = Operation.fetchPermissions(args);
-    const [quote, receipt] = await this.pay({ operation });
-    const result = await this.vm.permissionsRetrieve({ receipt, operation });
-    const data = result.unwrap();
-    return {
-      quote,
-      receipt,
-      data,
-    };
+  }): Promise<Result<unknown, UnknownException>> {
+    const effect = E.Do.pipe(
+      E.let("operation", () => Operation.fetchPermissions(args)),
+      E.bind("receipt", (args) => this.pay(args)),
+      E.flatMap(this._vm.fetchPermissions),
+    );
+    return effectToResultAsync(effect);
   }
 
-  async setPermissions(args: {
+  setPermissions(args: {
     id: StoreId;
     permissions: Permissions;
-  }): Promise<PaidOperationResult<ActionId>> {
-    const operation = Operation.setPermissions(args);
-    const [quote, receipt] = await this.pay({ operation });
-    const result = await this.vm.permissionsUpdate({ receipt, operation });
-    const data = result.unwrap();
-    return {
-      quote,
-      receipt,
-      data,
-    };
+  }): Promise<Result<ActionId, UnknownException>> {
+    const effect = E.Do.pipe(
+      E.let("operation", () => Operation.setPermissions(args)),
+      E.bind("receipt", (args) => this.pay(args)),
+      E.flatMap(this._vm.setPermissions),
+    );
+    return effectToResultAsync(effect);
   }
 
   static create(

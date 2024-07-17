@@ -13,7 +13,6 @@ import {
   UserId,
 } from "./types";
 import { Log } from "./logger";
-import { Result } from "./result";
 import {
   IntoWasmQuotableOperation,
   paymentReceiptInto,
@@ -29,6 +28,8 @@ import {
   ValuesStore,
   ValuesUpdate,
 } from "./operation";
+import { Effect as E } from "effect";
+import { UnknownException } from "effect/Cause";
 
 export type NilVmClientArgs = {
   bootnodes: Multiaddr[];
@@ -42,7 +43,23 @@ export class NilVmClient {
   constructor(
     public clusterId: ClusterId,
     public client: Wasm.NillionClient,
-  ) {}
+  ) {
+    // E.tryPromise seems to bind 'this' when used in this class so that when these
+    // are lazily invoked 'this.client' doesn't exist. So, we bind to preserve 'this'.
+    // Oddly this isn't needed for fetchClusterInfo.
+    this.deleteValues = this.deleteValues.bind(this);
+    this.fetchValue = this.fetchValue.bind(this);
+    this.storeValues = this.storeValues.bind(this);
+    this.updateValues = this.updateValues.bind(this);
+
+    this.fetchPermissions = this.fetchPermissions.bind(this);
+    this.setPermissions = this.setPermissions.bind(this);
+
+    this.runProgram = this.runProgram.bind(this);
+    this.storeProgram = this.storeProgram.bind(this);
+
+    this.fetchClusterInfo = this.fetchClusterInfo.bind(this);
+  }
 
   get partyId(): PartyId {
     return PartyId.parse(this.client.party_id);
@@ -52,19 +69,18 @@ export class NilVmClient {
     return UserId.parse(this.client.user_id);
   }
 
-  async clusterInfoRetrieve(): Promise<Result<ClusterDescriptor>> {
-    return Result.try(async () => {
+  fetchClusterInfo(): E.Effect<ClusterDescriptor, UnknownException> {
+    return E.tryPromise(async () => {
       const response = await this.client.cluster_information(this.clusterId);
-      const parsed = ClusterDescriptor.parse(response);
-      Log("NilVmClient::clusterInfoRetrieve payload: ", parsed);
-      return parsed;
+      Log("fetched cluster info: ", response);
+      return ClusterDescriptor.parse(response);
     });
   }
 
-  async computeResultRetrieve(args: {
+  fetchRunProgramResult(args: {
     id: ComputeResultId;
-  }): Promise<Result<Map<string, NadaWrappedValue>>> {
-    return Result.try(async () => {
+  }): E.Effect<Map<string, NadaWrappedValue>, UnknownException> {
+    return E.tryPromise(async () => {
       const { id } = args;
       // TODO(tim): why does it not have cluster id as a param?
       const response = await this.client.compute_result(id);
@@ -73,10 +89,10 @@ export class NilVmClient {
     });
   }
 
-  async priceQuoteRequest(args: {
+  fetchOperationQuote(args: {
     operation: IntoWasmQuotableOperation;
-  }): Promise<Result<PriceQuote>> {
-    return Result.try(async () => {
+  }): E.Effect<PriceQuote, UnknownException> {
+    return E.tryPromise(async () => {
       const { operation } = args;
       const response = await this.client.request_price_quote(
         this.clusterId,
@@ -88,11 +104,11 @@ export class NilVmClient {
     });
   }
 
-  async valueRetrieve(args: {
+  fetchValue(args: {
     receipt: PaymentReceipt;
     operation: ValueRetrieve;
-  }): Promise<Result<NadaValue>> {
-    return Result.try(async () => {
+  }): E.Effect<NadaValue, UnknownException> {
+    return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { id, name, type } = operation.args;
       const response = await this.client.retrieve_value(
@@ -108,11 +124,11 @@ export class NilVmClient {
     });
   }
 
-  async permissionsRetrieve(args: {
+  fetchPermissions(args: {
     receipt: PaymentReceipt;
     operation: PermissionsRetrieve;
-  }): Promise<Result<Permissions>> {
-    return Result.try(async () => {
+  }): E.Effect<Permissions, UnknownException> {
+    return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { id } = operation.args;
       const response = await this.client.retrieve_permissions(
@@ -127,11 +143,11 @@ export class NilVmClient {
     });
   }
 
-  async permissionsUpdate(args: {
+  setPermissions(args: {
     receipt: PaymentReceipt;
     operation: PermissionsSet;
-  }): Promise<Result<ActionId>> {
-    return Result.try(async () => {
+  }): E.Effect<ActionId, UnknownException> {
+    return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { id, permissions } = operation.args;
       const response = await this.client.update_permissions(
@@ -147,11 +163,11 @@ export class NilVmClient {
     });
   }
 
-  async compute(args: {
+  runProgram(args: {
     receipt: PaymentReceipt;
     operation: Compute;
-  }): Promise<Result<ComputeResultId>> {
-    return Result.try(async () => {
+  }): E.Effect<ComputeResultId, UnknownException> {
+    return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { bindings, storeIds, values } = operation.args;
       const response = await this.client.compute(
@@ -168,11 +184,11 @@ export class NilVmClient {
     });
   }
 
-  async programStore(args: {
+  storeProgram(args: {
     receipt: PaymentReceipt;
     operation: ProgramStore;
-  }): Promise<Result<ProgramId>> {
-    return Result.try(async () => {
+  }): E.Effect<ProgramId, UnknownException> {
+    return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { name, program } = operation.args;
       const response = await this.client.store_program(
@@ -188,8 +204,8 @@ export class NilVmClient {
     });
   }
 
-  async valuesDelete(args: { id: StoreId }): Promise<Result<StoreId>> {
-    return Result.try(async () => {
+  deleteValues(args: { id: StoreId }): E.Effect<StoreId, UnknownException> {
+    return E.tryPromise(async () => {
       const { id } = args;
       await this.client.delete_values(this.clusterId, id);
       Log(`deleted value at store id=${id}`);
@@ -197,11 +213,11 @@ export class NilVmClient {
     });
   }
 
-  async valuesUpdate(args: {
+  updateValues(args: {
     receipt: PaymentReceipt;
     operation: ValuesUpdate;
-  }): Promise<Result<ActionId>> {
-    return Result.try(async () => {
+  }): E.Effect<ActionId, UnknownException> {
+    return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { id, values } = operation.args;
       const response = await this.client.update_values(
@@ -211,19 +227,19 @@ export class NilVmClient {
         paymentReceiptInto(receipt),
       );
 
-      const result = ActionId.parse(response);
-      Log(`updated store id=${id}, action id=${result}`);
-      return result;
+      Log(`updated store id=${id}, action id=${response}`);
+      return ActionId.parse(response);
     });
   }
 
-  async valuesStore(args: {
+  storeValues(args: {
     receipt: PaymentReceipt;
     operation: ValuesStore;
-  }): Promise<Result<StoreId>> {
-    return Result.try(async () => {
+  }): E.Effect<StoreId, UnknownException> {
+    return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { values, permissions } = operation.args;
+
       const response = await this.client.store_values(
         this.clusterId,
         values.into(),
@@ -231,9 +247,9 @@ export class NilVmClient {
         paymentReceiptInto(receipt),
       );
 
-      const result = StoreId.parse(response);
-      Log(`${values} stored id=${result}`);
-      return result;
+      Log(`${values} stored id=${response}`);
+
+      return StoreId.parse(response);
     });
   }
 
@@ -241,7 +257,6 @@ export class NilVmClient {
     const userKey = Wasm.UserKey.from_seed(args.userSeed);
     const nodeKey = Wasm.NodeKey.from_seed(args.nodeSeed);
     const nilvm = new Wasm.NillionClient(userKey, nodeKey, args.bootnodes);
-
     return new NilVmClient(args.clusterId, nilvm);
   }
 }

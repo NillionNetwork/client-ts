@@ -4,6 +4,7 @@ import {
   NadaValue,
   NadaValues,
   NadaValueType,
+  NadaWrappedValue,
   NilVmClient,
   Permissions,
   ProgramBindings,
@@ -16,6 +17,8 @@ import {
   ClientsAndConfig,
   loadClientsAndConfig,
   loadProgram,
+  expectOk,
+  expectErr,
 } from "../test-helpers";
 import { NillionClient } from "@nillion/client";
 import { NilChainPaymentClient } from "@nillion/payments";
@@ -30,7 +33,6 @@ describe(SUITE_NAME, () => {
   beforeAll(async () => {
     console.log(`>>> Start ${SUITE_NAME}`);
     await init();
-
     context = await loadClientsAndConfig();
     expect(context.client).toBeInstanceOf(NillionClient);
     expect(context.clientVm).toBeInstanceOf(NilVmClient);
@@ -44,7 +46,9 @@ describe(SUITE_NAME, () => {
   it("can fetch cluster information", async () => {
     const { client, clientVm } = context;
     const result = await client.fetchClusterInfo();
-    expect(result.id).toEqual(clientVm.clusterId);
+    if (expectOk(result)) {
+      expect(result.ok.id).toEqual(clientVm.clusterId);
+    }
   });
 
   testTypes.forEach((test: TestType) => {
@@ -54,40 +58,42 @@ describe(SUITE_NAME, () => {
         const { client } = context;
         const values = NadaValues.create().insert(name, value);
 
-        const { data } = await client.storeValues({
+        const result = await client.storeValues({
           values,
         });
-        test.id = data;
-        expect(data).toBeDefined();
+
+        if (expectOk(result)) {
+          test.id = result.ok;
+        }
       });
 
       it("fetch value", async () => {
         const { client } = context;
-
         const result = await client.fetchValue({
           id: test.id,
           name,
           type,
         });
 
-        let actual = result.data;
-        let expected: unknown = test.value.data;
-
-        if (actual instanceof Uint8Array) {
-          actual = Array.from(actual);
-          expected = Array.from(expected as Uint8Array);
+        if (expectOk(result)) {
+          let actual: NadaWrappedValue | number[] = result.ok;
+          let expected: unknown = test.value.data;
+          if (actual instanceof Uint8Array) {
+            actual = Array.from(actual);
+            expected = Array.from(expected as Uint8Array);
+          }
+          expect(expected).toEqual(actual);
         }
-        expect(expected).toEqual(actual);
       });
 
       it("update value", async () => {
         const { client } = context;
-        const { data } = await client.updateValue({
+        const result = await client.updateValue({
           id: test.id,
           values: NadaValues.create().insert(name, test.nextValue),
           ttl: Days.parse(1),
         });
-        expect(data).toBeDefined();
+        expectOk(result);
       });
 
       it("retrieve after update", async () => {
@@ -98,33 +104,35 @@ describe(SUITE_NAME, () => {
           type,
         });
 
-        let actual = result.data;
-        let expected: unknown = test.nextValue.data;
-
-        if (actual instanceof Uint8Array) {
-          actual = Array.from(actual);
-          expected = Array.from(expected as Uint8Array);
+        if (expectOk(result)) {
+          let actual: NadaWrappedValue | number[] = result.ok;
+          let expected: unknown = test.nextValue.data;
+          if (actual instanceof Uint8Array) {
+            actual = Array.from(actual);
+            expected = Array.from(expected as Uint8Array);
+          }
+          expect(expected).toEqual(actual);
         }
-        expect(expected).toEqual(actual);
       });
 
       it("delete", async () => {
         const { client } = context;
         const result = await client.deleteValues({ id: test.id });
-        expect(result).toEqual(test.id);
+
+        if (expectOk(result)) {
+          expect(result.ok).toEqual(test.id);
+        }
       });
 
       it("should fail to retrieve deleted value", async () => {
-        try {
-          await context.client.fetchValue({
-            id: test.id,
-            name,
-            type,
-          });
-          expect(true).toBeFalse(); // should never be reached
-          // @ts-expect-error to avoid verbose type checking in test
-        } catch (e: Error) {
-          expect(e.message).toContain("values not found");
+        const result = await context.client.fetchValue({
+          id: test.id,
+          name,
+          type,
+        });
+
+        if (expectErr(result)) {
+          expect(result.err.message).toContain("values not found");
         }
       });
     });
@@ -139,57 +147,53 @@ describe(SUITE_NAME, () => {
 
     it("can store access controlled values", async () => {
       const { client, clientVm } = context;
-      const { data } = await client.storeValues({
+      const result = await client.storeValues({
         values,
         permissions: Permissions.createDefaultForUser(clientVm.userId),
       });
-      expect(data).toBeDefined();
-      id = data;
+
+      if (expectOk(result)) {
+        id = result.ok;
+      }
     });
 
     it("can fetch value when authorized", async () => {
       const { client } = context;
-      const { data } = await client.fetchValue<number>({
+      const result = await client.fetchValue({
         id,
         name,
         type,
       });
-
-      expect(data).toBeDefined();
-      expect(data).toBe(value.data);
+      if (expectOk(result)) {
+        expect(result.ok).toBe(value.data);
+      }
     });
 
     it("can retrieve permissions", async () => {
       const { client } = context;
-      const { data } = await client.fetchPermissions({
+      const result = await client.fetchPermissions({
         id,
       });
-      expect(data).toBeDefined();
+      expectOk(result);
     });
 
     it("can update permissions", async () => {
       const { client } = context;
       const permissions = Permissions.create();
-      const { data } = await client.setPermissions({
+      const result = await client.setPermissions({
         id,
         permissions,
       });
 
-      expect(data).toBeDefined();
+      expectOk(result);
     });
 
     it("value fetch rejected when not authorized", async () => {
-      try {
-        await context.client.fetchPermissions({
-          id,
-        });
-        // should never be reached
-        expect(true).toBeFalse();
-
-        // @ts-expect-error to avoid verbose type checking in test
-      } catch (e: Error) {
-        const message = e.message;
-        expect(message).toContain("user is not authorized");
+      const result = await context.client.fetchPermissions({
+        id,
+      });
+      if (expectErr(result)) {
+        expect(result.err.message).toContain("user is not authorized");
       }
     });
   });
@@ -199,12 +203,11 @@ describe(SUITE_NAME, () => {
       const { client } = context;
       const program = await loadProgram("addition_division.nada.bin");
 
-      const { data } = await client.storeProgram({
+      const result = await client.storeProgram({
         program,
         name: ProgramName.parse("addition_division"),
       });
-
-      expect(data).toBeDefined();
+      expectOk(result);
     });
 
     it("can concurrently store programs", async () => {
@@ -223,11 +226,8 @@ describe(SUITE_NAME, () => {
 
       const results = await Promise.all(promises);
       expect(results).toHaveSize(2);
-
-      const foo = results[0].data;
-      const bar = results[1].data;
-      expect(foo).toBeDefined();
-      expect(bar).toBeDefined();
+      expectOk(results[0]);
+      expectOk(results[1]);
     });
 
     testPrograms.forEach((test) => {
@@ -243,11 +243,13 @@ describe(SUITE_NAME, () => {
               test.id,
             );
 
-            const { data } = await client.storeValues({
+            const result = await client.storeValues({
               values,
               permissions,
             });
-            test.storeIds.push(data);
+            if (expectOk(result)) {
+              test.storeIds.push(result.ok);
+            }
           }
         });
 
@@ -263,21 +265,24 @@ describe(SUITE_NAME, () => {
             bindings.addOutputParty(party, clientVm.partyId);
           });
 
-          const { data } = await client.compute({
+          const result = await client.runProgram({
             bindings,
             values: test.valuesToInput,
             storeIds: test.storeIds,
           });
 
-          test.result.id = data;
-          expect(data).toBeDefined();
+          if (expectOk(result)) {
+            test.result.id = result.ok;
+          }
         });
 
         it("can get result", async () => {
-          const data = await context.client.fetchComputeResult({
+          const result = await context.client.fetchRunProgramResult({
             id: test.result.id,
           });
-          expect(data).toEqual(test.result.expected);
+          if (expectOk(result)) {
+            expect(result.ok).toEqual(test.result.expected);
+          }
         });
       });
     });

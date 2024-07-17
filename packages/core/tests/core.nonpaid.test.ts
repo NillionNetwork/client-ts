@@ -1,6 +1,7 @@
 import {
   Config,
   Days,
+  effectToResultAsync,
   init,
   NadaValue,
   NadaValues,
@@ -15,6 +16,7 @@ import {
   ValueName,
 } from "@nillion/core";
 import configFixture from "../../fixture/network.json";
+import { expectOk, loadProgram } from "../test-helpers";
 
 const SUITE_NAME = `@nillion/core > non-paid functions`;
 
@@ -58,10 +60,10 @@ describe(SUITE_NAME, () => {
   });
 
   it("can fetch the cluster descriptor", async () => {
-    const result = await client.clusterInfoRetrieve();
-    const descriptor = result.unwrap();
-    expect(descriptor).toBeDefined();
-    expect(descriptor.id).toBe(client.clusterId);
+    const result = await effectToResultAsync(client.fetchClusterInfo());
+    if (expectOk(result)) {
+      expect(result.ok.id).toBe(client.clusterId);
+    }
   });
 
   it("can get quote for compute", async () => {
@@ -74,9 +76,12 @@ describe(SUITE_NAME, () => {
       storeIds: [],
     };
     const operation = Operation.compute(args);
-    const result = await client.priceQuoteRequest({ operation });
-    const quote = result.unwrap();
-    expect(quote.cost.total).toBeGreaterThan(1);
+    const effect = client.fetchOperationQuote({ operation });
+    const result = await effectToResultAsync(effect);
+
+    if (expectOk(result)) {
+      expect(result.ok.cost.total).toBeGreaterThan(1);
+    }
   });
 
   it("can get quote for permissions retrieve", async () => {
@@ -84,9 +89,12 @@ describe(SUITE_NAME, () => {
       id: data.store,
     };
     const operation = Operation.fetchPermissions(args);
-    const result = await client.priceQuoteRequest({ operation });
-    const quote = result.unwrap();
-    expect(quote.cost.total).toBeGreaterThan(1);
+    const effect = client.fetchOperationQuote({ operation });
+    const result = await effectToResultAsync(effect);
+
+    if (expectOk(result)) {
+      expect(result.ok.cost.total).toBeGreaterThan(1);
+    }
   });
 
   it("can get quote for permissions update", async () => {
@@ -95,18 +103,24 @@ describe(SUITE_NAME, () => {
       permissions: Permissions.create(),
     };
     const operation = Operation.setPermissions(args);
-    const result = await client.priceQuoteRequest({ operation });
-    const quote = result.unwrap();
-    expect(quote.cost.total).toBeGreaterThan(1);
+    const effect = client.fetchOperationQuote({ operation });
+    const result = await effectToResultAsync(effect);
+
+    if (expectOk(result)) {
+      expect(result.ok.cost.total).toBeGreaterThan(1);
+    }
   });
 
   it("can get quote for program store", async () => {
     const program = await loadProgram("addition_division.nada.bin");
     const args = { program, name: ProgramName.parse("foo") };
     const operation = Operation.storeProgram(args);
-    const result = await client.priceQuoteRequest({ operation });
-    const quote = result.unwrap();
-    expect(quote.cost.total).toBeGreaterThan(1);
+    const effect = client.fetchOperationQuote({ operation });
+    const result = await effectToResultAsync(effect);
+
+    if (expectOk(result)) {
+      expect(result.ok.cost.total).toBeGreaterThan(1);
+    }
   });
 
   it("can get quote for values store", async () => {
@@ -118,9 +132,12 @@ describe(SUITE_NAME, () => {
       ttl: Days.parse(1),
     };
     const operation = Operation.storeValues(args);
-    const result = await client.priceQuoteRequest({ operation });
-    const quote = result.unwrap();
-    expect(quote.cost.total).toBeGreaterThan(1);
+    const effect = client.fetchOperationQuote({ operation });
+    const result = await effectToResultAsync(effect);
+
+    if (expectOk(result)) {
+      expect(result.ok.cost.total).toBeGreaterThan(1);
+    }
   });
 
   it("can get quote for values update", async () => {
@@ -133,23 +150,11 @@ describe(SUITE_NAME, () => {
       ttl: Days.parse(1),
     };
     const operation = Operation.updateValues(args);
-    const result = await client.priceQuoteRequest({ operation });
-    const quote = result.unwrap();
-    expect(quote.cost.total).toBeGreaterThan(1);
+    const effect = client.fetchOperationQuote({ operation });
+    const result = await effectToResultAsync(effect);
+
+    if (expectOk(result)) {
+      expect(result.ok.cost.total).toBeGreaterThan(1);
+    }
   });
 });
-
-const loadProgram = async (name: string): Promise<Uint8Array> => {
-  const path = `__src__/${name}`;
-  console.log(path);
-  try {
-    const response = await fetch(path);
-    const body = response.body!;
-    const payload = await body.getReader().read();
-    return payload.value!;
-  } catch (e) {
-    console.error(`failed to load program: ${path}`);
-    console.error(`error: ${e}`);
-    throw e;
-  }
-};
