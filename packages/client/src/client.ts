@@ -12,6 +12,7 @@ import {
   Operation,
   PaymentReceipt,
   Permissions,
+  PriceQuote,
   ProgramBindings,
   ProgramId,
   ProgramName,
@@ -95,6 +96,13 @@ export class NillionClient {
 
   fetchClusterInfo(): Promise<Result<ClusterDescriptor, UnknownException>> {
     const effect = this._vm.fetchClusterInfo();
+    return effectToResultAsync(effect);
+  }
+
+  fetchOperationQuote(args: {
+    operation: IntoWasmQuotableOperation;
+  }): Promise<Result<PriceQuote, UnknownException>> {
+    const effect = this._vm.fetchOperationQuote(args);
     return effectToResultAsync(effect);
   }
 

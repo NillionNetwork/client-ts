@@ -6,6 +6,7 @@ import {
   NadaValueType,
   NadaWrappedValue,
   NilVmClient,
+  Operation,
   Permissions,
   ProgramBindings,
   ProgramId,
@@ -48,6 +49,17 @@ describe(SUITE_NAME, () => {
     const result = await client.fetchClusterInfo();
     if (expectOk(result)) {
       expect(result.ok.id).toEqual(clientVm.clusterId);
+    }
+  });
+
+  it("can fetch an operation quote", async () => {
+    const { client } = context;
+    const args = {
+      operation: Operation.fetchPermissions({ id: "" as StoreId }),
+    };
+    const result = await client.fetchOperationQuote(args);
+    if (expectOk(result)) {
+      expect(result.ok.cost.total).toBeGreaterThan(1);
     }
   });
 
