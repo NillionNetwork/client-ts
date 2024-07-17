@@ -10,7 +10,7 @@ export default {
   mode: "development",
   entry: glob.sync("tests/**/*.test.ts"),
   resolve: {
-    modules: [__dirname, "spec", "helpers", "node_modules"],
+    modules: [__dirname, "tests", "test-helpers", "node_modules"],
     extensions: [".js", ".ts", ".json"],
     plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
     fallback: {
