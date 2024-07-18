@@ -140,12 +140,16 @@ export class NilVmClient {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { id, name, type } = operation.args;
+
+      const wasmReceipt = paymentReceiptInto(receipt);
       const response = await this.client.retrieve_value(
         this.clusterId,
         id,
         name,
-        paymentReceiptInto(receipt),
+        wasmReceipt,
       );
+      wasmReceipt.free();
+      receipt.quote.inner.free();
 
       const result = NadaValue.fromWasm(type, response);
       Log(`Fetched ${type} from ${id}`);
@@ -160,11 +164,15 @@ export class NilVmClient {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { id } = operation.args;
+
+      const wasmReceipt = paymentReceiptInto(receipt);
       const response = await this.client.retrieve_permissions(
         this.clusterId,
         id,
-        paymentReceiptInto(receipt),
+        wasmReceipt,
       );
+      wasmReceipt.free();
+      receipt.quote.inner.free();
 
       const result = Permissions.from(response);
       Log(`Fetched permissions for ${id} result=`, result);
@@ -179,12 +187,18 @@ export class NilVmClient {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { id, permissions } = operation.args;
+
+      const wasmReceipt = paymentReceiptInto(receipt);
+      const wasmPermissions = permissions.into();
       const response = await this.client.update_permissions(
         this.clusterId,
         id,
-        permissions.into(),
-        paymentReceiptInto(receipt),
+        wasmPermissions,
+        wasmReceipt,
       );
+      // wasmPermissions?.free(); causes a WASM/rust NPE??
+      wasmReceipt.free();
+      receipt.quote.inner.free();
 
       const result = ActionId.parse(response);
       Log(`Set permissions for ${id}`);
@@ -199,13 +213,19 @@ export class NilVmClient {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { bindings, storeIds, values } = operation.args;
+
+      const wasmValues = values.into();
+      const wasmReceipt = paymentReceiptInto(receipt);
       const response = await this.client.compute(
         this.clusterId,
         bindings.into(),
         storeIds,
-        values.into(),
-        paymentReceiptInto(receipt),
+        wasmValues,
+        wasmReceipt,
       );
+      wasmValues.free();
+      wasmReceipt.free();
+      receipt.quote.inner.free();
 
       const result = ComputeResultId.parse(response);
       Log(`Compute started resultId=${result}`);
@@ -220,12 +240,16 @@ export class NilVmClient {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { name, program } = operation.args;
+
+      const wasmReceipt = paymentReceiptInto(receipt);
       const response = await this.client.store_program(
         this.clusterId,
         name,
         program,
-        paymentReceiptInto(receipt),
+        wasmReceipt,
       );
+      wasmReceipt.free();
+      receipt.quote.inner.free();
 
       const id = ProgramId.parse(response);
       Log(`program stored with id=${id}`);
@@ -249,12 +273,18 @@ export class NilVmClient {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { id, values } = operation.args;
+
+      const wasmValues = values.into();
+      const wasmReceipt = paymentReceiptInto(receipt);
       const response = await this.client.update_values(
         this.clusterId,
         id,
-        values.into(),
-        paymentReceiptInto(receipt),
+        wasmValues,
+        wasmReceipt,
       );
+      wasmValues.free();
+      wasmReceipt.free();
+      receipt.quote.inner.free();
 
       Log(`Updated values at ${id}`);
       return ActionId.parse(response);
@@ -268,22 +298,23 @@ export class NilVmClient {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { values, permissions } = operation.args;
-      try {
-        console.log("before values wasm");
-        const wasmValues = values.into();
-        console.log("after");
-        const response = await this.client.store_values(
-          this.clusterId,
-          wasmValues,
-          permissions?.into(),
-          paymentReceiptInto(receipt),
-        );
-        Log(`Stored values ${values.toString()} at ${response}`);
-        return StoreId.parse(response);
-      } catch (e) {
-        console.log("here...");
-        throw e;
-      }
+      console.log("about to store values");
+      const wasmValues = values.into();
+      const wasmReceipt = paymentReceiptInto(receipt);
+      const wasmPermissions = permissions?.into();
+      const response = await this.client.store_values(
+        this.clusterId,
+        wasmValues,
+        wasmPermissions,
+        wasmReceipt,
+      );
+      // wasmPermissions?.free(); causes a WASM/rust NPE??
+      wasmValues.free();
+      wasmReceipt.free();
+      receipt.quote.inner.free();
+
+      Log(`Stored values ${values.toString()} at ${response}`);
+      return StoreId.parse(response);
     });
   }
 
