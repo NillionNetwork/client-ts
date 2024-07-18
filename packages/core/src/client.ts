@@ -31,34 +31,76 @@ import {
 } from "./operation";
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
+import { init } from "./init";
 
-export interface NilVmClientArgs {
+export interface NilVmClientConnectionArgs {
   bootnodes: Multiaddr[];
   clusterId: ClusterId;
-  // TODO(tim): support key + generate options
   userSeed: string;
   nodeSeed: string;
 }
 
 export class NilVmClient {
-  constructor(
-    public clusterId: ClusterId,
-    public client: Wasm.NillionClient,
-  ) {}
+  // These fields are lazily loaded because the wasm bundle is async. At some point in the client's use
+  // there has to be an async call to init so we wrap that into our connect method. Meaning the client
+  // can be created sync and avoiding top-level async.
+  // @ts-expect-error lazily loaded on `connect()` to avoid top level waits
+  private _client: Wasm.NillionClient;
+  // @ts-expect-error lazily loaded on `connect()` to avoid top level waits
+  private _cluster: ClusterId;
+  private _ready = false;
+
+  get ready(): boolean {
+    return this._ready;
+  }
 
   get partyId(): PartyId {
-    return PartyId.parse(this.client.party_id);
+    this.isReadyGuard();
+    return PartyId.parse(this._client.party_id);
   }
 
   get userId(): UserId {
-    return UserId.parse(this.client.user_id);
+    this.isReadyGuard();
+    return UserId.parse(this._client.user_id);
+  }
+
+  get clusterId(): ClusterId {
+    this.isReadyGuard();
+    return this._cluster;
+  }
+
+  get client(): Wasm.NillionClient {
+    this.isReadyGuard();
+    return this._client;
+  }
+
+  async connect(args: NilVmClientConnectionArgs): Promise<boolean> {
+    if (!globalThis.__NILLION?.initialized) {
+      await init();
+    }
+
+    this._cluster = args.clusterId;
+    const userKey = Wasm.UserKey.from_seed(args.userSeed);
+    const nodeKey = Wasm.NodeKey.from_seed(args.nodeSeed);
+    this._client = new Wasm.NillionClient(userKey, nodeKey, args.bootnodes);
+    const descriptor = await this._client.cluster_information(this._cluster);
+    this._ready = true;
+
+    Log("Connected to cluster: ", descriptor.id);
+    return this._ready;
+  }
+
+  private isReadyGuard(): void | never {
+    if (!this._ready)
+      throw new Error("NilVmClient not ready. Call `await client.connect()`.");
   }
 
   fetchClusterInfo(): E.Effect<ClusterDescriptor, UnknownException> {
     return E.tryPromise(async () => {
       const response = await this.client.cluster_information(this.clusterId);
-      Log("fetched cluster info: ", response);
-      return ClusterDescriptor.parse(response);
+      const descriptor = ClusterDescriptor.parse(response);
+      Log("Fetched cluster info: %O", descriptor);
+      return descriptor;
     });
   }
 
@@ -71,7 +113,7 @@ export class NilVmClient {
         string,
         NadaWrappedValue
       >;
-      Log(`retrieved compute result for id=${id} value=`, response);
+      Log(`Retrieved ${id} result:`, response);
       return response;
     });
   }
@@ -106,7 +148,7 @@ export class NilVmClient {
       );
 
       const result = NadaValue.fromWasm(type, response);
-      Log(`Fetched ${type} from ${id} result)=`, result);
+      Log(`Fetched ${type} from ${id}`);
       return result;
     });
   }
@@ -226,23 +268,24 @@ export class NilVmClient {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { values, permissions } = operation.args;
-
-      const response = await this.client.store_values(
-        this.clusterId,
-        values.into(),
-        permissions?.into(),
-        paymentReceiptInto(receipt),
-      );
-
-      Log(`Stored values ${values.toString()} at ${response}`);
-      return StoreId.parse(response);
+      try {
+        console.log("before values wasm");
+        const wasmValues = values.into();
+        console.log("after");
+        const response = await this.client.store_values(
+          this.clusterId,
+          wasmValues,
+          permissions?.into(),
+          paymentReceiptInto(receipt),
+        );
+        Log(`Stored values ${values.toString()} at ${response}`);
+        return StoreId.parse(response);
+      } catch (e) {
+        console.log("here...");
+        throw e;
+      }
     });
   }
 
-  static create(args: NilVmClientArgs): NilVmClient {
-    const userKey = Wasm.UserKey.from_seed(args.userSeed);
-    const nodeKey = Wasm.NodeKey.from_seed(args.nodeSeed);
-    const nilVm = new Wasm.NillionClient(userKey, nodeKey, args.bootnodes);
-    return new NilVmClient(args.clusterId, nilVm);
-  }
+  static create = () => new NilVmClient();
 }

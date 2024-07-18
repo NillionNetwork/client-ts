@@ -1,11 +1,9 @@
 import {
   Days,
-  init,
   NadaValue,
   NadaValues,
   NadaValueType,
   NadaWrappedValue,
-  NilVmClient,
   Operation,
   Permissions,
   ProgramBindings,
@@ -16,7 +14,6 @@ import {
 } from "@nillion/core";
 import { ClientsAndConfig, loadClientsAndConfig } from "../test-helpers";
 import { NillionClient } from "@nillion/client";
-import { NilChainPaymentClient } from "@nillion/payments";
 import { testPrograms } from "./programs";
 import { TestType, testTypes } from "./values";
 import { expectOk, expectErr, loadProgram } from "../../fixture/helpers";
@@ -27,23 +24,20 @@ describe(SUITE_NAME, () => {
   let context: ClientsAndConfig;
 
   beforeAll(async () => {
-    console.log(`>>> Start ${SUITE_NAME}`);
-    await init();
+    console.log(`*** Start ${SUITE_NAME} ***`);
     context = await loadClientsAndConfig();
     expect(context.client).toBeInstanceOf(NillionClient);
-    expect(context.clientVm).toBeInstanceOf(NilVmClient);
-    expect(context.clientChain).toBeInstanceOf(NilChainPaymentClient);
   });
 
   afterAll(() => {
-    console.log(`<<< Finish ${SUITE_NAME}\n\n`);
+    console.log(`*** Finish ${SUITE_NAME} *** \n\n`);
   });
 
   it("can fetch cluster information", async () => {
-    const { client, clientVm } = context;
+    const { client } = context;
     const result = await client.fetchClusterInfo();
     if (expectOk(result)) {
-      expect(result.ok.id).toEqual(clientVm.clusterId);
+      expect(result.ok.id).toEqual(client.vm.clusterId);
     }
   });
 
@@ -68,7 +62,6 @@ describe(SUITE_NAME, () => {
         const result = await client.storeValues({
           values,
         });
-
         if (expectOk(result)) {
           test.id = result.ok;
         }
@@ -153,10 +146,10 @@ describe(SUITE_NAME, () => {
     let id = "" as StoreId;
 
     it("can store access controlled values", async () => {
-      const { client, clientVm } = context;
+      const { client } = context;
       const result = await client.storeValues({
         values,
-        permissions: Permissions.createDefaultForUser(clientVm.userId),
+        permissions: Permissions.createDefaultForUser(client.vm.userId),
       });
 
       if (expectOk(result)) {
@@ -240,13 +233,13 @@ describe(SUITE_NAME, () => {
     testPrograms.forEach((test) => {
       describe(test.name, () => {
         beforeAll(async () => {
-          const { client, clientVm } = context;
+          const { client } = context;
           test.id = ProgramId.parse(
             `${context.configFixture.programsNamespace}/${test.name}`,
           );
           for (const values of test.valuesToStore) {
             const permissions = Permissions.create().allowCompute(
-              clientVm.userId,
+              client.vm.userId,
               test.id,
             );
 
@@ -261,15 +254,15 @@ describe(SUITE_NAME, () => {
         });
 
         it("can compute", async () => {
-          const { client, clientVm } = context;
+          const { client } = context;
           const bindings = ProgramBindings.create(test.id);
 
           test.inputParties.forEach((party) => {
-            bindings.addInputParty(party, clientVm.partyId);
+            bindings.addInputParty(party, client.vm.partyId);
           });
 
           test.outputParties.forEach((party) => {
-            bindings.addOutputParty(party, clientVm.partyId);
+            bindings.addOutputParty(party, client.vm.partyId);
           });
 
           const result = await client.runProgram({

@@ -9,6 +9,7 @@ import {
   NadaValueType,
   NadaWrappedValue,
   NilVmClient,
+  NilVmClientConnectionArgs,
   Operation,
   OperationType,
   PaymentReceipt,
@@ -21,28 +22,60 @@ import {
   StoreId,
   ValueName,
 } from "@nillion/core";
-import { NilChainPaymentClient } from "@nillion/payments";
+import {
+  NilChainPaymentClient,
+  NilChainPaymentClientConnectionArgs,
+} from "@nillion/payments";
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
+
+export type NillionClientConnectionArgs = NilVmClientConnectionArgs &
+  NilChainPaymentClientConnectionArgs;
 
 export interface ClientDefaults {
   valueTtl: Days;
 }
 
 export class NillionClient {
+  private _vm = NilVmClient.create();
+  private _chain = NilChainPaymentClient.create();
+
   defaults: ClientDefaults = {
     valueTtl: Days.parse(30),
   };
 
-  private constructor(
-    public _vm: NilVmClient,
-    public _chain: NilChainPaymentClient,
-    defaults: Partial<ClientDefaults> = {},
-  ) {
+  private constructor(defaults: Partial<ClientDefaults> = {}) {
     this.defaults = {
       ...this.defaults,
       ...defaults,
     };
+  }
+
+  public get ready(): boolean {
+    return this._vm.ready && this._chain.ready;
+  }
+
+  public get vm(): NilVmClient {
+    this.isReadyGuard();
+    return this._vm;
+  }
+
+  public get chain(): NilChainPaymentClient {
+    this.isReadyGuard();
+    return this._chain;
+  }
+
+  private isReadyGuard(): void | never {
+    if (!this.ready)
+      throw new Error(
+        "NillionClient not ready. Call `await client.connect()`.",
+      );
+  }
+
+  async connect(args: NillionClientConnectionArgs): Promise<boolean> {
+    await this._vm.connect(args);
+    await this._chain.connect(args);
+    return this.ready;
   }
 
   pay(args: {
@@ -196,10 +229,5 @@ export class NillionClient {
     return effectToResultAsync(effect);
   }
 
-  static create(
-    nilVm: NilVmClient,
-    nilChain: NilChainPaymentClient,
-  ): NillionClient {
-    return new NillionClient(nilVm, nilChain);
-  }
+  static create = () => new NillionClient();
 }

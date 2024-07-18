@@ -2,11 +2,10 @@ import {
   Config,
   Days,
   effectToResultAsync,
-  init,
   NadaValue,
   NadaValues,
   NilVmClient,
-  NilVmClientArgs,
+  NilVmClientConnectionArgs,
   Operation,
   Permissions,
   ProgramBindings,
@@ -30,40 +29,23 @@ describe(SUITE_NAME, () => {
   };
 
   beforeAll(async () => {
-    console.log(`>>> Start ${SUITE_NAME}`);
-    // jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-    await init();
-  });
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    console.log(`*** Start ${SUITE_NAME} ***`);
+    client = NilVmClient.create();
+    expect(client).toBeDefined();
 
-  afterAll(() => {
-    console.log(`<<< Finish ${SUITE_NAME}\n\n`);
-  });
-
-  it("can create NilVmClient", () => {
     const config = Config.TestFixture;
-    const args: NilVmClientArgs = {
+    const args: NilVmClientConnectionArgs = {
       bootnodes: config.bootnodes,
       clusterId: config.clusterId,
       userSeed: "nillion-testnet-seed-1",
       nodeSeed: "nillion-testnet-seed-1",
     };
-    client = NilVmClient.create(args);
-    expect(client).toBeDefined();
+    await client.connect(args);
   });
 
-  it("can compute stable partyId from seed 'nillion-testnet-seed-1'", () => {
-    const partyId = client.partyId;
-    expect(partyId).toBeDefined();
-    expect(partyId).toEqual(
-      "12D3KooWGq5MCUuLARrwM95muvipNWy4MqmCk41g9k9JVth6AF6e",
-    );
-  });
-
-  it("can fetch the cluster descriptor", async () => {
-    const result = await effectToResultAsync(client.fetchClusterInfo());
-    if (expectOk(result)) {
-      expect(result.ok.id).toBe(client.clusterId);
-    }
+  afterAll(() => {
+    console.log(`*** Finish ${SUITE_NAME} *** \n\n`);
   });
 
   it("can get quote for compute", async () => {

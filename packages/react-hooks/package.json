@@ -1,17 +1,17 @@
 {
   "name": "@nillion/react-hooks",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "type": "module",
   "browser": "dist/index.js",
   "types": "src/index.ts",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npx esbuild src/index.ts --bundle --format=esm --outfile=dist/index.js --external:@nillion/core --external:react --external:debug"
+    "build": "node esbuild.config.mjs"
   },
-  "peerDependencies": {
+  "dependencies": {
     "debug": "^4.3.5",
     "react": "^18.3.1",
-    "@nillion/core": "^0.1.0"
+    "@nillion/client": "file:../client"
   },
   "devDependencies": {
     "@types/react": "^18.3.3"

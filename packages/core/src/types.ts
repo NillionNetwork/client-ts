@@ -37,7 +37,8 @@ export const ClusterDescriptor = z
   .object({
     id: ClusterId,
     kappa: z.number(),
-    parties: z.array(z.unknown()),
+    // TODO(tim): has rust type parties: HashSet<PartyId>
+    // parties: z.array(z.unknown()),
     prime: z.string(),
   })
   .brand<"ClusterDescriptor">();

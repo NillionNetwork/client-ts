@@ -1,6 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "jsx": "react"
+    "baseUrl": ".",
+    "paths": {
+      "@nillion/react-hooks": [
+        "src/index.ts"
+      ]
+    }
   }
 }

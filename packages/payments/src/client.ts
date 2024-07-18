@@ -17,11 +17,68 @@ import { Log } from "./logger";
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
 
+export interface NilChainPaymentClientConnectionArgs {
+  endpoint: Url;
+  signerOrCreateFn: OfflineSigner | (() => Promise<OfflineSigner>);
+}
+
 export class NilChainPaymentClient {
-  private constructor(
-    private client: SigningStargateClient,
-    public address: NilChainAddress,
-  ) {}
+  // These fields are lazily loaded to avoid top level awaits required in the initiation of the Signer
+  // @ts-expect-error lazily loaded on `connect()` to avoid top level waits
+  private _client: SigningStargateClient;
+  // @ts-expect-error lazily loaded on `connect()` to avoid top level waits
+  private _address: NilChainAddress;
+  private _ready = false;
+
+  get ready(): boolean {
+    return this._ready;
+  }
+
+  get address(): NilChainAddress {
+    this.isReadyGuard();
+    return this._address;
+  }
+
+  get client(): SigningStargateClient {
+    this.isReadyGuard();
+    return this._client;
+  }
+
+  private isReadyGuard(): void | never {
+    if (!this._ready)
+      throw new Error(
+        "NilChainPaymentClient not ready. Call `await client.connect()`.",
+      );
+  }
+
+  async connect(args: NilChainPaymentClientConnectionArgs): Promise<boolean> {
+    const { endpoint, signerOrCreateFn } = args;
+    const registry = new Registry();
+    registry.register(NilChainProtobufTypeUrl, MsgPayFor);
+
+    const signer =
+      typeof signerOrCreateFn === "function"
+        ? await signerOrCreateFn()
+        : signerOrCreateFn;
+
+    const accounts = await signer.getAccounts();
+    this._address = NilChainAddress.parse(accounts[0].address);
+
+    const options: SigningStargateClientOptions = {
+      gasPrice: GasPrice.fromString(Token.asUnil(0.0)),
+      registry,
+    };
+
+    this._client = await SigningStargateClient.connectWithSigner(
+      endpoint,
+      signer,
+      options,
+    );
+
+    this._ready = true;
+    Log("Connected to chain using address %s", this._address);
+    return this._ready;
+  }
 
   pay(quote: PriceQuote): E.Effect<TxHash, UnknownException> {
     return E.tryPromise(async () => {
@@ -45,27 +102,5 @@ export class NilChainPaymentClient {
     });
   }
 
-  static async create(
-    endpoint: Url,
-    signer: OfflineSigner,
-  ): Promise<NilChainPaymentClient> {
-    const registry = new Registry();
-    registry.register(NilChainProtobufTypeUrl, MsgPayFor);
-
-    const accounts = await signer.getAccounts();
-    const address = NilChainAddress.parse(accounts[0].address);
-
-    const options: SigningStargateClientOptions = {
-      gasPrice: GasPrice.fromString(Token.asUnil(0.0)),
-      registry,
-    };
-
-    const client = await SigningStargateClient.connectWithSigner(
-      endpoint,
-      signer,
-      options,
-    );
-
-    return new NilChainPaymentClient(client, address);
-  }
+  static create = () => new NilChainPaymentClient();
 }

@@ -1,13 +1,6 @@
 import { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
 import { DirectSecp256k1Wallet, OfflineSigner } from "@cosmjs/proto-signing";
-import {
-  ChainId,
-  NilChainAddressPrefix,
-  PrivateKeyBase16,
-  Url,
-} from "@nillion/core";
-import { Log } from "./logger";
-import { NilChainPaymentClient } from "./client";
+import { NilChainAddressPrefix, PrivateKeyBase16 } from "@nillion/core";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -48,30 +41,4 @@ export const createSignerFromKey = async (
   }
 
   return await DirectSecp256k1Wallet.fromKey(privateKey, NilChainAddressPrefix);
-};
-
-export const createClientWithDirectSecp256k1Wallet = async (args: {
-  endpoint: Url;
-  key: PrivateKeyBase16;
-}): Promise<NilChainPaymentClient> => {
-  const { endpoint, key } = args;
-  const signer = await createSignerFromKey(key);
-  return await NilChainPaymentClient.create(endpoint, signer);
-};
-
-export const createClientWithKeplrWallet = async (args: {
-  chainId: ChainId;
-  endpoint: Url;
-}): Promise<NilChainPaymentClient> => {
-  if (!window.keplr) {
-    Log.log("failed to access window.keplr");
-    const error = new Error("failed to access window.keplr");
-    return Promise.reject(error);
-  } else {
-    const { keplr } = window;
-    const { chainId, endpoint } = args;
-    await keplr.enable(chainId);
-    const signer = keplr.getOfflineSigner(chainId);
-    return await NilChainPaymentClient.create(endpoint, signer);
-  }
 };

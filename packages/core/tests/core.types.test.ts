@@ -18,12 +18,12 @@ const SUITE_NAME = "@nillion/core > nada types";
 
 describe(SUITE_NAME, () => {
   beforeAll(async () => {
-    console.log(`>>> Start ${SUITE_NAME}`);
+    console.log(`*** Start ${SUITE_NAME} ***`);
     await init();
   });
 
   afterAll(() => {
-    console.log(`<<< Finish ${SUITE_NAME}\n\n`);
+    console.log(`*** Finish ${SUITE_NAME} *** \n\n`);
   });
 
   describe("primitive type guards", () => {

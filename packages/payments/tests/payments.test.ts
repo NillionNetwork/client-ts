@@ -14,20 +14,38 @@ describe(SUITE_NAME, () => {
   let client: NilChainPaymentClient;
 
   beforeAll(() => {
-    console.log(`>>> Start ${SUITE_NAME}`);
+    console.log(`*** Start ${SUITE_NAME} ***`);
   });
 
   afterAll(() => {
-    console.log(`<<< Finish ${SUITE_NAME}\n\n`);
+    console.log(`*** Finish ${SUITE_NAME} *** \n\n`);
+  });
+
+  it("can create NilChainPaymentClient", () => {
+    client = NilChainPaymentClient.create();
+    expect(client).toBeDefined();
+  });
+
+  it("throws if not connected but access attempted", () => {
+    try {
+      const _result = client.address;
+      expect(true).toBeFalse();
+    } catch (e: unknown) {
+      // @ts-expect-error for test simplicity
+      expect(e.message).toContain("NilChainPaymentClient not ready");
+    }
   });
 
   it("can create NilChainPaymentClient", async () => {
     const config = Config.TestFixture;
     const key = PrivateKeyBase16.parse(fixtureConfig.payments_key);
     const signer = await createSignerFromKey(key);
-    client = await NilChainPaymentClient.create(config.chainEndpoint, signer);
 
-    expect(client).toBeDefined();
+    await client.connect({
+      endpoint: config.chainEndpoint,
+      signerOrCreateFn: signer,
+    });
+
     expect(client.address).toBe(
       "nillion1uumg9ckysacwrkpljxavhjtw9vgkk86wtvu7w9",
     );
