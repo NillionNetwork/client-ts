@@ -1,1 +1,2 @@
-export * from "./NillionContext";
+export * from "./NillionProvider";
+export * from "./useNillion";

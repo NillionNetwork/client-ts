@@ -4,7 +4,7 @@ import eslintTs from "typescript-eslint";
 
 export default [
   {
-    ignores: ["examples", "**/dist", "packages/react-hooks", "**/*.mjs"],
+    ignores: ["examples", "**/dist", "**/*.mjs"],
   },
   {
     files: ["**/*.{ts,tsx}"],

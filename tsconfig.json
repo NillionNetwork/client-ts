@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "jsx": "react",
     "module": "es2022",
     "moduleResolution": "bundler",
     "noEmit": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
@@ -26,12 +27,14 @@
       ],
       "@nillion/client": [
         "packages/client/src/index.ts"
+      ],
+      "@nillion/react-hooks": [
+        "packages/react-hooks/src/index.ts"
       ]
     }
   },
   "exclude": [
     "node_modules",
-    "examples",
-    "packages/react-hooks"
+    "examples"
   ]
 }
