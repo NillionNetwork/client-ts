@@ -3,7 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import debug from "debug";
 
-export const logger = debug("nillion:reactdemo");
+export const logger = debug("nillion:demo:react");
 debug.enable("nillion:*");
 
 const root = ReactDOM.createRoot(

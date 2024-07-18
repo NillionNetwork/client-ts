@@ -17,6 +17,8 @@ export default {
       "Cross-Origin-Embedder-Policy": "require-corp",
       "Cross-Origin-Opener-Policy": "same-origin",
     },
+    // Hot reloading causes wasm issues:
+    // "Error: recursive use of an object detected which would lead to unsafe aliasing in rust"
     hot: true,
     client: {
       overlay: false,
@@ -24,7 +26,7 @@ export default {
     proxy: [
       {
         context: ["/nilchain"],
-        target: "http://65.109.222.111:26657",
+        target: "http://localhost:26648",
         pathRewrite: { "^/nilchain": "" },
       },
     ],
