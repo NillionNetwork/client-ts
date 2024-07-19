@@ -76,7 +76,7 @@ export class NillionClient {
 
   async store(
     values: Record<string, NadaPrimitiveValue | StoreValueArgs>,
-    _options?: StoreOptions,
+    options?: StoreOptions,
   ): Promise<Result<StoreId, UnknownException>> {
     const nadaValues = NadaValues.create();
     for (const [key, value] of Object.entries(values)) {
@@ -94,6 +94,8 @@ export class NillionClient {
     }
     return await this.storeValues({
       values: nadaValues,
+      ttl: options?.ttl as Days,
+      permissions: options?.permissions,
     });
   }
 
