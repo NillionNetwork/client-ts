@@ -17,8 +17,6 @@ export default {
       "Cross-Origin-Embedder-Policy": "require-corp",
       "Cross-Origin-Opener-Policy": "same-origin",
     },
-    // Hot reloading causes wasm issues:
-    // "Error: recursive use of an object detected which would lead to unsafe aliasing in rust"
     hot: true,
     client: {
       overlay: false,

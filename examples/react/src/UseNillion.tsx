@@ -8,7 +8,7 @@ type Step = {
   message: string;
 };
 
-export function Demo() {
+export function UseNillion() {
   const nillion = useNillion();
   const { client, error, ready } = nillion;
 

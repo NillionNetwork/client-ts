@@ -1,4 +1,8 @@
-import { NillionClientConnectionArgs, PrivateKeyBase16 } from "@nillion/client";
+import {
+  NillionClient,
+  NillionClientConnectionArgs,
+  PrivateKeyBase16,
+} from "@nillion/client";
 import { useContext, useEffect, useState } from "react";
 import { createSignerFromKey } from "@nillion/payments";
 import { NillionContext } from "./NillionProvider";
@@ -19,17 +23,27 @@ const config = {
   nodeSeed: "nillion-testnet-seed-1",
 };
 
-export function useNillion() {
+export interface UseNillionHook {
+  client: NillionClient;
+  error?: Error;
+  ready: boolean;
+}
+
+export interface UseNillionHookArgs {
+  foo?: string;
+}
+
+export function useNillion(_args?: UseNillionHookArgs): UseNillionHook {
   const context = useContext(NillionContext);
   if (!context) {
     throw new Error("useNillionClient must be used within a NillionProvider");
   }
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<Error>();
   const client = context.client;
 
   useEffect(() => {
-    async function bootstrap() {
+    async function run() {
       const key = PrivateKeyBase16.parse(config.paymentsKey);
       const args = {
         // vm
@@ -46,9 +60,10 @@ export function useNillion() {
       setLoading(false);
     }
 
-    void bootstrap().catch((e: unknown) => {
-      console.error(e);
-      setError("Nillion client failed to connect: " + String(e));
+    void run().catch((e: unknown) => {
+      const error = new Error("NillionClient failed to connect", { cause: e });
+      console.error(error);
+      setError(error);
     });
   }, []);
 

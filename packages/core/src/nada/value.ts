@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as Wasm from "@nillion/wasm";
 import { isBigInt, isNumber, isUint8Array } from "../type-guards";
-import { Log } from "src/logger";
+import { Log } from "../logger";
 
 export const NadaValueType = z.enum([
   "BlobSecret",
