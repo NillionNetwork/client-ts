@@ -18,7 +18,7 @@ import {
   paymentReceiptInto,
   priceQuoteFrom,
 } from "./wasm";
-import { NadaValue, NadaWrappedValue, Permissions } from "./nada";
+import { NadaValue, NadaPrimitiveValue, Permissions } from "./nada";
 import {
   Compute,
   OperationType,
@@ -106,12 +106,12 @@ export class NilVmClient {
 
   fetchRunProgramResult(args: {
     id: ComputeResultId;
-  }): E.Effect<Map<string, NadaWrappedValue>, UnknownException> {
+  }): E.Effect<Record<string, NadaPrimitiveValue>, UnknownException> {
     return E.tryPromise(async () => {
       const { id } = args;
-      const response = (await this.client.compute_result(id)) as Map<
+      const response = (await this.client.compute_result(id)) as Record<
         string,
-        NadaWrappedValue
+        NadaPrimitiveValue
       >;
       Log(`Retrieved ${id} result:`, response);
       return response;
@@ -298,7 +298,7 @@ export class NilVmClient {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { values, permissions } = operation.args;
-      console.log("about to store values");
+
       const wasmValues = values.into();
       const wasmReceipt = paymentReceiptInto(receipt);
       const wasmPermissions = permissions?.into();

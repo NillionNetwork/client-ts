@@ -1,5 +1,7 @@
 import { z } from "zod";
 import * as Wasm from "@nillion/wasm";
+import { isBigInt, isNumber, isUint8Array } from "../type-guards";
+import { Log } from "src/logger";
 
 export const NadaValueType = z.enum([
   "BlobSecret",
@@ -21,8 +23,7 @@ export const IntegerPublic = z.number().int().brand<"IntegerPublic">();
 export type IntegerPublic = z.infer<typeof IntegerPublic>;
 
 export const IntegerPublicUnsigned = z
-  .number()
-  .int()
+  .bigint()
   .nonnegative()
   .brand<"IntegerPublicUnsigned">();
 export type IntegerPublicUnsigned = z.infer<typeof IntegerPublicUnsigned>;
@@ -31,18 +32,17 @@ export const IntegerSecret = z.number().int().brand<"IntegerSecret">();
 export type IntegerSecret = z.infer<typeof IntegerSecret>;
 
 export const IntegerSecretUnsigned = z
-  .number()
-  .int()
+  .bigint()
   .nonnegative()
   .brand<"IntegerSecretUnsigned">();
 export type IntegerSecretUnsigned = z.infer<typeof IntegerSecretUnsigned>;
 
-export type NadaWrappedValue = Uint8Array | boolean | number | bigint;
+export type NadaPrimitiveValue = Uint8Array | number | bigint;
 
-export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
+export class NadaValue {
   private constructor(
     public type: NadaValueType,
-    public data: T,
+    public data: NadaPrimitiveValue,
   ) {}
 
   toString(): string {
@@ -86,74 +86,92 @@ export class NadaValue<T extends NadaWrappedValue = NadaWrappedValue> {
       }
 
       case NadaValueType.enum.IntegerPublic: {
-        return NadaValue.createIntegerPublic(wasm.to_integer());
+        const data = wasm.to_integer();
+        return NadaValue.createIntegerPublic(Number(data));
       }
 
       case NadaValueType.enum.IntegerPublicUnsigned: {
-        return NadaValue.createIntegerPublicUnsigned(wasm.to_integer());
+        const data = wasm.to_integer();
+        return NadaValue.createIntegerPublicUnsigned(BigInt(data));
       }
 
       case NadaValueType.enum.IntegerSecret: {
-        return NadaValue.createIntegerSecret(wasm.to_integer());
+        const data = wasm.to_integer();
+        return NadaValue.createIntegerSecret(Number(data));
       }
 
       case NadaValueType.enum.IntegerSecretUnsigned: {
-        return NadaValue.createIntegerSecretUnsigned(wasm.to_integer());
+        const data = wasm.to_integer();
+        return NadaValue.createIntegerSecretUnsigned(BigInt(data));
       }
     }
   }
 
-  static createBlobSecret(
-    data: BlobSecret | Uint8Array,
-  ): NadaValue<BlobSecret> {
-    return new NadaValue<BlobSecret>(
-      NadaValueType.enum.BlobSecret,
-      BlobSecret.parse(data),
-    );
+  static fromPrimitive(args: {
+    data: NadaPrimitiveValue;
+    secret: boolean;
+    unsigned: boolean;
+  }): NadaValue {
+    const { data, secret, unsigned } = args;
+
+    if (isUint8Array(data)) {
+      if (secret || unsigned) {
+        Log("NadaValue.fromPrimitive ignores private and/or unsigned options");
+      }
+      return this.createBlobSecret(data);
+    } else if (isBigInt(data)) {
+      if (unsigned) {
+        Log(
+          "NadaValue.fromPrimitive ignores unsigned option when type is bigint",
+        );
+      }
+      return secret
+        ? this.createIntegerSecretUnsigned(data)
+        : this.createIntegerPublicUnsigned(data);
+    } else if (isNumber(data)) {
+      return secret
+        ? this.createIntegerSecret(data)
+        : this.createIntegerPublic(data);
+    } else {
+      throw new Error(
+        "Invalid NadaValue.fromPrimitive() arguments: " + JSON.stringify(args),
+      );
+    }
   }
 
-  static createBooleanSecret(
-    data: BooleanSecret | boolean,
-  ): NadaValue<BooleanSecret> {
-    return new NadaValue<BooleanSecret>(
-      NadaValueType.enum.BooleanSecret,
-      BooleanSecret.parse(data),
-    );
+  static createBlobSecret(data: BlobSecret | Uint8Array): NadaValue {
+    return new NadaValue(NadaValueType.enum.BlobSecret, BlobSecret.parse(data));
   }
 
-  static createIntegerPublic(
-    data: IntegerPublic | number | string,
-  ): NadaValue<IntegerPublic> {
-    return new NadaValue<IntegerPublic>(
+  static createIntegerPublic(data: IntegerPublic | number): NadaValue {
+    return new NadaValue(
       NadaValueType.enum.IntegerPublic,
-      IntegerPublic.parse(Number(data)),
+      IntegerPublic.parse(data),
+    );
+  }
+
+  static createIntegerSecret(data: IntegerSecret | number): NadaValue {
+    return new NadaValue(
+      NadaValueType.enum.IntegerSecret,
+      IntegerSecret.parse(data),
     );
   }
 
   static createIntegerPublicUnsigned(
-    data: IntegerPublicUnsigned | number | string,
-  ): NadaValue<IntegerPublicUnsigned> {
-    return new NadaValue<IntegerPublicUnsigned>(
+    data: IntegerPublicUnsigned | bigint,
+  ): NadaValue {
+    return new NadaValue(
       NadaValueType.enum.IntegerPublicUnsigned,
-      IntegerPublicUnsigned.parse(Number(data)),
-    );
-  }
-
-  static createIntegerSecret(
-    data: IntegerSecret | number | string,
-  ): NadaValue<IntegerSecret> {
-    return new NadaValue<IntegerSecret>(
-      NadaValueType.enum.IntegerSecret,
-      IntegerSecret.parse(Number(data)),
+      IntegerPublicUnsigned.parse(data),
     );
   }
 
   static createIntegerSecretUnsigned(
-    data: IntegerSecretUnsigned | number | string | bigint,
-  ): NadaValue<IntegerSecretUnsigned> {
-    return new NadaValue<IntegerSecretUnsigned>(
+    data: IntegerSecretUnsigned | bigint,
+  ): NadaValue {
+    return new NadaValue(
       NadaValueType.enum.IntegerSecretUnsigned,
-      IntegerSecretUnsigned.parse(Number(data)),
+      IntegerSecretUnsigned.parse(data),
     );
   }
 }

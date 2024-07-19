@@ -8,7 +8,7 @@ import {
   IntegerSecretUnsigned,
   NadaValue,
   NadaValues,
-  NadaWrappedValue,
+  NadaPrimitiveValue,
   ProgramBindings,
   ValueName,
 } from "@nillion/core";
@@ -71,23 +71,10 @@ describe(SUITE_NAME, () => {
 
       const asWasm = secret.toWasm();
       expect(asWasm).toBeInstanceOf(Wasm.NadaValue);
-      expect(asWasm.to_byte_array()).toEqual(secret.data);
+      expect(asWasm.to_byte_array()).toEqual(secret.data as Uint8Array);
     });
 
-    it("BooleanSecret", () => {
-      pending("require's boolean support in wasm bundle");
-
-      // const expected = BooleanSecret.parse(true);
-      // const secret = NadaValue.createBooleanSecret(expected);
-      //
-      // expect(secret.data).toEqual(expected);
-
-      // const asWasm = secret.toWasm();
-      // expect(asWasm).toBeInstanceOf(Wasm.NadaValue);
-      // expect(asWasm.to_boolean()).toEqual(secret.data);
-    });
-
-    function encodeAndDecodeIntegerLike<T extends NadaWrappedValue>(
+    function encodeAndDecodeIntegerLike<T extends NadaPrimitiveValue>(
       expected: T,
       build: (value: T) => NadaValue,
     ) {
@@ -106,7 +93,7 @@ describe(SUITE_NAME, () => {
     });
 
     it("IntegerSecretUnsigned", () => {
-      encodeAndDecodeIntegerLike(IntegerSecretUnsigned.parse(42), (v) =>
+      encodeAndDecodeIntegerLike(IntegerSecretUnsigned.parse(42n), (v) =>
         NadaValue.createIntegerSecretUnsigned(v),
       );
     });
@@ -118,7 +105,7 @@ describe(SUITE_NAME, () => {
     });
 
     it("IntegerPublicUnsigned", () => {
-      encodeAndDecodeIntegerLike(IntegerPublicUnsigned.parse(42), (v) =>
+      encodeAndDecodeIntegerLike(IntegerPublicUnsigned.parse(42n), (v) =>
         NadaValue.createIntegerPublicUnsigned(v),
       );
     });

@@ -5,4 +5,5 @@ export * from "./nada";
 export * from "./operation";
 export * from "./result";
 export * from "./types";
+export * from "./type-guards";
 export * from "./wasm";
