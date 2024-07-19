@@ -8,11 +8,6 @@ export interface UseNillionValueHook {
   id: string;
   data: Record<string, NadaPrimitiveValue>;
   store: (value: number) => void;
-  // fetch: unknown;
-  // delete: unknown;
-  // update: unknown;
-  // fetchPermissions: unknown;
-  // setPermissions: unknown;
 }
 
 export interface UseNillionValueHookArgs {

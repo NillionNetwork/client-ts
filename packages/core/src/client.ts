@@ -33,14 +33,14 @@ import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
 import { init } from "./init";
 
-export interface NilVmClientConnectionArgs {
+export interface ConnectionArgs {
   bootnodes: Multiaddr[];
   clusterId: ClusterId;
   userSeed: string;
   nodeSeed: string;
 }
 
-export class NilVmClient {
+export class VmClient {
   // These fields are lazily loaded because the wasm bundle is async. At some point in the client's use
   // there has to be an async call to init so we wrap that into our connect method. Meaning the client
   // can be created sync and avoiding top-level async.
@@ -74,7 +74,7 @@ export class NilVmClient {
     return this._client;
   }
 
-  async connect(args: NilVmClientConnectionArgs): Promise<boolean> {
+  async connect(args: ConnectionArgs): Promise<boolean> {
     if (!globalThis.__NILLION?.initialized) {
       await init();
     }
@@ -318,5 +318,5 @@ export class NilVmClient {
     });
   }
 
-  static create = () => new NilVmClient();
+  static create = () => new VmClient();
 }

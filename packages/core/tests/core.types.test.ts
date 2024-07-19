@@ -10,7 +10,7 @@ import {
   NadaValues,
   NadaPrimitiveValue,
   ProgramBindings,
-  ValueName,
+  NamedValue,
 } from "@nillion/core";
 import * as Wasm from "@nillion/wasm";
 
@@ -124,11 +124,11 @@ describe(SUITE_NAME, () => {
     it("build a set of secrets", () => {
       const secrets = NadaValues.create();
       secrets.insert(
-        ValueName.parse("one"),
+        NamedValue.parse("one"),
         NadaValue.createIntegerSecret(1337),
       );
       secrets.insert(
-        ValueName.parse("two"),
+        NamedValue.parse("two"),
         NadaValue.createIntegerSecret(1337),
       );
 

@@ -1,12 +1,12 @@
 import { Operation, OperationType } from "./operation";
 import { IntoWasmQuotableOperation } from "../wasm";
-import { Days, StoreId, ValueName } from "../types";
+import { Days, StoreId, NamedValue } from "../types";
 import { NadaValues, NadaValueType, Permissions } from "../nada";
 import * as Wasm from "@nillion/wasm";
 
 export interface ValueRetrieveArgs {
   id: StoreId;
-  name: ValueName;
+  name: NamedValue;
   type: NadaValueType;
 }
 

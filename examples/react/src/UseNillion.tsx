@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNillion } from "@nillion/react-hooks";
 import { logger } from "./index";
-import { ValueName, NadaValues, NadaValue } from "@nillion/client";
+import { NamedValue, NadaValues, NadaValue } from "@nillion/client";
 
 type Step = {
   finished: boolean;
@@ -29,7 +29,7 @@ export function UseNillion() {
     async function run() {
       logger("Starting 🚀");
       const values = NadaValues.create().insert(
-        ValueName.parse("foo"),
+        NamedValue.parse("foo"),
         NadaValue.createIntegerSecret(42),
       );
       const result = await client.storeValues({ values });

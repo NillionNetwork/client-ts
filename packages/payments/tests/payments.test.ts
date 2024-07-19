@@ -1,4 +1,4 @@
-import { createSignerFromKey, NilChainPaymentClient } from "@nillion/payments";
+import { createSignerFromKey, PaymentsClient } from "@nillion/payments";
 import {
   Config,
   effectToResultAsync,
@@ -11,7 +11,7 @@ import { expectOk } from "../../fixture/helpers";
 const SUITE_NAME = "@nillion/payments";
 
 describe(SUITE_NAME, () => {
-  let client: NilChainPaymentClient;
+  let client: PaymentsClient;
 
   beforeAll(() => {
     console.log(`*** Start ${SUITE_NAME} ***`);
@@ -22,7 +22,7 @@ describe(SUITE_NAME, () => {
   });
 
   it("can create NilChainPaymentClient", () => {
-    client = NilChainPaymentClient.create();
+    client = PaymentsClient.create();
     expect(client).toBeDefined();
   });
 

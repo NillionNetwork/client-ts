@@ -2,7 +2,7 @@ import * as Wasm from "@nillion/wasm";
 import { Log } from "../logger";
 import { IntoWasm } from "../wasm";
 import { NadaValue } from "./value";
-import { ValueName } from "../types";
+import { NamedValue } from "../types";
 
 export class NadaValues implements IntoWasm<Wasm.NadaValues> {
   private constructor(private values: Map<string, NadaValue> = new Map()) {}
@@ -11,7 +11,7 @@ export class NadaValues implements IntoWasm<Wasm.NadaValues> {
     return this.values.size;
   }
 
-  insert(name: ValueName, value: NadaValue): this {
+  insert(name: NamedValue, value: NadaValue): this {
     Log(`Inserting into NadaValues ${name}=`, value);
     if (this.values.get(name)) {
       Log(`Insertion overwrote: ${name}`);

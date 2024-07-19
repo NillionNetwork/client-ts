@@ -1,7 +1,7 @@
 import fixtureConfig from "../../fixture/network.json";
 import { Config, PrivateKeyBase16 } from "@nillion/core";
 import { createSignerFromKey } from "@nillion/payments";
-import { NillionClient, NillionClientConnectionArgs } from "@nillion/client";
+import { NillionClient, ConnectionArgs } from "@nillion/client";
 
 export interface ClientsAndConfig {
   client: NillionClient;
@@ -36,7 +36,7 @@ export const loadClientsAndConfig = async (): Promise<ClientsAndConfig> => {
     // payments
     endpoint: chainEndpoint,
     signerOrCreateFn: () => createSignerFromKey(key),
-  } as NillionClientConnectionArgs;
+  } as ConnectionArgs;
 
   await client.connect(args);
 

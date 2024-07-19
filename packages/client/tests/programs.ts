@@ -5,7 +5,7 @@ import {
   PartyName,
   ProgramId,
   StoreId,
-  ValueName,
+  NamedValue,
 } from "@nillion/core";
 
 export interface TestProgram {
@@ -33,25 +33,25 @@ export const testPrograms: TestProgram[] = [
     valuesToStore: [
       NadaValues.create()
         .insert(
-          ValueName.parse("I03"),
+          NamedValue.parse("I03"),
           NadaValue.createIntegerSecretUnsigned(2877n),
         )
         .insert(
-          ValueName.parse("I04"),
+          NamedValue.parse("I04"),
           NadaValue.createIntegerSecretUnsigned(2564n),
         ),
     ],
     valuesToInput: NadaValues.create()
       .insert(
-        ValueName.parse("I00"),
+        NamedValue.parse("I00"),
         NadaValue.createIntegerSecretUnsigned(17517n),
       )
       .insert(
-        ValueName.parse("I01"),
+        NamedValue.parse("I01"),
         NadaValue.createIntegerSecretUnsigned(5226n),
       )
       .insert(
-        ValueName.parse("I02"),
+        NamedValue.parse("I02"),
         NadaValue.createIntegerSecretUnsigned(15981n),
       ),
     result: {
@@ -69,8 +69,8 @@ export const testPrograms: TestProgram[] = [
     storeIds: [],
     valuesToStore: [
       NadaValues.create()
-        .insert(ValueName.parse("I00"), NadaValue.createIntegerSecret(42))
-        .insert(ValueName.parse("I01"), NadaValue.createIntegerSecret(43)),
+        .insert(NamedValue.parse("I00"), NadaValue.createIntegerSecret(42))
+        .insert(NamedValue.parse("I01"), NadaValue.createIntegerSecret(43)),
     ],
     valuesToInput: NadaValues.create(),
     result: {
@@ -88,8 +88,8 @@ export const testPrograms: TestProgram[] = [
     storeIds: [],
     valuesToStore: [
       NadaValues.create()
-        .insert(ValueName.parse("I00"), NadaValue.createIntegerSecret(77))
-        .insert(ValueName.parse("I01"), NadaValue.createIntegerSecret(54)),
+        .insert(NamedValue.parse("I00"), NadaValue.createIntegerSecret(77))
+        .insert(NamedValue.parse("I01"), NadaValue.createIntegerSecret(54)),
     ],
     valuesToInput: NadaValues.create(),
     result: {

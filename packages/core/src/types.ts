@@ -1,19 +1,11 @@
 import { z } from "zod";
 import * as Wasm from "@nillion/wasm";
 
-//
-// Common types
-//
-
 export const Url = z.string().url().brand<"Url">();
 export type Url = z.infer<typeof Url>;
 
 export const Days = z.number().int().min(1).brand<"Days">();
 export type Days = z.infer<typeof Days>;
-
-//
-// Network related types
-//
 
 export const NetworkName = z.enum(["Gluon", "Devnet", "TestFixture"]);
 export type NetworkName = z.infer<typeof NetworkName>;
@@ -50,18 +42,14 @@ const multiaddrRegex =
 export const Multiaddr = z.string().regex(multiaddrRegex).brand<"Multiaddr">();
 export type Multiaddr = z.infer<typeof Multiaddr>;
 
-//
-// NilVm related types
-//
-
 export const ActionId = z.string().uuid().brand<"ActionId">();
 export type ActionId = z.infer<typeof ActionId>;
 
 export const StoreId = z.string().uuid().brand<"StoreId">();
 export type StoreId = z.infer<typeof StoreId>;
 
-export const ValueName = z.string().min(1).brand<"ValueName">();
-export type ValueName = z.infer<typeof ValueName>;
+export const NamedValue = z.string().min(1).brand<"NamedValue">();
+export type NamedValue = z.infer<typeof NamedValue>;
 
 // "namespace/friendly-name"
 export const ProgramId = z.string().min(1).brand<"ProgramId">();
@@ -70,9 +58,6 @@ export type ProgramId = z.infer<typeof ProgramId>;
 export const ComputeResultId = z.string().uuid().brand<"ComputeResultId">();
 export type ComputeResultId = z.infer<typeof ComputeResultId>;
 
-//
-// Payment related types
-//
 export const Token = {
   Unil: "unil",
   asUnil: (amount: number | string) => `${String(amount)}${Token.Unil}`,

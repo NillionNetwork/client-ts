@@ -1,6 +1,6 @@
 import {
   NillionClient,
-  NillionClientConnectionArgs,
+  ConnectionArgs,
   PrivateKeyBase16,
 } from "@nillion/client";
 import { useContext, useEffect, useState } from "react";
@@ -54,7 +54,7 @@ export function useNillion(_args?: UseNillionHookArgs): UseNillionHook {
         // payments
         endpoint: config.chainEndpoint,
         signerOrCreateFn: () => createSignerFromKey(key),
-      } as NillionClientConnectionArgs;
+      } as ConnectionArgs;
 
       await client.connect(args);
       setLoading(false);

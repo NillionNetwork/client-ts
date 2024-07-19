@@ -10,7 +10,7 @@ import {
   ProgramId,
   ProgramName,
   StoreId,
-  ValueName,
+  NamedValue,
 } from "@nillion/core";
 import { ClientsAndConfig, loadClientsAndConfig } from "../test-helpers";
 import { NillionClient } from "@nillion/client";
@@ -166,7 +166,7 @@ describe(SUITE_NAME, () => {
   });
 
   describe("permissions", () => {
-    const name = ValueName.parse("secretFoo");
+    const name = NamedValue.parse("secretFoo");
     const type = NadaValueType.enum.IntegerSecret;
     const value = NadaValue.createIntegerSecret(42);
     const values = NadaValues.create().insert(name, value);

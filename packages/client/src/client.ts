@@ -9,8 +9,8 @@ import {
   NadaValues,
   NadaValueType,
   NadaPrimitiveValue,
-  NilVmClient,
-  NilVmClientConnectionArgs,
+  VmClient,
+  ConnectionArgs as VmClientConnectionArgs,
   Operation,
   OperationType,
   PaymentReceipt,
@@ -21,40 +21,20 @@ import {
   ProgramName,
   Result,
   StoreId,
-  ValueName,
+  NamedValue,
   isObjectLiteral,
 } from "@nillion/core";
 import {
-  NilChainPaymentClient,
-  NilChainPaymentClientConnectionArgs,
+  PaymentsClient,
+  ConnectionArgs as PaymentsClientConnectionArgs,
 } from "@nillion/payments";
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
 import { Log } from "./logger";
 
-export type StoreValues = Record<string, NadaPrimitiveValue | StoreValueArgs>;
-
-export interface StoreValueArgs {
-  data: NadaPrimitiveValue;
-  secret: boolean;
-  unsigned: boolean;
-}
-
-export interface StoreOptions {
-  ttl?: number;
-  permissions?: Permissions;
-}
-
-export type NillionClientConnectionArgs = NilVmClientConnectionArgs &
-  NilChainPaymentClientConnectionArgs;
-
-export interface ClientDefaults {
-  valueTtl: Days;
-}
-
 export class NillionClient {
-  private _vm = NilVmClient.create();
-  private _chain = NilChainPaymentClient.create();
+  private _vm = VmClient.create();
+  private _chain = PaymentsClient.create();
 
   defaults: ClientDefaults = {
     valueTtl: Days.parse(30),
@@ -71,12 +51,12 @@ export class NillionClient {
     return this._vm.ready && this._chain.ready;
   }
 
-  public get vm(): NilVmClient {
+  public get vm(): VmClient {
     this.isReadyGuard();
     return this._vm;
   }
 
-  public get chain(): NilChainPaymentClient {
+  public get chain(): PaymentsClient {
     this.isReadyGuard();
     return this._chain;
   }
@@ -88,19 +68,19 @@ export class NillionClient {
       );
   }
 
-  async connect(args: NillionClientConnectionArgs): Promise<boolean> {
+  async connect(args: ConnectionArgs): Promise<boolean> {
     await this._vm.connect(args);
     await this._chain.connect(args);
     return this.ready;
   }
 
   async store(
-    values: StoreValues,
+    values: Record<string, NadaPrimitiveValue | StoreValueArgs>,
     _options?: StoreOptions,
   ): Promise<Result<StoreId, UnknownException>> {
     const nadaValues = NadaValues.create();
     for (const [key, value] of Object.entries(values)) {
-      const name = ValueName.parse(key);
+      const name = NamedValue.parse(key);
       const args = isObjectLiteral(value)
         ? (value as StoreValueArgs)
         : {
@@ -127,8 +107,8 @@ export class NillionClient {
     > = E.Do.pipe(
       E.let("id", () => StoreId.parse(id)),
       E.let("nameAndTypePairs", () =>
-        nameAndTypePairs.map<[ValueName, NadaValueType]>(([name, type]) => [
-          ValueName.parse(name),
+        nameAndTypePairs.map<[NamedValue, NadaValueType]>(([name, type]) => [
+          NamedValue.parse(name),
           NadaValueType.parse(type),
         ]),
       ),
@@ -150,7 +130,7 @@ export class NillionClient {
             throw result.err as Error;
           }
 
-          return [name, result.ok] as [ValueName, NadaPrimitiveValue];
+          return [name, result.ok] as [NamedValue, NadaPrimitiveValue];
         }),
       ),
       E.flatMap((promises) => E.tryPromise(() => Promise.all(promises))),
@@ -230,12 +210,12 @@ export class NillionClient {
 
   fetchValue(args: {
     id: StoreId | string;
-    name: ValueName | string;
+    name: NamedValue | string;
     type: NadaValueType;
   }): Promise<Result<NadaPrimitiveValue, UnknownException>> {
     const effect = E.Do.pipe(
       E.bind("id", () => E.try(() => StoreId.parse(args.id))),
-      E.bind("name", () => E.try(() => ValueName.parse(args.name))),
+      E.bind("name", () => E.try(() => NamedValue.parse(args.name))),
       E.let("operation", ({ id, name }) =>
         Operation.fetchValue({
           id,
@@ -318,4 +298,22 @@ export class NillionClient {
   }
 
   static create = () => new NillionClient();
+}
+
+export interface StoreValueArgs {
+  data: NadaPrimitiveValue;
+  secret: boolean;
+  unsigned: boolean;
+}
+
+export interface StoreOptions {
+  ttl?: number;
+  permissions?: Permissions;
+}
+
+export type ConnectionArgs = VmClientConnectionArgs &
+  PaymentsClientConnectionArgs;
+
+export interface ClientDefaults {
+  valueTtl: Days;
 }

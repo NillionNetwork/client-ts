@@ -4,15 +4,15 @@ import {
   effectToResultAsync,
   NadaValue,
   NadaValues,
-  NilVmClient,
-  NilVmClientConnectionArgs,
+  VmClient,
+  ConnectionArgs,
   Operation,
   Permissions,
   ProgramBindings,
   ProgramId,
   ProgramName,
   StoreId,
-  ValueName,
+  NamedValue,
 } from "@nillion/core";
 import configFixture from "../../fixture/network.json";
 import { expectOk, loadProgram } from "../../fixture/helpers";
@@ -20,7 +20,7 @@ import { expectOk, loadProgram } from "../../fixture/helpers";
 const SUITE_NAME = `@nillion/core > non-paid functions`;
 
 describe(SUITE_NAME, () => {
-  let client: NilVmClient;
+  let client: VmClient;
   const data = {
     store: StoreId.parse("aaaaaaaa-bbbb-cccc-dddd-ffffffffffff"),
     program: ProgramId.parse(
@@ -31,11 +31,11 @@ describe(SUITE_NAME, () => {
   beforeAll(async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
     console.log(`*** Start ${SUITE_NAME} ***`);
-    client = NilVmClient.create();
+    client = VmClient.create();
     expect(client).toBeDefined();
 
     const config = Config.TestFixture;
-    const args: NilVmClientConnectionArgs = {
+    const args: ConnectionArgs = {
       bootnodes: config.bootnodes,
       clusterId: config.clusterId,
       userSeed: "nillion-testnet-seed-1",
@@ -52,7 +52,7 @@ describe(SUITE_NAME, () => {
     const args = {
       bindings: ProgramBindings.create(data.program),
       values: NadaValues.create().insert(
-        ValueName.parse("foo"),
+        NamedValue.parse("foo"),
         NadaValue.createIntegerSecret(1),
       ),
       storeIds: [],
@@ -108,7 +108,7 @@ describe(SUITE_NAME, () => {
   it("can get quote for values store", async () => {
     const args = {
       values: NadaValues.create().insert(
-        ValueName.parse("foo"),
+        NamedValue.parse("foo"),
         NadaValue.createIntegerSecret(3),
       ),
       ttl: Days.parse(1),
@@ -126,7 +126,7 @@ describe(SUITE_NAME, () => {
     const args = {
       id: data.store,
       values: NadaValues.create().insert(
-        ValueName.parse("foo"),
+        NamedValue.parse("foo"),
         NadaValue.createIntegerSecret(3),
       ),
       ttl: Days.parse(1),

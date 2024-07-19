@@ -17,12 +17,12 @@ import { Log } from "./logger";
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
 
-export interface NilChainPaymentClientConnectionArgs {
+export interface ConnectionArgs {
   endpoint: Url;
   signerOrCreateFn: OfflineSigner | (() => Promise<OfflineSigner>);
 }
 
-export class NilChainPaymentClient {
+export class PaymentsClient {
   // These fields are lazily loaded to avoid top level awaits required in the initiation of the Signer
   // @ts-expect-error lazily loaded on `connect()` to avoid top level waits
   private _client: SigningStargateClient;
@@ -51,7 +51,7 @@ export class NilChainPaymentClient {
       );
   }
 
-  async connect(args: NilChainPaymentClientConnectionArgs): Promise<boolean> {
+  async connect(args: ConnectionArgs): Promise<boolean> {
     const { endpoint, signerOrCreateFn } = args;
     const registry = new Registry();
     registry.register(NilChainProtobufTypeUrl, MsgPayFor);
@@ -102,5 +102,5 @@ export class NilChainPaymentClient {
     });
   }
 
-  static create = () => new NilChainPaymentClient();
+  static create = () => new PaymentsClient();
 }
