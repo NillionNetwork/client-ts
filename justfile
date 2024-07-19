@@ -16,22 +16,12 @@ check:
     npx eslint -c eslint.config.mjs
     npx tsc
 
-check-fix:
+check-and-fix:
     #!/usr/bin/env bash
     set -e
     npx prettier --write -c "packages/**/*.(js|jsx|ts|tsx)"
     npx eslint --fix -c eslint.config.mjs
     npx tsc
-
-test:
-    #!/usr/bin/env bash
-    # this isn't simple but is required due to wasm + jasmine-browser-runner
-    #  - most tests currently fail in non-interactive mode (ie run test rather than run serve)
-    #  - building for a test is done via webpack building as a dep is done via esbuild
-    #  - this expects the rust monorepo's nodes fixture to be running, local.json copied over, and required program bins
-    just core-test
-    just payments-tests
-    just client-tests
 
 pack:
     #!/usr/bin/env bash
@@ -64,8 +54,8 @@ core-test:
     set -e
     just clean
     npx concurrently -c "auto" \
-      "npm -w packages/core run build:test -- --watch" \
-      "npm -w packages/core run serve"
+    "npm -w packages/core run test.build" \
+    "npm -w packages/core run test"
 
 core-pack:
     #!/usr/bin/env bash
@@ -84,10 +74,11 @@ payments-test:
     #!/usr/bin/env bash
     set -e
     just clean
+    npm -w packages/payments run build.protobuf
     npx concurrently -c "auto" \
-      "npm -w packages/core run build -- --watch" \
-      "npm -w packages/payments run build:test -- --watch" \
-      "npm -w packages/payments run serve"
+      "npm -w packages/core run build.watch" \
+      "npm -w packages/payments run test.build" \
+      "npm -w packages/payments run test"
 
 payments-pack:
     #!/usr/bin/env bash
@@ -107,10 +98,10 @@ client-test:
     set -e
     just clean
     npx concurrently -c "auto" \
-      "npm -w packages/core run build -- --watch" \
-      "npm -w packages/payments run build -- --watch" \
-      "npm -w packages/client run build:test -- --watch" \
-      "npm -w packages/client run serve"
+      "npm -w packages/core run build.watch" \
+      "npm -w packages/payments run build.watch" \
+      "npm -w packages/client run build.watch" \
+      "npm -w packages/client run test"
 
 client-pack:
     #!/usr/bin/env bash
@@ -130,10 +121,10 @@ example-react-dev:
     set -e
     just clean
     npx concurrently -c "auto" \
-      "npm -w packages/core run build -- --watch" \
-      "npm -w packages/payments run build -- --watch" \
-      "npm -w packages/client run build -- --watch" \
-      "npm -w packages/react-hooks run build -- --watch" \
+      "npm -w packages/core run build.watch" \
+      "npm -w packages/payments run build.watch" \
+      "npm -w packages/client run build.watch" \
+      "npm -w packages/react-hooks run build.watch" \
       "npm -w examples/react run start"
 #
 # End target: client

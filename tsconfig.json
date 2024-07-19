@@ -12,29 +12,14 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2022",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "baseUrl": ".",
     "paths": {
-      "@nillion/core": [
-        "packages/core/src/index.ts"
-      ],
-      "@nillion/payments": [
-        "packages/payments/src/index.ts"
-      ],
-      "@nillion/client": [
-        "packages/client/src/index.ts"
-      ],
-      "@nillion/react-hooks": [
-        "packages/react-hooks/src/index.ts"
-      ]
+      "@nillion/client": ["packages/client/src/index.ts"],
+      "@nillion/core": ["packages/core/src/index.ts"],
+      "@nillion/payments": ["packages/payments/src/index.ts"],
+      "@nillion/react-hooks": ["packages/react-hooks/src/index.ts"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "examples"
-  ]
+  "exclude": ["node_modules", "examples"]
 }

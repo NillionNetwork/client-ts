@@ -4,8 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "webpack serve --mode development",
-    "build": "webpack"
+    "start": "webpack serve --mode development"
   },
   "dependencies": {
     "@cosmjs/proto-signing": "^0.32.3",

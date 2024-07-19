@@ -7,8 +7,11 @@
     "node": ">=20"
   },
   "workspaces": [
-    "packages/*",
-    "examples/react"
+    "examples/react",
+    "packages/core",
+    "packages/payments",
+    "packages/client",
+    "packages/react-hooks"
   ],
   "devDependencies": {
     "@eslint/js": "^9.5.0",
@@ -37,6 +40,7 @@
     "webpack": "^5.93.0",
     "webpack-cli": "^5.1.4"
   },
+  "dependencies": {},
   "overrides": {
     "eslint": "^9.7.0"
   }

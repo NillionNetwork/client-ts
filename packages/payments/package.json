@@ -5,12 +5,12 @@
   "browser": "dist/index.js",
   "types": "src/index.ts",
   "scripts": {
-    "proto:generate": "protoc --plugin=node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src proto/nilchain.proto",
     "clean": "rm -rf dist",
     "build": "node esbuild.config.mjs",
-    "build:test": "npx webpack --config webpack.config.mjs",
-    "test": "npx jasmine-browser-runner runSpecs --config=jasmine.config.mjs",
-    "serve": "npx jasmine-browser-runner serve --config=jasmine.config.mjs"
+    "build.protobuf": "protoc --plugin=../../node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src proto/nilchain.proto",
+    "build.watch": "node esbuild.config.mjs --watch",
+    "test.build": "npx webpack --config webpack.config.mjs --watch",
+    "test": "npx jasmine-browser-runner serve --config=jasmine.config.mjs"
   },
   "dependencies": {
     "@cosmjs/proto-signing": "^0.32.4",
@@ -18,8 +18,8 @@
     "@nillion/core": "^0.1.0",
     "debug": "^4.3.5",
     "effect": "^3.5.5",
-    "zod": "^3.23.8",
-    "protobufjs": "^7.3.2"
+    "protobufjs": "^7.3.2",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@keplr-wallet/types": "^0.12.107",

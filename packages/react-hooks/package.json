@@ -6,7 +6,8 @@
   "types": "src/index.ts",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "node esbuild.config.mjs"
+    "build": "node esbuild.config.mjs",
+    "build.watch": "node esbuild.config.mjs --watch"
   },
   "peerDependencies": {
     "debug": "^4.3.5",
