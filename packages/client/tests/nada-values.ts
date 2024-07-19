@@ -1,7 +1,7 @@
 import { NadaValue, NadaValueType, StoreId, ValueName } from "@nillion/core";
 import { strToByteArray } from "../../fixture/helpers";
 
-export interface TestType {
+export interface TestNadaType {
   id: StoreId;
   name: ValueName;
   type: NadaValueType;
@@ -9,7 +9,7 @@ export interface TestType {
   nextValue: NadaValue;
 }
 
-export const testTypes: TestType[] = [
+export const testNadaTypes: TestNadaType[] = [
   {
     id: "" as StoreId,
     name: ValueName.parse("BlobSecret"),
@@ -26,13 +26,6 @@ export const testTypes: TestType[] = [
   },
   {
     id: "" as StoreId,
-    name: ValueName.parse("IntegerSecretUnsigned"),
-    type: NadaValueType.enum.IntegerSecretUnsigned,
-    value: NadaValue.createIntegerSecretUnsigned(1_000_000_000_000),
-    nextValue: NadaValue.createIntegerSecretUnsigned(1),
-  },
-  {
-    id: "" as StoreId,
     name: ValueName.parse("IntegerPublic"),
     type: NadaValueType.enum.IntegerPublic,
     value: NadaValue.createIntegerPublic(-107),
@@ -40,9 +33,16 @@ export const testTypes: TestType[] = [
   },
   {
     id: "" as StoreId,
+    name: ValueName.parse("IntegerSecretUnsigned"),
+    type: NadaValueType.enum.IntegerSecretUnsigned,
+    value: NadaValue.createIntegerSecretUnsigned(1_000_000_000_000n),
+    nextValue: NadaValue.createIntegerSecretUnsigned(1n),
+  },
+  {
+    id: "" as StoreId,
     name: ValueName.parse("IntegerPublicUnsigned"),
     type: NadaValueType.enum.IntegerPublicUnsigned,
-    value: NadaValue.createIntegerPublicUnsigned(10_000_000_000),
-    nextValue: NadaValue.createIntegerSecret(10_000_000_001),
+    value: NadaValue.createIntegerPublicUnsigned(10_000_000_000n),
+    nextValue: NadaValue.createIntegerPublicUnsigned(10_000_000_001n),
   },
 ];

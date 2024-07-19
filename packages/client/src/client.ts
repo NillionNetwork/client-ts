@@ -5,9 +5,10 @@ import {
   Days,
   effectToResultAsync,
   IntoWasmQuotableOperation,
+  NadaValue,
   NadaValues,
   NadaValueType,
-  NadaWrappedValue,
+  NadaPrimitiveValue,
   NilVmClient,
   NilVmClientConnectionArgs,
   Operation,
@@ -21,6 +22,7 @@ import {
   Result,
   StoreId,
   ValueName,
+  isObjectLiteral,
 } from "@nillion/core";
 import {
   NilChainPaymentClient,
@@ -28,6 +30,20 @@ import {
 } from "@nillion/payments";
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
+import { Log } from "./logger";
+
+export type StoreValues = Record<string, NadaPrimitiveValue | StoreValueArgs>;
+
+export interface StoreValueArgs {
+  data: NadaPrimitiveValue;
+  secret: boolean;
+  unsigned: boolean;
+}
+
+export interface StoreOptions {
+  ttl?: number;
+  permissions?: Permissions;
+}
 
 export type NillionClientConnectionArgs = NilVmClientConnectionArgs &
   NilChainPaymentClientConnectionArgs;
@@ -78,6 +94,78 @@ export class NillionClient {
     return this.ready;
   }
 
+  async store(
+    values: StoreValues,
+    _options?: StoreOptions,
+  ): Promise<Result<StoreId, UnknownException>> {
+    const nadaValues = NadaValues.create();
+    for (const [key, value] of Object.entries(values)) {
+      const name = ValueName.parse(key);
+      const args = isObjectLiteral(value)
+        ? (value as StoreValueArgs)
+        : {
+            secret: true,
+            unsigned: false,
+            data: value,
+          };
+
+      const nadaValue = NadaValue.fromPrimitive(args);
+      nadaValues.insert(name, nadaValue);
+    }
+    return await this.storeValues({
+      values: nadaValues,
+    });
+  }
+
+  async fetch(
+    id: string,
+    nameAndTypePairs: [string, NadaValueType][],
+  ): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
+    const effect: E.Effect<
+      Record<string, NadaPrimitiveValue>,
+      UnknownException
+    > = E.Do.pipe(
+      E.let("id", () => StoreId.parse(id)),
+      E.let("nameAndTypePairs", () =>
+        nameAndTypePairs.map<[ValueName, NadaValueType]>(([name, type]) => [
+          ValueName.parse(name),
+          NadaValueType.parse(type),
+        ]),
+      ),
+      E.map(({ id, nameAndTypePairs }) =>
+        nameAndTypePairs.map(async ([name, type]) => {
+          const result = await this.fetchValue({
+            id,
+            name,
+            type,
+          });
+
+          if (result.err) {
+            Log(
+              "Fetch value failed for id=%s name=%s: %O",
+              id,
+              name,
+              result.err,
+            );
+            throw result.err as Error;
+          }
+
+          return [name, result.ok] as [ValueName, NadaPrimitiveValue];
+        }),
+      ),
+      E.flatMap((promises) => E.tryPromise(() => Promise.all(promises))),
+      E.map((results) =>
+        results.reduce((acc, [name, value]) => {
+          return {
+            ...acc,
+            [name]: value,
+          };
+        }, {}),
+      ),
+    );
+    return effectToResultAsync(effect);
+  }
+
   pay(args: {
     operation: IntoWasmQuotableOperation & { type: OperationType };
   }): E.Effect<PaymentReceipt, UnknownException> {
@@ -108,7 +196,7 @@ export class NillionClient {
 
   fetchRunProgramResult(args: {
     id: ComputeResultId;
-  }): Promise<Result<Map<string, NadaWrappedValue>, UnknownException>> {
+  }): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
     const effect = E.Do.pipe(
       E.let("operation", () => Operation.fetchComputeResult(args)),
       E.flatMap(({ operation }) =>
@@ -144,7 +232,7 @@ export class NillionClient {
     id: StoreId | string;
     name: ValueName | string;
     type: NadaValueType;
-  }): Promise<Result<NadaWrappedValue, UnknownException>> {
+  }): Promise<Result<NadaPrimitiveValue, UnknownException>> {
     const effect = E.Do.pipe(
       E.bind("id", () => E.try(() => StoreId.parse(args.id))),
       E.bind("name", () => E.try(() => ValueName.parse(args.name))),

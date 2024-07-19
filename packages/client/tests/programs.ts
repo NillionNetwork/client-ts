@@ -34,25 +34,25 @@ export const testPrograms: TestProgram[] = [
       NadaValues.create()
         .insert(
           ValueName.parse("I03"),
-          NadaValue.createIntegerSecretUnsigned(2877),
+          NadaValue.createIntegerSecretUnsigned(2877n),
         )
         .insert(
           ValueName.parse("I04"),
-          NadaValue.createIntegerSecretUnsigned(2564),
+          NadaValue.createIntegerSecretUnsigned(2564n),
         ),
     ],
     valuesToInput: NadaValues.create()
       .insert(
         ValueName.parse("I00"),
-        NadaValue.createIntegerSecretUnsigned(17517),
+        NadaValue.createIntegerSecretUnsigned(17517n),
       )
       .insert(
         ValueName.parse("I01"),
-        NadaValue.createIntegerSecretUnsigned(5226),
+        NadaValue.createIntegerSecretUnsigned(5226n),
       )
       .insert(
         ValueName.parse("I02"),
-        NadaValue.createIntegerSecretUnsigned(15981),
+        NadaValue.createIntegerSecretUnsigned(15981n),
       ),
     result: {
       id: "" as ComputeResultId,

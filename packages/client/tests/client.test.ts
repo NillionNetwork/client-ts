@@ -3,7 +3,7 @@ import {
   NadaValue,
   NadaValues,
   NadaValueType,
-  NadaWrappedValue,
+  NadaPrimitiveValue,
   Operation,
   Permissions,
   ProgramBindings,
@@ -15,8 +15,9 @@ import {
 import { ClientsAndConfig, loadClientsAndConfig } from "../test-helpers";
 import { NillionClient } from "@nillion/client";
 import { testPrograms } from "./programs";
-import { TestType, testTypes } from "./values";
+import { TestNadaType, testNadaTypes } from "./nada-values";
 import { expectOk, expectErr, loadProgram } from "../../fixture/helpers";
+import { TestSimpleType, testSimpleTypes } from "./simple-values";
 
 const SUITE_NAME = "@nillion/client";
 
@@ -52,7 +53,33 @@ describe(SUITE_NAME, () => {
     }
   });
 
-  testTypes.forEach((test: TestType) => {
+  describe("ergonomic functions naked value", () => {
+    testSimpleTypes.forEach((test: TestSimpleType) => {
+      describe(test.type, () => {
+        it("can store value", async () => {
+          const { client } = context;
+          const result = await client.store(test.expected);
+          if (expectOk(result)) {
+            expect(result.ok).toBeDefined();
+            test.id = result.ok;
+          }
+        });
+
+        it("can retrieve value", async () => {
+          const { client } = context;
+          const names: [string, NadaValueType][] = Object.keys(
+            test.expected,
+          ).map((name) => [name, test.type]);
+          const result = await client.fetch(test.id, names);
+          if (expectOk(result)) {
+            expect(result.ok).toEqual(test.expected);
+          }
+        });
+      });
+    });
+  });
+
+  testNadaTypes.forEach((test: TestNadaType) => {
     describe(test.type, () => {
       const { name, type, value } = test;
       it("store value", async () => {
@@ -76,7 +103,7 @@ describe(SUITE_NAME, () => {
         });
 
         if (expectOk(result)) {
-          let actual: NadaWrappedValue | number[] = result.ok;
+          let actual: NadaPrimitiveValue | number[] = result.ok;
           let expected: unknown = test.value.data;
           if (actual instanceof Uint8Array) {
             actual = Array.from(actual);
@@ -105,7 +132,7 @@ describe(SUITE_NAME, () => {
         });
 
         if (expectOk(result)) {
-          let actual: NadaWrappedValue | number[] = result.ok;
+          let actual: NadaPrimitiveValue | number[] = result.ok;
           let expected: unknown = test.nextValue.data;
           if (actual instanceof Uint8Array) {
             actual = Array.from(actual);
