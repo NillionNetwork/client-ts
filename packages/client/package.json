@@ -12,8 +12,8 @@
     "serve": "npx jasmine-browser-runner serve --config=jasmine.config.mjs"
   },
   "dependencies": {
-    "@nillion/core": "file:../core",
-    "@nillion/payments": "file:../payments",
+    "@nillion/core": "^0.1.0",
+    "@nillion/payments": "^0.1.0",
     "debug": "^4.3.5",
     "zod": "^3.23.8"
   }

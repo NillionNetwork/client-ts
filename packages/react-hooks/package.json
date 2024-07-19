@@ -8,10 +8,10 @@
     "clean": "rm -rf dist",
     "build": "node esbuild.config.mjs"
   },
-  "dependencies": {
+  "peerDependencies": {
     "debug": "^4.3.5",
     "react": "^18.3.1",
-    "@nillion/client": "file:../client"
+    "@nillion/client": "^0.1.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3"
