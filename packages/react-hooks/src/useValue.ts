@@ -1,51 +1,56 @@
-import { NadaPrimitiveValue, StoreId } from "@nillion/client";
-import { useState } from "react";
+import { StoreId } from "@nillion/client";
 import { useNillion } from "./useNillion";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { NadaValueType } from "@nillion/core";
 
-export interface UseNillionValueHook {
-  loading: boolean;
-  error?: Error;
+export type UseNillionValueHook = {
   id: string;
-  data: Record<string, NadaPrimitiveValue>;
-  store: (value: number) => void;
-}
+} & any;
 
 export interface UseNillionValueHookArgs {
   id?: StoreId;
   data?: number;
 }
 
-export function useValue(_args?: UseNillionValueHookArgs): UseNillionValueHook {
+export function useValue(initialId = "") {
   const nillion = useNillion();
+  const [id, setId] = useState(initialId);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | undefined>();
-  const [data, setData] = useState<Record<string, NadaPrimitiveValue>>({});
-  const [id, setId] = useState<string>("unset");
+  const mutate = useMutation({
+    mutationKey: [id],
+    mutationFn: async (
+      value: number,
+      // data: Record<string, NadaPrimitiveValue | StoreValueArgs>,
+    ) => {
+      const result = await nillion.client.store({ foo: value });
+      if (result.err) {
+        throw result.err as Error;
+      }
 
-  const doStore = async (value: number) => {
-    setLoading(true);
-    setError(undefined);
-    setId("Waiting ...");
-
-    const result = await nillion.client.store({ foo: value });
-    if (result.err) {
-      setError(result.err);
-      setLoading(false);
-    } else {
       setId(result.ok);
-      setData({ foo: value });
-      setLoading(false);
-    }
-  };
+      return result.ok;
+    },
+  });
+
+  const query = useQuery({
+    enabled: !!id,
+    queryKey: [id],
+    queryFn: async () => {
+      const result = await nillion.client.fetch(id, [
+        ["foo", NadaValueType.enum.IntegerSecret],
+      ]);
+
+      if (result.err) {
+        throw result.err as Error;
+      }
+      return result.ok;
+    },
+  });
 
   return {
-    loading,
-    error,
     id,
-    data,
-    store: (value) => {
-      void doStore(value);
-    },
+    mutate,
+    query,
   };
 }

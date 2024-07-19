@@ -5,7 +5,7 @@ import {
 } from "@nillion/client";
 import { useContext, useEffect, useState } from "react";
 import { createSignerFromKey } from "@nillion/payments";
-import { NillionContext } from "./NillionProvider";
+import { NillionClientContext } from "./NillionProvider";
 
 const config = {
   chainEndpoint: "http://localhost:8080/nilchain",
@@ -34,13 +34,9 @@ export interface UseNillionHookArgs {
 }
 
 export function useNillion(_args?: UseNillionHookArgs): UseNillionHook {
-  const context = useContext(NillionContext);
-  if (!context) {
-    throw new Error("useNillionClient must be used within a NillionProvider");
-  }
-  const [loading, setLoading] = useState(true);
+  const client = useContext(NillionClientContext);
+  const [ready, setReady] = useState(client.ready);
   const [error, setError] = useState<Error>();
-  const client = context.client;
 
   useEffect(() => {
     async function run() {
@@ -57,7 +53,7 @@ export function useNillion(_args?: UseNillionHookArgs): UseNillionHook {
       } as ConnectionArgs;
 
       await client.connect(args);
-      setLoading(false);
+      setReady(client.ready);
     }
 
     void run().catch((e: unknown) => {
@@ -68,8 +64,8 @@ export function useNillion(_args?: UseNillionHookArgs): UseNillionHook {
   }, []);
 
   if (error) {
-    return { client, error, ready: false };
+    return { client, error, ready };
   } else {
-    return { client, error: undefined, ready: client.ready };
+    return { client, error: undefined, ready };
   }
 }

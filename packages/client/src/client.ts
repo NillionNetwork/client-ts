@@ -250,10 +250,11 @@ export class NillionClient {
     permissions?: Permissions;
   }): Promise<Result<StoreId, UnknownException>> {
     const effect = E.Do.pipe(
-      E.let("operation", () =>
+      E.let("ttl", () => Days.parse(args.ttl ?? this.defaults.valueTtl)),
+      E.let("operation", ({ ttl }) =>
         Operation.storeValues({
           values: args.values,
-          ttl: args.ttl ?? this.defaults.valueTtl,
+          ttl,
           permissions: args.permissions,
         }),
       ),

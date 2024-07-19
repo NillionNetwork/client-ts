@@ -1,27 +1,28 @@
 import { NillionClient } from "@nillion/client";
 import React, { createContext, ReactNode } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-export interface NillionProviderValue {
-  client: NillionClient;
-}
-
-export interface NillionProviderProps {
+export interface NillionClientProviderProps {
   children: ReactNode;
-  value: NillionProviderValue;
-}
-
-interface Context {
   client: NillionClient;
+  queryClient?: QueryClient;
 }
 
-export const NillionContext = createContext<Context | null>(null);
+export const NillionClientContext = createContext<NillionClient>(
+  NillionClient.create(),
+);
 
-export function NillionProvider(
-  props: NillionProviderProps,
-): React.ReactElement {
+export const NillionClientProvider = ({
+  client,
+  children,
+  queryClient,
+}: NillionClientProviderProps): React.ReactElement => {
+  const reactQueryClient = queryClient ? queryClient : new QueryClient();
   return (
-    <NillionContext.Provider value={{ client: props.value.client }}>
-      {props.children}
-    </NillionContext.Provider>
+    <QueryClientProvider client={reactQueryClient}>
+      <NillionClientContext.Provider value={client}>
+        {children}
+      </NillionClientContext.Provider>
+    </QueryClientProvider>
   );
-}
+};
