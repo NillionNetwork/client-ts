@@ -45,10 +45,12 @@ export class PaymentsClient {
   }
 
   private isReadyGuard(): void | never {
-    if (!this._ready)
-      throw new Error(
-        "NilChainPaymentClient not ready. Call `await client.connect()`.",
-      );
+    if (!this._ready) {
+      const message =
+        "NilChainPaymentClient not ready. Call `await client.connect()`.";
+      Log(message);
+      throw new Error(message);
+    }
   }
 
   async connect(args: ConnectionArgs): Promise<boolean> {

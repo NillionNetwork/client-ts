@@ -8,6 +8,7 @@ const config = {
   packages: "external",
   external: [],
   logLevel: "info",
+  loader: { ".tsx": "tsx", ".ts": "ts" },
 };
 
 if (process.argv.includes("--watch")) {

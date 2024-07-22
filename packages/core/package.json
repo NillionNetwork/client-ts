@@ -1,6 +1,6 @@
 {
   "name": "@nillion/core",
-  "version": "0.1.0",
+  "version": "1.0.0-beta.0",
   "type": "module",
   "browser": "dist/index.js",
   "types": "src/index.ts",
@@ -12,9 +12,12 @@
     "test": "npx jasmine-browser-runner serve --config=jasmine.config.mjs"
   },
   "dependencies": {
-    "@nillion/wasm": "^0.1.0",
+    "@nillion/wasm": "^1.0.0-beta.0",
     "debug": "^4.3.5",
     "effect": "^3.5.5",
     "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.12"
   }
 }

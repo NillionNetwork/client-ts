@@ -7,11 +7,12 @@
     "node": ">=20"
   },
   "workspaces": [
-    "examples/react",
+    "packages/wasm",
     "packages/core",
     "packages/payments",
     "packages/client",
-    "packages/react-hooks"
+    "packages/react-hooks",
+    "examples/react"
   ],
   "devDependencies": {
     "@eslint/js": "^9.5.0",

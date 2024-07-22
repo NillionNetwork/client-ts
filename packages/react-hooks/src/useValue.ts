@@ -6,6 +6,7 @@ import { NadaValueType } from "@nillion/core";
 
 export type UseNillionValueHook = {
   id: string;
+  // eslint-disable-next-line
 } & any;
 
 export interface UseNillionValueHookArgs {
