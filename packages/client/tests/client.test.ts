@@ -11,23 +11,42 @@ import {
   ProgramName,
   StoreId,
   NamedValue,
+  NamedNetwork,
+  UserSeed,
+  NodeSeed,
+  PrivateKeyBase16,
 } from "@nillion/core";
-import { ClientsAndConfig, loadClientsAndConfig } from "../test-helpers";
 import { NillionClient } from "@nillion/client";
 import { testPrograms } from "./programs";
 import { TestNadaType, testNadaTypes } from "./nada-values";
 import { expectOk, expectErr, loadProgram } from "../../fixture/helpers";
 import { TestSimpleType, testSimpleTypes } from "./simple-values";
+import fixtureConfig from "../../fixture/network.json";
+import { createSignerFromKey } from "@nillion/payments";
 
 const SUITE_NAME = "@nillion/client";
 
 describe(SUITE_NAME, () => {
-  let context: ClientsAndConfig;
+  let client: NillionClient;
+  const programsNamespace = fixtureConfig.programs_namespace;
 
   beforeAll(async () => {
     console.log(`*** Start ${SUITE_NAME} ***`);
-    context = await loadClientsAndConfig();
-    expect(context.client).toBeInstanceOf(NillionClient);
+
+    client = NillionClient.create({
+      network: NamedNetwork.enum.TestFixture,
+
+      overrides: async () => {
+        const key = PrivateKeyBase16.parse(fixtureConfig.payments_key);
+        const signer = await createSignerFromKey(key);
+
+        return {
+          signer,
+        };
+      },
+    });
+
+    await client.connect();
   });
 
   afterAll(() => {
@@ -35,7 +54,6 @@ describe(SUITE_NAME, () => {
   });
 
   it("can fetch cluster information", async () => {
-    const { client } = context;
     const result = await client.fetchClusterInfo();
     if (expectOk(result)) {
       expect(result.ok.id).toEqual(client.vm.clusterId);
@@ -43,7 +61,6 @@ describe(SUITE_NAME, () => {
   });
 
   it("can fetch an operation quote", async () => {
-    const { client } = context;
     const args = {
       operation: Operation.fetchPermissions({ id: "" as StoreId }),
     };
@@ -57,7 +74,6 @@ describe(SUITE_NAME, () => {
     testSimpleTypes.forEach((test: TestSimpleType) => {
       describe(test.type, () => {
         it("can store value", async () => {
-          const { client } = context;
           const result = await client.store(test.expected);
           if (expectOk(result)) {
             expect(result.ok).toBeDefined();
@@ -66,7 +82,6 @@ describe(SUITE_NAME, () => {
         });
 
         it("can retrieve value", async () => {
-          const { client } = context;
           const names: [string, NadaValueType][] = Object.keys(
             test.expected,
           ).map((name) => [name, test.type]);
@@ -83,7 +98,6 @@ describe(SUITE_NAME, () => {
     describe(test.type, () => {
       const { name, type, value } = test;
       it("store value", async () => {
-        const { client } = context;
         const values = NadaValues.create().insert(name, value);
 
         const result = await client.storeValues({
@@ -95,7 +109,6 @@ describe(SUITE_NAME, () => {
       });
 
       it("fetch value", async () => {
-        const { client } = context;
         const result = await client.fetchValue({
           id: test.id,
           name,
@@ -114,7 +127,6 @@ describe(SUITE_NAME, () => {
       });
 
       it("update value", async () => {
-        const { client } = context;
         const result = await client.updateValue({
           id: test.id,
           values: NadaValues.create().insert(name, test.nextValue),
@@ -124,7 +136,6 @@ describe(SUITE_NAME, () => {
       });
 
       it("retrieve after update", async () => {
-        const { client } = context;
         const result = await client.fetchValue({
           id: test.id,
           name,
@@ -143,7 +154,6 @@ describe(SUITE_NAME, () => {
       });
 
       it("delete", async () => {
-        const { client } = context;
         const result = await client.deleteValues({ id: test.id });
 
         if (expectOk(result)) {
@@ -152,7 +162,7 @@ describe(SUITE_NAME, () => {
       });
 
       it("should fail to retrieve deleted value", async () => {
-        const result = await context.client.fetchValue({
+        const result = await client.fetchValue({
           id: test.id,
           name,
           type,
@@ -173,7 +183,6 @@ describe(SUITE_NAME, () => {
     let id = "" as StoreId;
 
     it("can store access controlled values", async () => {
-      const { client } = context;
       const result = await client.storeValues({
         values,
         permissions: Permissions.createDefaultForUser(client.vm.userId),
@@ -185,7 +194,6 @@ describe(SUITE_NAME, () => {
     });
 
     it("can fetch value when authorized", async () => {
-      const { client } = context;
       const result = await client.fetchValue({
         id,
         name,
@@ -197,7 +205,6 @@ describe(SUITE_NAME, () => {
     });
 
     it("can retrieve permissions", async () => {
-      const { client } = context;
       const result = await client.fetchPermissions({
         id,
       });
@@ -205,7 +212,6 @@ describe(SUITE_NAME, () => {
     });
 
     it("can update permissions", async () => {
-      const { client } = context;
       const permissions = Permissions.create();
       const result = await client.setPermissions({
         id,
@@ -216,7 +222,7 @@ describe(SUITE_NAME, () => {
     });
 
     it("value fetch rejected when not authorized", async () => {
-      const result = await context.client.fetchPermissions({
+      const result = await client.fetchPermissions({
         id,
       });
       if (expectErr(result)) {
@@ -227,7 +233,6 @@ describe(SUITE_NAME, () => {
 
   describe("programs", () => {
     it("can store a program", async () => {
-      const { client } = context;
       const program = await loadProgram("addition_division.nada.bin");
 
       const result = await client.storeProgram({
@@ -240,7 +245,6 @@ describe(SUITE_NAME, () => {
     it("can concurrently store programs", async () => {
       pending("Fails due to: account sequence mismatch");
 
-      const { client } = context;
       const program = await loadProgram("addition_division.nada.bin");
       const names = ["addition_division_foo", "addition_division_bar"];
 
@@ -260,10 +264,7 @@ describe(SUITE_NAME, () => {
     testPrograms.forEach((test) => {
       describe(test.name, () => {
         beforeAll(async () => {
-          const { client } = context;
-          test.id = ProgramId.parse(
-            `${context.configFixture.programsNamespace}/${test.name}`,
-          );
+          test.id = ProgramId.parse(`${programsNamespace}/${test.name}`);
           for (const values of test.valuesToStore) {
             const permissions = Permissions.create().allowCompute(
               client.vm.userId,
@@ -281,7 +282,6 @@ describe(SUITE_NAME, () => {
         });
 
         it("can compute", async () => {
-          const { client } = context;
           const bindings = ProgramBindings.create(test.id);
 
           test.inputParties.forEach((party) => {
@@ -304,7 +304,7 @@ describe(SUITE_NAME, () => {
         });
 
         it("can get result", async () => {
-          const result = await context.client.fetchRunProgramResult({
+          const result = await client.fetchRunProgramResult({
             id: test.result.id,
           });
           if (expectOk(result)) {

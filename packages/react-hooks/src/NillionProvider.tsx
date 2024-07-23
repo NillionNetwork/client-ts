@@ -1,15 +1,16 @@
+import * as React from "react";
 import { NillionClient } from "@nillion/client";
-import React, { createContext, ReactNode } from "react";
+import { createContext, ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export interface NillionClientProviderProps {
-  children: ReactNode;
   client: NillionClient;
   queryClient?: QueryClient;
+  children: ReactNode;
 }
 
-export const NillionClientContext = createContext<NillionClient>(
-  NillionClient.create(),
+export const NillionClientContext = createContext<NillionClient | undefined>(
+  undefined,
 );
 
 export const NillionClientProvider = ({

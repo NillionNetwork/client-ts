@@ -5,14 +5,16 @@ import {
   Days,
   effectToResultAsync,
   IntoWasmQuotableOperation,
+  isObjectLiteral,
+  NadaPrimitiveValue,
   NadaValue,
   NadaValues,
   NadaValueType,
-  NadaPrimitiveValue,
-  VmClient,
-  ConnectionArgs as VmClientConnectionArgs,
+  NamedNetwork,
+  NamedValue,
   Operation,
   OperationType,
+  PartialConfig,
   PaymentReceipt,
   Permissions,
   PriceQuote,
@@ -21,57 +23,126 @@ import {
   ProgramName,
   Result,
   StoreId,
-  NamedValue,
-  isObjectLiteral,
+  VmClient,
 } from "@nillion/core";
-import {
-  PaymentsClient,
-  ConnectionArgs as PaymentsClientConnectionArgs,
-} from "@nillion/payments";
+import { PaymentsClient } from "@nillion/payments";
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
 import { Log } from "./logger";
+import { NillionClientConfig, NillionClientConfigComplete } from "./types";
+import { ZodError } from "zod";
+
+export interface Defaults {
+  valueTtl: Days;
+}
 
 export class NillionClient {
-  private _vm = VmClient.create();
-  private _chain = PaymentsClient.create();
+  private _vm: VmClient | undefined;
+  private _chain: PaymentsClient | undefined;
 
-  defaults: ClientDefaults = {
+  defaults: Defaults = {
     valueTtl: Days.parse(30),
   };
 
-  private constructor(defaults: Partial<ClientDefaults> = {}) {
-    this.defaults = {
-      ...this.defaults,
-      ...defaults,
-    };
-  }
+  private constructor(private _config: NillionClientConfig) {}
 
   public get ready(): boolean {
-    return this._vm.ready && this._chain.ready;
+    return (this._vm?.ready && this._chain?.ready) ?? false;
   }
 
   public get vm(): VmClient {
     this.isReadyGuard();
-    return this._vm;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this._vm!;
   }
 
   public get chain(): PaymentsClient {
     this.isReadyGuard();
-    return this._chain;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this._chain!;
   }
 
   private isReadyGuard(): void | never {
-    if (!this.ready)
-      throw new Error(
-        "NillionClient not ready. Call `await client.connect()`.",
-      );
+    if (!this.ready) {
+      const message = "NillionClient not ready. Call `await client.connect()`.";
+      Log(message);
+      throw new Error(message);
+    }
   }
 
-  async connect(args: ConnectionArgs): Promise<boolean> {
-    await this._vm.connect(args);
-    await this._chain.connect(args);
-    return this.ready;
+  async connect(): Promise<boolean> {
+    if (this.ready) {
+      Log("NillionClient is already connected. Ignoring connect().");
+      return this.ready;
+    }
+
+    const effect: E.Effect<void, UnknownException> = E.Do.pipe(
+      E.bind("network", () =>
+        E.try(() => {
+          const name = this._config.network ?? NamedNetwork.enum.Photon;
+          return NamedNetwork.parse(name);
+        }),
+      ),
+      E.bind("partial", ({ network }) =>
+        E.try(() => {
+          let partial: unknown = {};
+          if (network != NamedNetwork.enum.Custom) {
+            const key = network;
+            partial = PartialConfig[key];
+          }
+          return partial as Partial<NillionClientConfigComplete>;
+        }),
+      ),
+      E.let("seeds", () => ({
+        userSeed: this._config.userSeed,
+        nodeSeed: this._config.nodeSeed,
+      })),
+      E.bind("overrides", () =>
+        E.tryPromise(async () =>
+          this._config.overrides ? await this._config.overrides() : {},
+        ),
+      ),
+      E.flatMap(({ network, seeds, partial, overrides }) =>
+        E.try(() => {
+          const complete: unknown = {
+            network,
+            ...partial,
+            ...seeds,
+            ...overrides,
+          };
+          Log("Merged config: %O", complete);
+          return NillionClientConfigComplete.parse(complete);
+        }),
+      ),
+      E.flatMap((config) =>
+        E.tryPromise(async () => {
+          this._vm = VmClient.create(config);
+          this._chain = PaymentsClient.create(config);
+          await this._vm.connect();
+          await this._chain.connect();
+          Log("NillionClient connected.");
+        }),
+      ),
+    );
+
+    const result = await effectToResultAsync(effect);
+    if (result.err) {
+      const { error } = result.err;
+      if (error instanceof ZodError) {
+        Log("Config parse error: %O", error.format());
+      } else {
+        Log("Connection failed: %O", error);
+      }
+      throw error as Error;
+    } else {
+      Log("Connected");
+      return this.ready;
+    }
+  }
+
+  disconnect(): void {
+    // TODO: terminate websocket connections / tell worker to terminate / cleanup
+    Log("Disconnect called. This is currently a noop.");
   }
 
   async store(
@@ -152,8 +223,8 @@ export class NillionClient {
     operation: IntoWasmQuotableOperation & { type: OperationType };
   }): E.Effect<PaymentReceipt, UnknownException> {
     return E.Do.pipe(
-      E.bind("quote", () => this._vm.fetchOperationQuote(args)),
-      E.bind("hash", ({ quote }) => this._chain.pay(quote)),
+      E.bind("quote", () => this.vm.fetchOperationQuote(args)),
+      E.bind("hash", ({ quote }) => this.chain.pay(quote)),
       E.map(({ quote, hash }) =>
         PaymentReceipt.parse({
           quote,
@@ -171,7 +242,7 @@ export class NillionClient {
     const effect: E.Effect<ComputeResultId, UnknownException> = E.Do.pipe(
       E.let("operation", () => Operation.compute(args)),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap((args) => this._vm.runProgram(args)),
+      E.flatMap((args) => this.vm.runProgram(args)),
     );
     return effectToResultAsync(effect);
   }
@@ -182,7 +253,7 @@ export class NillionClient {
     const effect = E.Do.pipe(
       E.let("operation", () => Operation.fetchComputeResult(args)),
       E.flatMap(({ operation }) =>
-        this._vm.fetchRunProgramResult(operation.args),
+        this.vm.fetchRunProgramResult(operation.args),
       ),
     );
     return effectToResultAsync(effect);
@@ -193,20 +264,20 @@ export class NillionClient {
   }): Promise<Result<StoreId, UnknownException>> {
     const effect = E.Do.pipe(
       E.bind("id", () => E.try(() => StoreId.parse(args.id))),
-      E.flatMap((args) => this._vm.deleteValues(args)),
+      E.flatMap((args) => this.vm.deleteValues(args)),
     );
     return effectToResultAsync(effect);
   }
 
   fetchClusterInfo(): Promise<Result<ClusterDescriptor, UnknownException>> {
-    const effect = this._vm.fetchClusterInfo();
+    const effect = this.vm.fetchClusterInfo();
     return effectToResultAsync(effect);
   }
 
   fetchOperationQuote(args: {
     operation: IntoWasmQuotableOperation & { type: OperationType };
   }): Promise<Result<PriceQuote, UnknownException>> {
-    const effect = this._vm.fetchOperationQuote(args);
+    const effect = this.vm.fetchOperationQuote(args);
     return effectToResultAsync(effect);
   }
 
@@ -226,7 +297,7 @@ export class NillionClient {
         }),
       ),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap((args) => this._vm.fetchValue(args)),
+      E.flatMap((args) => this.vm.fetchValue(args)),
       E.map((nada) => nada.data),
     );
     return effectToResultAsync(effect);
@@ -239,7 +310,7 @@ export class NillionClient {
     const effect = E.Do.pipe(
       E.let("operation", () => Operation.storeProgram(args)),
       E.bind("receipt", ({ operation }) => this.pay({ operation })),
-      E.flatMap((args) => this._vm.storeProgram(args)),
+      E.flatMap((args) => this.vm.storeProgram(args)),
     );
     return effectToResultAsync(effect);
   }
@@ -259,7 +330,7 @@ export class NillionClient {
         }),
       ),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap((args) => this._vm.storeValues(args)),
+      E.flatMap((args) => this.vm.storeValues(args)),
     );
     return effectToResultAsync(effect);
   }
@@ -272,7 +343,7 @@ export class NillionClient {
     const effect = E.Do.pipe(
       E.let("operation", () => Operation.updateValues(args)),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap((args) => this._vm.updateValues(args)),
+      E.flatMap((args) => this.vm.updateValues(args)),
     );
     return effectToResultAsync(effect);
   }
@@ -283,7 +354,7 @@ export class NillionClient {
     const effect = E.Do.pipe(
       E.let("operation", () => Operation.fetchPermissions(args)),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap((args) => this._vm.fetchPermissions(args)),
+      E.flatMap((args) => this.vm.fetchPermissions(args)),
     );
     return effectToResultAsync(effect);
   }
@@ -295,12 +366,12 @@ export class NillionClient {
     const effect = E.Do.pipe(
       E.let("operation", () => Operation.setPermissions(args)),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap((args) => this._vm.setPermissions(args)),
+      E.flatMap((args) => this.vm.setPermissions(args)),
     );
     return effectToResultAsync(effect);
   }
 
-  static create = () => new NillionClient();
+  static create = (config: NillionClientConfig) => new NillionClient(config);
 }
 
 export interface StoreValueArgs {
@@ -312,11 +383,4 @@ export interface StoreValueArgs {
 export interface StoreOptions {
   ttl?: number;
   permissions?: Permissions;
-}
-
-export type ConnectionArgs = VmClientConnectionArgs &
-  PaymentsClientConnectionArgs;
-
-export interface ClientDefaults {
-  valueTtl: Days;
 }

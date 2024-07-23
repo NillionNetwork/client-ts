@@ -1,10 +1,10 @@
 import {
-  Config,
+  PartialConfig,
   effectToResultAsync,
   init,
   VmClient,
-  ConnectionArgs,
   StoreId,
+  VmClientConfig,
 } from "@nillion/core";
 import { expectOk } from "../../fixture/helpers";
 import { Effect as E } from "effect";
@@ -13,6 +13,7 @@ const SUITE_NAME = `@nillion/core > initialization`;
 
 describe(SUITE_NAME, () => {
   let client: VmClient;
+  const config = VmClientConfig.parse(PartialConfig.TestFixture);
 
   beforeAll(() => {
     console.log(`*** Start ${SUITE_NAME} ***`);
@@ -39,7 +40,7 @@ describe(SUITE_NAME, () => {
   });
 
   it("can create NilVmClient", () => {
-    client = VmClient.create();
+    client = VmClient.create(config);
     expect(client).toBeDefined();
   });
 
@@ -56,14 +57,7 @@ describe(SUITE_NAME, () => {
   });
 
   it("can connect", async () => {
-    const config = Config.TestFixture;
-    const args: ConnectionArgs = {
-      bootnodes: config.bootnodes,
-      clusterId: config.clusterId,
-      userSeed: "nillion-testnet-seed-1",
-      nodeSeed: "nillion-testnet-seed-1",
-    };
-    await client.connect(args);
+    await client.connect();
     expect(client.ready).toBeTrue();
   });
 

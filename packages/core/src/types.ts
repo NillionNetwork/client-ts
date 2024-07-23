@@ -1,26 +1,15 @@
 import { z } from "zod";
 import * as Wasm from "@nillion/wasm";
 
-export const Url = z.string().url().brand<"Url">();
-export type Url = z.infer<typeof Url>;
+// Required lifting for type resolution
+export const TxHash = z.string().length(64).base64().brand<"TxHash">();
+export type TxHash = z.infer<typeof TxHash>;
 
-export const Days = z.number().int().min(1).brand<"Days">();
-export type Days = z.infer<typeof Days>;
+export const ActionId = z.string().uuid().brand<"ActionId">();
+export type ActionId = z.infer<typeof ActionId>;
 
-export const NetworkName = z.enum(["Gluon", "Devnet", "TestFixture"]);
-export type NetworkName = z.infer<typeof NetworkName>;
-
-export const PartyId = z.string().length(52).brand<"PartyId">();
-export type PartyId = z.infer<typeof PartyId>;
-
-export const UserId = z.string().length(88).brand<"UserId">();
-export type UserId = z.infer<typeof UserId>;
-
-export const PartyName = z.string().min(1).brand<"PartyName">();
-export type PartyName = z.infer<typeof PartyName>;
-
-export const ProgramName = z.string().min(1).brand<"ProgramName">();
-export type ProgramName = z.infer<typeof ProgramName>;
+export const ChainId = z.string().min(1).brand<"ChainId">();
+export type ChainId = z.infer<typeof ChainId>;
 
 export const ClusterId = z.string().uuid().brand<"ClusterId">();
 export type ClusterId = z.infer<typeof ClusterId>;
@@ -36,37 +25,14 @@ export const ClusterDescriptor = z
   .brand<"ClusterDescriptor">();
 export type ClusterDescriptor = z.infer<typeof ClusterDescriptor>;
 
-// source: libp2p-wasm-ext websocket.js
-const multiaddrRegex =
-  /^\/(ip4|ip6|dns4|dns6|dns)\/(.*?)\/tcp\/(.*?)\/(ws|wss|x-parity-ws\/(.*)|x-parity-wss\/(.*))(|\/p2p\/[a-zA-Z0-9]+)$/;
-export const Multiaddr = z.string().regex(multiaddrRegex).brand<"Multiaddr">();
-export type Multiaddr = z.infer<typeof Multiaddr>;
-
-export const ActionId = z.string().uuid().brand<"ActionId">();
-export type ActionId = z.infer<typeof ActionId>;
-
-export const StoreId = z.string().uuid().brand<"StoreId">();
-export type StoreId = z.infer<typeof StoreId>;
-
-export const NamedValue = z.string().min(1).brand<"NamedValue">();
-export type NamedValue = z.infer<typeof NamedValue>;
-
-// "namespace/friendly-name"
-export const ProgramId = z.string().min(1).brand<"ProgramId">();
-export type ProgramId = z.infer<typeof ProgramId>;
-
 export const ComputeResultId = z.string().uuid().brand<"ComputeResultId">();
 export type ComputeResultId = z.infer<typeof ComputeResultId>;
 
-export const Token = {
-  Unil: "unil",
-  asUnil: (amount: number | string) => `${String(amount)}${Token.Unil}`,
-};
+export const Days = z.number().int().min(1).brand<"Days">();
+export type Days = z.infer<typeof Days>;
 
-export const NilChainProtobufTypeUrl = "/nillion.meta.v1.MsgPayFor";
-
-export const ChainId = z.string().min(1).brand<"ChainId">();
-export type ChainId = z.infer<typeof ChainId>;
+export const NamedValue = z.string().min(1).brand<"NamedValue">();
+export type NamedValue = z.infer<typeof NamedValue>;
 
 export const NilChainAddressPrefix = "nillion";
 export const NilChainAddress = z
@@ -76,14 +42,8 @@ export const NilChainAddress = z
   .brand<"Address">();
 export type NilChainAddress = z.infer<typeof NilChainAddress>;
 
-export const PrivateKeyBase16 = z
-  .string()
-  .length(64)
-  .brand<"PrivateKeyBase16">();
-export type PrivateKeyBase16 = z.infer<typeof PrivateKeyBase16>;
-
-export const TxHash = z.string().length(64).base64().brand<"TxHash">();
-export type TxHash = z.infer<typeof TxHash>;
+export const NodeSeed = z.string().min(1).brand<"NodeSeed">();
+export type NodeSeed = z.infer<typeof NodeSeed>;
 
 export const OperationCost = z
   .object({
@@ -98,6 +58,15 @@ export const OperationCost = z
 
 export type OperationCost = z.infer<typeof OperationCost>;
 
+export const PartyName = z.string().min(1).brand<"PartyName">();
+export type PartyName = z.infer<typeof PartyName>;
+
+export const ProgramName = z.string().min(1).brand<"ProgramName">();
+export type ProgramName = z.infer<typeof ProgramName>;
+
+export const PartyId = z.string().length(52).brand<"PartyId">();
+export type PartyId = z.infer<typeof PartyId>;
+
 export const PriceQuote = z
   .object({
     expires: z.date(),
@@ -108,6 +77,10 @@ export const PriceQuote = z
   .brand<"PriceQuote">();
 export type PriceQuote = z.infer<typeof PriceQuote>;
 
+// "namespace/friendly-name"
+export const ProgramId = z.string().min(1).brand<"ProgramId">();
+export type ProgramId = z.infer<typeof ProgramId>;
+
 export const PaymentReceipt = z
   .object({
     quote: PriceQuote,
@@ -115,3 +88,32 @@ export const PaymentReceipt = z
   })
   .brand<"PaymentReceipt">();
 export type PaymentReceipt = z.infer<typeof PaymentReceipt>;
+
+export const PrivateKeyBase16 = z
+  .string()
+  .length(64)
+  .brand<"PrivateKeyBase16">();
+export type PrivateKeyBase16 = z.infer<typeof PrivateKeyBase16>;
+
+export const UserId = z.string().length(88).brand<"UserId">();
+export type UserId = z.infer<typeof UserId>;
+
+export const UserSeed = z.string().min(1).brand<"UserSeed">();
+export type UserSeed = z.infer<typeof UserSeed>;
+
+export const Url = z.string().url().brand<"Url">();
+export type Url = z.infer<typeof Url>;
+
+// source: libp2p-wasm-ext websocket.js
+const multiaddrRegex =
+  /^\/(ip4|ip6|dns4|dns6|dns)\/(.*?)\/tcp\/(.*?)\/(ws|wss|x-parity-ws\/(.*)|x-parity-wss\/(.*))(|\/p2p\/[a-zA-Z0-9]+)$/;
+export const Multiaddr = z.string().regex(multiaddrRegex).brand<"Multiaddr">();
+export type Multiaddr = z.infer<typeof Multiaddr>;
+
+export const StoreId = z.string().uuid().brand<"StoreId">();
+export type StoreId = z.infer<typeof StoreId>;
+
+export const Token = {
+  Unil: "unil",
+  asUnil: (amount: number | string) => `${String(amount)}${Token.Unil}`,
+};

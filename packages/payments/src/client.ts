@@ -1,12 +1,5 @@
-import {
-  NilChainAddress,
-  NilChainProtobufTypeUrl,
-  PriceQuote,
-  Token,
-  TxHash,
-  Url,
-} from "@nillion/core";
-import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
+import { NilChainAddress, PriceQuote, Token, TxHash } from "@nillion/core";
+import { Registry } from "@cosmjs/proto-signing";
 import {
   GasPrice,
   SigningStargateClient,
@@ -16,19 +9,16 @@ import { MsgPayFor } from "./proto";
 import { Log } from "./logger";
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
-
-export interface ConnectionArgs {
-  endpoint: Url;
-  signerOrCreateFn: OfflineSigner | (() => Promise<OfflineSigner>);
-}
+import { NilChainProtobufTypeUrl, PaymentClientConfig } from "./types";
 
 export class PaymentsClient {
-  // These fields are lazily loaded to avoid top level awaits required in the initiation of the Signer
-  // @ts-expect-error lazily loaded on `connect()` to avoid top level waits
+  // @ts-expect-error lazily loaded on `connect()`, wrapped by `isReadyGuard()` and public access via getter
   private _client: SigningStargateClient;
-  // @ts-expect-error lazily loaded on `connect()` to avoid top level waits
+  // @ts-expect-error lazily loaded on `connect()`, wrapped by `isReadyGuard()` and public access via getter
   private _address: NilChainAddress;
   private _ready = false;
+
+  private constructor(private _config: PaymentClientConfig) {}
 
   get ready(): boolean {
     return this._ready;
@@ -53,15 +43,10 @@ export class PaymentsClient {
     }
   }
 
-  async connect(args: ConnectionArgs): Promise<boolean> {
-    const { endpoint, signerOrCreateFn } = args;
+  async connect(): Promise<boolean> {
+    const { endpoint, signer } = this._config;
     const registry = new Registry();
     registry.register(NilChainProtobufTypeUrl, MsgPayFor);
-
-    const signer =
-      typeof signerOrCreateFn === "function"
-        ? await signerOrCreateFn()
-        : signerOrCreateFn;
 
     const accounts = await signer.getAccounts();
     this._address = NilChainAddress.parse(accounts[0].address);
@@ -104,5 +89,5 @@ export class PaymentsClient {
     });
   }
 
-  static create = () => new PaymentsClient();
+  static create = (config: PaymentClientConfig) => new PaymentsClient(config);
 }

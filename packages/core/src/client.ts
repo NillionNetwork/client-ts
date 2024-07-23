@@ -32,23 +32,27 @@ import {
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
 import { init } from "./init";
+import { z } from "zod";
 
-export interface ConnectionArgs {
-  bootnodes: Multiaddr[];
-  clusterId: ClusterId;
-  userSeed: string;
-  nodeSeed: string;
-}
+export const VmClientConfig = z.object({
+  bootnodes: z.array(Multiaddr),
+  cluster: ClusterId,
+  userSeed: z.string(),
+  nodeSeed: z.string(),
+});
+
+export type VmClientConfig = z.infer<typeof VmClientConfig>;
 
 export class VmClient {
-  // These fields are lazily loaded because the wasm bundle is async. At some point in the client's use
-  // there has to be an async call to init so we wrap that into our connect method. Meaning the client
-  // can be created sync and avoiding top-level async.
-  // @ts-expect-error lazily loaded on `connect()` to avoid top level waits
+  // The wasm bundle is loaded asynchronously which can be problematic because most environments don't
+  // support top-level awaits. To manage this complexity `this._client` is lazily initialized and guarded
+  // by `isReadyGuard`. Users can therefore create the client in one place and then connect when they are
+  // inside an async context.
+  // @ts-expect-error lazily loaded on `connect()`, wrapped by `isReadyGuard()` and public access via getter
   private _client: Wasm.NillionClient;
-  // @ts-expect-error lazily loaded on `connect()` to avoid top level waits
-  private _cluster: ClusterId;
   private _ready = false;
+
+  private constructor(private _config: VmClientConfig) {}
 
   get ready(): boolean {
     return this._ready;
@@ -65,8 +69,7 @@ export class VmClient {
   }
 
   get clusterId(): ClusterId {
-    this.isReadyGuard();
-    return this._cluster;
+    return ClusterId.parse(this._config.cluster);
   }
 
   get client(): Wasm.NillionClient {
@@ -74,16 +77,16 @@ export class VmClient {
     return this._client;
   }
 
-  async connect(args: ConnectionArgs): Promise<boolean> {
+  async connect(): Promise<boolean> {
     if (!globalThis.__NILLION?.initialized) {
       await init();
     }
 
-    this._cluster = args.clusterId;
-    const userKey = Wasm.UserKey.from_seed(args.userSeed);
-    const nodeKey = Wasm.NodeKey.from_seed(args.nodeSeed);
-    this._client = new Wasm.NillionClient(userKey, nodeKey, args.bootnodes);
-    const descriptor = await this._client.cluster_information(this._cluster);
+    const { cluster, userSeed, nodeSeed, bootnodes } = this._config;
+    const userKey = Wasm.UserKey.from_seed(userSeed);
+    const nodeKey = Wasm.NodeKey.from_seed(nodeSeed);
+    this._client = new Wasm.NillionClient(userKey, nodeKey, bootnodes);
+    const descriptor = await this._client.cluster_information(cluster);
     this._ready = true;
 
     Log("Connected to cluster: ", descriptor.id);
@@ -91,8 +94,11 @@ export class VmClient {
   }
 
   private isReadyGuard(): void | never {
-    if (!this._ready)
-      throw new Error("NilVmClient not ready. Call `await client.connect()`.");
+    if (!this._ready) {
+      const message = "NilVmClient not ready. Call `await client.connect()`.";
+      Log(message);
+      throw new Error(message);
+    }
   }
 
   fetchClusterInfo(): E.Effect<ClusterDescriptor, UnknownException> {
@@ -318,5 +324,5 @@ export class VmClient {
     });
   }
 
-  static create = () => new VmClient();
+  static create = (args: VmClientConfig) => new VmClient(args);
 }

@@ -1,6 +1,10 @@
-import { createSignerFromKey, PaymentsClient } from "@nillion/payments";
 import {
-  Config,
+  createSignerFromKey,
+  PaymentClientConfig,
+  PaymentsClient,
+} from "@nillion/payments";
+import {
+  PartialConfig,
   effectToResultAsync,
   PriceQuote,
   PrivateKeyBase16,
@@ -12,6 +16,7 @@ const SUITE_NAME = "@nillion/payments";
 
 describe(SUITE_NAME, () => {
   let client: PaymentsClient;
+  let config: PaymentClientConfig;
 
   beforeAll(() => {
     console.log(`*** Start ${SUITE_NAME} ***`);
@@ -21,8 +26,13 @@ describe(SUITE_NAME, () => {
     console.log(`*** Finish ${SUITE_NAME} *** \n\n`);
   });
 
-  it("can create NilChainPaymentClient", () => {
-    client = PaymentsClient.create();
+  it("can create NilChainPaymentClient", async () => {
+    const key = PrivateKeyBase16.parse(fixtureConfig.payments_key);
+    config = PaymentClientConfig.parse({
+      ...PartialConfig.TestFixture,
+      signer: await createSignerFromKey(key),
+    });
+    client = PaymentsClient.create(config);
     expect(client).toBeDefined();
   });
 
@@ -36,16 +46,8 @@ describe(SUITE_NAME, () => {
     }
   });
 
-  it("can create NilChainPaymentClient", async () => {
-    const config = Config.TestFixture;
-    const key = PrivateKeyBase16.parse(fixtureConfig.payments_key);
-    const signer = await createSignerFromKey(key);
-
-    await client.connect({
-      endpoint: config.chainEndpoint,
-      signerOrCreateFn: signer,
-    });
-
+  it("can connect", async () => {
+    await client.connect();
     expect(client.address).toBe(
       "nillion1uumg9ckysacwrkpljxavhjtw9vgkk86wtvu7w9",
     );

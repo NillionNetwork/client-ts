@@ -1,42 +1,53 @@
 import { z } from "zod";
-import { ChainId, ClusterId, Multiaddr, NetworkName, Url } from "./types";
 
-export const ConfigSchema = z.object({
-  chainEndpoint: Url,
-  chainId: ChainId,
-  clusterId: ClusterId,
-  bootnodes: z.array(Multiaddr),
-});
+export const NamedNetwork = z.enum([
+  "Photon",
+  "Nucleus",
+  "Devnet",
+  "TestFixture",
+  "Custom",
+]);
+export type NamedNetwork = z.infer<typeof NamedNetwork>;
 
-export type Config = z.infer<typeof ConfigSchema>;
-
-export type ConfigType = {
-  [K in NetworkName]: ReturnType<typeof ConfigSchema.parse>;
-};
-
-export const Config: ConfigType = {
-  [NetworkName.enum.TestFixture]: ConfigSchema.parse({
-    chainEndpoint: Url.parse("http://localhost:9191/nilchain"),
-    chainId: "nillion-chain-devnet",
-    clusterId: "e2c959ca-ecb2-45b0-8f2b-d91abbfa3708",
+export const PartialConfig = {
+  TestFixture: {
+    network: NamedNetwork.enum.TestFixture,
+    cluster: "e2c959ca-ecb2-45b0-8f2b-d91abbfa3708",
     bootnodes: [
       "/ip4/127.0.0.1/tcp/14211/ws/p2p/12D3KooWCAGu6gqDrkDWWcFnjsT9Y8rUzUH8buWjdFcU3TfWRmuN",
     ],
-  }),
-  [NetworkName.enum.Devnet]: ConfigSchema.parse({
-    chainEndpoint: Url.parse("http://localhost:8080/nilchain"),
-    chainId: "nillion-chain-testnet",
-    clusterId: "9e68173f-9c23-4acc-ba81-4f079b639964",
+    chain: "nillion-chain-devnet",
+    endpoint: "http://localhost:9191/nilchain",
+    userSeed: "nillion-testnet-seed-1",
+    nodeSeed: "nillion-testnet-seed-1",
+  },
+  Devnet: {
+    network: NamedNetwork.enum.Devnet,
+    cluster: "9e68173f-9c23-4acc-ba81-4f079b639964",
     bootnodes: [
       "/ip4/127.0.0.1/tcp/54936/ws/p2p/12D3KooWMvw1hEqm7EWSDEyqTb6pNetUVkepahKY6hixuAuMZfJS",
     ],
-  }),
-  [NetworkName.enum.Gluon]: ConfigSchema.parse({
-    chainEndpoint: Url.parse("http://localhost:8080/nilchain"),
-    chainId: "nillion-chain-testnet-1",
-    clusterId: "3272dd62-b126-466e-92f2-69fcc2c62ab6",
+    chain: "nillion-chain-devnet",
+    endpoint: "http://localhost:26650",
+    userSeed: "nillion-devnet",
+    nodeSeed: "nillion-devnet",
+  },
+  Nucleus: {
+    network: NamedNetwork.enum.Nucleus,
+    cluster: "3272dd62-b126-466e-92f2-69fcc2c62ab6",
     bootnodes: [
       "/dns/node-1.testnet-nucleus.nillion-network.nilogy.xyz/tcp/14211/wss/p2p/12D3KooWFH5doiPHBJa8cgx7B2zzD7z7DbyKzRJPmsTZFHFT5zyc",
     ],
-  }),
+    chain: "nillion-chain-testnet-1",
+    endpoint: "http://65.109.222.111:26657",
+  },
+  Photon: {
+    network: NamedNetwork.enum.Photon,
+    cluster: "b13880d3-dde8-4a75-a171-8a1a9d985e6c",
+    bootnodes: [
+      "/dns/node-1.testnet-photon.nillion-network.nilogy.xyz/tcp/14211/wss/p2p/12D3KooWCfFYAb77NCjEk711e9BVe2E6mrasPZTtAjJAPtVAdbye",
+    ],
+    chain: "nillion-chain-testnet-1",
+    endpoint: "http://65.109.222.111:26657",
+  },
 };

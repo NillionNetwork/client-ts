@@ -1,11 +1,10 @@
 import {
-  Config,
+  PartialConfig,
   Days,
   effectToResultAsync,
   NadaValue,
   NadaValues,
   VmClient,
-  ConnectionArgs,
   Operation,
   Permissions,
   ProgramBindings,
@@ -13,6 +12,7 @@ import {
   ProgramName,
   StoreId,
   NamedValue,
+  VmClientConfig,
 } from "@nillion/core";
 import configFixture from "../../fixture/network.json";
 import { expectOk, loadProgram } from "../../fixture/helpers";
@@ -21,6 +21,8 @@ const SUITE_NAME = `@nillion/core > non-paid functions`;
 
 describe(SUITE_NAME, () => {
   let client: VmClient;
+  const config = VmClientConfig.parse(PartialConfig.TestFixture);
+
   const data = {
     store: StoreId.parse("aaaaaaaa-bbbb-cccc-dddd-ffffffffffff"),
     program: ProgramId.parse(
@@ -31,17 +33,8 @@ describe(SUITE_NAME, () => {
   beforeAll(async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
     console.log(`*** Start ${SUITE_NAME} ***`);
-    client = VmClient.create();
-    expect(client).toBeDefined();
-
-    const config = Config.TestFixture;
-    const args: ConnectionArgs = {
-      bootnodes: config.bootnodes,
-      clusterId: config.clusterId,
-      userSeed: "nillion-testnet-seed-1",
-      nodeSeed: "nillion-testnet-seed-1",
-    };
-    await client.connect(args);
+    client = VmClient.create(config);
+    await client.connect();
   });
 
   afterAll(() => {

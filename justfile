@@ -99,7 +99,7 @@ payments-test:
     #!/usr/bin/env bash
     set -e
     just clean
-    npm -w packages/payments run build.protobuf
+    npm -w packages/payments run build.proto
     npx concurrently -c "auto" \
       "npm -w packages/core run build.watch" \
       "npm -w packages/payments run test.build" \
@@ -129,7 +129,7 @@ client-test:
     npx concurrently -c "auto" \
       "npm -w packages/core run build.watch" \
       "npm -w packages/payments run build.watch" \
-      "npm -w packages/client run build.watch" \
+      "npm -w packages/client run test.build" \
       "npm -w packages/client run test"
 
 client-pack:
