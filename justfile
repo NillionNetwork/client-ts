@@ -29,9 +29,10 @@ pack:
     set -e
     just clean
     just wasm-pack
-    just core-pack
-    just payments-pack
-    just client-pack
+    just client-core-pack
+    just client-payments-pack
+    just client-vms-pack
+    just client-react-hooks-pack
 
 unpublish:
     #!/usr/bin/env bash
