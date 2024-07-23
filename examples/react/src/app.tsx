@@ -11,12 +11,12 @@ import { NamedNetwork, NodeSeed, Url, UserSeed } from "@nillion/core";
 import { createSignerFromKey } from "@nillion/payments";
 
 const client = NillionClient.create({
-  network: NamedNetwork.enum.TestFixture,
+  network: NamedNetwork.enum.Devnet,
 
   overrides: async () => {
     const signer = await createSignerFromKey(
       PrivateKeyBase16.parse(
-        "5c98e049ceca4e2c342516e1b81c689e779da9dbae64ea6b92d52684a92095e6",
+        "9a975f567428d054f2bf3092812e6c42f901ce07d9711bc77ee2cd81101f42c5",
       ),
     );
     return {
