@@ -1,5 +1,7 @@
 {
   "name": "@nillion/core",
+  "license": "MIT",
+  "author": "devsupport@nillion.com",
   "version": "1.0.0-beta.0",
   "type": "module",
   "browser": "dist/index.js",
