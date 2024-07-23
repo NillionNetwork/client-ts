@@ -18,6 +18,7 @@ export default {
       "Cross-Origin-Opener-Policy": "same-origin",
     },
     hot: true,
+    historyApiFallback: true,
     client: {
       overlay: false,
     },
@@ -59,5 +60,6 @@ export default {
   output: {
     filename: "bundle.js",
     path: path.resolve(__dirname, "dist"),
+    publicPath: "/",
   },
 };
