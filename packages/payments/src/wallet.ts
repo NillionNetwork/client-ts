@@ -1,6 +1,10 @@
 import { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
 import { DirectSecp256k1Wallet, OfflineSigner } from "@cosmjs/proto-signing";
-import { NilChainAddressPrefix, PrivateKeyBase16 } from "@nillion/core";
+import {
+  NamedNetwork,
+  NilChainAddressPrefix,
+  PrivateKeyBase16,
+} from "@nillion/core";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface

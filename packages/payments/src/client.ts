@@ -1,5 +1,5 @@
 import { NilChainAddress, PriceQuote, Token, TxHash } from "@nillion/core";
-import { Registry } from "@cosmjs/proto-signing";
+import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import {
   GasPrice,
   SigningStargateClient,
@@ -10,32 +10,42 @@ import { Log } from "./logger";
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
 import { NilChainProtobufTypeUrl, PaymentClientConfig } from "./types";
+import { getKeplr } from "./wallet";
+import { ChainConfig } from "./chains";
 
 export class PaymentsClient {
-  // @ts-expect-error lazily loaded on `connect()`, wrapped by `isReadyGuard()` and public access via getter
-  private _client: SigningStargateClient;
-  // @ts-expect-error lazily loaded on `connect()`, wrapped by `isReadyGuard()` and public access via getter
-  private _address: NilChainAddress;
-  private _ready = false;
+  private _client: SigningStargateClient | undefined = undefined;
+  private _address: NilChainAddress | undefined = undefined;
+  private _signer: OfflineSigner | undefined = undefined;
 
   private constructor(private _config: PaymentClientConfig) {}
 
   get ready(): boolean {
-    return this._ready;
-  }
-
-  get address(): NilChainAddress {
-    this.isReadyGuard();
-    return this._address;
+    return (
+      Boolean(this._client) && Boolean(this._address) && Boolean(this._signer)
+    );
   }
 
   get client(): SigningStargateClient {
     this.isReadyGuard();
-    return this._client;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this._client!;
+  }
+
+  get signer(): OfflineSigner {
+    this.isReadyGuard();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this._signer!;
+  }
+
+  get address(): NilChainAddress {
+    this.isReadyGuard();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this._address!;
   }
 
   private isReadyGuard(): void | never {
-    if (!this._ready) {
+    if (!this.ready) {
       const message =
         "NilChainPaymentClient not ready. Call `await client.connect()`.";
       Log(message);
@@ -44,11 +54,23 @@ export class PaymentsClient {
   }
 
   async connect(): Promise<boolean> {
-    const { endpoint, signer } = this._config;
+    const { endpoint, chain } = this._config;
     const registry = new Registry();
     registry.register(NilChainProtobufTypeUrl, MsgPayFor);
 
-    const accounts = await signer.getAccounts();
+    this._signer = this._config.signer;
+    if (!this._signer) {
+      // default to keplr signer
+      const keplr = await getKeplr();
+      if (keplr) {
+        await keplr.experimentalSuggestChain(ChainConfig.Devnet);
+        this._signer = keplr.getOfflineSigner(chain);
+      } else {
+        throw new Error("No signer provided and keplr not found");
+      }
+    }
+
+    const accounts = await this._signer.getAccounts();
     this._address = NilChainAddress.parse(accounts[0].address);
 
     const options: SigningStargateClientOptions = {
@@ -58,13 +80,12 @@ export class PaymentsClient {
 
     this._client = await SigningStargateClient.connectWithSigner(
       endpoint,
-      signer,
+      this._signer,
       options,
     );
 
-    this._ready = true;
     Log("Connected to chain using address %s", this._address);
-    return this._ready;
+    return this.ready;
   }
 
   pay(quote: PriceQuote): E.Effect<TxHash, UnknownException> {
