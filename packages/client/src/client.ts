@@ -93,10 +93,12 @@ export class NillionClient {
           return partial as Partial<NillionClientConfigComplete>;
         }),
       ),
-      E.let("seeds", () => ({
-        userSeed: this._config.userSeed,
-        nodeSeed: this._config.nodeSeed,
-      })),
+      E.let("seeds", () => {
+        const seeds: Record<string, string> = {};
+        if (this._config.userSeed) seeds.userSeed = this._config.userSeed;
+        if (this._config.nodeSeed) seeds.nodeSeed = this._config.nodeSeed;
+        return seeds;
+      }),
       E.bind("overrides", () =>
         E.tryPromise(async () =>
           this._config.overrides ? await this._config.overrides() : {},

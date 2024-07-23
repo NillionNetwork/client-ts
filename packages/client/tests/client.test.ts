@@ -12,8 +12,6 @@ import {
   StoreId,
   NamedValue,
   NamedNetwork,
-  UserSeed,
-  NodeSeed,
   PrivateKeyBase16,
 } from "@nillion/core";
 import { NillionClient } from "@nillion/client";
