@@ -5,3 +5,5 @@ node_modules
 packages/payments/src/proto/nilchain.ts # generated protobuf codec
 dist
 !packages/wasm/dist
+packages/fixture/addition_division.nada.bin
+packages/fixture/network.json
