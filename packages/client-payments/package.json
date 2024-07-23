@@ -1,0 +1,31 @@
+{
+  "name": "@nillion/client-payments",
+  "license": "MIT",
+  "author": "devsupport@nillion.com",
+  "version": "1.0.0-beta.0",
+  "type": "module",
+  "browser": "dist/index.js",
+  "types": "src/index.ts",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build.proto": "protoc --plugin=../../node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src proto/nilchain.proto",
+    "build.watch": "node esbuild.config.mjs --watch",
+    "build": "node esbuild.config.mjs",
+    "test.build": "npx webpack --config webpack.config.mjs --watch",
+    "test": "npx jasmine-browser-runner serve --config=jasmine.config.mjs"
+  },
+  "dependencies": {
+    "@cosmjs/proto-signing": "^0.32.4",
+    "@cosmjs/stargate": "^0.32.4",
+    "@nillion/client-core": "^1.0.0-beta.0",
+    "debug": "^4.3.5",
+    "effect": "^3.5.5",
+    "protobufjs": "^7.3.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@keplr-wallet/types": "^0.12.107",
+    "ts-proto": "^1.181.0",
+    "@types/debug": "^4.1.12"
+  }
+}

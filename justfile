@@ -5,10 +5,10 @@
 clean:
     #!/usr/bin/env bash
     set -e
-    npm -w packages/core run clean
-    npm -w packages/payments run clean
-    npm -w packages/client run clean
-    npm -w packages/react-hooks run clean
+    npm -w packages/client-core run clean
+    npm -w packages/client-payments run clean
+    npm -w packages/client-vms run clean
+    npm -w packages/client-react-hooks run clean
 
 check:
     #!/usr/bin/env bash
@@ -38,10 +38,10 @@ unpublish:
     set -e
     echo "warning: only for local development"
     npm unpublish --force @nillion/wasm
-    npm unpublish --force @nillion/core
-    npm unpublish --force @nillion/payments
-    npm unpublish --force @nillion/client
-    npm unpublish --force @nillion/react-hooks
+    npm unpublish --force @nillion/client-core
+    npm unpublish --force @nillion/client-payments
+    npm unpublish --force @nillion/client-vms
+    npm unpublish --force @nillion/client-react-hooks
 
 publish:
     #!/usr/bin/env bash
@@ -49,10 +49,10 @@ publish:
     just clean
     just check
     just wasm-publish
-    just core-publish
-    just payments-publish
-    just client-publish
-    just react-hooks-publish
+    just client-core-publish
+    just client-payments-publish
+    just client-vms-publish
+    just client-react-hooks-publish
 # <<< End all <<<
 
 
@@ -69,110 +69,110 @@ wasm-publish:
 # <<< End @nillion/wasm <<<
 
 
-# >>> Start @nillion/core >>>
-core-test:
+# >>> Start @nillion/client-core >>>
+client-core-test:
     #!/usr/bin/env bash
     set -e
-    npm -w packages/core run clean
+    npm -w packages/client-core run clean
     npx concurrently -c "auto" \
-    "npm -w packages/core run test.build" \
-    "npm -w packages/core run test"
+    "npm -w packages/client-core run test.build" \
+    "npm -w packages/client-core run test"
 
-core-pack:
+client-core-pack:
     #!/usr/bin/env bash
     set -e
-    npm -w packages/core run clean
-    npm -w packages/core run build
-    npm -w packages/core pack --pack-destination dist
+    npm -w packages/client-core run clean
+    npm -w packages/client-core run build
+    npm -w packages/client-core pack --pack-destination dist
 
-core-publish:
+client-core-publish:
     #!/usr/bin/env bash
     set -e
-    npm -w packages/core run clean
-    npm -w packages/core run build
-    npm -w packages/core publish
-# <<< End @nillion/core <<<
+    npm -w packages/client-core run clean
+    npm -w packages/client-core run build
+    npm -w packages/client-core publish
+# <<< End @nillion/client-core <<<
 
 
-# >>> Start @nillion/payments >>>
-payments-test:
+# >>> Start @nillion/client-payments >>>
+client-payments-test:
     #!/usr/bin/env bash
     set -e
     just clean
-    npm -w packages/payments run build.proto
+    npm -w packages/client-payments run build.proto
     npx concurrently -c "auto" \
-      "npm -w packages/core run build.watch" \
-      "npm -w packages/payments run test.build" \
-      "npm -w packages/payments run test"
+      "npm -w packages/client-core run build.watch" \
+      "npm -w packages/client-payments run test.build" \
+      "npm -w packages/client-payments run test"
 
-payments-pack:
+client-payments-pack:
     #!/usr/bin/env bash
     set -e
-    npm -w packages/payments run clean
-    npm -w packages/payments run build
-    npm -w packages/payments pack --pack-destination dist
+    npm -w packages/client-payments run clean
+    npm -w packages/client-payments run build
+    npm -w packages/client-payments pack --pack-destination dist
 
-payments-publish:
+client-payments-publish:
     #!/usr/bin/env bash
     set -e
-    npm -w packages/payments run clean
-    npm -w packages/payments run build
-    npm -w packages/payments publish
-# <<< End @nillion/payments <<<
+    npm -w packages/client-payments run clean
+    npm -w packages/client-payments run build
+    npm -w packages/client-payments publish
+# <<< End @nillion/client-payments <<<
 
 
-# >>> Start @nillion/client >>>
-client-test:
-    #!/usr/bin/env bash
-    set -e
-    just clean
-    npx concurrently -c "auto" \
-      "npm -w packages/core run build.watch" \
-      "npm -w packages/payments run build.watch" \
-      "npm -w packages/client run test.build" \
-      "npm -w packages/client run test"
-
-client-pack:
-    #!/usr/bin/env bash
-    set -e
-    npm -w packages/client run clean
-    npm -w packages/client run build
-    npm -w packages/client pack --pack-destination dist
-
-client-publish:
-    #!/usr/bin/env bash
-    set -e
-    npm -w packages/client run clean
-    npm -w packages/client run build
-    npm -w packages/client publish
-# <<< End @nillion/client <<<
-
-
-# >>> Start @nillion/react-hooks >>>
-react-hooks-dev:
+# >>> Start @nillion/client-vms >>>
+client-vms-test:
     #!/usr/bin/env bash
     set -e
     just clean
     npx concurrently -c "auto" \
-      "npm -w packages/core run build.watch" \
-      "npm -w packages/payments run build.watch" \
-      "npm -w packages/client run build.watch" \
-      "npm -w packages/react-hooks run start"
+      "npm -w packages/client-core run build.watch" \
+      "npm -w packages/client-payments run build.watch" \
+      "npm -w packages/client-vms run test.build" \
+      "npm -w packages/client-vms run test"
 
-react-hooks-pack:
+client-vms-pack:
     #!/usr/bin/env bash
     set -e
-    npm -w packages/react-hooks run clean
-    npm -w packages/react-hooks run build
-    npm -w packages/react-hooks pack --pack-destination dist
+    npm -w packages/client-vms run clean
+    npm -w packages/client-vms run build
+    npm -w packages/client-vms pack --pack-destination dist
 
-react-hooks-publish:
+client-vms-publish:
     #!/usr/bin/env bash
     set -e
-    npm -w packages/react-hooks run clean
-    npm -w packages/react-hooks run build
-    npm -w packages/react-hooks publish
-# <<< End @nillion/react-hooks <<<
+    npm -w packages/client-vms run clean
+    npm -w packages/client-vms run build
+    npm -w packages/client-vms publish
+# <<< End @nillion/client-vms <<<
+
+
+# >>> Start @nillion/client-react-hooks >>>
+client-react-hooks-dev:
+    #!/usr/bin/env bash
+    set -e
+    just clean
+    npx concurrently -c "auto" \
+      "npm -w packages/client-core run build.watch" \
+      "npm -w packages/client-payments run build.watch" \
+      "npm -w packages/client-vms run build.watch" \
+      "npm -w packages/client-react-hooks run start"
+
+client-react-hooks-pack:
+    #!/usr/bin/env bash
+    set -e
+    npm -w packages/client-react-hooks run clean
+    npm -w packages/client-react-hooks run build
+    npm -w packages/client-react-hooks pack --pack-destination dist
+
+client-react-hooks-publish:
+    #!/usr/bin/env bash
+    set -e
+    npm -w packages/client-react-hooks run clean
+    npm -w packages/client-react-hooks run build
+    npm -w packages/client-react-hooks publish
+# <<< End @nillion/client-react-hooks <<<
 
 
 # >>> Start @nillion/examples-react >>>
@@ -181,9 +181,9 @@ examples-react-start:
     set -e
     just clean
     npx concurrently -c "auto" \
-      "npm -w packages/core run build.watch" \
-      "npm -w packages/payments run build.watch" \
-      "npm -w packages/client run build.watch" \
-      "npm -w packages/react-hooks run build.watch" \
+      "npm -w packages/client-core run build.watch" \
+      "npm -w packages/client-payments run build.watch" \
+      "npm -w packages/client-vms run build.watch" \
+      "npm -w packages/client-react-hooks run build.watch" \
       "npm -w examples/react run start"
 # <<< End @nillion/examples-react <<<

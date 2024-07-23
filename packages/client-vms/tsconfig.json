@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@nillion/client-vms": [
+        "src/index.ts"
+      ]
+    }
+  }
+}

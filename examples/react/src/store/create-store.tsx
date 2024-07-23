@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Input, Sheet, Stack, Table } from "@mui/joy";
 import { useState } from "react";
-import { NamedValue } from "@nillion/core";
+import { NamedValue } from "../../../../packages/client-core";
 
 export const CreateStore: React.FC = () => {
   const [name, setName] = useState("");

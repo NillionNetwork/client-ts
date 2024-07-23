@@ -4,39 +4,46 @@ An exploration into how we can deliver a better DX to the TS/JS ecosystem.
 
 ## Notes
 
-- built/tested with npm ... please use npm
--
+1. `<React.StrictMode />` in particular is tricky ... result in console errors where the wasm bundle is loaded /
+   unloaded in
+   quick succession. For example:
 
-@nillion/nilvm-wasm
-@nillion/nilvm | core?
-@nillion/types (fold types into core bc everythin deps on it?)
-@nillion/payments why not nilchain?
-@nillion/glue
-@nillion/react
-@nillion/tests
-@nillion/examples
+   ```
+   index.js:23 Uncaught Error: recursive use of an object detected which would lead to unsafe aliasing in rust
+       at e.wbg.__wbindgen_throw (index.js:23:47590)
+       at 3cc8fb5d64732608d1c9.wasm:0x637841
+       at 3cc8fb5d64732608d1c9.wasm:0x637836
+       at 3cc8fb5d64732608d1c9.wasm:0x61e98c
+       at LoaderHelperFinalization (index.js:23:6465)
+       at FinalizationRegistry.cleanupSome (<anonymous>)
+   ```
 
-## dep graph
+   or
+
+   ```
+   index.js:23 Uncaught (in promise) Error: closure invoked recursively or after being dropped
+       at e.wbg.__wbindgen_throw (index.js:23:47590)
+       at 3cc8fb5d64732608d1c9.wasm:0x637841
+       at 3cc8fb5d64732608d1c9.wasm:0x6338d0
+       at __wbg_adapter_44 (index.js:23:3358)
+       at a (index.js:23:3153)
+   ```
+
+## Package/dependency hierarchy
 
 ```mermaid
 graph BT
-    core["@nillion/core"] --> types["@nillion/types"]
-    core["@nillion/core"] --> wasm["@nillion/wasm"]
-    payments["@nillion/payments"] --> core["@nillion/core"]
-    payments["@nillion/payments"] --> types["@nillion/types"]
-    functional_tests["@nillion/functional-tests"] --> core["@nillion/core"]
-    functional_tests["@nillion/functional-tests"] --> types["@nillion/types"]
-    functional_tests["@nillion/functional-tests"] --> payments["@nillion/payments"]
-    react["@nillion/react"] --> core["@nillion/core"]
-    react["@nillion/react"] --> types["@nillion/types"]
-    react["@nillion/react"] --> payments["@nillion/payments"]
+    core["@nillion/client-core"] --> wasm["@nillion/wasm"]
+    payments["@nillion/client-payments"] --> core["@nillion/client-core"]
+    client["@nillion/client-vms"] --> payments["@nillion/client-payments"]
+    client["@nillion/client-vms"] --> core["@nillion/client-core"]
+    react["@nillion/client-react-hooks"] --> core["@nillion/client-core"]
+    react["@nillion/client-react-hooks"] --> client["@nillion/client-vms"]
 ```
 
-## old
+## To be tidied
 
-# End to End Js Client Functional Test
-
-## Quickstart:
+### Running tests
 
 1. Run: `just test-js-client-jasmine-e2e`
 
@@ -47,7 +54,7 @@ This will:
 - Prepares the js-client-jasmine workspace
 - Runs the js-jasmine test suite
 
-## Notes and Tips
+### Notes and Tips
 
 1. The test suite needs a running cluster with the configuration details available at `src/fixture/local.json` and it
    expects the Nodes fixture's programs to be present.

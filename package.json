@@ -8,10 +8,10 @@
   },
   "workspaces": [
     "packages/wasm",
-    "packages/core",
-    "packages/payments",
-    "packages/client",
-    "packages/react-hooks",
+    "packages/client-core",
+    "packages/client-payments",
+    "packages/client-vms",
+    "packages/client-react-hooks",
     "examples/react"
   ],
   "devDependencies": {

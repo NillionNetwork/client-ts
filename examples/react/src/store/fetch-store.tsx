@@ -2,7 +2,7 @@ import * as React from "react";
 import { Box, Input, Typography, Button, Stack } from "@mui/joy";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { StoreId } from "@nillion/core";
+import { StoreId } from "../../../../packages/client-core";
 import { CreateStore } from "./create-store";
 
 export const Store = () => {

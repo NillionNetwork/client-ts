@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useNillion } from "@nillion/react-hooks";
+import { useNillion } from "@nillion/client-react-hooks";
 import { useEffect, useState } from "react";
 import {
   Box,
@@ -16,7 +16,7 @@ import {
   Operation,
   OperationCost,
   StoreId,
-} from "@nillion/core";
+} from "@nillion/client-core";
 
 export const Home = () => {
   const nillion = useNillion();

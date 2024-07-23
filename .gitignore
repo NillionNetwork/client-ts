@@ -2,7 +2,7 @@
 node_modules
 .idea
 .vscode
-packages/payments/src/proto/nilchain.ts # generated protobuf codec
+packages/client-payments/src/proto/nilchain.ts # generated protobuf codec
 dist
 !packages/wasm/dist
 packages/fixture/addition_division.nada.bin

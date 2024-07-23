@@ -1,2 +1,2 @@
 packages/wasm/dist
-packages/payments/src/proto/nilchain.ts
+packages/client-payments/src/proto/nilchain.ts
