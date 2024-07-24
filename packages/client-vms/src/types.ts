@@ -17,13 +17,15 @@ export type NillionClientConfigComplete = z.infer<
 >;
 
 export const NillionClientConfig = z.object({
-  network: NamedNetwork.optional(),
-  userSeed: UserSeed.optional(),
-  nodeSeed: NodeSeed.optional(),
+  network: z.union([NamedNetwork, z.string().min(1)]).optional(),
+  userSeed: z.union([UserSeed, z.string().min(1)]).optional(),
+  nodeSeed: z.union([NodeSeed, z.string().min(1)]).optional(),
   overrides: z
     .function()
     .args()
-    .returns(z.promise(NillionClientConfigComplete.partial()))
+    .returns(
+      z.union([z.promise(NillionClientConfigComplete.partial()), z.object({})]),
+    )
     .optional(),
 });
 export type NillionClientConfig = z.infer<typeof NillionClientConfig>;
