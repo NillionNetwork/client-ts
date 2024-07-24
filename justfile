@@ -11,10 +11,14 @@ check:
     #!/usr/bin/env bash
     set -e
     npx prettier -c "packages/**/*.(js|jsx|ts|tsx)"
-    echo -n "Running eslint... "
-    npx eslint -c eslint.config.mjs & echo "done."
-    echo -n "Running tsc... "
-    npx tsc & echo "done."
+
+    echo "Running eslint... "
+    npx eslint -c eslint.config.mjs
+    echo "done."
+
+    echo "Running tsc... "
+    npx tsc
+    echo "done."
 
 pack:
     #!/usr/bin/env bash
