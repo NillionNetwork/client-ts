@@ -24,7 +24,7 @@ export function useValue(initialId = "") {
       value: number,
       // data: Record<string, NadaPrimitiveValue | StoreValueArgs>,
     ) => {
-      const result = await nillion.client.store({ foo: value });
+      const result = await nillion.client.store({ foo: value }, { ttl: 1 });
       if (result.err) {
         throw result.err as Error;
       }

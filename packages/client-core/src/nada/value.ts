@@ -110,21 +110,16 @@ export class NadaValue {
   static fromPrimitive(args: {
     data: NadaPrimitiveValue;
     secret: boolean;
-    unsigned: boolean;
   }): NadaValue {
-    const { data, secret, unsigned } = args;
+    const { data, secret } = args;
 
     if (isUint8Array(data)) {
-      if (secret || unsigned) {
-        Log("NadaValue.fromPrimitive ignores private and/or unsigned options");
+      if (!secret) {
+        Log("NadaValue.fromPrimitive data: Uint8Array is always secret");
       }
       return this.createBlobSecret(data);
     } else if (isBigInt(data)) {
-      if (unsigned) {
-        Log(
-          "NadaValue.fromPrimitive ignores unsigned option when type is bigint",
-        );
-      }
+      // bigint is treated as signed only
       return secret
         ? this.createIntegerSecretUnsigned(data)
         : this.createIntegerPublicUnsigned(data);

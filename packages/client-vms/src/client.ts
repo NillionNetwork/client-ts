@@ -29,20 +29,17 @@ import { PaymentsClient } from "@nillion/client-payments";
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
 import { Log } from "./logger";
-import { NillionClientConfig, NillionClientConfigComplete } from "./types";
+import {
+  NillionClientConfig,
+  NillionClientConfigComplete,
+  StoreOptions,
+  StoreValueArgs,
+} from "./types";
 import { ZodError } from "zod";
-
-export interface Defaults {
-  valueTtl: Days;
-}
 
 export class NillionClient {
   private _vm: VmClient | undefined;
   private _chain: PaymentsClient | undefined;
-
-  defaults: Defaults = {
-    valueTtl: Days.parse(30),
-  };
 
   private constructor(private _config: NillionClientConfig) {}
 
@@ -149,7 +146,7 @@ export class NillionClient {
 
   async store(
     values: Record<string, NadaPrimitiveValue | StoreValueArgs>,
-    options?: StoreOptions,
+    options: StoreOptions,
   ): Promise<Result<StoreId, UnknownException>> {
     const nadaValues = NadaValues.create();
     for (const [key, value] of Object.entries(values)) {
@@ -158,7 +155,6 @@ export class NillionClient {
         ? (value as StoreValueArgs)
         : {
             secret: true,
-            unsigned: false,
             data: value,
           };
 
@@ -167,8 +163,8 @@ export class NillionClient {
     }
     return await this.storeValues({
       values: nadaValues,
-      ttl: options?.ttl as Days,
-      permissions: options?.permissions,
+      ttl: options.ttl as Days,
+      permissions: options.permissions,
     });
   }
 
@@ -323,7 +319,7 @@ export class NillionClient {
     permissions?: Permissions;
   }): Promise<Result<StoreId, UnknownException>> {
     const effect = E.Do.pipe(
-      E.let("ttl", () => Days.parse(args.ttl ?? this.defaults.valueTtl)),
+      E.let("ttl", () => Days.parse(args.ttl)),
       E.let("operation", ({ ttl }) =>
         Operation.storeValues({
           values: args.values,
@@ -374,15 +370,4 @@ export class NillionClient {
   }
 
   static create = (config: NillionClientConfig) => new NillionClient(config);
-}
-
-export interface StoreValueArgs {
-  data: NadaPrimitiveValue;
-  secret: boolean;
-  unsigned: boolean;
-}
-
-export interface StoreOptions {
-  ttl?: number;
-  permissions?: Permissions;
 }

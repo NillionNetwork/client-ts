@@ -1,7 +1,9 @@
 import { z } from "zod";
 import {
+  NadaPrimitiveValue,
   NamedNetwork,
   NodeSeed,
+  Permissions,
   UserSeed,
   VmClientConfig,
 } from "@nillion/client-core";
@@ -29,3 +31,13 @@ export const NillionClientConfig = z.object({
     .optional(),
 });
 export type NillionClientConfig = z.infer<typeof NillionClientConfig>;
+
+export interface StoreOptions {
+  ttl: number;
+  permissions?: Permissions;
+}
+
+export interface StoreValueArgs {
+  data: NadaPrimitiveValue;
+  secret: boolean;
+}

@@ -72,7 +72,7 @@ describe(SUITE_NAME, () => {
     testSimpleTypes.forEach((test: TestSimpleType) => {
       describe(test.type, () => {
         it("can store value", async () => {
-          const result = await client.store(test.expected);
+          const result = await client.store(test.expected, { ttl: 1 });
           if (expectOk(result)) {
             expect(result.ok).toBeDefined();
             test.id = result.ok;
@@ -100,6 +100,7 @@ describe(SUITE_NAME, () => {
 
         const result = await client.storeValues({
           values,
+          ttl: Days.parse(1),
         });
         if (expectOk(result)) {
           test.id = result.ok;
@@ -183,6 +184,7 @@ describe(SUITE_NAME, () => {
     it("can store access controlled values", async () => {
       const result = await client.storeValues({
         values,
+        ttl: Days.parse(1),
         permissions: Permissions.createDefaultForUser(client.vm.userId),
       });
 
@@ -271,6 +273,7 @@ describe(SUITE_NAME, () => {
 
             const result = await client.storeValues({
               values,
+              ttl: Days.parse(1),
               permissions,
             });
             if (expectOk(result)) {

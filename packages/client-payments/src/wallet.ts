@@ -32,7 +32,7 @@ export const getKeplr = async (): Promise<Keplr | undefined> => {
 };
 
 export const createSignerFromKey = async (
-  key: PrivateKeyBase16,
+  key: PrivateKeyBase16 | string,
 ): Promise<OfflineSigner> => {
   const privateKey = new Uint8Array(key.length / 2);
 
