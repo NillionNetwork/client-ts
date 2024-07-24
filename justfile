@@ -1,6 +1,3 @@
-# Commnad format: TARGET-VERB-FLAGS.
-# If no TARGET specified then 'all' targets are included
-
 # >>> Start all >>>
 clean:
     #!/usr/bin/env bash
@@ -53,12 +50,12 @@ publish:
 
 
 # >>> Start @nillion/wasm >>>
-wasm-pack:
+pack-wasm:
     #!/usr/bin/env bash
     set -e
     npm -w packages/wasm pack --pack-destination dist
 
-wasm-publish:
+publish-wasm:
     #!/usr/bin/env bash
     set -e
     npm -w packages/wasm publish
@@ -66,7 +63,7 @@ wasm-publish:
 
 
 # >>> Start @nillion/client-core >>>
-client-core-test:
+test-client-core:
     #!/usr/bin/env bash
     set -e
     npm -w packages/client-core run clean
@@ -74,14 +71,14 @@ client-core-test:
     "npm -w packages/client-core run test.build" \
     "npm -w packages/client-core run test"
 
-client-core-pack:
+pack-client-core:
     #!/usr/bin/env bash
     set -e
     npm -w packages/client-core run clean
     npm -w packages/client-core run build
     npm -w packages/client-core pack --pack-destination dist
 
-client-core-publish:
+publish-client-core:
     #!/usr/bin/env bash
     set -e
     npm -w packages/client-core run clean
@@ -91,7 +88,7 @@ client-core-publish:
 
 
 # >>> Start @nillion/client-payments >>>
-client-payments-test:
+test-client-payments:
     #!/usr/bin/env bash
     set -e
     just clean
@@ -101,14 +98,14 @@ client-payments-test:
       "npm -w packages/client-payments run test.build" \
       "npm -w packages/client-payments run test"
 
-client-payments-pack:
+pack-client-payments:
     #!/usr/bin/env bash
     set -e
     npm -w packages/client-payments run clean
     npm -w packages/client-payments run build
     npm -w packages/client-payments pack --pack-destination dist
 
-client-payments-publish:
+publish-client-payments:
     #!/usr/bin/env bash
     set -e
     npm -w packages/client-payments run clean
@@ -118,7 +115,7 @@ client-payments-publish:
 
 
 # >>> Start @nillion/client-vms >>>
-client-vms-test:
+test-client-vms:
     #!/usr/bin/env bash
     set -e
     just clean
@@ -128,14 +125,14 @@ client-vms-test:
       "npm -w packages/client-vms run test.build" \
       "npm -w packages/client-vms run test"
 
-client-vms-pack:
+pack-client-vms:
     #!/usr/bin/env bash
     set -e
     npm -w packages/client-vms run clean
     npm -w packages/client-vms run build
     npm -w packages/client-vms pack --pack-destination dist
 
-client-vms-publish:
+publish-client-vms:
     #!/usr/bin/env bash
     set -e
     npm -w packages/client-vms run clean
@@ -145,24 +142,14 @@ client-vms-publish:
 
 
 # >>> Start @nillion/client-react-hooks >>>
-client-react-hooks-dev:
-    #!/usr/bin/env bash
-    set -e
-    just clean
-    npx concurrently -c "auto" \
-      "npm -w packages/client-core run build.watch" \
-      "npm -w packages/client-payments run build.watch" \
-      "npm -w packages/client-vms run build.watch" \
-      "npm -w packages/client-react-hooks run start"
-
-client-react-hooks-pack:
+pack-client-react-hooks:
     #!/usr/bin/env bash
     set -e
     npm -w packages/client-react-hooks run clean
     npm -w packages/client-react-hooks run build
     npm -w packages/client-react-hooks pack --pack-destination dist
 
-client-react-hooks-publish:
+publish-client-react-hooks:
     #!/usr/bin/env bash
     set -e
     npm -w packages/client-react-hooks run clean
@@ -172,7 +159,7 @@ client-react-hooks-publish:
 
 
 # >>> Start @nillion/examples-react >>>
-examples-react-start:
+dev-examples-react:
     #!/usr/bin/env bash
     set -e
     just clean
