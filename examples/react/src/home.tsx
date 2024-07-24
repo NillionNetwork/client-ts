@@ -38,20 +38,27 @@ export const Home = () => {
       const clusterResult = await client.fetchClusterInfo();
       setCluster(clusterResult);
 
-      const intStoreIdResult = await client.store({ int: -42 }, { ttl: 1 });
+      const intStoreIdResult = await client.store({
+        values: { int: -42 },
+        ttl: 1,
+      });
       setIntStoreId(intStoreIdResult);
 
-      const intResult = await client.fetch(intStoreIdResult.ok!, [
-        ["int", NadaValueType.enum.IntegerSecret],
-      ]);
+      const intResult = await client.fetch({
+        id: intStoreIdResult.ok!,
+        name: "int",
+        type: NadaValueType.enum.IntegerSecret,
+      });
       setInt(intResult);
 
-      const uintStoreId = await client.store({ uint: 42n }, { ttl: 1 });
+      const uintStoreId = await client.store({ values: { uint: 42n }, ttl: 1 });
       setUintStoreId(uintStoreId);
 
-      const uintResult = await client.fetch(uintStoreId.ok!, [
-        ["uint", NadaValueType.enum.IntegerSecretUnsigned],
-      ]);
+      const uintResult = await client.fetch({
+        id: uintStoreId.ok!,
+        name: "uint",
+        type: NadaValueType.enum.IntegerSecretUnsigned,
+      });
       setUint(uintResult);
     } catch (e) {
       console.error("Promise error");
