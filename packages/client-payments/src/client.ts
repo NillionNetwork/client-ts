@@ -16,7 +16,6 @@ import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
 import { NilChainProtobufTypeUrl, PaymentClientConfig } from "./types";
 import { getKeplr } from "./wallet";
-import { ChainConfig } from "./chains";
 
 export class PaymentsClient {
   private _client: SigningStargateClient | undefined = undefined;
@@ -68,10 +67,10 @@ export class PaymentsClient {
       // default to keplr signer
       const keplr = await getKeplr();
       if (keplr) {
-        await keplr.experimentalSuggestChain(ChainConfig.Devnet);
+        await keplr.enable(chain);
         this._signer = keplr.getOfflineSigner(chain);
       } else {
-        throw new Error("No signer provided and keplr not found");
+        throw new Error("No signer provided and keplr not found.");
       }
     }
 
