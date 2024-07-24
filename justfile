@@ -14,15 +14,10 @@ check:
     #!/usr/bin/env bash
     set -e
     npx prettier -c "packages/**/*.(js|jsx|ts|tsx)"
-    npx eslint -c eslint.config.mjs
-    npx tsc
-
-check-and-fix:
-    #!/usr/bin/env bash
-    set -e
-    npx prettier --write -c "packages/**/*.(js|jsx|ts|tsx)"
-    npx eslint --fix -c eslint.config.mjs
-    npx tsc
+    echo -n "Running eslint... "
+    npx eslint -c eslint.config.mjs & echo "done."
+    echo -n "Running tsc... "
+    npx tsc & echo "done."
 
 pack:
     #!/usr/bin/env bash

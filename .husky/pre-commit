@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+just check
+git update-index --again
+
+echo "Checking commit message..."
+npx commitlint -g commitlint.config.mjs --verbose --edit
