@@ -72,7 +72,7 @@ describe(SUITE_NAME, () => {
     testSimpleTypes.forEach((test: TestSimpleType) => {
       describe(test.type, () => {
         it("can store value", async () => {
-          const result = await client.store(test.expected, { ttl: 1 });
+          const result = await client.store({ values: test.expected, ttl: 1 });
           if (expectOk(result)) {
             expect(result.ok).toBeDefined();
             test.id = result.ok;
@@ -80,10 +80,11 @@ describe(SUITE_NAME, () => {
         });
 
         it("can retrieve value", async () => {
-          const names: [string, NadaValueType][] = Object.keys(
-            test.expected,
-          ).map((name) => [name, test.type]);
-          const result = await client.fetch(test.id, names);
+          const result = await client.fetch({
+            id: test.id,
+            type: test.type,
+            name: Object.keys(test.expected)[0],
+          });
           if (expectOk(result)) {
             expect(result.ok).toEqual(test.expected);
           }

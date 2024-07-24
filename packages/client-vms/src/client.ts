@@ -32,7 +32,6 @@ import { Log } from "./logger";
 import {
   NillionClientConfig,
   NillionClientConfigComplete,
-  StoreOptions,
   StoreValueArgs,
 } from "./types";
 import { ZodError } from "zod";
@@ -144,12 +143,13 @@ export class NillionClient {
     Log("Disconnect called. This is currently a noop.");
   }
 
-  async store(
-    values: Record<string, NadaPrimitiveValue | StoreValueArgs>,
-    options: StoreOptions,
-  ): Promise<Result<StoreId, UnknownException>> {
+  async store(args: {
+    values: Record<string, NadaPrimitiveValue | StoreValueArgs>;
+    ttl: Days | number;
+    permissions?: Permissions;
+  }): Promise<Result<StoreId, UnknownException>> {
     const nadaValues = NadaValues.create();
-    for (const [key, value] of Object.entries(values)) {
+    for (const [key, value] of Object.entries(args.values)) {
       const name = NamedValue.parse(key);
       const args = isObjectLiteral(value)
         ? (value as StoreValueArgs)
@@ -163,28 +163,26 @@ export class NillionClient {
     }
     return await this.storeValues({
       values: nadaValues,
-      ttl: options.ttl as Days,
-      permissions: options.permissions,
+      ttl: Days.parse(args.ttl),
+      permissions: args.permissions,
     });
   }
 
-  async fetch(
-    id: string,
-    nameAndTypePairs: [string, NadaValueType][],
-  ): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
+  async fetch(args: {
+    id: string | StoreId;
+    name: string | NamedValue;
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+    type: string | NadaValueType;
+  }): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
     const effect: E.Effect<
       Record<string, NadaPrimitiveValue>,
       UnknownException
     > = E.Do.pipe(
-      E.let("id", () => StoreId.parse(id)),
-      E.let("nameAndTypePairs", () =>
-        nameAndTypePairs.map<[NamedValue, NadaValueType]>(([name, type]) => [
-          NamedValue.parse(name),
-          NadaValueType.parse(type),
-        ]),
-      ),
-      E.map(({ id, nameAndTypePairs }) =>
-        nameAndTypePairs.map(async ([name, type]) => {
+      E.let("id", () => StoreId.parse(args.id)),
+      E.let("name", () => NamedValue.parse(args.name)),
+      E.let("type", () => NadaValueType.parse(args.type)),
+      E.flatMap(({ id, name, type }) =>
+        E.tryPromise(async () => {
           const result = await this.fetchValue({
             id,
             name,
@@ -200,18 +198,8 @@ export class NillionClient {
             );
             throw result.err as Error;
           }
-
-          return [name, result.ok] as [NamedValue, NadaPrimitiveValue];
+          return { [name]: result.ok };
         }),
-      ),
-      E.flatMap((promises) => E.tryPromise(() => Promise.all(promises))),
-      E.map((results) =>
-        results.reduce((acc, [name, value]) => {
-          return {
-            ...acc,
-            [name]: value,
-          };
-        }, {}),
       ),
     );
     return effectToResultAsync(effect);

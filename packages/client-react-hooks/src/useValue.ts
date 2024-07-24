@@ -20,11 +20,11 @@ export function useValue(initialId = "") {
 
   const mutate = useMutation({
     mutationKey: [id],
-    mutationFn: async (
-      value: number,
-      // data: Record<string, NadaPrimitiveValue | StoreValueArgs>,
-    ) => {
-      const result = await nillion.client.store({ foo: value }, { ttl: 1 });
+    mutationFn: async (value: number) => {
+      const result = await nillion.client.store({
+        values: { foo: value },
+        ttl: 1,
+      });
       if (result.err) {
         throw result.err as Error;
       }
@@ -38,9 +38,11 @@ export function useValue(initialId = "") {
     enabled: !!id,
     queryKey: [id],
     queryFn: async () => {
-      const result = await nillion.client.fetch(id, [
-        ["foo", NadaValueType.enum.IntegerSecret],
-      ]);
+      const result = await nillion.client.fetch({
+        id,
+        name: "foo",
+        type: NadaValueType.enum.IntegerSecret,
+      });
 
       if (result.err) {
         throw result.err as Error;
