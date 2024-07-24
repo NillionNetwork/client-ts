@@ -19,11 +19,11 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@nillion/client-vms": [
-        "packages/client-vms-vms/src/index.ts"
-      ],
       "@nillion/client-core": [
         "packages/client-core/src/index.ts"
+      ],
+      "@nillion/client-vms": [
+        "packages/client-vms-vms/src/index.ts"
       ],
       "@nillion/client-payments": [
         "packages/client-payments/src/index.ts"
@@ -34,7 +34,8 @@
     }
   },
   "exclude": [
-    "node_modules",
-    "examples"
+    "docs",
+    "examples",
+    "node_modules"
   ]
 }

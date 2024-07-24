@@ -1,14 +1,26 @@
 import globals from "globals";
+import { fixupConfigRules } from "@eslint/compat";
 import eslintJs from "@eslint/js";
 import eslintTs from "typescript-eslint";
+import tsDoc from "eslint-plugin-tsdoc";
 
 export default [
   {
-    ignores: ["examples", "**/dist", "**/*.mjs"],
+    ignores: ["docs", "examples", "**/dist", "**/*.mjs"],
   },
   {
     files: ["**/*.{ts,tsx}"],
     languageOptions: { globals: globals.browser },
+  },
+  {
+    plugins: {
+      tsdoc: tsDoc,
+    },
+  },
+  {
+    rules: {
+      "tsdoc/syntax": "warn",
+    },
   },
   eslintJs.configs.recommended,
   ...eslintTs.configs.strictTypeChecked,

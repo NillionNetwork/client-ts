@@ -7,3 +7,4 @@ dist
 !packages/wasm/dist
 packages/fixture/addition_division.nada.bin
 packages/fixture/network.json
+docs

@@ -1,0 +1,12 @@
+{
+  "entryPoints": [
+    "packages/**/src/index.ts"
+  ],
+  "name": "Documentation",
+  "cleanOutputDir": true,
+  "out": "docs",
+  "plugin": [
+    "typedoc-plugin-zod",
+    "typedoc-plugin-mermaid"
+  ]
+}
