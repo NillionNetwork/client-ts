@@ -1,70 +1,195 @@
-# nillion-ts
+<!-- @formatter:off -->
+# Nillion
 
-An exploration into how we can deliver a better DX to the TS/JS ecosystem.
+Typescript libraries for interacting with a nillion cluster.
 
-## Notes
+## Table of Contents
 
-1. `<React.StrictMode />` in particular is tricky ... result in console errors where the wasm bundle is loaded /
-   unloaded in
-   quick succession. For example:
+- [Prerequisites](#prerequisites)
+- [Quick start](#quick-start)
+- [Storing and retrieving secrets](#storing-and-retrieving-secrets)
+- [Client configuration](#configure)
+- [Connect](#configure)
+- [Logging](#logging)
+- [Packages hierarchy](#package-hierarchy)
 
-   ```
-   index.js:23 Uncaught Error: recursive use of an object detected which would lead to unsafe aliasing in rust
-       at e.wbg.__wbindgen_throw (index.js:23:47590)
-       at 3cc8fb5d64732608d1c9.wasm:0x637841
-       at 3cc8fb5d64732608d1c9.wasm:0x637836
-       at 3cc8fb5d64732608d1c9.wasm:0x61e98c
-       at LoaderHelperFinalization (index.js:23:6465)
-       at FinalizationRegistry.cleanupSome (<anonymous>)
-   ```
+## Prerequisites
 
-   or
+- Be running in a browser environment.
+- Your server must supply the following HTTP headers for the wasm bundle:
+   - `Cross-Origin-Embedder-Policy: require-corp`
+   - `Cross-Origin-Opener-Policy: same-origin`
 
-   ```
-   index.js:23 Uncaught (in promise) Error: closure invoked recursively or after being dropped
-       at e.wbg.__wbindgen_throw (index.js:23:47590)
-       at 3cc8fb5d64732608d1c9.wasm:0x637841
-       at 3cc8fb5d64732608d1c9.wasm:0x6338d0
-       at __wbg_adapter_44 (index.js:23:3358)
-       at a (index.js:23:3153)
-   ```
+## Quick start
 
-## Package/dependency hierarchy
+1. Add nillion dependencies: `npm i -D @nillion/client-core @nillion/client-vms @nillion/client-react-hooks`
+
+2. Create a client:
+
+```ts
+// by default this connects to the Photon test network and uses keplr for tx signing
+const client = NillionClient.create({
+  userSeed: "unique-user-seed",
+  nodeSeed: "unique-node-seed",
+  
+  overrides: async () => {
+    return {
+      endpoint: "https://testnet-nillion-rpc.lavenderfive.com",
+    };
+  }
+})
+```
+
+3. Wrap your components with `NillionClientProvider`:
+
+```tsx
+export function App() {
+  return (
+    <NillionClientProvider client={client}>
+      <Home />
+    </NillionClientProvider>
+  );
+}
+```
+
+4. Expose the client to your component:
+
+```tsx
+import * as React from "react"
+import { useNillion } from "@nillion/client-react-hooks" 
+import { ClusterDescriptor } from "@nillion/client-core";
+
+export const Home = () => {
+  const nillion = useNillion()
+  const [descriptor, setDescriptor] = React.useState<ClusterDescriptor>()
+  const [error, setError] = React.useState<Error | undefined>()
+  
+  const run = async () => {
+    const response = await nillion.client.fetchClusterInfo()
+    if(response.ok) {
+      setDescriptor(response.ok)
+    } else {
+      setError(response.err)
+    }
+  }
+  
+  React.useEffect(() => {
+    void run()
+  }, [nillion.ready])
+  
+  if(error) {
+    return (
+        <div>
+          <h1>Error</h1>
+          <p>{JSON.stringify(error)}</p>
+        </div>
+    );
+  }
+  
+  return (
+    <div>
+      <h1>Cluster descriptor</h1>
+      <p>{descriptor ? JSON.stringify(descriptor) : "Loading ..."}</p>
+    </div>
+  );
+}
+```
+
+5. If you see the cluster descriptor `b13880d3-dde8-4a75-a171-8a1a9d985e6c` rendered then you're client is successfully talking to the cluster and you can proceed onto following sections for storing and retrieving secrets.
+
+## Storing and retrieving secrets
+
+### Storing secrets
+
+```ts
+// store a signed secret integer with the name "foo"
+const intSecretStoreIdResponse = await client.store({ foo: -42 })
+if(intSecretStoreIdResponse.ok) {
+  const storeId = result.ok
+}
+
+// store an unsigned secret integer
+const uintSecretStoreIdResponse = await client.store({ foo: 100n })
+
+// store a signed public integer
+const intPublicStoreIdResponse = await client.store({ foo: { data: -42, secret: false }})
+
+// store an unsigned public integer
+const intPublicStoreIdResponse = await client.store({ foo: { data: 77n, secret: false }})
+
+// store a secret blob
+const blob = new TextEncoder().encode("hello!")
+const blogStoreIdResponse = await client.store({ foo: blob })
+```
+
+### Fetching values
+
+```ts
+const name = "foo"
+const type = NadaValueType.IntegerSecretUnsigned
+const intSecretFetchValueResponse = await client.fetch({ id, name, type })
+if(intSecretFetchValueResponse.ok) {
+  const theAnswer: number = intSecretFetchValueResponse.ok
+}
+```
+
+## Configure
+
+The client's config option precedence is:
+
+1. Keys returned from the overrides function.
+2. Valid keys specified in the config object
+3. Keys provided by Config exported from `@nillion/client`
+
+The expected config shape is:
+
+```ts
+interface NillionClientConfig {
+  network: "Photon" | "Nucleus" | "Devnet" | "TestFixture" | "Custom" | undefined // defaults to "Photon"
+  userSeed: UserSeed | string | undefined
+  nodeSeed: NodeSeed | string | undefined
+  overrides: () => Promise<Partial<NillionClientConfigComplete>> | undefined
+}
+
+const config = { ... }
+// The client is created synchronously to avoid top-level await issues
+const client = NillionClient.create(config)
+```
+
+## Connect
+
+`NillionClientProvider` and `useNillion()` take care of connecting and report client readiness as:
+
+```ts
+const nillion = useNillion()
+nillion.ready // true when successfully connected else false
+nillion.client.ready // same result as above
+```
+
+If you are not using `NillionClientProvider` to manage the client for you, then you will need call connect before you first use the client: 
+
+```ts
+declare const client: NillionClient
+await client.connect()
+```
+
+## Logging
+
+Once the client is connected you can enable logging via the dev console with:
+
+```ts
+window.__NILLION.enableLogging() // sets localStore.debug = "nillion:*"
+```
+
+
+## Package hierarchy
 
 ```mermaid
 graph BT
-    core["@nillion/client-core"] --> wasm["@nillion/wasm"]
+    core["@nillion/client-core"] --> wasm["@nillion/client-wasm"]
     payments["@nillion/client-payments"] --> core["@nillion/client-core"]
     client["@nillion/client-vms"] --> payments["@nillion/client-payments"]
     client["@nillion/client-vms"] --> core["@nillion/client-core"]
     react["@nillion/client-react-hooks"] --> core["@nillion/client-core"]
     react["@nillion/client-react-hooks"] --> client["@nillion/client-vms"]
 ```
-
-## To be tidied
-
-### Running tests
-
-1. Run: `just test-js-client-jasmine-e2e`
-
-This will:
-
-- Build a release npm package and save it to `target/nillion-release/nillion-client-browser/npm-nillion-client-web.tgz`
-- Start the functional-js cargo test which spins up a nillion devnet and funds a cosmos acccount
-- Prepares the js-client-jasmine workspace
-- Runs the js-jasmine test suite
-
-### Notes and Tips
-
-1. The test suite needs a running cluster with the configuration details available at `src/fixture/local.json` and it
-   expects the Nodes fixture's programs to be present.
-2. Iterate quickly by:
-    - Turn off wasm-pack optimisations by editing `wasm-workspace/Cargo.toml` and set `profile.release.opt-level = 0`.
-    - Point `package.json` to at the js client
-      folder: `"@nillion/client-web": "file:../../../client/bindings/js-browser/"`.
-    - Execute `npm run build -- --watch` in both js-browser and js-client-jasmine.
-    - Rebuild the wasm component as required by
-      running `cd wasm-workspace && wasm-pack build --scope nillion --target web --out-dir dist client/bindings/js-browser/nillion_client_wasm`
-    - Start the test suite in interactive mode: `JASMINE_INTERACTIVE=1 cargo test -p functional-js -- --nocapture`.
-    - You can now edit any of the ts files in either js-client-jasmine or js-client and they will be rebuilt on the fly.
-    - View the suite in the browser and refresh it to re-run the tests.
