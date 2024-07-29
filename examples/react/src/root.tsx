@@ -8,8 +8,8 @@ export const Root = () => {
       container
       direction="column"
       justifyContent="center"
-      alignItems="center"
       spacing={2}
+      padding={4}
     >
       <Grid>
         <Breadcrumbs aria-label="breadcrumbs">

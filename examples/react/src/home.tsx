@@ -1,128 +1,126 @@
 import * as React from "react";
-import { useNillion } from "@nillion/client-react-hooks";
-import { useEffect, useState } from "react";
 import {
-  Box,
-  List,
-  ListItem,
-  ListItemContent,
-  ListItemDecorator,
-  Typography,
-} from "@mui/joy";
-import {
-  ClusterDescriptor,
-  StoreId,
-  Result,
-  NadaValueType,
-  NadaPrimitiveValue,
-} from "@nillion/client-core";
+  useDeleteValue,
+  useFetchValue,
+  useStoreValue,
+  useUpdateValue,
+} from "@nillion/client-react-hooks";
+import { Box, Button, Divider, List, ListItem, Typography } from "@mui/joy";
+import { NadaValueType } from "@nillion/client-core";
+import { useState } from "react";
 
 export const Home = () => {
-  const nillion = useNillion();
+  const original = { foo: 42 };
+  const [id, setId] = useState<string | null>(null);
+  const store = useStoreValue();
+  const fetch = useFetchValue(
+    {
+      id,
+      name: "foo",
+      type: NadaValueType.enum.IntegerSecret,
+    },
+    {
+      enabled: false,
+    },
+  );
+  const update = useUpdateValue();
+  const drop = useDeleteValue();
 
-  const [cluster, setCluster] = useState<Result<ClusterDescriptor, Error>>();
-
-  const [intStoreId, setIntStoreId] = useState<Result<StoreId, Error>>();
-  const [uintStoreId, setUintStoreId] = useState<Result<StoreId, Error>>();
-
-  const [int, setInt] =
-    useState<Result<Record<string, NadaPrimitiveValue>, Error>>();
-  const [uint, setUint] =
-    useState<Result<Record<string, NadaPrimitiveValue>, Error>>();
-
-  const run = async () => {
-    try {
-      if (!nillion.ready) return;
-      const { client } = nillion;
-
-      const clusterResult = await client.fetchClusterInfo();
-      setCluster(clusterResult);
-
-      const intStoreIdResult = await client.store({
-        values: { int: -42 },
-        ttl: 1,
-      });
-      setIntStoreId(intStoreIdResult);
-
-      const intResult = await client.fetch({
-        id: intStoreIdResult.ok!,
-        name: "int",
-        type: NadaValueType.enum.IntegerSecret,
-      });
-      setInt(intResult);
-
-      const uintStoreId = await client.store({ values: { uint: 42n }, ttl: 1 });
-      setUintStoreId(uintStoreId);
-
-      const uintResult = await client.fetch({
-        id: uintStoreId.ok!,
-        name: "uint",
-        type: NadaValueType.enum.IntegerSecretUnsigned,
-      });
-      setUint(uintResult);
-    } catch (e) {
-      console.error("Promise error");
-      console.error(e);
-    }
+  const handleStoreClick = () => {
+    store.mutate({
+      values: original,
+      ttl: 1,
+    });
   };
 
-  useEffect(() => {
-    void run();
-  }, [nillion.ready]);
+  const handleFetchClick = () => {
+    void fetch.refetch();
+  };
 
-  if (!nillion.ready) {
-    return (
-      <Box>
-        <Typography level={"h1"}>Welcome</Typography>
-        <Typography>Nillion client not ready</Typography>
-      </Box>
-    );
+  const handleUpdateClick = () => {
+    update.mutate({
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      id: id!,
+      values: {
+        foo: 77,
+      },
+      ttl: 2,
+    });
+  };
+
+  const handleDropClick = () => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    drop.mutate(id!);
+  };
+
+  if (store.isSuccess && !id) {
+    setId(store.data);
   }
 
   return (
     <Box>
-      <Typography level={"h1"}>Welcome</Typography>
-      <List>
-        <Item text={"Cluster info"} data={cluster} />
-        <Item text={"Secret int store id"} data={intStoreId} />
-        <Item text={"Secret int retrieved value"} data={int} />
-        <Item text={"Secret uint store id"} data={uintStoreId} />
-        <Item text={"Secret uint retrieved value"} data={uint} />
-      </List>
+      <Box>
+        <Typography level={"h2"}>Store</Typography>
+        <Button onClick={handleStoreClick}>Store</Button>
+        <Typography>Data: "{JSON.stringify(original)}"</Typography>
+        <List>
+          <ListItem>ℹ️ Store status: {store.status}</ListItem>
+          <ListItem>➡️ Store id: {store.data}</ListItem>
+          {store.isError && (
+            <ListItem>🤕{JSON.stringify(store.error)}</ListItem>
+          )}
+        </List>
+      </Box>
+      <Divider />
+      <Box>
+        <Typography level={"h2"}>Fetch</Typography>
+        <Button onClick={handleFetchClick}>Refresh</Button>
+        <List>
+          <ListItem>ℹ️ Status: {fetch.status}</ListItem>
+          <ListItem>
+            ℹ️ Last updated: {new Date(fetch.dataUpdatedAt).toLocaleString()}
+          </ListItem>
+          <ListItem>
+            ℹ️ From cache:{" "}
+            {Boolean(fetch.isFetched && !fetch.isFetchedAfterMount).toString()}
+          </ListItem>
+          {fetch.isSuccess && (
+            <ListItem>🔁 Fetched: {JSON.stringify(fetch.data)}</ListItem>
+          )}
+          {fetch.isError && (
+            <ListItem>🤕{JSON.stringify(fetch.error)}</ListItem>
+          )}
+        </List>
+      </Box>
+      <Divider />
+      <Box>
+        <Typography level={"h2"}>Update</Typography>
+        <Button onClick={handleUpdateClick}>Update</Button>
+        <List>
+          <ListItem>ℹ️ Status: {update.status}</ListItem>
+          <ListItem>
+            ℹ️ Last updated: {new Date(update.submittedAt).toLocaleString()}
+          </ListItem>
+          {update.isSuccess && (
+            <ListItem>🔁 Action id: {JSON.stringify(update.data)}</ListItem>
+          )}
+          {update.isError && (
+            <ListItem>🤕{JSON.stringify(update.error)}</ListItem>
+          )}
+        </List>
+      </Box>
+      <Divider />
+      <Box>
+        <Typography level={"h2"}>Delete</Typography>
+        <Button onClick={handleDropClick}>Drop</Button>
+        <List>
+          <ListItem>ℹ️ Status: {drop.status}</ListItem>
+          <ListItem>
+            ℹ️ Submitted: {new Date(drop.submittedAt).toLocaleString()}
+          </ListItem>
+          {drop.isError && <ListItem>🤕{JSON.stringify(drop.error)}</ListItem>}
+        </List>
+      </Box>
     </Box>
-  );
-};
-
-const Item = ({ text, data }: { text: string; data: unknown }) => {
-  if (!Boolean(data)) {
-    return (
-      <ListItem>
-        <ListItemDecorator>⏳</ListItemDecorator>
-        <ListItemContent>
-          <Typography level="title-sm">{text}</Typography>
-          <Typography level="body-sm" noWrap>
-            Loading ...
-          </Typography>
-        </ListItemContent>
-      </ListItem>
-    );
-  }
-
-  // @ts-ignore
-  let value: unknown = data.ok;
-  const stringified = JSON.stringify(value, (_key, value) =>
-    typeof value === "bigint" ? value.toString() + "n" : value,
-  );
-
-  return (
-    <ListItem>
-      <ListItemDecorator>✅</ListItemDecorator>
-      <ListItemContent>
-        <Typography level="title-sm">{text}</Typography>
-        <Typography level="body-sm" noWrap>
-          {stringified}
-        </Typography>
-      </ListItemContent>
-    </ListItem>
   );
 };

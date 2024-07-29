@@ -3,7 +3,7 @@ import { useRouteError } from "react-router-dom";
 import { Box, Typography } from "@mui/joy";
 
 export const ErrorPage = () => {
-  const error = useRouteError() as any;
+  const error = useRouteError() as { statusText?: string; message?: string };
   console.error(error);
 
   return (
@@ -18,9 +18,7 @@ export const ErrorPage = () => {
     >
       <Typography level="h1">Oops!</Typography>
       <Typography>Sorry, an unexpected error has occurred.</Typography>
-      <Typography>
-        {error?.statusText || error?.message || "Unknown"}
-      </Typography>
+      <Typography>{error.statusText ?? error.message ?? "Unknown"}</Typography>
     </Box>
   );
 };
