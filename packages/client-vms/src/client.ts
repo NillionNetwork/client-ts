@@ -144,7 +144,7 @@ export class NillionClient {
   }
 
   async store(args: {
-    values: Record<string, NadaPrimitiveValue | StoreValueArgs>;
+    values: Record<NamedValue | string, NadaPrimitiveValue | StoreValueArgs>;
     ttl: Days | number;
     permissions?: Permissions;
   }): Promise<Result<StoreId, UnknownException>> {
@@ -168,11 +168,10 @@ export class NillionClient {
     });
   }
 
-  async fetch(args: {
-    id: string | StoreId;
-    name: string | NamedValue;
-    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    type: string | NadaValueType;
+  fetch(args: {
+    id: StoreId | string;
+    name: NamedValue | string;
+    type: NadaValueType;
   }): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
     const effect: E.Effect<
       Record<string, NadaPrimitiveValue>,
@@ -203,6 +202,37 @@ export class NillionClient {
       ),
     );
     return effectToResultAsync(effect);
+  }
+
+  update(args: {
+    id: StoreId | string;
+    values: Record<NamedValue | string, NadaPrimitiveValue | StoreValueArgs>;
+    ttl: Days | number;
+  }): Promise<Result<ActionId, UnknownException>> {
+    return E.Do.pipe(
+      E.bind("id", () => E.try(() => StoreId.parse(args.id))),
+      E.bind("ttl", () => E.try(() => Days.parse(args.ttl))),
+      E.bind("values", () =>
+        E.try(() => {
+          const nadaValues = NadaValues.create();
+          for (const [key, value] of Object.entries(args.values)) {
+            const name = NamedValue.parse(key);
+            const args = isObjectLiteral(value)
+              ? (value as StoreValueArgs)
+              : {
+                  secret: true,
+                  data: value,
+                };
+
+            const nadaValue = NadaValue.fromPrimitive(args);
+            nadaValues.insert(name, nadaValue);
+          }
+          return nadaValues;
+        }),
+      ),
+      E.flatMap((args) => E.tryPromise(() => this.updateValue(args))),
+      E.runPromise,
+    );
   }
 
   pay(args: {
