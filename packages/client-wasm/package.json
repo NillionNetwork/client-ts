@@ -1,8 +1,8 @@
 {
-  "name": "@nillion/wasm",
+  "name": "@nillion/client-wasm",
   "license": "Apache-2.0",
   "author": "devsupport@nillion.com",
-  "version": "0.5.0-beta.0",
+  "version": "0.1.0-rc.0",
   "homepage": "https://docs.nillion.com/",
   "type": "module",
   "module": "dist/index.js",

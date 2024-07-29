@@ -4,7 +4,7 @@ node_modules
 .vscode
 packages/client-payments/src/proto/nilchain.ts # generated protobuf codec
 dist
-!packages/wasm/dist
+!packages/client-wasm/dist
 packages/fixture/addition_division.nada.bin
 packages/fixture/network.json
 docs

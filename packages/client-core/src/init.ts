@@ -1,4 +1,4 @@
-import * as Wasm from "@nillion/wasm";
+import * as Wasm from "@nillion/client-wasm";
 import { Log } from "./logger";
 
 declare global {

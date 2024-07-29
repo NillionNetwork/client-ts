@@ -1,5 +1,5 @@
 import { IntoWasmQuotableOperation } from "../wasm";
-import * as Wasm from "@nillion/wasm";
+import * as Wasm from "@nillion/client-wasm";
 import { Operation, OperationType } from "./operation";
 import { ProgramName } from "../types";
 

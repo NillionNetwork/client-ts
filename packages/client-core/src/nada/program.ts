@@ -1,4 +1,4 @@
-import * as Wasm from "@nillion/wasm";
+import * as Wasm from "@nillion/client-wasm";
 import { PartyId, PartyName, ProgramId } from "../types";
 import { Log } from "../logger";
 

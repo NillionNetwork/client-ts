@@ -34,7 +34,7 @@ unpublish:
     #!/usr/bin/env bash
     set -e
     echo "warning: only for local development"
-    npm unpublish --force @nillion/wasm
+    npm unpublish --force @nillion/client-wasm
     npm unpublish --force @nillion/client-core
     npm unpublish --force @nillion/client-payments
     npm unpublish --force @nillion/client-vms
@@ -45,25 +45,25 @@ publish:
     set -e
     just clean
     just check
-    just wasm-publish
-    just client-core-publish
-    just client-payments-publish
-    just client-vms-publish
-    just client-react-hooks-publish
+    just publish-client-wasm
+    just publish-client-core
+    just publish-client-payments
+    just publish-client-vms
+    just publish-client-react-hooks
 # <<< End all <<<
 
 
-# >>> Start @nillion/wasm >>>
-pack-wasm:
+# >>> Start @nillion/client-wasm >>>
+pack-client-wasm:
     #!/usr/bin/env bash
     set -e
     npm -w packages/wasm pack --pack-destination dist
 
-publish-wasm:
+publish-client-wasm:
     #!/usr/bin/env bash
     set -e
-    npm -w packages/wasm publish
-# <<< End @nillion/wasm <<<
+    npm -w packages/client-wasm publish --tag next
+# <<< End @nillion/client-wasm <<<
 
 
 # >>> Start @nillion/client-core >>>

@@ -12,7 +12,7 @@ import {
   ProgramBindings,
   NamedValue,
 } from "@nillion/client-core";
-import * as Wasm from "@nillion/wasm";
+import * as Wasm from "@nillion/client-wasm";
 
 const SUITE_NAME = "@nillion/client-core > nada types";
 
