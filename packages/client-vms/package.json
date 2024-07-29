@@ -2,7 +2,7 @@
   "name": "@nillion/client-vms",
   "license": "MIT",
   "author": "devsupport@nillion.com",
-  "version": "0.5.0-beta.0",
+  "version": "0.1.0-rc.0",
   "type": "module",
   "browser": "dist/index.js",
   "types": "src/index.ts",
@@ -14,8 +14,8 @@
     "test": "npx jasmine-browser-runner serve --config=jasmine.config.mjs"
   },
   "dependencies": {
-    "@nillion/client-core": "^0.5.0-beta.0",
-    "@nillion/client-payments": "^0.5.0-beta.0",
+    "@nillion/client-core": "^0.1.0-rc.0",
+    "@nillion/client-payments": "^0.1.0-rc.0",
     "debug": "^4.3.5",
     "zod": "^3.23.8"
   },
