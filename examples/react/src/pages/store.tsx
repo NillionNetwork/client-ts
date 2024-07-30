@@ -12,7 +12,7 @@ import {
 import * as React from "react";
 import { useState } from "react";
 
-export const Home = () => {
+export const Store = () => {
   const original = { foo: 42 };
   const nillion = useNillion();
   const [id, setId] = useState<string | null>(null);
