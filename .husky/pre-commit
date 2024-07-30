@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-just check
+npx lint-staged
+tsc
 git update-index --again
 
 echo "Checking commit message..."
