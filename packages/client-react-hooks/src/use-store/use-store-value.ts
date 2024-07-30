@@ -6,20 +6,20 @@ import {
   StoreId,
 } from "@nillion/client-core";
 import type { StoreValueArgs as ClientStoreValueArgs } from "@nillion/client-vms";
-import { useNillion } from "../use-nillion";
 import type { UseMutationOptions } from "@tanstack/react-query";
 import {
   useMutation,
   UseMutationResult,
   useQueryClient,
 } from "@tanstack/react-query";
-import { createKey } from "./types";
+import { useNillion } from "../use-nillion";
+import { createStoreCacheKey } from "./types";
 
 type TData = StoreId;
 
 type TError = Error;
 
-export interface TVariables {
+interface TVariables {
   values: Record<
     NamedValue | string,
     NadaPrimitiveValue | ClientStoreValueArgs
@@ -28,8 +28,7 @@ export interface TVariables {
   permissions?: Permissions;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface StoreValueArgs {}
+export type StoreValueArgs = object;
 
 export type StoreValueOverrides = Partial<
   UseMutationOptions<TData, TError, TVariables>
@@ -37,10 +36,10 @@ export type StoreValueOverrides = Partial<
 
 export type UseStoreValueResult = UseMutationResult<TData, TError, TVariables>;
 
-export function useStoreValue(
+export const useStoreValue = (
   _args: StoreValueArgs = {},
   overrides: StoreValueOverrides = {},
-): UseStoreValueResult {
+): UseStoreValueResult => {
   const nillionClient = useNillion();
   const queryClient = useQueryClient();
 
@@ -50,9 +49,10 @@ export function useStoreValue(
     return response.ok;
   };
 
-  const onSuccess = (data: TData, variables: TVariables): void => {
-    const key = createKey(data);
-    queryClient.setQueryData(key, variables.values);
+  const onSuccess = (id: TData, variables: TVariables): void => {
+    const queryKey = createStoreCacheKey(id);
+    // TODO(tim): do we store this with the expanded `type: IntegerSecret`?
+    queryClient.setQueryData(queryKey, variables.values);
   };
 
   return useMutation({
@@ -60,4 +60,4 @@ export function useStoreValue(
     onSuccess,
     ...overrides,
   });
-}
+};

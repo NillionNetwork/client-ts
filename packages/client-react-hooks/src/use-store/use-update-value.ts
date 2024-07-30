@@ -5,15 +5,15 @@ import {
   NamedValue,
   StoreId,
 } from "@nillion/client-core";
-import { useNillion } from "../use-nillion";
+import { StoreValueArgs } from "@nillion/client-vms";
 import {
   useMutation,
   UseMutationOptions,
   UseMutationResult,
   useQueryClient,
 } from "@tanstack/react-query";
-import { createKey } from "./types";
-import { StoreValueArgs } from "@nillion/client-vms";
+import { useNillion } from "../use-nillion";
+import { createStoreCacheKey } from "./types";
 
 type TData = ActionId;
 type TError = Error;
@@ -24,8 +24,7 @@ interface TVariables {
   ttl: Days | number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UpdatedValueArgs {}
+export type UpdatedValueArgs = object;
 
 export type UpdateValueOverrides = Partial<
   UseMutationOptions<TData, TError, TVariables>
@@ -33,10 +32,10 @@ export type UpdateValueOverrides = Partial<
 
 export type UseUpdateValueResult = UseMutationResult<TData, TError, TVariables>;
 
-export function useUpdateValue(
+export const useUpdateValue = (
   _args: UpdatedValueArgs = {},
   overrides: UpdateValueOverrides = {},
-): UseUpdateValueResult {
+): UseUpdateValueResult => {
   const nillionClient = useNillion();
   const queryClient = useQueryClient();
 
@@ -48,7 +47,9 @@ export function useUpdateValue(
     });
 
     if (response.err) throw response.err as TError;
-    await queryClient.invalidateQueries({ queryKey: createKey(parsedId) });
+    await queryClient.invalidateQueries({
+      queryKey: createStoreCacheKey(parsedId),
+    });
     return response.ok;
   };
 
@@ -56,4 +57,4 @@ export function useUpdateValue(
     mutationFn,
     ...overrides,
   });
-}
+};

@@ -1,13 +1,13 @@
-import * as React from "react";
 import { NillionClient } from "@nillion/client-vms";
-import { createContext, ReactNode, useContext, useEffect } from "react";
 import {
   QueryClient,
   QueryClientContext,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { Log } from "./logging";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import * as React from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
+import { Log } from "./logging";
 
 export interface NillionClientProviderProps {
   client: NillionClient;
@@ -47,7 +47,7 @@ export const NillionClientProvider = ({
   }, [client.ready]);
 
   if (existingQueryClient) {
-    Log("Existing QueryClientContext detected will attempt to use it.");
+    Log("Existing QueryClientContext detected will not create one.");
     return (
       <NillionClientContext.Provider value={client}>
         {children}

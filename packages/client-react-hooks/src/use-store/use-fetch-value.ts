@@ -4,13 +4,13 @@ import {
   NamedValue,
   StoreId,
 } from "@nillion/client-core";
-import { useNillion } from "../use-nillion";
 import {
   useQuery,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
-import { createKey } from "./types";
+import { useNillion } from "../use-nillion";
+import { createStoreCacheKey } from "./types";
 
 type TData = Record<NamedValue, NadaPrimitiveValue>;
 type TError = Error;
@@ -21,15 +21,17 @@ interface FetchValueArgs {
   type: NadaValueType;
 }
 
-export type UseFetchValueResult = UseQueryResult<TData>;
-
 export type FetchValueOverrides = Partial<UseQueryOptions<TData>>;
 
-export function useFetchValue(
+export type UseFetchValueResult = UseQueryResult<TData>;
+
+export const useFetchValue = (
   args: FetchValueArgs,
   overrides: FetchValueOverrides = {},
-): UseFetchValueResult {
+): UseFetchValueResult => {
   const nillionClient = useNillion();
+  const enabled = !!args.id;
+  const queryKey = createStoreCacheKey(args.id);
 
   const queryFn = async (): Promise<TData> => {
     const id = StoreId.parse(args.id);
@@ -42,10 +44,10 @@ export function useFetchValue(
   };
 
   return useQuery({
-    queryKey: createKey(args.id),
-    enabled: !!args.id,
+    enabled,
+    queryKey,
     retry: false,
     queryFn,
     ...overrides,
   });
-}
+};
