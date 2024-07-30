@@ -365,22 +365,28 @@ export class NillionClient {
   }
 
   fetchPermissions(args: {
-    id: StoreId;
-  }): Promise<Result<unknown, UnknownException>> {
+    id: StoreId | string;
+  }): Promise<Result<Permissions, UnknownException>> {
     const effect = E.Do.pipe(
-      E.let("operation", () => Operation.fetchPermissions(args)),
-      E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap((args) => this.vm.fetchPermissions(args)),
+      E.bind("id", () => E.try(() => StoreId.parse(args.id))),
+      E.let("operation", ({ id }) => Operation.fetchPermissions({ id })),
+      E.bind("receipt", ({ operation }) => this.pay({ operation })),
+      E.flatMap(({ operation, receipt }) =>
+        this.vm.fetchPermissions({ operation, receipt }),
+      ),
     );
     return effectToResultAsync(effect);
   }
 
   setPermissions(args: {
-    id: StoreId;
+    id: StoreId | string;
     permissions: Permissions;
   }): Promise<Result<ActionId, UnknownException>> {
     const effect = E.Do.pipe(
-      E.let("operation", () => Operation.setPermissions(args)),
+      E.bind("id", () => E.try(() => StoreId.parse(args.id))),
+      E.let("operation", ({ id }) =>
+        Operation.setPermissions({ id, permissions: args.permissions }),
+      ),
       E.bind("receipt", (args) => this.pay(args)),
       E.flatMap((args) => this.vm.setPermissions(args)),
     );
