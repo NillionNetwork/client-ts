@@ -7,7 +7,7 @@ import {
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import * as React from "react";
 import { createContext, ReactNode, useContext, useEffect } from "react";
-import { Log } from "./logging";
+import { Log } from "../logging";
 
 export interface NillionClientProviderProps {
   client: NillionClient;
