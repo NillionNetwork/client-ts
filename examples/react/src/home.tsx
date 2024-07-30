@@ -1,29 +1,30 @@
-import * as React from "react";
+import { Box, Button, Divider, List, ListItem, Typography } from "@mui/joy";
+import { NadaValueType, Permissions } from "@nillion/client-core";
 import {
   useDeleteValue,
+  useFetchPermissions,
   useFetchValue,
+  useNillion,
+  useSetPermissions,
   useStoreValue,
   useUpdateValue,
 } from "@nillion/client-react-hooks";
-import { Box, Button, Divider, List, ListItem, Typography } from "@mui/joy";
-import { NadaValueType } from "@nillion/client-core";
+import * as React from "react";
 import { useState } from "react";
 
 export const Home = () => {
   const original = { foo: 42 };
+  const nillion = useNillion();
   const [id, setId] = useState<string | null>(null);
   const store = useStoreValue();
-  const fetch = useFetchValue(
-    {
-      id,
-      name: "foo",
-      type: NadaValueType.enum.IntegerSecret,
-    },
-    {
-      enabled: false,
-    },
-  );
+  const fetch = useFetchValue({
+    id,
+    name: "foo",
+    type: NadaValueType.enum.IntegerSecret,
+  });
   const update = useUpdateValue();
+  const fetchPermissions = useFetchPermissions({ id });
+  const setPermissions = useSetPermissions();
   const drop = useDeleteValue();
 
   const handleStoreClick = () => {
@@ -39,7 +40,6 @@ export const Home = () => {
 
   const handleUpdateClick = () => {
     update.mutate({
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       id: id!,
       values: {
         foo: 77,
@@ -48,8 +48,18 @@ export const Home = () => {
     });
   };
 
+  const handleFetchPermissionsClick = () => {
+    fetchPermissions.refetch();
+  };
+
+  const handleSetPermissionsClick = () => {
+    setPermissions.mutate({
+      id: id!,
+      permissions: Permissions.createDefaultForUser(nillion.vm.userId),
+    });
+  };
+
   const handleDropClick = () => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     drop.mutate(id!);
   };
 
@@ -89,6 +99,53 @@ export const Home = () => {
           )}
           {fetch.isError && (
             <ListItem>🤕{JSON.stringify(fetch.error)}</ListItem>
+          )}
+        </List>
+      </Box>
+      <Divider />
+      <Box>
+        <Typography level={"h2"}>Fetch permissions</Typography>
+        <Button onClick={handleFetchPermissionsClick}>Refetch</Button>
+        <List>
+          <ListItem>ℹ️ Status: {fetchPermissions.status}</ListItem>
+          <ListItem>
+            ℹ️ Last updated:{" "}
+            {new Date(fetchPermissions.dataUpdatedAt).toLocaleString()}
+          </ListItem>
+          <ListItem>
+            ℹ️ From cache:{" "}
+            {Boolean(
+              fetchPermissions.isFetched &&
+                !fetchPermissions.isFetchedAfterMount,
+            ).toString()}
+          </ListItem>
+          {fetchPermissions.isSuccess && (
+            <ListItem>
+              🔁 Action id: {JSON.stringify(fetchPermissions.data)}
+            </ListItem>
+          )}
+          {fetchPermissions.isError && (
+            <ListItem>🤕{JSON.stringify(fetchPermissions.error)}</ListItem>
+          )}
+        </List>
+      </Box>
+      <Divider />
+      <Box>
+        <Typography level={"h2"}>Set permissions</Typography>
+        <Button onClick={handleSetPermissionsClick}>Set</Button>
+        <List>
+          <ListItem>ℹ️ Status: {setPermissions.status}</ListItem>
+          <ListItem>
+            ℹ️ Last updated:{" "}
+            {new Date(setPermissions.submittedAt).toLocaleString()}
+          </ListItem>
+          {setPermissions.isSuccess && (
+            <ListItem>
+              🔁 Action id: {JSON.stringify(setPermissions.data)}
+            </ListItem>
+          )}
+          {setPermissions.isError && (
+            <ListItem>🤕{JSON.stringify(setPermissions.error)}</ListItem>
           )}
         </List>
       </Box>
