@@ -253,21 +253,31 @@ export class NillionClient {
   runProgram(args: {
     bindings: ProgramBindings;
     values: NadaValues;
-    storeIds: StoreId[];
+    storeIds: (StoreId | string)[];
   }): Promise<Result<ComputeResultId, UnknownException>> {
     const effect: E.Effect<ComputeResultId, UnknownException> = E.Do.pipe(
-      E.let("operation", () => Operation.compute(args)),
+      E.bind("storeIds", () =>
+        E.try(() => args.storeIds.map((id) => StoreId.parse(id))),
+      ),
+      E.let("operation", ({ storeIds }) =>
+        Operation.compute({
+          storeIds,
+          bindings: args.bindings,
+          values: args.values,
+        }),
+      ),
       E.bind("receipt", (args) => this.pay(args)),
       E.flatMap((args) => this.vm.runProgram(args)),
     );
     return effectToResultAsync(effect);
   }
 
-  fetchRunProgramResult(args: {
-    id: ComputeResultId;
+  fetchProgramOutput(args: {
+    id: ComputeResultId | string;
   }): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
     const effect = E.Do.pipe(
-      E.let("operation", () => Operation.fetchComputeResult(args)),
+      E.bind("id", () => E.try(() => ComputeResultId.parse(args.id))),
+      E.let("operation", ({ id }) => Operation.fetchComputeResult({ id })),
       E.flatMap(({ operation }) =>
         this.vm.fetchRunProgramResult(operation.args),
       ),
@@ -320,11 +330,14 @@ export class NillionClient {
   }
 
   storeProgram(args: {
-    name: ProgramName;
+    name: ProgramName | string;
     program: Uint8Array;
   }): Promise<Result<ProgramId, UnknownException>> {
     const effect = E.Do.pipe(
-      E.let("operation", () => Operation.storeProgram(args)),
+      E.bind("name", () => E.try(() => ProgramName.parse(args.name))),
+      E.let("operation", ({ name }) =>
+        Operation.storeProgram({ name, program: args.program }),
+      ),
       E.bind("receipt", ({ operation }) => this.pay({ operation })),
       E.flatMap((args) => this.vm.storeProgram(args)),
     );

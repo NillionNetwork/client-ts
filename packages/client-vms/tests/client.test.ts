@@ -306,7 +306,7 @@ describe(SUITE_NAME, () => {
         });
 
         it("can get result", async () => {
-          const result = await client.fetchRunProgramResult({
+          const result = await client.fetchProgramOutput({
             id: test.result.id,
           });
           if (expectOk(result)) {
