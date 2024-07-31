@@ -60,7 +60,7 @@ jobs:
 
   publish:
     needs: [ check, build-and-test ]
-    #if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' disabled while building pipeline
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     strategy:
       matrix:
