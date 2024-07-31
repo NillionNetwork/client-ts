@@ -1,0 +1,9 @@
+{
+  "bootnodes": [
+    "/ip4/127.0.0.1/tcp/14211/ws/p2p/12D3KooWCAGu6gqDrkDWWcFnjsT9Y8rUzUH8buWjdFcU3TfWRmuN"
+  ],
+  "cluster_id": "e2c959ca-ecb2-45b0-8f2b-d91abbfa3708",
+  "programs_namespace": "4Uf8qhKpbrUQ6Zp1B4dGHafkewenrCDHbtao77cK5ugY9EmpAxUL5NVtGrxCXqzwJots6SgDeHisp7moKEn4fcMD",
+  "payments_rpc_endpoint": "http://localhost:26648",
+  "payments_key": "5c98e049ceca4e2c342516e1b81c689e779da9dbae64ea6b92d52684a92095e6"
+}

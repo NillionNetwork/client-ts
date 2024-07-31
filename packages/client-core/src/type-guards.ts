@@ -2,9 +2,7 @@ export const isMap = <T, U>(value: unknown): value is Map<T, U> => {
   return isDefinedAndNotNull(value) && value instanceof Map;
 };
 
-export const isObjectLiteral = <T extends object>(
-  value: unknown,
-): value is T => {
+export const isObjectLiteral = (value: unknown): value is object => {
   return isDefinedAndNotNull(value) && value?.constructor === Object;
 };
 
