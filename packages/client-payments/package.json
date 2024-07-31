@@ -2,7 +2,7 @@
   "name": "@nillion/client-payments",
   "license": "MIT",
   "author": "devsupport@nillion.com",
-  "version": "0.1.0-rc.0",
+  "version": "0.1.0-rc.1",
   "type": "module",
   "browser": "dist/index.js",
   "types": "src/index.ts",
