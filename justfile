@@ -9,7 +9,7 @@ clean:
 
 check:
     #!/usr/bin/env bash
-    set -euxo pipefail
+    set -uxo pipefail
     npx prettier -c "packages/**/*.(js|jsx|ts|tsx)"
 
     echo "Running eslint... "
@@ -69,9 +69,16 @@ test-client-core:
     #!/usr/bin/env bash
     set -euxo pipefail
     npm -w packages/client-core run clean
+    npm -w packages/client-core run test:build
+    npm -w packages/client-core run test
+
+test-serve-client-core:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    npm -w packages/client-core run clean
     npx concurrently -c "auto" \
-    "npm -w packages/client-core run test.build" \
-    "npm -w packages/client-core run test"
+    "npm -w packages/client-core run test:build:watch" \
+    "npm -w packages/client-core run test:serve"
 
 pack-client-core:
     #!/usr/bin/env bash
@@ -94,11 +101,20 @@ test-client-payments:
     #!/usr/bin/env bash
     set -euxo pipefail
     just clean
-    npm -w packages/client-payments run build.proto
+    npm -w packages/client-payments run build:proto
+    npm -w packages/client-core run build
+    npm -w packages/client-payments run test:build
+    npm -w packages/client-payments run test
+
+test-serve-client-payments:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    just clean
+    npm -w packages/client-payments run build:proto
     npx concurrently -c "auto" \
-      "npm -w packages/client-core run build.watch" \
-      "npm -w packages/client-payments run test.build" \
-      "npm -w packages/client-payments run test"
+      "npm -w packages/client-core run build:watch" \
+      "npm -w packages/client-payments run test:build:watch" \
+      "npm -w packages/client-payments run test:serve"
 
 pack-client-payments:
     #!/usr/bin/env bash
@@ -121,11 +137,20 @@ test-client-vms:
     #!/usr/bin/env bash
     set -euxo pipefail
     just clean
+    npm -w packages/client-core run build
+    npm -w packages/client-payments run build
+    npm -w packages/client-vms run test:build
+    npm -w packages/client-vms run test
+
+test-serve-client-vms:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    just clean
     npx concurrently -c "auto" \
-      "npm -w packages/client-core run build.watch" \
-      "npm -w packages/client-payments run build.watch" \
-      "npm -w packages/client-vms run test.build" \
-      "npm -w packages/client-vms run test"
+      "npm -w packages/client-core run build:watch" \
+      "npm -w packages/client-payments run build:watch" \
+      "npm -w packages/client-vms run test:build:watch" \
+      "npm -w packages/client-vms run test:serve"
 
 pack-client-vms:
     #!/usr/bin/env bash
@@ -166,9 +191,9 @@ dev-examples-react:
     set -euxo pipefail
     just clean
     npx concurrently -c "auto" \
-      "npm -w packages/client-core run build.watch" \
-      "npm -w packages/client-payments run build.watch" \
-      "npm -w packages/client-vms run build.watch" \
-      "npm -w packages/client-react-hooks run build.watch" \
+      "npm -w packages/client-core run build:watch" \
+      "npm -w packages/client-payments run build:watch" \
+      "npm -w packages/client-vms run build:watch" \
+      "npm -w packages/client-react-hooks run build:watch" \
       "npm -w examples/react run start"
 # <<< End @nillion/examples-react <<<

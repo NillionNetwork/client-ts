@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "node esbuild.config.mjs",
-    "build.watch": "node esbuild.config.mjs --watch"
+    "build:watch": "node esbuild.config.mjs --watch"
   },
   "dependencies": {
     "@nillion/client-vms": "^0.1.0-rc.0",
