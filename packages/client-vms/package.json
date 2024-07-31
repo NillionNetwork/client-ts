@@ -2,7 +2,7 @@
   "name": "@nillion/client-vms",
   "license": "MIT",
   "author": "devsupport@nillion.com",
-  "version": "0.1.0-rc.1",
+  "version": "0.1.0-rc.2",
   "type": "module",
   "browser": "dist/index.js",
   "types": "src/index.ts",
@@ -15,8 +15,8 @@
     "test:build:watch": "npx webpack --config webpack.config.mjs --watch"
   },
   "dependencies": {
-    "@nillion/client-core": "^0.1.0-rc.0",
-    "@nillion/client-payments": "^0.1.0-rc.0",
+    "@nillion/client-core": "^0.1.0-rc.2",
+    "@nillion/client-payments": "^0.1.0-rc.2",
     "debug": "^4.3.5",
     "zod": "^3.23.8"
   },
