@@ -13,22 +13,22 @@ export interface TestSimpleType {
 
 export const testSimpleTypes: TestSimpleType[] = [
   {
-    type: NadaValueType.enum.IntegerSecret,
+    type: NadaValueType.enum.SecretInteger,
     id: "" as StoreId,
     expected: { foo: -42 },
   },
   {
-    type: NadaValueType.enum.IntegerSecret,
+    type: NadaValueType.enum.SecretInteger,
     id: "" as StoreId,
     expected: { foo: 42 },
   },
   {
-    type: NadaValueType.enum.IntegerSecretUnsigned,
+    type: NadaValueType.enum.SecretIntegerUnsigned,
     id: "" as StoreId,
     expected: { bar: 42n },
   },
   {
-    type: NadaValueType.enum.BlobSecret,
+    type: NadaValueType.enum.SecretBlob,
     id: "" as StoreId,
     expected: { blob: strToByteArray("Hi blob!") },
   },

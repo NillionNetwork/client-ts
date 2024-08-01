@@ -51,7 +51,7 @@ export const useStoreValue = (
 
   const onSuccess = (id: TData, variables: TVariables): void => {
     const queryKey = createStoreCacheKey(id);
-    // TODO(tim): is it better to store with its type, eg, `type: IntegerSecret`?
+    // TODO(tim): is it better to store with its type, eg, `type: SecretInteger`?
     queryClient.setQueryData(queryKey, variables.values);
   };
 

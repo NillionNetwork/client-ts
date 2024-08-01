@@ -1,11 +1,11 @@
 import {
-  BlobSecret,
-  BooleanSecret,
+  SecretBlob,
+  SecretBoolean,
   init,
-  IntegerPublic,
-  IntegerPublicUnsigned,
-  IntegerSecret,
-  IntegerSecretUnsigned,
+  PublicInteger,
+  PublicIntegerUnsigned,
+  SecretInteger,
+  SecretIntegerUnsigned,
   NadaValue,
   NadaValues,
   NadaPrimitiveValue,
@@ -27,45 +27,45 @@ describe(SUITE_NAME, () => {
   });
 
   describe("primitive type guards", () => {
-    it("BlobSecret rejects array-like invalid input ", () => {
-      expect(() => BlobSecret.parse([1, 2, 3])).toThrow();
+    it("SecretBlob rejects array-like invalid input ", () => {
+      expect(() => SecretBlob.parse([1, 2, 3])).toThrow();
     });
 
-    it("BlobSecret rejects string invalid input", () => {
-      expect(() => BlobSecret.parse("")).toThrow();
+    it("SecretBlob rejects string invalid input", () => {
+      expect(() => SecretBlob.parse("")).toThrow();
     });
 
-    it("BooleanSecret rejects non boolean", () => {
-      expect(() => BooleanSecret.parse("")).toThrow();
-      expect(() => BooleanSecret.parse(1)).toThrow();
-      expect(() => BooleanSecret.parse([])).toThrow();
+    it("SecretBoolean rejects non boolean", () => {
+      expect(() => SecretBoolean.parse("")).toThrow();
+      expect(() => SecretBoolean.parse(1)).toThrow();
+      expect(() => SecretBoolean.parse([])).toThrow();
     });
 
-    it("IntegerPublic rejects decimals", () => {
-      expect(() => IntegerPublic.parse(1.1)).toThrow();
-      expect(() => IntegerPublic.parse(-1.1)).toThrow();
+    it("PublicInteger rejects decimals", () => {
+      expect(() => PublicInteger.parse(1.1)).toThrow();
+      expect(() => PublicInteger.parse(-1.1)).toThrow();
     });
 
-    it("IntegerPublicUnsigned rejects negative integer", () => {
-      expect(() => IntegerPublicUnsigned.parse(-11)).toThrow();
-      expect(() => IntegerPublicUnsigned.parse(-1)).toThrow();
+    it("PublicIntegerUnsigned rejects negative integer", () => {
+      expect(() => PublicIntegerUnsigned.parse(-11)).toThrow();
+      expect(() => PublicIntegerUnsigned.parse(-1)).toThrow();
     });
 
-    it("IntegerSecret rejects decimals", () => {
-      expect(() => IntegerSecret.parse(4.2)).toThrow();
-      expect(() => IntegerSecret.parse(-0.1)).toThrow();
+    it("SecretInteger rejects decimals", () => {
+      expect(() => SecretInteger.parse(4.2)).toThrow();
+      expect(() => SecretInteger.parse(-0.1)).toThrow();
     });
 
-    it("IntegerSecretUnsigned rejects < 0", () => {
-      expect(() => IntegerSecretUnsigned.parse(-11)).toThrow();
-      expect(() => IntegerSecretUnsigned.parse(-1)).toThrow();
+    it("SecretIntegerUnsigned rejects < 0", () => {
+      expect(() => SecretIntegerUnsigned.parse(-11)).toThrow();
+      expect(() => SecretIntegerUnsigned.parse(-1)).toThrow();
     });
   });
 
   describe("nada value encode and decode", () => {
-    it("BlobSecret", () => {
+    it("SecretBlob", () => {
       const expected = new TextEncoder().encode("hi mom");
-      const secret = NadaValue.createBlobSecret(expected);
+      const secret = NadaValue.createSecretBlob(expected);
 
       expect(secret.data).toEqual(expected);
 
@@ -86,27 +86,27 @@ describe(SUITE_NAME, () => {
       expect(asWasm.to_integer()).toBe(String(value.data));
     }
 
-    it("IntegerSecret", () => {
-      encodeAndDecodeIntegerLike(IntegerSecret.parse(-42), (v) =>
-        NadaValue.createIntegerSecret(v),
+    it("SecretInteger", () => {
+      encodeAndDecodeIntegerLike(SecretInteger.parse(-42), (v) =>
+        NadaValue.createSecretInteger(v),
       );
     });
 
-    it("IntegerSecretUnsigned", () => {
-      encodeAndDecodeIntegerLike(IntegerSecretUnsigned.parse(42n), (v) =>
-        NadaValue.createIntegerSecretUnsigned(v),
+    it("SecretIntegerUnsigned", () => {
+      encodeAndDecodeIntegerLike(SecretIntegerUnsigned.parse(42n), (v) =>
+        NadaValue.createSecretIntegerUnsigned(v),
       );
     });
 
-    it("IntegerPublic", () => {
-      encodeAndDecodeIntegerLike(IntegerPublic.parse(-100), (v) =>
-        NadaValue.createIntegerPublic(v),
+    it("PublicInteger", () => {
+      encodeAndDecodeIntegerLike(PublicInteger.parse(-100), (v) =>
+        NadaValue.createPublicInteger(v),
       );
     });
 
-    it("IntegerPublicUnsigned", () => {
-      encodeAndDecodeIntegerLike(IntegerPublicUnsigned.parse(42n), (v) =>
-        NadaValue.createIntegerPublicUnsigned(v),
+    it("PublicIntegerUnsigned", () => {
+      encodeAndDecodeIntegerLike(PublicIntegerUnsigned.parse(42n), (v) =>
+        NadaValue.createPublicIntegerUnsigned(v),
       );
     });
   });
@@ -125,11 +125,11 @@ describe(SUITE_NAME, () => {
       const secrets = NadaValues.create();
       secrets.insert(
         NamedValue.parse("one"),
-        NadaValue.createIntegerSecret(1337),
+        NadaValue.createSecretInteger(1337),
       );
       secrets.insert(
         NamedValue.parse("two"),
-        NadaValue.createIntegerSecret(1337),
+        NadaValue.createSecretInteger(1337),
       );
 
       const asWasm = secrets.into();

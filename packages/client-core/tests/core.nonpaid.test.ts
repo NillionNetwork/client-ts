@@ -46,7 +46,7 @@ describe(SUITE_NAME, () => {
       bindings: ProgramBindings.create(data.program),
       values: NadaValues.create().insert(
         NamedValue.parse("foo"),
-        NadaValue.createIntegerSecret(1),
+        NadaValue.createSecretInteger(1),
       ),
       storeIds: [],
     };
@@ -102,7 +102,7 @@ describe(SUITE_NAME, () => {
     const args = {
       values: NadaValues.create().insert(
         NamedValue.parse("foo"),
-        NadaValue.createIntegerSecret(3),
+        NadaValue.createSecretInteger(3),
       ),
       ttl: Days.parse(1),
     };
@@ -120,7 +120,7 @@ describe(SUITE_NAME, () => {
       id: data.store,
       values: NadaValues.create().insert(
         NamedValue.parse("foo"),
-        NadaValue.createIntegerSecret(3),
+        NadaValue.createSecretInteger(3),
       ),
       ttl: Days.parse(1),
     };

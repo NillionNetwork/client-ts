@@ -177,8 +177,8 @@ describe(SUITE_NAME, () => {
 
   describe("permissions", () => {
     const name = NamedValue.parse("secretFoo");
-    const type = NadaValueType.enum.IntegerSecret;
-    const value = NadaValue.createIntegerSecret(42);
+    const type = NadaValueType.enum.SecretInteger;
+    const value = NadaValue.createSecretInteger(42);
     const values = NadaValues.create().insert(name, value);
     let id = "" as StoreId;
 

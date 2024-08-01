@@ -4,38 +4,38 @@ import { isBigInt, isNumber, isUint8Array } from "../type-guards";
 import { Log } from "../logger";
 
 export const NadaValueType = z.enum([
-  "BlobSecret",
-  "BooleanSecret",
-  "IntegerPublic",
-  "IntegerPublicUnsigned",
-  "IntegerSecret",
-  "IntegerSecretUnsigned",
+  "SecretBlob",
+  "SecretBoolean",
+  "PublicInteger",
+  "PublicIntegerUnsigned",
+  "SecretInteger",
+  "SecretIntegerUnsigned",
 ]);
 export type NadaValueType = z.infer<typeof NadaValueType>;
 
-export const BlobSecret = z.instanceof(Uint8Array).brand<"BlobSecret">();
-export type BlobSecret = z.infer<typeof BlobSecret>;
+export const SecretBlob = z.instanceof(Uint8Array).brand<"SecretBlob">();
+export type SecretBlob = z.infer<typeof SecretBlob>;
 
-export const BooleanSecret = z.boolean().brand<"BooleanSecret">();
-export type BooleanSecret = z.infer<typeof BooleanSecret>;
+export const SecretBoolean = z.boolean().brand<"SecretBoolean">();
+export type SecretBoolean = z.infer<typeof SecretBoolean>;
 
-export const IntegerPublic = z.number().int().brand<"IntegerPublic">();
-export type IntegerPublic = z.infer<typeof IntegerPublic>;
+export const PublicInteger = z.number().int().brand<"PublicInteger">();
+export type PublicInteger = z.infer<typeof PublicInteger>;
 
-export const IntegerPublicUnsigned = z
+export const PublicIntegerUnsigned = z
   .bigint()
   .nonnegative()
-  .brand<"IntegerPublicUnsigned">();
-export type IntegerPublicUnsigned = z.infer<typeof IntegerPublicUnsigned>;
+  .brand<"PublicIntegerUnsigned">();
+export type PublicIntegerUnsigned = z.infer<typeof PublicIntegerUnsigned>;
 
-export const IntegerSecret = z.number().int().brand<"IntegerSecret">();
-export type IntegerSecret = z.infer<typeof IntegerSecret>;
+export const SecretInteger = z.number().int().brand<"SecretInteger">();
+export type SecretInteger = z.infer<typeof SecretInteger>;
 
-export const IntegerSecretUnsigned = z
+export const SecretIntegerUnsigned = z
   .bigint()
   .nonnegative()
-  .brand<"IntegerSecretUnsigned">();
-export type IntegerSecretUnsigned = z.infer<typeof IntegerSecretUnsigned>;
+  .brand<"SecretIntegerUnsigned">();
+export type SecretIntegerUnsigned = z.infer<typeof SecretIntegerUnsigned>;
 
 export type NadaPrimitiveValue = Uint8Array | number | bigint;
 
@@ -51,58 +51,58 @@ export class NadaValue {
 
   toWasm(): Wasm.NadaValue {
     switch (this.type) {
-      case NadaValueType.enum.BlobSecret:
+      case NadaValueType.enum.SecretBlob:
         return Wasm.NadaValue.new_secret_blob(this.data as Uint8Array);
 
-      case NadaValueType.enum.BooleanSecret:
+      case NadaValueType.enum.SecretBoolean:
         throw new Error(
           "return Wasm.NadaValue.new_secret_boolean(this.data as boolean);",
         );
 
-      case NadaValueType.enum.IntegerPublic:
+      case NadaValueType.enum.PublicInteger:
         return Wasm.NadaValue.new_public_integer(String(this.data));
 
-      case NadaValueType.enum.IntegerPublicUnsigned:
+      case NadaValueType.enum.PublicIntegerUnsigned:
         return Wasm.NadaValue.new_public_unsigned_integer(String(this.data));
 
-      case NadaValueType.enum.IntegerSecret:
+      case NadaValueType.enum.SecretInteger:
         return Wasm.NadaValue.new_secret_integer(String(this.data));
 
-      case NadaValueType.enum.IntegerSecretUnsigned:
+      case NadaValueType.enum.SecretIntegerUnsigned:
         return Wasm.NadaValue.new_secret_unsigned_integer(String(this.data));
     }
   }
 
   static fromWasm(type: NadaValueType, wasm: Wasm.NadaValue): NadaValue {
     switch (type) {
-      case NadaValueType.enum.BlobSecret: {
+      case NadaValueType.enum.SecretBlob: {
         const copiedFromMemory = Array.from(wasm.to_byte_array());
         const values = Uint8Array.from(copiedFromMemory);
-        return NadaValue.createBlobSecret(values);
+        return NadaValue.createSecretBlob(values);
       }
 
-      case NadaValueType.enum.BooleanSecret: {
-        throw new Error("return NadaValue.createBooleanSecret(wasm.xyz())");
+      case NadaValueType.enum.SecretBoolean: {
+        throw new Error("return NadaValue.createSecretBoolean(wasm.xyz())");
       }
 
-      case NadaValueType.enum.IntegerPublic: {
+      case NadaValueType.enum.PublicInteger: {
         const data = wasm.to_integer();
-        return NadaValue.createIntegerPublic(Number(data));
+        return NadaValue.createPublicInteger(Number(data));
       }
 
-      case NadaValueType.enum.IntegerPublicUnsigned: {
+      case NadaValueType.enum.PublicIntegerUnsigned: {
         const data = wasm.to_integer();
-        return NadaValue.createIntegerPublicUnsigned(BigInt(data));
+        return NadaValue.createPublicIntegerUnsigned(BigInt(data));
       }
 
-      case NadaValueType.enum.IntegerSecret: {
+      case NadaValueType.enum.SecretInteger: {
         const data = wasm.to_integer();
-        return NadaValue.createIntegerSecret(Number(data));
+        return NadaValue.createSecretInteger(Number(data));
       }
 
-      case NadaValueType.enum.IntegerSecretUnsigned: {
+      case NadaValueType.enum.SecretIntegerUnsigned: {
         const data = wasm.to_integer();
-        return NadaValue.createIntegerSecretUnsigned(BigInt(data));
+        return NadaValue.createSecretIntegerUnsigned(BigInt(data));
       }
     }
   }
@@ -117,16 +117,16 @@ export class NadaValue {
       if (!secret) {
         Log("NadaValue.fromPrimitive data: Uint8Array is always secret");
       }
-      return this.createBlobSecret(data);
+      return this.createSecretBlob(data);
     } else if (isBigInt(data)) {
       // bigint is treated as signed only
       return secret
-        ? this.createIntegerSecretUnsigned(data)
-        : this.createIntegerPublicUnsigned(data);
+        ? this.createSecretIntegerUnsigned(data)
+        : this.createPublicIntegerUnsigned(data);
     } else if (isNumber(data)) {
       return secret
-        ? this.createIntegerSecret(data)
-        : this.createIntegerPublic(data);
+        ? this.createSecretInteger(data)
+        : this.createPublicInteger(data);
     } else {
       throw new Error(
         "Invalid NadaValue.fromPrimitive() arguments: " + JSON.stringify(args),
@@ -134,39 +134,39 @@ export class NadaValue {
     }
   }
 
-  static createBlobSecret(data: BlobSecret | Uint8Array): NadaValue {
-    return new NadaValue(NadaValueType.enum.BlobSecret, BlobSecret.parse(data));
+  static createSecretBlob(data: SecretBlob | Uint8Array): NadaValue {
+    return new NadaValue(NadaValueType.enum.SecretBlob, SecretBlob.parse(data));
   }
 
-  static createIntegerPublic(data: IntegerPublic | number): NadaValue {
+  static createPublicInteger(data: PublicInteger | number): NadaValue {
     return new NadaValue(
-      NadaValueType.enum.IntegerPublic,
-      IntegerPublic.parse(data),
+      NadaValueType.enum.PublicInteger,
+      PublicInteger.parse(data),
     );
   }
 
-  static createIntegerSecret(data: IntegerSecret | number): NadaValue {
+  static createSecretInteger(data: SecretInteger | number): NadaValue {
     return new NadaValue(
-      NadaValueType.enum.IntegerSecret,
-      IntegerSecret.parse(data),
+      NadaValueType.enum.SecretInteger,
+      SecretInteger.parse(data),
     );
   }
 
-  static createIntegerPublicUnsigned(
-    data: IntegerPublicUnsigned | bigint,
+  static createPublicIntegerUnsigned(
+    data: PublicIntegerUnsigned | bigint,
   ): NadaValue {
     return new NadaValue(
-      NadaValueType.enum.IntegerPublicUnsigned,
-      IntegerPublicUnsigned.parse(data),
+      NadaValueType.enum.PublicIntegerUnsigned,
+      PublicIntegerUnsigned.parse(data),
     );
   }
 
-  static createIntegerSecretUnsigned(
-    data: IntegerSecretUnsigned | bigint,
+  static createSecretIntegerUnsigned(
+    data: SecretIntegerUnsigned | bigint,
   ): NadaValue {
     return new NadaValue(
-      NadaValueType.enum.IntegerSecretUnsigned,
-      IntegerSecretUnsigned.parse(data),
+      NadaValueType.enum.SecretIntegerUnsigned,
+      SecretIntegerUnsigned.parse(data),
     );
   }
 }

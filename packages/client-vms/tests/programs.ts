@@ -34,25 +34,25 @@ export const testPrograms: TestProgram[] = [
       NadaValues.create()
         .insert(
           NamedValue.parse("I03"),
-          NadaValue.createIntegerSecretUnsigned(2877n),
+          NadaValue.createSecretIntegerUnsigned(2877n),
         )
         .insert(
           NamedValue.parse("I04"),
-          NadaValue.createIntegerSecretUnsigned(2564n),
+          NadaValue.createSecretIntegerUnsigned(2564n),
         ),
     ],
     valuesToInput: NadaValues.create()
       .insert(
         NamedValue.parse("I00"),
-        NadaValue.createIntegerSecretUnsigned(17517n),
+        NadaValue.createSecretIntegerUnsigned(17517n),
       )
       .insert(
         NamedValue.parse("I01"),
-        NadaValue.createIntegerSecretUnsigned(5226n),
+        NadaValue.createSecretIntegerUnsigned(5226n),
       )
       .insert(
         NamedValue.parse("I02"),
-        NadaValue.createIntegerSecretUnsigned(15981n),
+        NadaValue.createSecretIntegerUnsigned(15981n),
       ),
     result: {
       id: "" as ComputeResultId,
@@ -69,8 +69,8 @@ export const testPrograms: TestProgram[] = [
     storeIds: [],
     valuesToStore: [
       NadaValues.create()
-        .insert(NamedValue.parse("I00"), NadaValue.createIntegerSecret(42))
-        .insert(NamedValue.parse("I01"), NadaValue.createIntegerSecret(43)),
+        .insert(NamedValue.parse("I00"), NadaValue.createSecretInteger(42))
+        .insert(NamedValue.parse("I01"), NadaValue.createSecretInteger(43)),
     ],
     valuesToInput: NadaValues.create(),
     result: {
@@ -88,8 +88,8 @@ export const testPrograms: TestProgram[] = [
     storeIds: [],
     valuesToStore: [
       NadaValues.create()
-        .insert(NamedValue.parse("I00"), NadaValue.createIntegerSecret(77))
-        .insert(NamedValue.parse("I01"), NadaValue.createIntegerSecret(54)),
+        .insert(NamedValue.parse("I00"), NadaValue.createSecretInteger(77))
+        .insert(NamedValue.parse("I01"), NadaValue.createSecretInteger(54)),
     ],
     valuesToInput: NadaValues.create(),
     result: {

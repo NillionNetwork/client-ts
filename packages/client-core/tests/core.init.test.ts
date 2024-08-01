@@ -6,7 +6,6 @@ import {
   StoreId,
   VmClientConfig,
 } from "@nillion/client-core";
-import { UnknownException } from "effect/Cause";
 import { expectOk } from "../../fixture/helpers";
 import { Effect as E } from "effect";
 
