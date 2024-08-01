@@ -4,7 +4,6 @@ import {
   QueryClientContext,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import * as React from "react";
 import { createContext, ReactNode, useContext, useEffect } from "react";
 import { Log } from "../logging";
@@ -61,7 +60,6 @@ export const NillionClientProvider = ({
         <NillionClientContext.Provider value={client}>
           {children}
         </NillionClientContext.Provider>
-        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     );
   }

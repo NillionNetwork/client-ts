@@ -5,6 +5,7 @@ import { RouterProvider } from "react-router-dom";
 import { client } from "./nillion";
 import { router } from "./router";
 import { theme } from "./theme";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export function App() {
   return (
@@ -12,6 +13,7 @@ export function App() {
       <ThemeProvider theme={theme}>
         <NillionClientProvider client={client}>
           <RouterProvider router={router} />
+          <ReactQueryDevtools initialIsOpen={false} />
         </NillionClientProvider>
       </ThemeProvider>
     </CssBaseline>

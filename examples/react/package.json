@@ -13,6 +13,7 @@
     "@nillion/client-core": "0.1.0-rc.2",
     "@nillion/client-react-hooks": "0.1.0-rc.2",
     "@nillion/client-vms": "0.1.0-rc.2",
+    "@tanstack/react-query-devtools": "^5.51.16",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.25.1"
