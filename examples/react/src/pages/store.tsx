@@ -13,14 +13,14 @@ import * as React from "react";
 import { useState } from "react";
 
 export const Store = () => {
-  const original = { foo: 42 };
+  const original = { foo: "Hi, I'm SecretString nice to meet you :)" };
   const nillion = useNillion();
   const [id, setId] = useState<string | null>(null);
   const store = useStoreValue();
   const fetch = useFetchValue({
     id,
     name: "foo",
-    type: NadaValueType.enum.IntegerSecret,
+    type: NadaValueType.enum.SecretString,
   });
   const update = useUpdateValue();
   const fetchPermissions = useFetchPermissions({ id });
@@ -42,7 +42,7 @@ export const Store = () => {
     update.mutate({
       id: id!,
       values: {
-        foo: 77,
+        foo: "I'm an updated SecretString :)",
       },
       ttl: 2,
     });

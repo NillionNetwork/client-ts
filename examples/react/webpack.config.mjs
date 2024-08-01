@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 
 export default {
   entry: "./src/index.tsx",
+  devtool: "eval-source-map",
   devServer: {
     static: {
       directory: path.join(__dirname, "public"),
@@ -25,7 +26,7 @@ export default {
     proxy: [
       {
         context: ["/nilchain"],
-        target: "http://localhost:26648",
+        target: "http://localhost:48102",
         pathRewrite: { "^/nilchain": "" },
       },
     ],
