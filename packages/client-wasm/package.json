@@ -11,8 +11,11 @@
       "import": "./dist/index.js"
     }
   },
+  "sideEffects": [
+    "dist/snippets/**"
+  ],
   "files": [
-    "commit-sha.txt",
-    "dist"
+    "dist",
+    "commit-sha.txt"
   ]
 }

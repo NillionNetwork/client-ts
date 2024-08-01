@@ -1,4 +1,4 @@
-import { TaggedError } from "@nillion/client-core/src/error";
+import { TaggedError } from "@nillion/client-core";
 
 export class AccountNotFoundError extends Error implements TaggedError {
   readonly _tag = "AccountNotFoundError" as const;

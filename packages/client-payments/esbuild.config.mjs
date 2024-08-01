@@ -4,7 +4,7 @@ const config = {
   entryPoints: ["src/index.ts"],
   bundle: true,
   format: "esm",
-  outfile: "dist/index.js",
+  outfile: "dist/index.mjs",
   external: ["crypto", "@nillion/client-core"],
   logLevel: "info",
 };

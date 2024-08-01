@@ -1,4 +1,4 @@
-import { Result } from "packages/client-core";
+import { Result } from "@nillion/client-core";
 
 export const expectOk = <S, E>(
   result: Result<S, E>,

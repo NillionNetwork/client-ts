@@ -20,6 +20,16 @@ check:
     npx tsc
     echo "done."
 
+watch-and-build:
+    #!/usr/bin/env bash
+    set -uxo pipefail
+    just clean
+    npx concurrently -c "auto" \
+      "npm -w packages/client-core run build:watch" \
+      "npm -w packages/client-payments run build:watch" \
+      "npm -w packages/client-vms run build:watch" \
+      "npm -w packages/client-react-hooks run build:watch"
+
 pack:
     #!/usr/bin/env bash
     set -euxo pipefail
@@ -33,7 +43,7 @@ pack:
 unpublish:
     #!/usr/bin/env bash
     set -euxo pipefail
-    echo "warning: only for local development"
+    echo "warning: only for use with a local registry"
     npm unpublish --force @nillion/client-wasm
     npm unpublish --force @nillion/client-core
     npm unpublish --force @nillion/client-payments
