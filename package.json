@@ -12,7 +12,8 @@
     "packages/client-payments",
     "packages/client-vms",
     "packages/client-react-hooks",
-    "examples/react"
+    "examples/react",
+    "examples/nextjs"
   ],
   "devDependencies": {
     "@commitlint/cli": "^19.3.0",
