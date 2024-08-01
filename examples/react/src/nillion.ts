@@ -4,8 +4,6 @@ import { NillionClient } from "@nillion/client-vms";
 
 export const client = NillionClient.create({
   network: NamedNetwork.enum.Devnet,
-  userSeed: "nillion-devnet",
-  nodeSeed: "nillion-devnet",
 
   overrides: async () => {
     // first account when running `nillion-devnet` with default seed
@@ -15,6 +13,8 @@ export const client = NillionClient.create({
     return {
       endpoint: "http://localhost:8080/nilchain",
       signer,
+      userSeed: "nillion-devnet",
+      nodeSeed: "nillion-devnet",
     };
   },
 });

@@ -4,15 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "webpack serve --mode development"
+    "dev": "webpack serve --mode development"
   },
   "dependencies": {
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@mui/joy": "^5.0.0-beta.48",
-    "@nillion/client-core": "0.1.0-rc.2",
-    "@nillion/client-react-hooks": "0.1.0-rc.2",
-    "@nillion/client-vms": "0.1.0-rc.2",
+    "@nillion/client-core": "0.1.0-rc.3",
+    "@nillion/client-react-hooks": "0.1.0-rc.3",
+    "@nillion/client-vms": "0.1.0-rc.3",
     "@tanstack/react-query-devtools": "^5.51.16",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
