@@ -26,7 +26,7 @@ import {
   VmClient,
 } from "@nillion/client-core";
 import { PaymentsClient } from "@nillion/client-payments";
-import { Effect as E } from "effect";
+import { Effect as E, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
 import { Log } from "./logger";
 import {
@@ -35,6 +35,7 @@ import {
   StoreValueArgs,
 } from "./types";
 import { ZodError } from "zod";
+import { valuesRecordToNadaValues } from "./nada";
 
 export class NillionClient {
   private _vm: VmClient | undefined;
@@ -66,13 +67,13 @@ export class NillionClient {
     }
   }
 
-  async connect(): Promise<boolean> {
+  connect(): Promise<boolean> {
     if (this.ready) {
       Log("NillionClient is already connected. Ignoring connect().");
-      return this.ready;
+      return Promise.resolve(this.ready);
     }
 
-    const effect: E.Effect<void, UnknownException> = E.Do.pipe(
+    return E.Do.pipe(
       E.bind("network", () =>
         E.try(() => {
           const name = this._config.network ?? NamedNetwork.enum.Photon;
@@ -119,27 +120,23 @@ export class NillionClient {
           await this._vm.connect();
           await this._chain.connect();
           Log("NillionClient connected.");
+          return this.ready;
         }),
       ),
+      E.mapError((error) => {
+        if (error instanceof ZodError) {
+          Log("Config parse error: %O", error.format());
+        } else {
+          Log("Connection failed: %O", error);
+        }
+        E.dieMessage("Invalid configuration");
+      }),
+      E.runPromise,
     );
-
-    const result = await effectToResultAsync(effect);
-    if (result.err) {
-      const { error } = result.err;
-      if (error instanceof ZodError) {
-        Log("Config parse error: %O", error.format());
-      } else {
-        Log("Connection failed: %O", error);
-      }
-      throw error as Error;
-    } else {
-      Log("Connected");
-      return this.ready;
-    }
   }
 
   disconnect(): void {
-    // TODO: terminate websocket connections / tell worker to terminate / cleanup
+    // TODO(tim): terminate websocket connections / tell worker to terminate / cleanup
     Log("Disconnect called. This is currently a noop.");
   }
 
@@ -148,24 +145,19 @@ export class NillionClient {
     ttl: Days | number;
     permissions?: Permissions;
   }): Promise<Result<StoreId, UnknownException>> {
-    const nadaValues = NadaValues.create();
-    for (const [key, value] of Object.entries(args.values)) {
-      const name = NamedValue.parse(key);
-      const args = isObjectLiteral(value)
-        ? (value as StoreValueArgs)
-        : {
-            secret: true,
-            data: value,
-          };
-
-      const nadaValue = NadaValue.fromPrimitive(args);
-      nadaValues.insert(name, nadaValue);
-    }
-    return await this.storeValues({
-      values: nadaValues,
-      ttl: Days.parse(args.ttl),
-      permissions: args.permissions,
-    });
+    return E.Do.pipe(
+      E.bind("values", () => valuesRecordToNadaValues(args.values)),
+      E.flatMap(({ values }) =>
+        E.tryPromise(() =>
+          this.storeValues({
+            values,
+            ttl: args.ttl as Days,
+            permissions: args.permissions,
+          }),
+        ),
+      ),
+      E.runPromise,
+    );
   }
 
   fetch(args: {
@@ -173,13 +165,10 @@ export class NillionClient {
     name: NamedValue | string;
     type: NadaValueType;
   }): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
-    const effect: E.Effect<
-      Record<string, NadaPrimitiveValue>,
-      UnknownException
-    > = E.Do.pipe(
-      E.let("id", () => StoreId.parse(args.id)),
-      E.let("name", () => NamedValue.parse(args.name)),
-      E.let("type", () => NadaValueType.parse(args.type)),
+    return E.Do.pipe(
+      E.bind("id", () => E.try(() => StoreId.parse(args.id))),
+      E.bind("name", () => E.try(() => NamedValue.parse(args.name))),
+      E.bind("type", () => E.try(() => NadaValueType.parse(args.type))),
       E.flatMap(({ id, name, type }) =>
         E.tryPromise(async () => {
           const result = await this.fetchValue({
@@ -200,8 +189,8 @@ export class NillionClient {
           return { [name]: result.ok };
         }),
       ),
+      effectToResultAsync,
     );
-    return effectToResultAsync(effect);
   }
 
   update(args: {
@@ -259,7 +248,7 @@ export class NillionClient {
     values: NadaValues;
     storeIds: (StoreId | string)[];
   }): Promise<Result<ComputeResultId, UnknownException>> {
-    const effect: E.Effect<ComputeResultId, UnknownException> = E.Do.pipe(
+    return E.Do.pipe(
       E.bind("storeIds", () =>
         E.try(() => args.storeIds.map((id) => StoreId.parse(id))),
       ),
@@ -272,43 +261,41 @@ export class NillionClient {
       ),
       E.bind("receipt", (args) => this.pay(args)),
       E.flatMap((args) => this.vm.runProgram(args)),
+      effectToResultAsync,
     );
-    return effectToResultAsync(effect);
   }
 
   fetchProgramOutput(args: {
     id: ComputeResultId | string;
   }): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
-    const effect = E.Do.pipe(
+    return E.Do.pipe(
       E.bind("id", () => E.try(() => ComputeResultId.parse(args.id))),
       E.let("operation", ({ id }) => Operation.fetchComputeResult({ id })),
       E.flatMap(({ operation }) =>
         this.vm.fetchRunProgramResult(operation.args),
       ),
+      effectToResultAsync,
     );
-    return effectToResultAsync(effect);
   }
 
   deleteValues(args: {
     id: StoreId | string;
   }): Promise<Result<StoreId, UnknownException>> {
-    const effect = E.Do.pipe(
+    return E.Do.pipe(
       E.bind("id", () => E.try(() => StoreId.parse(args.id))),
       E.flatMap((args) => this.vm.deleteValues(args)),
+      effectToResultAsync,
     );
-    return effectToResultAsync(effect);
   }
 
   fetchClusterInfo(): Promise<Result<ClusterDescriptor, UnknownException>> {
-    const effect = this.vm.fetchClusterInfo();
-    return effectToResultAsync(effect);
+    return pipe(this.vm.fetchClusterInfo(), effectToResultAsync);
   }
 
   fetchOperationQuote(args: {
     operation: IntoWasmQuotableOperation & { type: OperationType };
   }): Promise<Result<PriceQuote, UnknownException>> {
-    const effect = this.vm.fetchOperationQuote(args);
-    return effectToResultAsync(effect);
+    return pipe(this.vm.fetchOperationQuote(args), effectToResultAsync);
   }
 
   fetchValue(args: {
@@ -316,7 +303,7 @@ export class NillionClient {
     name: NamedValue | string;
     type: NadaValueType;
   }): Promise<Result<NadaPrimitiveValue, UnknownException>> {
-    const effect = E.Do.pipe(
+    return E.Do.pipe(
       E.bind("id", () => E.try(() => StoreId.parse(args.id))),
       E.bind("name", () => E.try(() => NamedValue.parse(args.name))),
       E.let("operation", ({ id, name }) =>
@@ -329,23 +316,23 @@ export class NillionClient {
       E.bind("receipt", (args) => this.pay(args)),
       E.flatMap((args) => this.vm.fetchValue(args)),
       E.map((nada) => nada.data),
+      effectToResultAsync,
     );
-    return effectToResultAsync(effect);
   }
 
   storeProgram(args: {
     name: ProgramName | string;
     program: Uint8Array;
   }): Promise<Result<ProgramId, UnknownException>> {
-    const effect = E.Do.pipe(
+    return E.Do.pipe(
       E.bind("name", () => E.try(() => ProgramName.parse(args.name))),
       E.let("operation", ({ name }) =>
         Operation.storeProgram({ name, program: args.program }),
       ),
       E.bind("receipt", ({ operation }) => this.pay({ operation })),
       E.flatMap((args) => this.vm.storeProgram(args)),
+      effectToResultAsync,
     );
-    return effectToResultAsync(effect);
   }
 
   storeValues(args: {
@@ -353,8 +340,8 @@ export class NillionClient {
     ttl?: Days;
     permissions?: Permissions;
   }): Promise<Result<StoreId, UnknownException>> {
-    const effect = E.Do.pipe(
-      E.let("ttl", () => Days.parse(args.ttl)),
+    return E.Do.pipe(
+      E.bind("ttl", () => E.try(() => Days.parse(args.ttl))),
       E.let("operation", ({ ttl }) =>
         Operation.storeValues({
           values: args.values,
@@ -364,8 +351,8 @@ export class NillionClient {
       ),
       E.bind("receipt", (args) => this.pay(args)),
       E.flatMap((args) => this.vm.storeValues(args)),
+      effectToResultAsync,
     );
-    return effectToResultAsync(effect);
   }
 
   updateValue(args: {
@@ -373,41 +360,41 @@ export class NillionClient {
     values: NadaValues;
     ttl: Days;
   }): Promise<Result<ActionId, UnknownException>> {
-    const effect = E.Do.pipe(
+    return E.Do.pipe(
       E.let("operation", () => Operation.updateValues(args)),
       E.bind("receipt", (args) => this.pay(args)),
       E.flatMap((args) => this.vm.updateValues(args)),
+      effectToResultAsync,
     );
-    return effectToResultAsync(effect);
   }
 
   fetchPermissions(args: {
     id: StoreId | string;
   }): Promise<Result<Permissions, UnknownException>> {
-    const effect = E.Do.pipe(
+    return E.Do.pipe(
       E.bind("id", () => E.try(() => StoreId.parse(args.id))),
       E.let("operation", ({ id }) => Operation.fetchPermissions({ id })),
       E.bind("receipt", ({ operation }) => this.pay({ operation })),
       E.flatMap(({ operation, receipt }) =>
         this.vm.fetchPermissions({ operation, receipt }),
       ),
+      effectToResultAsync,
     );
-    return effectToResultAsync(effect);
   }
 
   setPermissions(args: {
     id: StoreId | string;
     permissions: Permissions;
   }): Promise<Result<ActionId, UnknownException>> {
-    const effect = E.Do.pipe(
+    return E.Do.pipe(
       E.bind("id", () => E.try(() => StoreId.parse(args.id))),
       E.let("operation", ({ id }) =>
         Operation.setPermissions({ id, permissions: args.permissions }),
       ),
       E.bind("receipt", (args) => this.pay(args)),
       E.flatMap((args) => this.vm.setPermissions(args)),
+      effectToResultAsync,
     );
-    return effectToResultAsync(effect);
   }
 
   static create = (config: NillionClientConfig) => new NillionClient(config);
