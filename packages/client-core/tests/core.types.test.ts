@@ -11,8 +11,11 @@ import {
   NadaPrimitiveValue,
   ProgramBindings,
   NamedValue,
+  SecretString,
+  NadaValueType,
 } from "@nillion/client-core";
 import * as Wasm from "@nillion/client-wasm";
+import { strToByteArray } from "../../fixture/helpers";
 
 const SUITE_NAME = "@nillion/client-core > nada types";
 
@@ -27,7 +30,11 @@ describe(SUITE_NAME, () => {
   });
 
   describe("primitive type guards", () => {
-    it("SecretBlob rejects array-like invalid input ", () => {
+    it("SecretString rejects non strings", () => {
+      expect(() => SecretString.parse(1)).toThrow();
+    });
+
+    it("SecretBlob rejects array-like invalid input", () => {
       expect(() => SecretBlob.parse([1, 2, 3])).toThrow();
     });
 
@@ -67,46 +74,72 @@ describe(SUITE_NAME, () => {
       const expected = new TextEncoder().encode("hi mom");
       const secret = NadaValue.createSecretBlob(expected);
 
-      expect(secret.data).toEqual(expected);
-
       const asWasm = secret.toWasm();
       expect(asWasm).toBeInstanceOf(Wasm.NadaValue);
       expect(asWasm.to_byte_array()).toEqual(secret.data as Uint8Array);
+
+      const asTs = NadaValue.fromWasm(NadaValueType.enum.SecretBlob, asWasm);
+      expect(asTs.data).toEqual(secret.data);
+    });
+
+    it("SecretString", () => {
+      const expected = "hi mom";
+      const secret = NadaValue.createSecretString(expected);
+
+      const asWasm = secret.toWasm();
+      expect(asWasm).toBeInstanceOf(Wasm.NadaValue);
+      expect(asWasm.to_byte_array()).toEqual(
+        strToByteArray(secret.data as string),
+      );
+
+      const asTs = NadaValue.fromWasm(NadaValueType.enum.SecretString, asWasm);
+      expect(asTs.data).toEqual(secret.data);
     });
 
     function encodeAndDecodeIntegerLike<T extends NadaPrimitiveValue>(
-      expected: T,
+      data: T,
+      type: NadaValueType,
       build: (value: T) => NadaValue,
     ) {
-      const value = build(expected);
+      const value = build(data);
       const asWasm = value.toWasm();
 
-      expect(value.data).toEqual(expected);
       expect(asWasm).toBeInstanceOf(Wasm.NadaValue);
       expect(asWasm.to_integer()).toBe(String(value.data));
+
+      const asTs = NadaValue.fromWasm(type, asWasm);
+      expect(asTs.data).toEqual(value.data);
     }
 
     it("SecretInteger", () => {
-      encodeAndDecodeIntegerLike(SecretInteger.parse(-42), (v) =>
-        NadaValue.createSecretInteger(v),
+      encodeAndDecodeIntegerLike(
+        SecretInteger.parse(-42),
+        NadaValueType.enum.SecretInteger,
+        (v) => NadaValue.createSecretInteger(v),
       );
     });
 
     it("SecretIntegerUnsigned", () => {
-      encodeAndDecodeIntegerLike(SecretIntegerUnsigned.parse(42n), (v) =>
-        NadaValue.createSecretIntegerUnsigned(v),
+      encodeAndDecodeIntegerLike(
+        SecretIntegerUnsigned.parse(42n),
+        NadaValueType.enum.SecretIntegerUnsigned,
+        (v) => NadaValue.createSecretIntegerUnsigned(v),
       );
     });
 
     it("PublicInteger", () => {
-      encodeAndDecodeIntegerLike(PublicInteger.parse(-100), (v) =>
-        NadaValue.createPublicInteger(v),
+      encodeAndDecodeIntegerLike(
+        PublicInteger.parse(-100),
+        NadaValueType.enum.PublicInteger,
+        (v) => NadaValue.createPublicInteger(v),
       );
     });
 
     it("PublicIntegerUnsigned", () => {
-      encodeAndDecodeIntegerLike(PublicIntegerUnsigned.parse(42n), (v) =>
-        NadaValue.createPublicIntegerUnsigned(v),
+      encodeAndDecodeIntegerLike(
+        PublicIntegerUnsigned.parse(42n),
+        NadaValueType.enum.PublicIntegerUnsigned,
+        (v) => NadaValue.createPublicIntegerUnsigned(v),
       );
     });
   });

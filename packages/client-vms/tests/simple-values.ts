@@ -30,6 +30,11 @@ export const testSimpleTypes: TestSimpleType[] = [
   {
     type: NadaValueType.enum.SecretBlob,
     id: "" as StoreId,
-    expected: { blob: strToByteArray("Hi blob!") },
+    expected: { blob: strToByteArray("Hi blob, I'm data.") },
+  },
+  {
+    type: NadaValueType.enum.SecretString,
+    id: "" as StoreId,
+    expected: { blob: "Hi blob, I'm string." },
   },
 ];

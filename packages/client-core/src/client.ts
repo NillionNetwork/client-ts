@@ -86,6 +86,8 @@ export class VmClient {
     const userKey = Wasm.UserKey.from_seed(userSeed);
     const nodeKey = Wasm.NodeKey.from_seed(nodeSeed);
     this._client = new Wasm.NillionClient(userKey, nodeKey, bootnodes);
+    // TODO(tim): If this fails to connect a websocket.js error is logged and this method simply fails.
+    //  Its unclear which context the error occurs in so I haven't yet been able to handle it gracefully.
     const descriptor = await this._client.cluster_information(cluster);
     this._ready = true;
 

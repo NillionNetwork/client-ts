@@ -17,7 +17,12 @@ import {
 import { NillionClient } from "@nillion/client-vms";
 import { testPrograms } from "./programs";
 import { TestNadaType, testNadaTypes } from "./nada-values";
-import { expectOk, expectErr, loadProgram } from "../../fixture/helpers";
+import {
+  expectOk,
+  expectErr,
+  loadProgram,
+  strFromByteArray,
+} from "../../fixture/helpers";
 import { TestSimpleType, testSimpleTypes } from "./simple-values";
 import fixtureConfig from "../../fixture/network.json";
 import { createSignerFromKey } from "@nillion/client-payments";
@@ -85,9 +90,7 @@ describe(SUITE_NAME, () => {
             type: test.type,
             name: Object.keys(test.expected)[0],
           });
-          if (expectOk(result)) {
-            expect(result.ok).toEqual(test.expected);
-          }
+          expect(result.ok).toEqual(test.expected);
         });
       });
     });
