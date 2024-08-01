@@ -10,10 +10,14 @@ import {
   SigningStargateClient,
   SigningStargateClientOptions,
 } from "@cosmjs/stargate";
+import {
+  AccountNotFoundError,
+  PaymentError,
+  UnknownPaymentError,
+} from "./errors";
 import { MsgPayFor } from "./proto";
 import { Log } from "./logger";
 import { Effect as E } from "effect";
-import { UnknownException } from "effect/Cause";
 import { NilChainProtobufTypeUrl, PaymentClientConfig } from "./types";
 import { getKeplr } from "./wallet";
 
@@ -92,26 +96,42 @@ export class PaymentsClient {
     return this.ready;
   }
 
-  pay(quote: PriceQuote): E.Effect<TxHash, UnknownException> {
-    return E.tryPromise(async () => {
-      Log("Paying %d unil", quote.cost.total);
-
-      const value = MsgPayFor.create({
-        fromAddress: this.address,
-        resource: quote.nonce,
-        amount: [{ denom: Token.Unil, amount: String(quote.cost.total) }],
-      });
-
-      const result = await this.client.signAndBroadcast(
-        this.address,
-        [{ typeUrl: NilChainProtobufTypeUrl, value }],
-        "auto",
-      );
-
-      const hash = TxHash.parse(result.transactionHash);
-      Log(`transaction hash ${hash}`);
-      return hash;
-    });
+  pay(quote: PriceQuote): E.Effect<TxHash, PaymentError> {
+    return E.Do.pipe(
+      E.let("transferMessage", () =>
+        MsgPayFor.create({
+          fromAddress: this.address,
+          resource: quote.nonce,
+          amount: [{ denom: Token.Unil, amount: String(quote.cost.total) }],
+        }),
+      ),
+      E.flatMap(({ transferMessage }) =>
+        E.tryPromise(() =>
+          this.client.signAndBroadcast(
+            this.address,
+            [{ typeUrl: NilChainProtobufTypeUrl, value: transferMessage }],
+            "auto",
+          ),
+        ),
+      ),
+      E.map((result) => {
+        const hash = TxHash.parse(result.transactionHash);
+        Log("Paid %d unil, tx hash %s", quote.cost.total, hash);
+        return hash;
+      }),
+      E.mapError((e) => {
+        const cause = e.cause;
+        if (cause instanceof Error) {
+          const message = cause.message;
+          if (message.includes("does not exist on chain")) {
+            Log("Payment failed because account not found %s.", this.address);
+            return new AccountNotFoundError(this.address, cause);
+          }
+        }
+        Log("Payment failed unknown error %O.", e);
+        return new UnknownPaymentError(e);
+      }),
+    );
   }
 
   static create = (config: PaymentClientConfig) => new PaymentsClient(config);

@@ -6,6 +6,7 @@ import {
   StoreId,
   VmClientConfig,
 } from "@nillion/client-core";
+import { UnknownException } from "effect/Cause";
 import { expectOk } from "../../fixture/helpers";
 import { Effect as E } from "effect";
 
@@ -51,8 +52,8 @@ describe(SUITE_NAME, () => {
       );
       expect(true).toBeFalse();
     } catch (e: unknown) {
-      // @ts-expect-error for test simplicity
-      expect(e.message).toContain("NilVmClient not ready");
+      // @ts-expect-error skip type check for test simplicity
+      expect(e.message).toMatch("An unknown error occurred");
     }
   });
 

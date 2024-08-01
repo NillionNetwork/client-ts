@@ -13,7 +13,8 @@
     "build:watch": "node esbuild.config.mjs --watch",
     "test": "echo 'info: disabled due to cli specific failures'",
     "test:build": "npx webpack --config webpack.config.mjs",
-    "test:build:watch": "npx webpack --config webpack.config.mjs --watch"
+    "test:build:watch": "npx webpack --config webpack.config.mjs --watch",
+    "test:serve": "npx jasmine-browser-runner serve --config=jasmine.config.mjs"
   },
   "dependencies": {
     "@cosmjs/proto-signing": "^0.32.4",

@@ -247,6 +247,10 @@ export class NillionClient {
           hash,
         }),
       ),
+      E.mapError((e) => {
+        if (e instanceof UnknownException) return e;
+        else return new UnknownException(e);
+      }),
     );
   }
 
