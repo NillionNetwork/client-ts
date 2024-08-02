@@ -32,11 +32,4 @@ jobs:
             ${{ secrets.NPM_TOKEN }}
         run: |
           npm ci
-          VERSION=$(node -p "require('./packages/${{ matrix.package }}/package.json').version")
-          if [[ "$VERSION" =~ -rc.[0-9]+$ ]]; then
-            TAG="next"
-          else
-            TAG="latest"
-          fi
-          echo "Publishing version $VERSION with tag $TAG..."
-          just publish-${{ matrix.package }} "--tag ${TAG}" # should fail because this version is already published
+          just publish-${{ matrix.package }} "--tag latest"
