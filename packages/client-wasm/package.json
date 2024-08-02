@@ -3,7 +3,8 @@
   "license": "Apache-2.0",
   "author": "devsupport@nillion.com",
   "version": "0.1.0-rc.3",
-  "homepage": "https://docs.nillion.com/",
+  "homepage": "https://nillion.pub/client-ts",
+  "repository": "https://github.com/NillionNetwork/client-ts",
   "type": "module",
   "exports": {
     ".": {
