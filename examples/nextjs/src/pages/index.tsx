@@ -35,6 +35,13 @@ export default function Home() {
     await fetchValue.refetch();
   };
 
+  const updatedAtTs =
+    fetchValue.dataUpdatedAt === 0
+      ? ""
+      : new Date(fetchValue.dataUpdatedAt).toLocaleString("en-GB", {
+          timeZone: "UTC",
+        });
+
   return (
     <div>
       <h2>Hello from @nillion/client-* 👋</h2>
@@ -56,9 +63,7 @@ export default function Home() {
       </button>
       <ul>
         <li>Status: {fetchValue.status}</li>
-        <li>
-          Updated at: {new Date(fetchValue.dataUpdatedAt).toLocaleString()}
-        </li>
+        <li>Updated at: {updatedAtTs}</li>
         <li>
           From cache:{" "}
           {Boolean(

@@ -30,7 +30,7 @@ Typescript libraries for interacting with a nillion cluster.
 1. Add nillion dependencies to a basic React + webpack project. You will need to configure the webpack dev server to ensure the correct HTTP headers are set and a proxy is configured.
 
 ```shell 
-npm i -D @nillion/client-core@next @nillion/client-vms@next @nillion/client-react-hooks@next
+npm i -D @nillion/client-core@latest @nillion/client-vms@latest @nillion/client-react-hooks@latest
 ```
 
 2. Create a client:
