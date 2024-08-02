@@ -23,7 +23,6 @@ export const client = NillionClient.create({
 });
 
 export default function App({ Component, pageProps }: AppProps) {
-  console.log(NamedNetwork.enum.Devnet);
   return (
     <NillionClientProvider client={client}>
       <Component {...pageProps} />
