@@ -2,7 +2,7 @@
   "name": "@nillion/client-payments",
   "license": "MIT",
   "author": "devsupport@nillion.com",
-  "version": "0.1.0-rc.3",
+  "version": "0.1.0-rc.4",
   "homepage": "https://nillion.pub/client-ts",
   "repository": "https://github.com/NillionNetwork/client-ts",
   "type": "module",

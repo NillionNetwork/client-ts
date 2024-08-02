@@ -1,10 +1,16 @@
 .DS_Store
-node_modules
 .idea
 .vscode
-packages/client-payments/src/proto/nilchain.ts # generated protobuf codec
+
+node_modules
 dist
-!packages/client-wasm/dist
+docs
+
+packages/client-payments/src/proto/nilchain.ts # generated protobuf codec
 packages/fixture/addition_division.nada.bin
 packages/fixture/network.json
-docs
+!packages/client-wasm/dist
+
+.next
+examples/nextjs/package-lock.json
+examples/react/package-lock.json
