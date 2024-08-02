@@ -23,5 +23,9 @@
   },
   "devDependencies": {
     "@types/debug": "^4.1.12"
-  }
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
 }
