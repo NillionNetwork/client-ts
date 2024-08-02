@@ -2,16 +2,15 @@
   "name": "@nillion/client-wasm",
   "license": "Apache-2.0",
   "author": "devsupport@nillion.com",
-  "version": "0.1.0-rc.2",
+  "version": "0.1.0-rc.3",
   "homepage": "https://docs.nillion.com/",
   "type": "module",
-  "module": "dist/index.js",
-  "main": "dist/index.js",
-  "browser": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "sideEffects": [
-    "dist/snippets/**"
-  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "files": [
     "dist",
     "commit-sha.txt"
