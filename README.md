@@ -3,6 +3,9 @@
 
 [client-ts](https://github.com/NillionNetwork/client-ts) contains Typescript libraries for interacting with a nillion cluster.
 
+- Source code: [NillionNetwork/client-ts](https://github.com/NillionNetwork/client-ts).
+- Api reference docs: [nillion.pub/client-ts](https://nillion.pub/client-ts/).
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
