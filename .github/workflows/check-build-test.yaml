@@ -1,14 +1,14 @@
-name: Check, test, publish workflow
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+name: Check, build and test
 
 on:
   pull_request:
     branches:
       - main
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
@@ -57,37 +57,3 @@ jobs:
       - run: |
           npm ci
           just test-${{ matrix.package }}
-
-  publish:
-    needs: [ check, build-and-test ]
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        package: [ client-wasm, client-core, client-payments, client-vms, client-react-hooks ]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: extractions/setup-just@v2
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          registry-url: "https://registry.npmjs.org"
-      - uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-
-      - env:
-          NODE_AUTH_TOKEN:
-            ${{ secrets.NPM_TOKEN }}
-        run: |
-          npm ci
-          VERSION=$(node -p "require('./packages/${{ matrix.package }}/package.json').version")
-          if [[ "$VERSION" =~ -rc.[0-9]+$ ]]; then
-            TAG="next"
-          else
-            TAG="latest"
-          fi
-          echo "Publishing version $VERSION with tag $TAG..."
-          just publish-${{ matrix.package }} "--tag ${TAG}" # should fail because this version is already published
