@@ -40,13 +40,18 @@ export default function Home() {
       <h2>Hello from @nillion/client-* 👋</h2>
       <p>Original data: {JSON.stringify(data)}</p>
       <p>1. Store data</p>
-      <button onClick={handleStoreClick}>Store</button>
+      <button onClick={handleStoreClick} disabled={storeValue.isPending}>
+        Store
+      </button>
       <ul>
         <li>Status: {storeValue.status}</li>
         {id && <li>Id: {id}</li>}
       </ul>
       <p>2. Read data</p>
-      <button onClick={handleFetchClick} disabled={!Boolean(id)}>
+      <button
+        onClick={handleFetchClick}
+        disabled={!Boolean(id) || fetchValue.isPending}
+      >
         Force refresh
       </button>
       <ul>
