@@ -110,7 +110,7 @@ export default function Home() {
 
 ```
 
-5. Next run your app and click "Store". After a few seconds you should see `Status: succcess` and `Id: <uuid>` rendered. Complete examples are available at [examples/react](./examples/react) or [examples/nextjs](./examples/nextjs).
+5. Next run your app and click "Store". After a few seconds you should see `Status: succcess` and `Id: <uuid>` rendered. Complete examples are available at [examples/react](https://github.com/NillionNetwork/client-ts/tree/main/examples/react) or [examples/nextjs](https://github.com/NillionNetwork/client-ts/tree/main/examples/nextjs).
 
 ## Packages and package hierarchy
 
