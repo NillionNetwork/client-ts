@@ -1,10 +1,9 @@
 <!-- @formatter:off -->
-# Nillion
+# &middot; [Nillion](nillion.com) &middot;
+
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/react/blob/main/LICENSE) [![Docs](https://img.shields.io/badge/reference-docs-blue)](https://nillion.pub/client-ts) [![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/NillionNetwork/client-ts)](https://github.com/NillionNetwork/client-ts/issues) [![NPM Version](https://img.shields.io/npm/v/@nillion/client-wasm?label=client-wasm)](https://www.npmjs.com/package/@nillion/client-wasm) [![NPM Version](https://img.shields.io/npm/v/@nillion/client-core?label=client-core)](https://www.npmjs.com/package/@nillion/client-core)  [![NPM Version](https://img.shields.io/npm/v/@nillion/client-payments?label=client-payments)](https://www.npmjs.com/package/@nillion/client-payments) [![NPM Version](https://img.shields.io/npm/v/@nillion/client-vms?label=client-vms)](https://www.npmjs.com/package/@nillion/client-vms) [![NPM Version](https://img.shields.io/npm/v/@nillion/client-react-hooks?label=client-react-hooks)](https://www.npmjs.com/package/@nillion/client-react-hooks)
 
 [client-ts](https://github.com/NillionNetwork/client-ts) contains Typescript libraries for interacting with a nillion cluster.
-
-- Source code: [NillionNetwork/client-ts](https://github.com/NillionNetwork/client-ts).
-- Api reference docs: [nillion.pub/client-ts](https://nillion.pub/client-ts/).
 
 ## Table of Contents
 
@@ -31,7 +30,7 @@
 1. Add nillion dependencies to a basic React + webpack project. You will need to configure the webpack dev server to ensure the correct HTTP headers are set and a proxy is configured.
 
 ```shell 
-npm i -D @nillion/client-core@next @nillion/client-vms@next @nillion/client-react-hooks@next
+npm i -D @nillion/client-core@latest @nillion/client-vms@latest @nillion/client-react-hooks@latest
 ```
 
 2. Create a client:
