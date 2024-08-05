@@ -193,17 +193,3 @@ publish-client-react-hooks args="":
     npm -w packages/client-react-hooks run build
     npm -w packages/client-react-hooks publish {{args}}
 # <<< End @nillion/client-react-hooks <<<
-
-
-# >>> Start @nillion/examples-react >>>
-dev-examples-react:
-    #!/usr/bin/env bash
-    set -euxo pipefail
-    just clean
-    npx concurrently -c "auto" \
-      "npm -w packages/client-core run build:watch" \
-      "npm -w packages/client-payments run build:watch" \
-      "npm -w packages/client-vms run build:watch" \
-      "npm -w packages/client-react-hooks run build:watch" \
-      "npm -w examples/react run start"
-# <<< End @nillion/examples-react <<<
