@@ -1,9 +1,9 @@
 <!-- @formatter:off -->
-# &middot; [Nillion](nillion.com) &middot;
+# &middot; [Nillion](https://nillion.com) &middot;
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/react/blob/main/LICENSE) [![Docs](https://img.shields.io/badge/reference-docs-blue)](https://nillion.pub/client-ts) [![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/NillionNetwork/client-ts)](https://github.com/NillionNetwork/client-ts/issues) [![NPM Version](https://img.shields.io/npm/v/@nillion/client-wasm?label=client-wasm)](https://www.npmjs.com/package/@nillion/client-wasm) [![NPM Version](https://img.shields.io/npm/v/@nillion/client-core?label=client-core)](https://www.npmjs.com/package/@nillion/client-core)  [![NPM Version](https://img.shields.io/npm/v/@nillion/client-payments?label=client-payments)](https://www.npmjs.com/package/@nillion/client-payments) [![NPM Version](https://img.shields.io/npm/v/@nillion/client-vms?label=client-vms)](https://www.npmjs.com/package/@nillion/client-vms) [![NPM Version](https://img.shields.io/npm/v/@nillion/client-react-hooks?label=client-react-hooks)](https://www.npmjs.com/package/@nillion/client-react-hooks)
 
-[client-ts](https://github.com/NillionNetwork/client-ts) contains Typescript libraries for interacting with a nillion cluster.
+Typescript client libraries for interacting with a Nillion cluster.
 
 ## Table of Contents
 
@@ -27,89 +27,80 @@
 
 ## Quick start
 
-1. Add nillion dependencies to a basic React + webpack project. You will need to configure the webpack dev server to ensure the correct HTTP headers are set and a proxy is configured.
+Complete examples are available at [examples/react](https://github.com/NillionNetwork/client-ts/tree/main/examples/react) or [examples/nextjs](https://github.com/NillionNetwork/client-ts/tree/main/examples/nextjs).
 
-```shell 
-npm i -D @nillion/client-core@latest @nillion/client-vms@latest @nillion/client-react-hooks@latest
-```
+1. Add nillion dependencies to a basic React + webpack project.
+
+  ```shell 
+  npm i -D @nillion/client-core@latest @nillion/client-vms@latest @nillion/client-react-hooks@latest
+  ```
 
 2. Create a client:
 
-```ts
-import { NamedNetwork } from "@nillion/client-core"; 
-import { createSignerFromKey } from "@nillion/client-payments"; 
-import { NillionClient } from "@nillion/client-vms"; 
+  ```ts
+  const client = NillionClient.create({
+    network: NamedNetwork.enum.Devnet,
+    
+    overrides: async () => {
+      // this is the account's private key when running `nillion-devnet` with default seed
+      const signer = await createSignerFromKey("9a975f567428d054f2bf3092812e6c42f901ce07d9711bc77ee2cd81101f42c5");
+      return {
+        endpoint: "https://testnet-nillion-rpc.lavenderfive.com",
+        userSeed: "unique-user-seed",
+        nodeSeed: "unique-node-seed",
+        signer,
+      };
+    }
+  })
+  ```
 
-const client = NillionClient.create({
-  network: NamedNetwork.enum.Devnet,
-  
-  overrides: async () => {
-    // this is the account's private key when running `nillion-devnet` with default seed
-    const signer = await createSignerFromKey("9a975f567428d054f2bf3092812e6c42f901ce07d9711bc77ee2cd81101f42c5");
-    return {
-      endpoint: "https://testnet-nillion-rpc.lavenderfive.com",
-      userSeed: "unique-user-seed",
-      nodeSeed: "unique-node-seed",
-      signer,
-    };
+3. Near the root of your component hierarchy, add `NillionClientProvider`:
+
+  ```tsx
+  export function App() {
+    return (
+      <NillionClientProvider client={client}>
+        <Home />
+      </NillionClientProvider>
+    );
   }
-})
-```
-
-3. Wrap your components with `NillionClientProvider`:
-
-```tsx
-import { NillionClientProvider } from "@nillion/client-react-hooks"; 
-
-export function App() {
-  return (
-    <NillionClientProvider client={client}>
-      <Home />
-    </NillionClientProvider>
-  );
-}
-```
+  ```
 
 4. Expose the client to your component:
 
-```tsx
-import * as React from "react";
-import { useState } from "react";
-import { useStoreValue } from "@nillion/client-react-hooks";
-
-export default function Home() {
-  const [id, setId] = useState("");
-  const storeValue = useStoreValue();
-
-  if (storeValue.data && !id) {
-    setId(storeValue.data);
+  ```tsx
+    export default function Home() {
+    const [id, setId] = useState("");
+    const storeValue = useStoreValue();
+  
+    if (storeValue.data && !id) {
+      setId(storeValue.data);
+    }
+  
+    const handleStoreClick = () => {
+      storeValue.mutate({
+        values: {
+          foo: 42,
+        },
+        ttl: 1,
+      });
+    };
+  
+    return (
+      <div>
+        <h2>Hello 👋</h2>
+        <p>Data: {JSON.stringify(data)}</p>
+        <button onClick={handleStoreClick} disabled={storeValue.isPending}>Store</button>
+        <ul>
+          <li>Status: {storeValue.status}</li>
+          {id && <li>Id: {id}</li>}
+        </ul>
+      </div>
+    );
   }
+  ```
 
-  const handleStoreClick = () => {
-    storeValue.mutate({
-      values: {
-        foo: 42,
-      },
-      ttl: 1,
-    });
-  };
-
-  return (
-    <div>
-      <h2>Hello 👋</h2>
-      <p>Data: {JSON.stringify(data)}</p>
-      <button onClick={handleStoreClick} disabled={storeValue.isPending}>Store</button>
-      <ul>
-        <li>Status: {storeValue.status}</li>
-        {id && <li>Id: {id}</li>}
-      </ul>
-    </div>
-  );
-}
-
-```
-
-5. Next run your app and click "Store". After a few seconds you should see `Status: succcess` and `Id: <uuid>` rendered. Complete examples are available at [examples/react](https://github.com/NillionNetwork/client-ts/tree/main/examples/react) or [examples/nextjs](https://github.com/NillionNetwork/client-ts/tree/main/examples/nextjs).
+5. Next, run your app and click "Store". After a few seconds you should see `Status: succcess` and `Id: <uuid>` rendered.
 
 ## Packages and package hierarchy
 
@@ -144,8 +135,6 @@ When a `NillionClient` is created `connect(): Promise<boolean>` must be called b
 To create a nillion client 
 
 ```ts
-import { NillionClient,NillionClientConfig } from "@nillion/client-vms";
-
 const config: NillionClientConfig = { ... }
 const client = NillionClient(config)
 ```
@@ -153,9 +142,6 @@ const client = NillionClient(config)
 A minimal config for using a `nillion-devnet`:
 
 ```ts
-import { NamedNetwork } from "@nillion/client-core/src"; 
-import { createSignerFromKey } from "@nillion/client-payments/src";
-
 const config = {
   // if omitted defaults to Photon testnet,
   network: NamedNetwork.enum.Devnet,
@@ -216,19 +202,17 @@ const fetch = useFetchValue(
 
 ## Logging
 
-Once the client is initialized you can enable logging in the dev console with either:
+Logging is on by default for all networks except _Photon_. To change this:
 
-```ts
-window.__NILLION.enableLogging()
+- Enable the `nillion:*` namespace: `const config: NillionClientConfig = { overrides: () => ({ logging : true }) }` or invoke the global helper: `window.__NILLION.enableLogging()`; or
+- If you want granular control, include `nillion:*` in your localStorage debug key: `localStorage.debug = "foo:*,nillion:*"`.
 
-// or set the debug value in local storage if your client hasn't yet been initialised. 
-localStorage.debug = "nillion:*"
-```
+Disable logging with `window.__NILLION.disableLogging()` or remove `nillion:*` from `localStorage.debug`. You may need to reload the window for changes to take effect.
 
 To enable wasm logging:
 
 - Start a websocket server, eg, `websocat -s 11100`.
-- In the dev console, and after client initialization, run `window__NILLION.enableWasmLogging()`
+- After the client is initialized run `window__NILLION.enableWasmLogging()`.
 
 ## Nada types
 
@@ -269,3 +253,7 @@ const values = {
   }
 }
 ```
+
+## Getting help
+
+Ask for help in the [Nillion discord channel](https://discord.gg/nillionnetwork), or if you've found a bug with client-ts, [file an issue](https://github.com/NillionNetwork/client-ts/issues).
