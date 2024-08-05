@@ -3,7 +3,6 @@ import {
   NadaValue,
   NadaValues,
   NadaValueType,
-  NadaPrimitiveValue,
   Operation,
   Permissions,
   ProgramBindings,
@@ -17,12 +16,7 @@ import {
 import { NillionClient } from "@nillion/client-vms";
 import { testPrograms } from "./programs";
 import { TestNadaType, testNadaTypes } from "./nada-values";
-import {
-  expectOk,
-  expectErr,
-  loadProgram,
-  strFromByteArray,
-} from "../../fixture/helpers";
+import { expectOk, expectErr, loadProgram } from "../../fixture/helpers";
 import { TestSimpleType, testSimpleTypes } from "./simple-values";
 import fixtureConfig from "../../fixture/network.json";
 import { createSignerFromKey } from "@nillion/client-payments";
@@ -77,7 +71,10 @@ describe(SUITE_NAME, () => {
     testSimpleTypes.forEach((test: TestSimpleType) => {
       describe(test.type, () => {
         it("can store value", async () => {
-          const result = await client.store({ values: test.expected, ttl: 1 });
+          const result = await client.store({
+            values: { data: test.expected },
+            ttl: 1,
+          });
           if (expectOk(result)) {
             expect(result.ok).toBeDefined();
             test.id = result.ok;
@@ -88,7 +85,7 @@ describe(SUITE_NAME, () => {
           const result = await client.fetch({
             id: test.id,
             type: test.type,
-            name: Object.keys(test.expected)[0],
+            name: "data",
           });
           expect(result.ok).toEqual(test.expected);
         });
@@ -119,12 +116,8 @@ describe(SUITE_NAME, () => {
         });
 
         if (expectOk(result)) {
-          let actual: NadaPrimitiveValue | number[] = result.ok;
-          let expected: unknown = test.value.data;
-          if (actual instanceof Uint8Array) {
-            actual = Array.from(actual);
-            expected = Array.from(expected as Uint8Array);
-          }
+          const actual = result.ok.data;
+          const expected: unknown = test.value.data;
           expect(expected).toEqual(actual);
         }
       });
@@ -146,12 +139,8 @@ describe(SUITE_NAME, () => {
         });
 
         if (expectOk(result)) {
-          let actual: NadaPrimitiveValue | number[] = result.ok;
-          let expected: unknown = test.nextValue.data;
-          if (actual instanceof Uint8Array) {
-            actual = Array.from(actual);
-            expected = Array.from(expected as Uint8Array);
-          }
+          const actual = result.ok.data;
+          const expected: unknown = test.nextValue.data;
           expect(expected).toEqual(actual);
         }
       });
@@ -204,7 +193,7 @@ describe(SUITE_NAME, () => {
         type,
       });
       if (expectOk(result)) {
-        expect(result.ok).toBe(value.data);
+        expect(result.ok.data).toBe(value.data);
       }
     });
 

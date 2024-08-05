@@ -5,7 +5,6 @@ import {
   Days,
   effectToResultAsync,
   IntoWasmQuotableOperation,
-  isObjectLiteral,
   NadaPrimitiveValue,
   NadaValue,
   NadaValues,
@@ -37,28 +36,78 @@ import {
 import { ZodError } from "zod";
 import { valuesRecordToNadaValues } from "./nada";
 
+/**
+ * NillionClient integrates {@link VmClient} and {@link PaymentsClient} to provide
+ * a single ergonomic API for interacting with a [Nillion Network](https://docs.nillion.com/network).
+ *
+ * @example
+ * ```ts
+ * declare const config: NillionClientConfig
+ * const client = NillionClient.create(config)
+ * await client.connect()
+ *
+ * const response = await client.store({
+ *  values: { foo: 42 },
+ *  ttl: 1,
+ * })
+ *
+ * if(response.ok) {
+ *    const storeId = response.ok
+ *    localStorage.storeIds = storeId
+ * }
+ * ```
+ */
 export class NillionClient {
   private _vm: VmClient | undefined;
   private _chain: PaymentsClient | undefined;
 
+  /**
+   * The constructor is private to enforces the use of the factory creator method.
+   *
+   * @see NillionClient.create
+   * @param _config - The configuration object for the NillionClient.
+   */
   private constructor(private _config: NillionClientConfig) {}
 
+  /**
+   * Whether the client is ready to execute operations.
+   *
+   * @returns true if both the VM and Payments clients are ready; otherwise, false.
+   */
   public get ready(): boolean {
     return (this._vm?.ready && this._chain?.ready) ?? false;
   }
 
+  /**
+   * Guarded access to the vm client.
+   *
+   * @throws Error if the client is not ready.
+   * @returns The initialized {@link VmClient} instance.
+   */
   public get vm(): VmClient {
     this.isReadyGuard();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this._vm!;
   }
 
+  /**
+   * Guarded access to the payments client.
+   *
+   * @throws Error if the client is not ready.
+   * @returns The initialized {@link PaymentsClient} instance.
+   */
   public get chain(): PaymentsClient {
     this.isReadyGuard();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this._chain!;
   }
 
+  /**
+   * This guards against access before initialization. NillionClient creation is sync,
+   * but PaymentClient and VmClient instantiation are async.
+   *
+   * @throws Error with message indicating the client is not ready.
+   */
   private isReadyGuard(): void | never {
     if (!this.ready) {
       const message = "NillionClient not ready. Call `await client.connect()`.";
@@ -67,6 +116,15 @@ export class NillionClient {
     }
   }
 
+  /**
+   * Connect parses the provided config, initializes the PaymentsClient and VmClient,
+   * and then validates connections by querying the nilchain address and the Network's
+   * cluster descriptor.
+   *
+   * This method must be called before the client is used; subsequent calls are ignored.
+   *
+   * @returns A promise that resolves to true if the connection is successfully established.
+   */
   connect(): Promise<boolean> {
     if (this.ready) {
       Log("NillionClient is already connected. Ignoring connect().");
@@ -77,7 +135,9 @@ export class NillionClient {
       E.bind("network", () =>
         E.try(() => {
           const name = this._config.network ?? NamedNetwork.enum.Photon;
-          return NamedNetwork.parse(name);
+          return NamedNetwork.parse(name, {
+            path: ["client.connect", "NamedNetwork"],
+          });
         }),
       ),
       E.bind("partial", ({ network }) =>
@@ -113,12 +173,16 @@ export class NillionClient {
           return NillionClientConfigComplete.parse(complete);
         }),
       ),
-      E.flatMap((config) =>
+      E.flatMap((config: NillionClientConfigComplete) =>
         E.tryPromise(async () => {
           this._vm = VmClient.create(config);
           this._chain = PaymentsClient.create(config);
           await this._vm.connect();
           await this._chain.connect();
+
+          if (config.logging) globalThis.__NILLION?.enableLogging();
+          else globalThis.__NILLION?.disableLogging();
+
           Log("NillionClient connected.");
           return this.ready;
         }),
@@ -135,11 +199,37 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Disconnects the client. This function is a no-op and serves as a placeholder.
+   */
   disconnect(): void {
     // TODO(tim): terminate websocket connections / tell worker to terminate / cleanup
     Log("Disconnect called. This is currently a noop.");
   }
 
+  /**
+   * Stores values in the network. This function is friendlier than manually
+   * composing {@link NadaValues} from {@link NadaValue} because it takes care
+   * of converting from a key to primitive values map to Nada types automatically.
+   *
+   * @example
+   * ```ts
+   * declare client: NillionClient
+   *
+   * const id = await client.store({
+   *  values: {
+   *    foo: 42,
+   *    bar: "hello",
+   *  },
+   *  ttl: 2 // 2 days,
+   *  permissions: Permissions.createDefaultForUser(client.vm.userId),
+   * })
+   * ```
+   *
+   * @see NillionClient.storeValues
+   * @param args - An object defining values, time-to-live and optional permissions.
+   * @returns A promise resolving to the {@link Result} of the store operation.
+   */
   async store(args: {
     values: Record<NamedValue | string, NadaPrimitiveValue | StoreValueArgs>;
     ttl: Days | number;
@@ -160,15 +250,48 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Retrieves a named Nada value from the network and de-serializes it as a
+   * native JS primitive value. This method is friendlier that NillionClient.fetchValue
+   * because it accepts and returns primitive values.
+   *
+   * @example
+   * ```ts
+   * declare client: NillionClient
+   *
+   * const response = await client.fetch({ id, name: "foo", type: "SecretInteger" })
+   *
+   * if(response.ok) {
+   *    const value = response.ok
+   * }
+   * ```
+   *
+   * @param args - An object defining the store id, value name and the deserialization type.
+   * @returns A promise resolving to the {@link Result} of the fetch operation.
+   */
   fetch(args: {
     id: StoreId | string;
     name: NamedValue | string;
     type: NadaValueType;
-  }): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
+  }): Promise<Result<NadaPrimitiveValue, UnknownException>> {
     return E.Do.pipe(
-      E.bind("id", () => E.try(() => StoreId.parse(args.id))),
-      E.bind("name", () => E.try(() => NamedValue.parse(args.name))),
-      E.bind("type", () => E.try(() => NadaValueType.parse(args.type))),
+      E.bind("id", () =>
+        E.try(() =>
+          StoreId.parse(args.id, { path: ["client.fetch", "args.id"] }),
+        ),
+      ),
+      E.bind("name", () =>
+        E.try(() =>
+          NamedValue.parse(args.name, { path: ["client.fetch", "args.name"] }),
+        ),
+      ),
+      E.bind("type", () =>
+        E.try(() =>
+          NadaValueType.parse(args.type, {
+            path: ["client.fetch", "args.type"],
+          }),
+        ),
+      ),
       E.flatMap(({ id, name, type }) =>
         E.tryPromise(async () => {
           const result = await this.fetchValue({
@@ -186,7 +309,7 @@ export class NillionClient {
             );
             throw result.err as Error;
           }
-          return { [name]: result.ok };
+          return result.ok.data;
         }),
       ),
       effectToResultAsync,
@@ -199,26 +322,17 @@ export class NillionClient {
     ttl: Days | number;
   }): Promise<Result<ActionId, UnknownException>> {
     return E.Do.pipe(
-      E.bind("id", () => E.try(() => StoreId.parse(args.id))),
-      E.bind("ttl", () => E.try(() => Days.parse(args.ttl))),
-      E.bind("values", () =>
-        E.try(() => {
-          const nadaValues = NadaValues.create();
-          for (const [key, value] of Object.entries(args.values)) {
-            const name = NamedValue.parse(key);
-            const args = isObjectLiteral(value)
-              ? (value as StoreValueArgs)
-              : {
-                  secret: true,
-                  data: value,
-                };
-
-            const nadaValue = NadaValue.fromPrimitive(args);
-            nadaValues.insert(name, nadaValue);
-          }
-          return nadaValues;
-        }),
+      E.bind("id", () =>
+        E.try(() =>
+          StoreId.parse(args.id, { path: ["client.update", "args.id"] }),
+        ),
       ),
+      E.bind("ttl", () =>
+        E.try(() =>
+          Days.parse(args.ttl, { path: ["client.update", "args.ttl"] }),
+        ),
+      ),
+      E.bind("values", () => valuesRecordToNadaValues(args.values)),
       E.flatMap((args) => E.tryPromise(() => this.updateValue(args))),
       E.runPromise,
     );
@@ -250,7 +364,11 @@ export class NillionClient {
   }): Promise<Result<ComputeResultId, UnknownException>> {
     return E.Do.pipe(
       E.bind("storeIds", () =>
-        E.try(() => args.storeIds.map((id) => StoreId.parse(id))),
+        E.try(() =>
+          args.storeIds.map((id) =>
+            StoreId.parse(id, { path: ["client.runProgram", "args.ids.id"] }),
+          ),
+        ),
       ),
       E.let("operation", ({ storeIds }) =>
         Operation.compute({
@@ -269,7 +387,13 @@ export class NillionClient {
     id: ComputeResultId | string;
   }): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
     return E.Do.pipe(
-      E.bind("id", () => E.try(() => ComputeResultId.parse(args.id))),
+      E.bind("id", () =>
+        E.try(() =>
+          ComputeResultId.parse(args.id, {
+            path: ["client.fetchProgramOutput", "args.id"],
+          }),
+        ),
+      ),
       E.let("operation", ({ id }) => Operation.fetchComputeResult({ id })),
       E.flatMap(({ operation }) =>
         this.vm.fetchRunProgramResult(operation.args),
@@ -282,7 +406,11 @@ export class NillionClient {
     id: StoreId | string;
   }): Promise<Result<StoreId, UnknownException>> {
     return E.Do.pipe(
-      E.bind("id", () => E.try(() => StoreId.parse(args.id))),
+      E.bind("id", () =>
+        E.try(() =>
+          StoreId.parse(args.id, { path: ["client.deleteValues", "args.id"] }),
+        ),
+      ),
       E.flatMap((args) => this.vm.deleteValues(args)),
       effectToResultAsync,
     );
@@ -299,13 +427,23 @@ export class NillionClient {
   }
 
   fetchValue(args: {
-    id: StoreId | string;
-    name: NamedValue | string;
+    id: StoreId;
+    name: NamedValue;
     type: NadaValueType;
-  }): Promise<Result<NadaPrimitiveValue, UnknownException>> {
+  }): Promise<Result<NadaValue, UnknownException>> {
     return E.Do.pipe(
-      E.bind("id", () => E.try(() => StoreId.parse(args.id))),
-      E.bind("name", () => E.try(() => NamedValue.parse(args.name))),
+      E.bind("id", () =>
+        E.try(() =>
+          StoreId.parse(args.id, { path: ["client.fetchValue", "args.id"] }),
+        ),
+      ),
+      E.bind("name", () =>
+        E.try(() =>
+          NamedValue.parse(args.name, {
+            path: ["client.fetchValue", "args.name"],
+          }),
+        ),
+      ),
       E.let("operation", ({ id, name }) =>
         Operation.fetchValue({
           id,
@@ -315,7 +453,6 @@ export class NillionClient {
       ),
       E.bind("receipt", (args) => this.pay(args)),
       E.flatMap((args) => this.vm.fetchValue(args)),
-      E.map((nada) => nada.data),
       effectToResultAsync,
     );
   }
@@ -325,7 +462,13 @@ export class NillionClient {
     program: Uint8Array;
   }): Promise<Result<ProgramId, UnknownException>> {
     return E.Do.pipe(
-      E.bind("name", () => E.try(() => ProgramName.parse(args.name))),
+      E.bind("name", () =>
+        E.try(() =>
+          ProgramName.parse(args.name, {
+            path: ["client.storeProgram", "args.name"],
+          }),
+        ),
+      ),
       E.let("operation", ({ name }) =>
         Operation.storeProgram({ name, program: args.program }),
       ),
@@ -337,11 +480,17 @@ export class NillionClient {
 
   storeValues(args: {
     values: NadaValues;
-    ttl?: Days;
+    ttl: Days;
     permissions?: Permissions;
   }): Promise<Result<StoreId, UnknownException>> {
     return E.Do.pipe(
-      E.bind("ttl", () => E.try(() => Days.parse(args.ttl))),
+      E.bind("ttl", () =>
+        E.try(() =>
+          Days.parse(args.ttl, {
+            path: ["client.storeValues", "args.ttl"],
+          }),
+        ),
+      ),
       E.let("operation", ({ ttl }) =>
         Operation.storeValues({
           values: args.values,
@@ -372,7 +521,13 @@ export class NillionClient {
     id: StoreId | string;
   }): Promise<Result<Permissions, UnknownException>> {
     return E.Do.pipe(
-      E.bind("id", () => E.try(() => StoreId.parse(args.id))),
+      E.bind("id", () =>
+        E.try(() =>
+          StoreId.parse(args.id, {
+            path: ["client.fetchPermissions", "args.id"],
+          }),
+        ),
+      ),
       E.let("operation", ({ id }) => Operation.fetchPermissions({ id })),
       E.bind("receipt", ({ operation }) => this.pay({ operation })),
       E.flatMap(({ operation, receipt }) =>
@@ -387,7 +542,11 @@ export class NillionClient {
     permissions: Permissions;
   }): Promise<Result<ActionId, UnknownException>> {
     return E.Do.pipe(
-      E.bind("id", () => E.try(() => StoreId.parse(args.id))),
+      E.bind("id", () =>
+        E.try(() =>
+          StoreId.parse(args.id, { path: ["setPermissions", "args.id"] }),
+        ),
+      ),
       E.let("operation", ({ id }) =>
         Operation.setPermissions({ id, permissions: args.permissions }),
       ),

@@ -1,11 +1,13 @@
+import { Log } from "./logging.js";
+
 if (
   typeof WorkerGlobalScope !== "undefined" &&
   self instanceof WorkerGlobalScope
 ) {
   self.onerror = (event) => {
-    console.error("nillion:wasm Error: ", event);
+    Log("Worker onerror invoked.");
+    console.error(event);
   };
-
   self.onmessage = async (event) => {
     if (Array.isArray(event.data)) {
       try {
@@ -19,13 +21,13 @@ if (
         const wasm = await importFrom;
         await wasm.default(module, memory);
         wasm.worker_entry_point(state);
-        console.log("nillion:wasm Worker started.");
+        Log("Worker started.");
       } catch (err) {
         console.error(err);
         self.close();
       }
     } else {
-      console.log("nillion:wasm Unhandled message: ", event);
+      Log("Unhandled message: ", event);
     }
   };
 }

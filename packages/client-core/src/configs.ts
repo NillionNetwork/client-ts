@@ -18,6 +18,7 @@ export const PartialConfig = {
     ],
     chain: "nillion-chain-devnet",
     endpoint: "http://localhost:9191/nilchain",
+    logging: true,
     userSeed: "nillion-testnet-seed-1",
     nodeSeed: "nillion-testnet-seed-1",
   },
@@ -29,6 +30,7 @@ export const PartialConfig = {
     ],
     chain: "nillion-chain-devnet",
     endpoint: "http://localhost:26650",
+    logging: true,
     userSeed: "nillion-devnet",
     nodeSeed: "nillion-devnet",
   },
@@ -40,6 +42,7 @@ export const PartialConfig = {
     ],
     chain: "nillion-chain-testnet-1",
     endpoint: "http://65.109.222.111:26657",
+    logging: true,
   },
   Photon: {
     network: NamedNetwork.enum.Photon,
@@ -49,5 +52,6 @@ export const PartialConfig = {
     ],
     chain: "nillion-chain-testnet-1",
     endpoint: "http://65.109.222.111:26657",
+    logging: false,
   },
 };

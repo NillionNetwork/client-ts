@@ -2,7 +2,7 @@
   "name": "@nillion/client-wasm",
   "license": "Apache-2.0",
   "author": "devsupport@nillion.com",
-  "version": "0.1.0-rc.6",
+  "version": "0.1.0-rc.7",
   "homepage": "https://nillion.pub/client-ts",
   "repository": "https://github.com/NillionNetwork/client-ts",
   "type": "module",
@@ -18,5 +18,9 @@
   "files": [
     "dist",
     "commit-sha.txt"
-  ]
+  ],
+  "devDependencies": {
+    "browserslist": "^4.23.3",
+    "esbuild-plugin-browserslist": "^0.14.0"
+  }
 }

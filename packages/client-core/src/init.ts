@@ -12,7 +12,8 @@ declare global {
 
 export interface NillionGlobal {
   initialized: boolean;
-  enableLogging: (overwrite: boolean) => void;
+  disableLogging: () => void;
+  enableLogging: () => void;
   enableWasmLogging: () => void;
   enableTelemetry: (addr: string) => void;
 }
@@ -46,19 +47,12 @@ export async function init(): Promise<void> {
 
   globalThis.__NILLION = {
     initialized: true,
-    enableLogging: (overwrite = false) => {
-      // It is possible that the debug key is set, if so allow the user to overwrite or preserve
-      if (overwrite) {
-        localStorage.debug = "";
-      }
-      const current = (localStorage.debug ?? "") as string;
-      if (current === "") {
-        localStorage.debug = "nillion:*";
-      } else if (current.includes("nillion:")) {
-        Log(`Logging already enabled.`);
-      } else {
-        localStorage.debug = "nillion:*," + current;
-      }
+    disableLogging: () => {
+      Log(`Disabling logging.`);
+      localStorage.debug = "";
+    },
+    enableLogging: () => {
+      localStorage.debug = "nillion:*";
       Log(`Logging namespaces: ${localStorage.debug as string}.`);
     },
     enableWasmLogging: () => {

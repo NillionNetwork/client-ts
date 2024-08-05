@@ -13,13 +13,13 @@ import * as React from "react";
 import { useState } from "react";
 
 export const Store = () => {
-  const original = { foo: "Hi, I'm SecretString nice to meet you :)" };
+  const data = "Hi, I'm SecretString nice to meet you :)";
   const nillion = useNillion();
   const [id, setId] = useState<string | null>(null);
-  const store = useStoreValue();
-  const fetch = useFetchValue({
+  const storeValue = useStoreValue();
+  const fetchValue = useFetchValue<string>({
     id,
-    name: "foo",
+    name: "data",
     type: NadaValueType.enum.SecretString,
   });
   const update = useUpdateValue();
@@ -28,21 +28,23 @@ export const Store = () => {
   const drop = useDeleteValue();
 
   const handleStoreClick = () => {
-    store.mutate({
-      values: original,
+    storeValue.mutate({
+      values: {
+        data,
+      },
       ttl: 1,
     });
   };
 
   const handleFetchClick = () => {
-    void fetch.refetch();
+    void fetchValue.refetch();
   };
 
   const handleUpdateClick = () => {
     update.mutate({
       id: id!,
       values: {
-        foo: "I'm an updated SecretString :)",
+        data: "I'm an updated SecretString :)",
       },
       ttl: 2,
     });
@@ -63,49 +65,58 @@ export const Store = () => {
     drop.mutate(id!);
   };
 
-  if (store.isSuccess && !id) {
-    setId(store.data);
+  if (storeValue.isSuccess && !id) {
+    setId(storeValue.data);
   }
 
   return (
     <Box>
       <Box>
         <Typography level={"h2"}>Store</Typography>
-        <Button onClick={handleStoreClick}>Store</Button>
-        <Typography>Data: "{JSON.stringify(original)}"</Typography>
+        <Button onClick={handleStoreClick} sx={{ my: 1 }}>
+          Store
+        </Button>
         <List>
-          <ListItem>ℹ️ Store status: {store.status}</ListItem>
-          <ListItem>➡️ Store id: {store.data}</ListItem>
-          {store.isError && (
-            <ListItem>🤕{JSON.stringify(store.error)}</ListItem>
+          <ListItem>ℹ️ Data: "{data}"</ListItem>
+          <ListItem>ℹ️ Store status: {storeValue.status}</ListItem>
+          <ListItem>➡️ Store id: {storeValue.data}</ListItem>
+          {storeValue.isError && (
+            <ListItem>🤕{JSON.stringify(storeValue.error)}</ListItem>
           )}
         </List>
       </Box>
       <Divider />
       <Box>
         <Typography level={"h2"}>Fetch</Typography>
-        <Button onClick={handleFetchClick}>Refresh</Button>
+        <Button onClick={handleFetchClick} sx={{ my: 1 }}>
+          Refresh
+        </Button>
         <List>
-          <ListItem>ℹ️ Status: {fetch.status}</ListItem>
+          <ListItem>ℹ️ Status: {fetchValue.status}</ListItem>
           <ListItem>
-            ℹ️ Last updated: {new Date(fetch.dataUpdatedAt).toLocaleString()}
+            ℹ️ Last updated:{" "}
+            {new Date(fetchValue.dataUpdatedAt).toLocaleString()}
           </ListItem>
           <ListItem>
             ℹ️ From cache:{" "}
-            {Boolean(fetch.isFetched && !fetch.isFetchedAfterMount).toString()}
+            {Boolean(
+              fetchValue.isFetched && !fetchValue.isFetchedAfterMount,
+            ).toString()}
           </ListItem>
-          {fetch.isSuccess && (
-            <ListItem>🔁 Fetched: {JSON.stringify(fetch.data)}</ListItem>
+          {fetchValue.isSuccess && (
+            <ListItem>🔁 Fetched: {JSON.stringify(fetchValue.data)}</ListItem>
           )}
-          {fetch.isError && (
-            <ListItem>🤕{JSON.stringify(fetch.error)}</ListItem>
+          {fetchValue.isError && (
+            <ListItem>🤕{JSON.stringify(fetchValue.error)}</ListItem>
           )}
         </List>
       </Box>
       <Divider />
       <Box>
         <Typography level={"h2"}>Fetch permissions</Typography>
-        <Button onClick={handleFetchPermissionsClick}>Refetch</Button>
+        <Button onClick={handleFetchPermissionsClick} sx={{ my: 1 }}>
+          Refetch
+        </Button>
         <List>
           <ListItem>ℹ️ Status: {fetchPermissions.status}</ListItem>
           <ListItem>
@@ -132,7 +143,9 @@ export const Store = () => {
       <Divider />
       <Box>
         <Typography level={"h2"}>Set permissions</Typography>
-        <Button onClick={handleSetPermissionsClick}>Set</Button>
+        <Button onClick={handleSetPermissionsClick} sx={{ my: 1 }}>
+          Set
+        </Button>
         <List>
           <ListItem>ℹ️ Status: {setPermissions.status}</ListItem>
           <ListItem>

@@ -6,6 +6,7 @@ import {
   StoreId,
 } from "@nillion/client-core";
 import type { StoreValueArgs as ClientStoreValueArgs } from "@nillion/client-vms";
+import { valuesRecordToNadaValues } from "@nillion/client-vms";
 import type { UseMutationOptions } from "@tanstack/react-query";
 import {
   useMutation,
@@ -51,8 +52,8 @@ export const useStoreValue = (
 
   const onSuccess = (id: TData, variables: TVariables): void => {
     const queryKey = createStoreCacheKey(id);
-    // TODO(tim): is it better to store with its type, eg, `type: SecretInteger`?
-    queryClient.setQueryData(queryKey, variables.values);
+    const data = valuesRecordToNadaValues(variables.values);
+    queryClient.setQueryData(queryKey, data);
   };
 
   return useMutation({

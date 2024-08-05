@@ -9,7 +9,10 @@ import {
 import { PaymentClientConfig } from "@nillion/client-payments";
 
 export const NillionClientConfigComplete = z
-  .object({ network: NamedNetwork })
+  .object({
+    network: NamedNetwork,
+    logging: z.boolean().optional(),
+  })
   .merge(VmClientConfig)
   .merge(PaymentClientConfig);
 
