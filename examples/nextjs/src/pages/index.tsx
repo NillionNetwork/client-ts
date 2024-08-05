@@ -8,7 +8,7 @@ export default function Home() {
   const fetchValue = useFetchValue(
     {
       id,
-      name: "foo",
+      name: "data",
       type: "SecretInteger",
     },
     {
@@ -16,9 +16,7 @@ export default function Home() {
     },
   );
 
-  const data = {
-    foo: 42,
-  };
+  const data = 42;
 
   if (storeValue.data && !id) {
     setId(storeValue.data);
@@ -26,7 +24,7 @@ export default function Home() {
 
   const handleStoreClick = () => {
     storeValue.mutate({
-      values: data,
+      values: { data },
       ttl: 1,
     });
   };
