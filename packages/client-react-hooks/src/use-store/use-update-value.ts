@@ -5,7 +5,7 @@ import {
   NamedValue,
   StoreId,
 } from "@nillion/client-core";
-import { StoreValueArgs } from "@nillion/client-vms";
+import { StoreValueArgs, valuesRecordToNadaValues } from "@nillion/client-vms";
 import {
   useMutation,
   UseMutationOptions,
@@ -47,9 +47,12 @@ export const useUpdateValue = (
     });
 
     if (response.err) throw response.err as TError;
+    const queryKey = createStoreCacheKey(parsedId);
     await queryClient.invalidateQueries({
-      queryKey: createStoreCacheKey(parsedId),
+      queryKey,
     });
+    const data = valuesRecordToNadaValues(args.values);
+    await queryClient.setQueryData(queryKey, data);
     return response.ok;
   };
 
