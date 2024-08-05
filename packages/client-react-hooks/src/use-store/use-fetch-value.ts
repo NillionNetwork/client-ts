@@ -12,7 +12,7 @@ import {
 import { useNillion } from "../use-nillion";
 import { createStoreCacheKey } from "./types";
 
-type TData = Record<NamedValue, NadaPrimitiveValue>;
+type TData = NadaPrimitiveValue;
 type TError = Error;
 
 interface FetchValueArgs {
@@ -23,24 +23,26 @@ interface FetchValueArgs {
 
 export type FetchValueOverrides = Partial<UseQueryOptions<TData>>;
 
-export type UseFetchValueResult = UseQueryResult<TData>;
+export type UseFetchValueResult<T extends TData> = UseQueryResult<T>;
 
-export const useFetchValue = (
+export const useFetchValue = <T extends TData>(
   args: FetchValueArgs,
   overrides: FetchValueOverrides = {},
-): UseFetchValueResult => {
+): UseFetchValueResult<T> => {
   const nillionClient = useNillion();
   const enabled = !!args.id;
   const queryKey = createStoreCacheKey(args.id);
 
-  const queryFn = async (): Promise<TData> => {
-    const id = StoreId.parse(args.id);
+  const queryFn = async (): Promise<T> => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const id = args.id!;
+
     const response = await nillionClient.fetch({
       ...args,
       id,
     });
     if (response.err) throw response.err as TError;
-    return response.ok;
+    return response.ok as T;
   };
 
   return useQuery({
@@ -49,5 +51,5 @@ export const useFetchValue = (
     retry: false,
     queryFn,
     ...overrides,
-  });
+  }) as UseFetchValueResult<T>;
 };
