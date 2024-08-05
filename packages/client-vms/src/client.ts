@@ -113,12 +113,16 @@ export class NillionClient {
           return NillionClientConfigComplete.parse(complete);
         }),
       ),
-      E.flatMap((config) =>
+      E.flatMap((config: NillionClientConfigComplete) =>
         E.tryPromise(async () => {
           this._vm = VmClient.create(config);
           this._chain = PaymentsClient.create(config);
           await this._vm.connect();
           await this._chain.connect();
+
+          if (config.logging) globalThis.__NILLION?.enableLogging();
+          else globalThis.__NILLION?.disableLogging();
+
           Log("NillionClient connected.");
           return this.ready;
         }),
