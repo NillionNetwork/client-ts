@@ -14,7 +14,9 @@ export const valuesRecordToNadaValues = (
   E.try(() => {
     const nadaValues = NadaValues.create();
     for (const [key, value] of Object.entries(values)) {
-      const name = NamedValue.parse(key);
+      const name = NamedValue.parse(key, {
+        path: ["valuesRecordToNadaValues", "NamedValue"],
+      });
       const args = isObjectLiteral(value)
         ? (value as StoreValueArgs)
         : {
