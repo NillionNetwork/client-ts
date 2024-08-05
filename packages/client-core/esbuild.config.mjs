@@ -1,12 +1,22 @@
 import * as esbuild from "esbuild";
+import browserslist from "browserslist";
+import {
+  esbuildPluginBrowserslist,
+  resolveToEsbuildTarget,
+} from "esbuild-plugin-browserslist";
+
+const target = resolveToEsbuildTarget(browserslist("defaults"), {
+  printUnknownTargets: false,
+});
 
 const config = {
-  entryPoints: ["src/index.ts"],
   bundle: true,
+  entryPoints: ["src/index.ts"],
   format: "esm",
+  logLevel: "info",
   outfile: "dist/index.mjs",
   packages: "external",
-  logLevel: "info",
+  target,
 };
 
 if (process.argv.includes("--watch")) {
