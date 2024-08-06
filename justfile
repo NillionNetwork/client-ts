@@ -44,20 +44,20 @@ unpublish:
     #!/usr/bin/env bash
     set -euxo pipefail
     echo "warning: only for use with a local registry"
-    npm unpublish --force @nillion/client-wasm
-    npm unpublish --force @nillion/client-core
-    npm unpublish --force @nillion/client-payments
-    npm unpublish --force @nillion/client-vms
-    npm unpublish --force @nillion/client-react-hooks
+    npm unpublish --force @nillion/client-wasm --registry=http://localhost:4873
+    npm unpublish --force @nillion/client-core --registry=http://localhost:4873
+    npm unpublish --force @nillion/client-payments --registry=http://localhost:4873
+    npm unpublish --force @nillion/client-vms --registry=http://localhost:4873
+    npm unpublish --force @nillion/client-react-hooks --registry=http://localhost:4873
 
 publish args="":
     #!/usr/bin/env bash
     set -euxo pipefail
-    just publish-client-wasm "{{args}}"
-    just publish-client-core "{{args}}"
-    just publish-client-payments "{{args}}"
-    just publish-client-vms "{{args}}"
-    just publish-client-react-hooks "{{args}}"
+    just publish-client-wasm "{{args}}" --registry=http://localhost:4873
+    just publish-client-core "{{args}}" --registry=http://localhost:4873
+    just publish-client-payments "{{args}}" --registry=http://localhost:4873
+    just publish-client-vms "{{args}}" --registry=http://localhost:4873
+    just publish-client-react-hooks "{{args}}" --registry=http://localhost:4873
 # <<< End all <<<
 
 
