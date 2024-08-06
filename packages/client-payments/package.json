@@ -2,7 +2,7 @@
   "name": "@nillion/client-payments",
   "license": "MIT",
   "author": "devsupport@nillion.com",
-  "version": "0.1.0-rc.7",
+  "version": "0.1.0-rc.9",
   "homepage": "https://nillion.pub/client-ts",
   "repository": "https://github.com/NillionNetwork/client-ts",
   "type": "module",
@@ -25,7 +25,7 @@
   "dependencies": {
     "@cosmjs/proto-signing": "^0.32.4",
     "@cosmjs/stargate": "^0.32.4",
-    "@nillion/client-core": "0.1.0-rc.7",
+    "@nillion/client-core": "0.1.0-rc.9",
     "debug": "^4.3.5",
     "effect": "^3.5.5",
     "protobufjs": "^7.3.2",
