@@ -6,7 +6,7 @@ import {
   StoreId,
   VmClientConfig,
 } from "@nillion/client-core";
-import { expectOk } from "../../fixture/helpers";
+import { expectOk, FixtureConfig } from "../../fixture/helpers";
 import { Effect as E } from "effect";
 
 const SUITE_NAME = `@nillion/client-core > initialization`;
@@ -63,10 +63,7 @@ describe(SUITE_NAME, () => {
 
   it("can compute stable partyId from seed 'nillion-testnet-seed-1'", () => {
     const partyId = client.partyId;
-    expect(partyId).toBeDefined();
-    expect(partyId).toEqual(
-      "12D3KooWGq5MCUuLARrwM95muvipNWy4MqmCk41g9k9JVth6AF6e",
-    );
+    expect(partyId).toEqual(FixtureConfig.partyId);
   });
 
   it("can fetch the cluster descriptor", async () => {

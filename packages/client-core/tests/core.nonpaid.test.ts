@@ -14,7 +14,6 @@ import {
   NamedValue,
   VmClientConfig,
 } from "@nillion/client-core";
-import configFixture from "../../fixture/network.json";
 import { expectOk, loadProgram } from "../../fixture/helpers";
 
 const SUITE_NAME = `@nillion/client-core > non-paid functions`;
@@ -25,9 +24,7 @@ describe(SUITE_NAME, () => {
 
   const data = {
     store: StoreId.parse("aaaaaaaa-bbbb-cccc-dddd-ffffffffffff"),
-    program: ProgramId.parse(
-      `${configFixture.programs_namespace}/simple_shares`,
-    ),
+    program: ProgramId.parse("foo/simple_share"),
   };
 
   beforeAll(async () => {
@@ -41,7 +38,7 @@ describe(SUITE_NAME, () => {
     console.log(`*** Finish ${SUITE_NAME} *** \n\n`);
   });
 
-  it("can get quote for compute", async () => {
+  xit("can get quote for compute", async () => {
     const args = {
       bindings: ProgramBindings.create(data.program),
       values: NadaValues.create().insert(

@@ -6,8 +6,6 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-console.log(__dirname);
-
 export default {
   port: 9191,
   srcDir: "../fixture",
@@ -35,6 +33,6 @@ export default {
     "/(:filename).(wasm|js)": (req, res) => {
       res.sendFile(path.resolve(__dirname, `dist/${req.baseUrl}`));
     },
-    "/nilchain": proxy(configFixture.payments_rpc_endpoint),
+    "/nilchain": proxy("http://localhost:26650"),
   },
 };

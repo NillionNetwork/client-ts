@@ -82,7 +82,7 @@ test-client-core:
     npm -w packages/client-core run test:build
     npm -w packages/client-core run test
 
-test-serve-client-core:
+test-client-core-serve:
     #!/usr/bin/env bash
     set -euxo pipefail
     npm -w packages/client-core run clean
@@ -116,7 +116,7 @@ test-client-payments:
     npm -w packages/client-payments run test:build
     npm -w packages/client-payments run test
 
-test-serve-client-payments:
+test-client-payments-serve:
     #!/usr/bin/env bash
     set -euxo pipefail
     just clean
@@ -152,7 +152,7 @@ test-client-vms:
     npm -w packages/client-vms run test:build
     npm -w packages/client-vms run test
 
-test-serve-client-vms:
+test-client-vms-serve:
     #!/usr/bin/env bash
     set -euxo pipefail
     just clean
