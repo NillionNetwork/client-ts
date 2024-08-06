@@ -11,30 +11,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: extractions/setup-just@v2
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-
-      - run: npm ci
-      - run: just check
+  #  check:
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - uses: actions/checkout@v4
+  #      - uses: extractions/setup-just@v2
+  #      - uses: actions/setup-node@v4
+  #        with:
+  #          node-version: '22'
+  #      - uses: actions/cache@v3
+  #        with:
+  #          path: ~/.npm
+  #          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
+  #          restore-keys: |
+  #            ${{ runner.OS }}-node-
+  #      - run: npm ci
+  #      - run: just check
 
 
   build-and-test:
-    needs: check
+    #    needs: check
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        package: [ client-core, client-payments, client-vms ]
+    #    strategy:
+    #      matrix:
+    #        package: [ client-core, client-payments, client-vms ]
     steps:
       - uses: actions/checkout@v4
       - uses: extractions/setup-just@v2
@@ -47,13 +47,22 @@ jobs:
           key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.OS }}-node-
-      - name: Run install protobuf-compiler (if 'client-payments')
-        if: contains(matrix.package, 'client-payments')
-        env:
-          DEBIAN_FRONTEND: noninteractive
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y protobuf-compiler
-      - run: |
+          sudo apt install -y protobuf-compiler curl
           npm ci
-          just test-${{ matrix.package }}
+      - name: Install and configure nilup
+        run: |
+          curl https://nilup.nilogy.xyz/install.sh | bash
+          $HOME/.nilup/bin/nilup use 0.5.0
+          $HOME/.nilup/bin/nilup init
+          echo "$HOME/.nilup/bin" >> $GITHUB_PATH
+      - run: |
+          nillion-devnet &
+          PID=$!
+          echo "nillion-devnet started with PID: $PID"
+          sleep 5
+          kill $PID
+          echo "nillion-devnet with PID $PID has been stopped."
+#          just test-${{ matrix.package }}

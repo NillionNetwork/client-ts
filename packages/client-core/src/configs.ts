@@ -12,15 +12,15 @@ export type NamedNetwork = z.infer<typeof NamedNetwork>;
 export const PartialConfig = {
   TestFixture: {
     network: NamedNetwork.enum.TestFixture,
-    cluster: "e2c959ca-ecb2-45b0-8f2b-d91abbfa3708",
+    cluster: "57408f48-0f51-4699-a317-20a7764e87f7",
     bootnodes: [
-      "/ip4/127.0.0.1/tcp/14211/ws/p2p/12D3KooWCAGu6gqDrkDWWcFnjsT9Y8rUzUH8buWjdFcU3TfWRmuN",
+      "/ip4/127.0.0.1/tcp/53192/ws/p2p/12D3KooWPTNZdksW3n4tq7pEFa1pejjGi3AoPXRp58sPbZuwyVhU",
     ],
     chain: "nillion-chain-devnet",
     endpoint: "http://localhost:9191/nilchain",
     logging: true,
-    userSeed: "nillion-testnet-seed-1",
-    nodeSeed: "nillion-testnet-seed-1",
+    userSeed: "nillion-testnet-test-fixture-1",
+    nodeSeed: "nillion-testnet-test-fixture-1",
   },
   Devnet: {
     network: NamedNetwork.enum.Devnet,
