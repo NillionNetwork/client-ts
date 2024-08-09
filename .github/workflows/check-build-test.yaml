@@ -41,12 +41,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - uses: actions/cache@v3
+      - uses: actions/upload-artifact@v3
         with:
-          path: ~/.npm
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-
+          name: logs
+          path: packages/fixture/logs
+          retention-days: 7
       - name: Install dependencies
         run: |
           sudo apt update
@@ -59,10 +58,5 @@ jobs:
           $HOME/.nilup/bin/nilup init
           echo "$HOME/.nilup/bin" >> $GITHUB_PATH
       - run: |
-          nillion-devnet &
-          PID=$!
-          echo "nillion-devnet started with PID: $PID"
-          sleep 5
-          kill $PID
-          echo "nillion-devnet with PID $PID has been stopped."
+          just test-client-core-ci
 #          just test-${{ matrix.package }}
