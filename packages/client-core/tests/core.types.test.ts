@@ -1,21 +1,21 @@
 import {
-  SecretBlob,
-  SecretBoolean,
   init,
-  PublicInteger,
-  PublicIntegerUnsigned,
-  SecretInteger,
-  SecretIntegerUnsigned,
+  NadaPrimitiveValue,
   NadaValue,
   NadaValues,
-  NadaPrimitiveValue,
-  ProgramBindings,
-  NamedValue,
-  SecretString,
   NadaValueType,
+  NamedValue,
+  ProgramBindings,
+  PublicInteger,
+  PublicIntegerUnsigned,
+  SecretBlob,
+  SecretBoolean,
+  SecretInteger,
+  SecretIntegerUnsigned,
+  SecretString,
 } from "@nillion/client-core";
 import * as Wasm from "@nillion/client-wasm";
-import { strToByteArray } from "../../fixture/helpers";
+import { strToByteArray } from "../../test-utils";
 
 const SUITE_NAME = "@nillion/client-core > nada types";
 

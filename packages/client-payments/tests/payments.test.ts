@@ -1,16 +1,6 @@
-import {
-  createSignerFromKey,
-  PaymentClientConfig,
-  PaymentsClient,
-} from "@nillion/client-payments";
-import {
-  PartialConfig,
-  effectToResultAsync,
-  PriceQuote,
-  PrivateKeyBase16,
-} from "@nillion/client-core";
-import fixtureConfig from "../../fixture/network.json";
-import { expectOk } from "../../fixture/helpers";
+import { effectToResultAsync, PriceQuote } from "@nillion/client-core";
+import { PaymentClientConfig, PaymentsClient } from "@nillion/client-payments";
+import { expectOk, getPaymentsClientEnvConfig } from "../../test-utils";
 
 const SUITE_NAME = "@nillion/client-payments";
 
@@ -27,18 +17,15 @@ describe(SUITE_NAME, () => {
   });
 
   it("can create NilChainPaymentClient", async () => {
-    const key = PrivateKeyBase16.parse(fixtureConfig.payments_key);
-    config = PaymentClientConfig.parse({
-      ...PartialConfig.TestFixture,
-      signer: await createSignerFromKey(key),
-    });
+    config = await getPaymentsClientEnvConfig();
     client = PaymentsClient.create(config);
     expect(client).toBeDefined();
   });
 
   it("throws if not connected but access attempted", () => {
     try {
-      const _result = client.address;
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      client.address;
       expect(true).toBeFalse();
     } catch (e: unknown) {
       // @ts-expect-error for test simplicity
@@ -49,7 +36,7 @@ describe(SUITE_NAME, () => {
   it("can connect", async () => {
     await client.connect();
     expect(client.address).toBe(
-      "nillion1uumg9ckysacwrkpljxavhjtw9vgkk86wtvu7w9",
+      "nillion14x7fd38t8wvh2ypy2fph270wkv8g754tjcny5j",
     );
   });
 
