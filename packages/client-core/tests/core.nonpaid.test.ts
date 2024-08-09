@@ -1,36 +1,41 @@
 import {
-  PartialConfig,
   Days,
   effectToResultAsync,
   NadaValue,
   NadaValues,
-  VmClient,
+  NamedValue,
   Operation,
   Permissions,
   ProgramBindings,
   ProgramId,
   ProgramName,
   StoreId,
-  NamedValue,
-  VmClientConfig,
+  VmClient,
 } from "@nillion/client-core";
-import { expectOk, loadProgram } from "../../fixture/helpers";
+import {
+  expectOk,
+  getVmClientEnvConfig,
+  loadProgram,
+  TestEnv,
+} from "../../test-utils";
 
 const SUITE_NAME = `@nillion/client-core > non-paid functions`;
 
 describe(SUITE_NAME, () => {
-  let client: VmClient;
-  const config = VmClientConfig.parse(PartialConfig.TestFixture);
+  const config = getVmClientEnvConfig();
+  const client = VmClient.create(config);
 
   const data = {
     store: StoreId.parse("aaaaaaaa-bbbb-cccc-dddd-ffffffffffff"),
-    program: ProgramId.parse("foo/simple_share"),
+    program: ProgramId.parse(
+      `${String(TestEnv.programNamespace)}/simple_shares.nada.bin`,
+    ),
   };
 
   beforeAll(async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
     console.log(`*** Start ${SUITE_NAME} ***`);
-    client = VmClient.create(config);
+    console.log(`Config: %O`, config);
     await client.connect();
   });
 
@@ -38,7 +43,7 @@ describe(SUITE_NAME, () => {
     console.log(`*** Finish ${SUITE_NAME} *** \n\n`);
   });
 
-  xit("can get quote for compute", async () => {
+  it("can get quote for compute", async () => {
     const args = {
       bindings: ProgramBindings.create(data.program),
       values: NadaValues.create().insert(
@@ -85,7 +90,10 @@ describe(SUITE_NAME, () => {
 
   it("can get quote for program store", async () => {
     const program = await loadProgram("addition_division.nada.bin");
-    const args = { program, name: ProgramName.parse("foo") };
+    const args = {
+      program,
+      name: ProgramName.parse("addition_division.nada.bin"),
+    };
     const operation = Operation.storeProgram(args);
     const effect = client.fetchOperationQuote({ operation });
     const result = await effectToResultAsync(effect);

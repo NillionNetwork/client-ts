@@ -1,22 +1,21 @@
 import {
-  PartialConfig,
   effectToResultAsync,
   init,
-  VmClient,
   StoreId,
-  VmClientConfig,
+  VmClient,
 } from "@nillion/client-core";
-import { expectOk, FixtureConfig } from "../../fixture/helpers";
 import { Effect as E } from "effect";
+import { expectOk, getVmClientEnvConfig } from "../../test-utils";
 
 const SUITE_NAME = `@nillion/client-core > initialization`;
 
 describe(SUITE_NAME, () => {
+  const config = getVmClientEnvConfig();
   let client: VmClient;
-  const config = VmClientConfig.parse(PartialConfig.TestFixture);
 
   beforeAll(() => {
     console.log(`*** Start ${SUITE_NAME} ***`);
+    console.log(`Config: %O`, config);
   });
 
   afterAll(() => {
@@ -63,7 +62,9 @@ describe(SUITE_NAME, () => {
 
   it("can compute stable partyId from seed 'nillion-testnet-seed-1'", () => {
     const partyId = client.partyId;
-    expect(partyId).toEqual(FixtureConfig.partyId);
+    expect(partyId).toEqual(
+      "12D3KooWEnWNWnuzuckMhAEKKMPvdDacy3K3tdCQDBtctsYMPe5r",
+    );
   });
 
   it("can fetch the cluster descriptor", async () => {

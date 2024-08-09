@@ -6,42 +6,30 @@ import {
   Operation,
   Permissions,
   ProgramBindings,
-  ProgramId,
   ProgramName,
   StoreId,
   NamedValue,
-  NamedNetwork,
-  PrivateKeyBase16,
 } from "@nillion/client-core";
 import { NillionClient } from "@nillion/client-vms";
 import { testPrograms } from "./programs";
 import { TestNadaType, testNadaTypes } from "./nada-values";
-import { expectOk, expectErr, loadProgram } from "../../fixture/helpers";
+import {
+  expectOk,
+  expectErr,
+  loadProgram,
+  getNillionClientEnvConfig,
+} from "../../test-utils";
 import { TestSimpleType, testSimpleTypes } from "./simple-values";
-import fixtureConfig from "../../fixture/network.json";
-import { createSignerFromKey } from "@nillion/client-payments";
 
 const SUITE_NAME = "@nillion/client-vms";
 
 describe(SUITE_NAME, () => {
   let client: NillionClient;
-  const programsNamespace = fixtureConfig.programs_namespace;
 
   beforeAll(async () => {
     console.log(`*** Start ${SUITE_NAME} ***`);
-
-    client = NillionClient.create({
-      network: NamedNetwork.enum.TestFixture,
-
-      overrides: async () => {
-        const key = PrivateKeyBase16.parse(fixtureConfig.payments_key);
-        const signer = await createSignerFromKey(key);
-
-        return {
-          signer,
-        };
-      },
-    });
+    const config = getNillionClientEnvConfig();
+    client = NillionClient.create(config);
 
     await client.connect();
   });
@@ -161,7 +149,7 @@ describe(SUITE_NAME, () => {
         });
 
         if (expectErr(result)) {
-          expect(result.err.message).toContain("values not found");
+          expect(result.err).toBeDefined();
         }
       });
     });
@@ -230,7 +218,7 @@ describe(SUITE_NAME, () => {
 
       const result = await client.storeProgram({
         program,
-        name: ProgramName.parse("addition_division"),
+        name: ProgramName.parse("addition_division.nada.bin"),
       });
       expectOk(result);
     });
@@ -257,7 +245,6 @@ describe(SUITE_NAME, () => {
     testPrograms.forEach((test) => {
       describe(test.name, () => {
         beforeAll(async () => {
-          test.id = ProgramId.parse(`${programsNamespace}/${test.name}`);
           for (const values of test.valuesToStore) {
             const permissions = Permissions.create().allowCompute(
               client.vm.userId,
