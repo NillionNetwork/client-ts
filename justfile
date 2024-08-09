@@ -53,11 +53,11 @@ unpublish:
 publish args="":
     #!/usr/bin/env bash
     set -euxo pipefail
-    just publish-client-wasm "{{args}}" --registry=http://localhost:4873
-    just publish-client-core "{{args}}" --registry=http://localhost:4873
-    just publish-client-payments "{{args}}" --registry=http://localhost:4873
-    just publish-client-vms "{{args}}" --registry=http://localhost:4873
-    just publish-client-react-hooks "{{args}}" --registry=http://localhost:4873
+    just publish-client-wasm "{{args}}"
+    just publish-client-core "{{args}}"
+    just publish-client-payments "{{args}}"
+    just publish-client-vms "{{args}}"
+    just publish-client-react-hooks "{{args}}"
 # <<< End all <<<
 
 
@@ -70,7 +70,7 @@ pack-client-wasm:
 publish-client-wasm args="":
     #!/usr/bin/env bash
     set -euxo pipefail
-    npm -w packages/client-wasm publish {{args}}
+    npm -w packages/client-wasm publish --registry=http://localhost:4873 {{args}}
 # <<< End @nillion/client-wasm <<<
 
 
@@ -107,7 +107,7 @@ publish-client-core args="":
     set -euxo pipefail
     npm -w packages/client-core run clean
     npm -w packages/client-core run build
-    npm -w packages/client-core publish {{args}}
+    npm -w packages/client-core publish --registry=http://localhost:4873 {{args}}
 # <<< End @nillion/client-core <<<
 
 
@@ -148,7 +148,7 @@ publish-client-payments args="":
     set -euxo pipefail
     npm -w packages/client-payments run clean
     npm -w packages/client-payments run build
-    npm -w packages/client-payments publish {{args}}
+    npm -w packages/client-payments publish --registry=http://localhost:4873 {{args}}
 # <<< End @nillion/client-payments <<<
 
 
@@ -189,7 +189,7 @@ publish-client-vms args="":
     set -euxo pipefail
     npm -w packages/client-vms run clean
     npm -w packages/client-vms run build
-    npm -w packages/client-vms publish {{args}}
+    npm -w packages/client-vms publish --registry=http://localhost:4873 {{args}}
 # <<< End @nillion/client-vms <<<
 
 
@@ -206,5 +206,5 @@ publish-client-react-hooks args="":
     set -euxo pipefail
     npm -w packages/client-react-hooks run clean
     npm -w packages/client-react-hooks run build
-    npm -w packages/client-react-hooks publish {{args}}
+    npm -w packages/client-react-hooks publish --registry=http://localhost:4873 {{args}}
 # <<< End @nillion/client-react-hooks <<<

@@ -43,7 +43,7 @@ export const main = async (): Promise<void> => {
     Log("Logs: %s", path.resolve(LOG_RUN_DIR));
     setupLoggingDir();
 
-    const devnet = await runDevnet();
+    const devnet = runDevnet();
     TestEnv.NILLION_TEST_DEVNET_PID = devnet.pid;
 
     await loadEnv();

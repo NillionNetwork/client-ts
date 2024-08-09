@@ -11,7 +11,7 @@ const formattedDate = format(new Date(), "yyyy-MM-dd_HH-mm-ss");
 export const LOG_RUN_DIR = path.resolve(`./logs/${formattedDate}`);
 
 export const setupLoggingDir = () => {
-  fs.mkdirSync(LOG_RUN_DIR);
+  fs.mkdirSync(LOG_RUN_DIR, { recursive: true });
   fs.writeFileSync(getDevnetLogFile(), "");
   fs.writeFileSync(getTestLogFile(), "");
   fs.writeFileSync(getPrepareProgramsLogFile(), "");
