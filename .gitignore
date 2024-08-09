@@ -2,15 +2,17 @@
 .idea
 .vscode
 
+packages/client-payments/src/proto/nilchain.ts # generated protobuf codec
+!packages/client-wasm/dist
+docs
+logs
+
+# npm related artefacts
 node_modules
 dist
-docs
-
-packages/client-payments/src/proto/nilchain.ts # generated protobuf codec
-packages/fixture/addition_division.nada.bin
-packages/fixture/network.json
-!packages/client-wasm/dist
-
+dist-test
 .next
-examples/nextjs/package-lock.json
-examples/react/package-lock.json
+
+# python related artefacts
+__pycache__
+venv

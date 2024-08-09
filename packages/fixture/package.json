@@ -1,0 +1,24 @@
+{
+  "name": "@nillion/fixture",
+  "license": "MIT",
+  "author": "devsupport@nillion.com",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "start": "npx tsx src/main.ts -- $@"
+  },
+  "dependencies": {
+    "@types/debug": "^4.1.12",
+    "date-fns": "^3.6.0",
+    "debug": "^4.3.5",
+    "dotenv": "^16.4.5",
+    "execa": "^9.3.0",
+    "tsx": "^4.16.5",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.1.0"
+  }
+}

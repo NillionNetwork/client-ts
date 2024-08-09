@@ -1,13 +1,4 @@
-import * as esbuild from "esbuild";
-import browserslist from "browserslist";
-import {
-  esbuildPluginBrowserslist,
-  resolveToEsbuildTarget,
-} from "esbuild-plugin-browserslist";
-
-const target = resolveToEsbuildTarget(browserslist("defaults"), {
-  printUnknownTargets: false,
-});
+import { main } from "../resources/esbuild.base.config.mjs";
 
 const config = {
   bundle: true,
@@ -19,9 +10,4 @@ const config = {
   target,
 };
 
-if (process.argv.includes("--watch")) {
-  const ctx = await esbuild.context(config);
-  await ctx.watch();
-} else {
-  await esbuild.build(config);
-}
+await main(config);

@@ -345,10 +345,13 @@ export class NillionClient {
       E.bind("quote", () => this.vm.fetchOperationQuote(args)),
       E.bind("hash", ({ quote }) => this.chain.pay(quote)),
       E.map(({ quote, hash }) =>
-        PaymentReceipt.parse({
-          quote,
-          hash,
-        }),
+        PaymentReceipt.parse(
+          {
+            quote,
+            hash,
+          },
+          { path: ["client.pay", "PaymentReceipt"] },
+        ),
       ),
       E.mapError((e) => {
         if (e instanceof UnknownException) return e;

@@ -44,20 +44,20 @@ unpublish:
     #!/usr/bin/env bash
     set -euxo pipefail
     echo "warning: only for use with a local registry"
-    npm unpublish --force @nillion/client-wasm
-    npm unpublish --force @nillion/client-core
-    npm unpublish --force @nillion/client-payments
-    npm unpublish --force @nillion/client-vms
-    npm unpublish --force @nillion/client-react-hooks
+    npm unpublish --force @nillion/client-wasm --registry=http://localhost:4873
+    npm unpublish --force @nillion/client-core --registry=http://localhost:4873
+    npm unpublish --force @nillion/client-payments --registry=http://localhost:4873
+    npm unpublish --force @nillion/client-vms --registry=http://localhost:4873
+    npm unpublish --force @nillion/client-react-hooks --registry=http://localhost:4873
 
 publish args="":
     #!/usr/bin/env bash
     set -euxo pipefail
-    just publish-client-wasm "{{args}}"
-    just publish-client-core "{{args}}"
-    just publish-client-payments "{{args}}"
-    just publish-client-vms "{{args}}"
-    just publish-client-react-hooks "{{args}}"
+    just publish-client-wasm "{{args}}" --registry=http://localhost:4873
+    just publish-client-core "{{args}}" --registry=http://localhost:4873
+    just publish-client-payments "{{args}}" --registry=http://localhost:4873
+    just publish-client-vms "{{args}}" --registry=http://localhost:4873
+    just publish-client-react-hooks "{{args}}" --registry=http://localhost:4873
 # <<< End all <<<
 
 
@@ -75,6 +75,11 @@ publish-client-wasm args="":
 
 
 # >>> Start @nillion/client-core >>>
+test-client-core-ci:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    npm -w packages/fixture run start -- --test=core
+
 test-client-core:
     #!/usr/bin/env bash
     set -euxo pipefail
@@ -82,7 +87,7 @@ test-client-core:
     npm -w packages/client-core run test:build
     npm -w packages/client-core run test
 
-test-serve-client-core:
+test-client-core-serve:
     #!/usr/bin/env bash
     set -euxo pipefail
     npm -w packages/client-core run clean
@@ -107,6 +112,11 @@ publish-client-core args="":
 
 
 # >>> Start @nillion/client-payments >>>
+test-client-payments-ci:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    npm -w packages/fixture run start -- --test=payments
+
 test-client-payments:
     #!/usr/bin/env bash
     set -euxo pipefail
@@ -116,7 +126,7 @@ test-client-payments:
     npm -w packages/client-payments run test:build
     npm -w packages/client-payments run test
 
-test-serve-client-payments:
+test-client-payments-serve:
     #!/usr/bin/env bash
     set -euxo pipefail
     just clean
@@ -143,6 +153,11 @@ publish-client-payments args="":
 
 
 # >>> Start @nillion/client-vms >>>
+test-client-vms-ci:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    npm -w packages/fixture run start -- --test=vms
+
 test-client-vms:
     #!/usr/bin/env bash
     set -euxo pipefail
@@ -152,7 +167,7 @@ test-client-vms:
     npm -w packages/client-vms run test:build
     npm -w packages/client-vms run test
 
-test-serve-client-vms:
+test-client-vms-serve:
     #!/usr/bin/env bash
     set -euxo pipefail
     just clean
