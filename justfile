@@ -75,6 +75,11 @@ publish-client-wasm args="":
 
 
 # >>> Start @nillion/client-core >>>
+test-client-core-ci:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    npm -w packages/fixture run start -- --test=core
+
 test-client-core:
     #!/usr/bin/env bash
     set -euxo pipefail
@@ -107,6 +112,11 @@ publish-client-core args="":
 
 
 # >>> Start @nillion/client-payments >>>
+test-client-payments-ci:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    npm -w packages/fixture run start -- --test=payments
+
 test-client-payments:
     #!/usr/bin/env bash
     set -euxo pipefail
@@ -143,6 +153,11 @@ publish-client-payments args="":
 
 
 # >>> Start @nillion/client-vms >>>
+test-client-vms-ci:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    npm -w packages/fixture run start -- --test=vms
+
 test-client-vms:
     #!/usr/bin/env bash
     set -euxo pipefail

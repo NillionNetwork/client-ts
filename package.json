@@ -12,6 +12,7 @@
     "packages/client-payments",
     "packages/client-vms",
     "packages/client-react-hooks",
+    "packages/fixture",
     "examples/nextjs",
     "examples/react"
   ],
