@@ -10,6 +10,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
+    "strictNullChecks": true,
     "target": "esnext",
     "lib": [
       "dom",

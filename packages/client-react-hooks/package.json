@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist dist-test",
     "build": "node esbuild.config.mjs",
     "build:watch": "node esbuild.config.mjs --watch"
   },
