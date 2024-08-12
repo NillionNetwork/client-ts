@@ -95,7 +95,7 @@ export const PrivateKeyBase16 = z
   .brand<"PrivateKeyBase16">();
 export type PrivateKeyBase16 = z.infer<typeof PrivateKeyBase16>;
 
-export const UserId = z.string().length(88).brand<"UserId">();
+export const UserId = z.string().min(87).max(89).brand<"UserId">();
 export type UserId = z.infer<typeof UserId>;
 
 export const UserSeed = z.string().min(1).brand<"UserSeed">();
