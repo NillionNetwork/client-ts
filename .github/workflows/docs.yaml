@@ -1,4 +1,4 @@
-name: Generate and deploy docs to pages
+name: Publish docs
 
 on:
   push:

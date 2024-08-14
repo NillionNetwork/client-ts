@@ -70,7 +70,7 @@ pack-client-wasm:
 publish-client-wasm args="":
     #!/usr/bin/env bash
     set -euxo pipefail
-    npm -w packages/client-wasm publish --registry=http://localhost:4873 {{args}}
+    npm -w packages/client-wasm publish {{args}}
 # <<< End @nillion/client-wasm <<<
 
 
@@ -107,7 +107,7 @@ publish-client-core args="":
     set -euxo pipefail
     npm -w packages/client-core run clean
     npm -w packages/client-core run build
-    npm -w packages/client-core publish --registry=http://localhost:4873 {{args}}
+    npm -w packages/client-core publish {{args}}
 # <<< End @nillion/client-core <<<
 
 
@@ -148,7 +148,7 @@ publish-client-payments args="":
     set -euxo pipefail
     npm -w packages/client-payments run clean
     npm -w packages/client-payments run build
-    npm -w packages/client-payments publish --registry=http://localhost:4873 {{args}}
+    npm -w packages/client-payments publish {{args}}
 # <<< End @nillion/client-payments <<<
 
 
@@ -189,7 +189,7 @@ publish-client-vms args="":
     set -euxo pipefail
     npm -w packages/client-vms run clean
     npm -w packages/client-vms run build
-    npm -w packages/client-vms publish --registry=http://localhost:4873 {{args}}
+    npm -w packages/client-vms publish {{args}}
 # <<< End @nillion/client-vms <<<
 
 
@@ -206,5 +206,5 @@ publish-client-react-hooks args="":
     set -euxo pipefail
     npm -w packages/client-react-hooks run clean
     npm -w packages/client-react-hooks run build
-    npm -w packages/client-react-hooks publish --registry=http://localhost:4873 {{args}}
+    npm -w packages/client-react-hooks publish {{args}}
 # <<< End @nillion/client-react-hooks <<<

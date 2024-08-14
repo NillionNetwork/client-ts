@@ -1,4 +1,4 @@
-name: Publish packages to npmjs
+name: Publish to npmjs
 
 on:
   workflow_dispatch:
@@ -21,12 +21,6 @@ jobs:
         with:
           node-version: '22'
           registry-url: "https://registry.npmjs.org"
-      - uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-
       - env:
           NODE_AUTH_TOKEN:
             ${{ secrets.NPM_TOKEN }}

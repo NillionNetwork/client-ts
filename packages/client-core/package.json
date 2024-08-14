@@ -4,7 +4,10 @@
   "author": "devsupport@nillion.com",
   "version": "0.1.0-rc.9",
   "homepage": "https://nillion.pub/client-ts",
-  "repository": "https://github.com/NillionNetwork/client-ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NillionNetwork/client-ts.git"
+  },
   "type": "module",
   "exports": {
     ".": {
@@ -23,8 +26,8 @@
   },
   "dependencies": {
     "@nillion/client-wasm": "0.1.0-rc.9",
-    "debug": "^4.3.5",
-    "effect": "^3.5.5",
+    "debug": "^4.3.6",
+    "effect": "^3.6.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {

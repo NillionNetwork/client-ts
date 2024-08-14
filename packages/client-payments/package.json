@@ -4,7 +4,10 @@
   "author": "devsupport@nillion.com",
   "version": "0.1.0-rc.9",
   "homepage": "https://nillion.pub/client-ts",
-  "repository": "https://github.com/NillionNetwork/client-ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NillionNetwork/client-ts.git"
+  },
   "type": "module",
   "exports": {
     ".": {
@@ -26,17 +29,17 @@
     "@cosmjs/proto-signing": "^0.32.4",
     "@cosmjs/stargate": "^0.32.4",
     "@nillion/client-core": "0.1.0-rc.9",
-    "debug": "^4.3.5",
-    "effect": "^3.5.5",
+    "debug": "^4.3.6",
+    "effect": "^3.6.3",
     "protobufjs": "^7.3.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@keplr-wallet/types": "^0.12.107",
+    "@keplr-wallet/types": "^0.12.121",
     "@types/debug": "^4.1.12",
     "browserslist": "^4.23.3",
     "esbuild-plugin-browserslist": "^0.14.0",
-    "ts-proto": "^1.181.0"
+    "ts-proto": "^1.181.1"
   },
   "files": [
     "dist",
