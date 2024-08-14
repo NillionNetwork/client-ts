@@ -1,4 +1,4 @@
-name: Check, build and test
+name: Check and test
 
 on:
   pull_request:
