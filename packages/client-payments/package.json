@@ -2,7 +2,7 @@
   "name": "@nillion/client-payments",
   "license": "MIT",
   "author": "devsupport@nillion.com",
-  "version": "0.1.0-rc.7",
+  "version": "0.1.0-rc.9",
   "homepage": "https://nillion.pub/client-ts",
   "repository": "https://github.com/NillionNetwork/client-ts",
   "type": "module",
@@ -13,11 +13,11 @@
     }
   },
   "scripts": {
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist dist-test",
     "build": "node esbuild.config.mjs",
     "build:proto": "protoc --plugin=../../node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src proto/nilchain.proto",
     "build:watch": "node esbuild.config.mjs --watch",
-    "test": "echo 'info: disabled due to cli specific failures'",
+    "test": "npx jasmine-browser-runner runSpecs --config=jasmine.config.mjs",
     "test:build": "npx webpack --config webpack.config.mjs",
     "test:build:watch": "npx webpack --config webpack.config.mjs --watch",
     "test:serve": "npx jasmine-browser-runner serve --config=jasmine.config.mjs"
@@ -25,7 +25,7 @@
   "dependencies": {
     "@cosmjs/proto-signing": "^0.32.4",
     "@cosmjs/stargate": "^0.32.4",
-    "@nillion/client-core": "0.1.0-rc.7",
+    "@nillion/client-core": "0.1.0-rc.9",
     "debug": "^4.3.5",
     "effect": "^3.5.5",
     "protobufjs": "^7.3.2",

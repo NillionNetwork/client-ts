@@ -4,7 +4,7 @@ import {
   StoreId,
   NamedValue,
 } from "@nillion/client-core";
-import { strToByteArray } from "../../fixture/helpers";
+import { strToByteArray } from "../../test-utils";
 
 export interface TestNadaType {
   id: StoreId;

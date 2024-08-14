@@ -1,27 +1,9 @@
 import { z } from "zod";
 
-export const NamedNetwork = z.enum([
-  "Photon",
-  "Nucleus",
-  "Devnet",
-  "TestFixture",
-  "Custom",
-]);
+export const NamedNetwork = z.enum(["Photon", "Nucleus", "Devnet", "Custom"]);
 export type NamedNetwork = z.infer<typeof NamedNetwork>;
 
 export const PartialConfig = {
-  TestFixture: {
-    network: NamedNetwork.enum.TestFixture,
-    cluster: "e2c959ca-ecb2-45b0-8f2b-d91abbfa3708",
-    bootnodes: [
-      "/ip4/127.0.0.1/tcp/14211/ws/p2p/12D3KooWCAGu6gqDrkDWWcFnjsT9Y8rUzUH8buWjdFcU3TfWRmuN",
-    ],
-    chain: "nillion-chain-devnet",
-    endpoint: "http://localhost:9191/nilchain",
-    logging: true,
-    userSeed: "nillion-testnet-seed-1",
-    nodeSeed: "nillion-testnet-seed-1",
-  },
   Devnet: {
     network: NamedNetwork.enum.Devnet,
     cluster: "9e68173f-9c23-4acc-ba81-4f079b639964",

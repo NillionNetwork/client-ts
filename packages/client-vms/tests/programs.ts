@@ -7,6 +7,7 @@ import {
   StoreId,
   NamedValue,
 } from "@nillion/client-core";
+import { TestEnv } from "../../test-utils";
 
 export interface TestProgram {
   name: string;
@@ -25,8 +26,8 @@ export interface TestProgram {
 
 export const testPrograms: TestProgram[] = [
   {
-    name: "simple_shares",
-    id: "" as ProgramId,
+    name: "simple_shares.nada.bin",
+    id: ProgramId.parse(`${TestEnv.programNamespace}/simple_shares.nada.bin`),
     inputParties: [PartyName.parse("Dealer")],
     outputParties: [PartyName.parse("Result")],
     storeIds: [],
@@ -62,15 +63,15 @@ export const testPrograms: TestProgram[] = [
     },
   },
   {
-    name: "array_new",
-    id: "" as ProgramId,
+    name: "array_new.nada.bin",
+    id: ProgramId.parse(`${TestEnv.programNamespace}/array_new.nada.bin`),
     inputParties: [PartyName.parse("Party1")],
     outputParties: [PartyName.parse("Party1")],
     storeIds: [],
     valuesToStore: [
       NadaValues.create()
-        .insert(NamedValue.parse("I00"), NadaValue.createSecretInteger(42))
-        .insert(NamedValue.parse("I01"), NadaValue.createSecretInteger(43)),
+        .insert(NamedValue.parse("a"), NadaValue.createSecretInteger(42))
+        .insert(NamedValue.parse("b"), NadaValue.createSecretInteger(43)),
     ],
     valuesToInput: NadaValues.create(),
     result: {
@@ -81,15 +82,15 @@ export const testPrograms: TestProgram[] = [
     },
   },
   {
-    name: "tuple_new",
-    id: "" as ProgramId,
+    name: "tuple_new.nada.bin",
+    id: ProgramId.parse(`${TestEnv.programNamespace}/tuple_new.nada.bin`),
     inputParties: [PartyName.parse("Party1")],
     outputParties: [PartyName.parse("Party1")],
     storeIds: [],
     valuesToStore: [
       NadaValues.create()
-        .insert(NamedValue.parse("I00"), NadaValue.createSecretInteger(77))
-        .insert(NamedValue.parse("I01"), NadaValue.createSecretInteger(54)),
+        .insert(NamedValue.parse("a"), NadaValue.createSecretInteger(77))
+        .insert(NamedValue.parse("b"), NadaValue.createSecretInteger(54)),
     ],
     valuesToInput: NadaValues.create(),
     result: {
