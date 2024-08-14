@@ -24,7 +24,7 @@
   "dependencies": {
     "@nillion/client-core": "0.1.0-rc.9",
     "@nillion/client-payments": "0.1.0-rc.9",
-    "debug": "^4.3.5",
+    "debug": "^4.3.6",
     "zod": "^3.23.8"
   },
   "devDependencies": {
