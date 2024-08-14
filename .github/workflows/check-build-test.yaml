@@ -19,12 +19,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-
       - run: npm ci
       - run: just check
 
@@ -62,4 +56,4 @@ jobs:
         with:
           name: ${{ matrix.package }}-logs
           path: packages/fixture/logs
-          retention-days: 7
+          retention-days: 4
