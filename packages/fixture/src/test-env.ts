@@ -39,6 +39,8 @@ export const loadEnv = async (): Promise<void> => {
   const file = await waitForFileSync(path);
   const fromEnvFile = parse(file);
 
+  TestEnv.NILLION_BOOTNODE_MULTIADDRESS =
+    fromEnvFile.NILLION_BOOTNODE_MULTIADDRESS;
   TestEnv.NILLION_BOOTNODE_WEBSOCKET = fromEnvFile.NILLION_BOOTNODE_WEBSOCKET;
   TestEnv.NILLION_CLUSTER_ID = fromEnvFile.NILLION_CLUSTER_ID;
   TestEnv.NILLION_NILCHAIN_CHAIN_ID = fromEnvFile.NILLION_NILCHAIN_CHAIN_ID;

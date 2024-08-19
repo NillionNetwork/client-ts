@@ -34,7 +34,7 @@ const storeProgram = async (distDir: string, binaryName: string) => {
     env: { PATH: process.env.PATH },
     extendEnv: false,
   })`nillion
-    -b ${TestEnv.NILLION_BOOTNODE_WEBSOCKET}
+    -b ${TestEnv.NILLION_BOOTNODE_MULTIADDRESS}
     --node-key-seed ${randomUUID().toString()},
     --user-key-seed ${TestEnv.NILLION_USER_SEED}
     --nilchain-rpc-endpoint ${TestEnv.NILLION_NILCHAIN_JSON_RPC}

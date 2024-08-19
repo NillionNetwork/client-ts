@@ -7,13 +7,13 @@ import { createProgramFixtures } from "./prepare-programs";
 import { runDevnet } from "./run-devnet";
 import { runTests } from "./run-tests";
 
-// partyId: "12D3KooWEnWNWnuzuckMhAEKKMPvdDacy3K3tdCQDBtctsYMPe5r",
 export const TestEnv = {
   NILLION_TEST_TARGET: "",
   NILLION_TEST_DEVNET_PID: -1,
   NILLION_TEST_DEVNET_SEED: "test-fixture",
   NILLION_TEST_PROGRAMS_NAMESPACE: "",
 
+  NILLION_BOOTNODE_MULTIADDRESS: "",
   NILLION_BOOTNODE_WEBSOCKET: "",
   NILLION_CLUSTER_ID: "",
   NILLION_NILCHAIN_CHAIN_ID: "",
