@@ -19,6 +19,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
       - run: npm ci
       - run: just check
 
@@ -34,6 +35,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -43,12 +45,8 @@ jobs:
           sudo apt update
           sudo apt install -y protobuf-compiler curl
           npm ci
-      - name: Install and configure nilup
-        run: |
-          curl https://nilup.nilogy.xyz/install.sh | bash
-          $HOME/.nilup/bin/nilup use 0.5.0
-          $HOME/.nilup/bin/nilup init
-          echo "$HOME/.nilup/bin" >> $GITHUB_PATH
+      - uses: NillionNetwork/nillion-setup-action@main
+        version: latest
       - run: |
           just test-${{ matrix.package }}-ci
       - uses: actions/upload-artifact@v3
