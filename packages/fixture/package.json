@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@types/debug": "^4.1.12",
-    "date-fns": "^3.6.0",
     "debug": "^4.3.5",
     "dotenv": "^16.4.5",
     "execa": "^9.3.0",

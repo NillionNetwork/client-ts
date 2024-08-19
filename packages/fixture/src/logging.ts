@@ -1,5 +1,4 @@
 import debug from "debug";
-import { format } from "date-fns";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -7,11 +6,14 @@ debug.enable("nillion:*");
 export const Log = debug("nillion:fixture");
 Log.log = console.log.bind(console);
 
-const formattedDate = format(new Date(), "yyyy-MM-dd_HH-mm-ss");
-export const LOG_RUN_DIR = path.resolve(`./logs/${formattedDate}`);
+export const LOG_RUN_DIR = path.resolve("./logs");
 
 export const setupLoggingDir = () => {
   fs.mkdirSync(LOG_RUN_DIR, { recursive: true });
+
+  const runTimestamp = new Date().toISOString();
+  fs.writeFileSync(`${LOG_RUN_DIR}/timestamp.log`, runTimestamp);
+
   fs.writeFileSync(getDevnetLogFile(), "");
   fs.writeFileSync(getTestLogFile(), "");
   fs.writeFileSync(getPrepareProgramsLogFile(), "");
