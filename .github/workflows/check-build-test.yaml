@@ -46,7 +46,8 @@ jobs:
           sudo apt install -y protobuf-compiler curl
           npm ci
       - uses: NillionNetwork/nillion-setup-action@main
-        version: latest
+        with:
+          version: 'latest'
       - run: |
           just test-${{ matrix.package }}-ci
       - uses: actions/upload-artifact@v3
