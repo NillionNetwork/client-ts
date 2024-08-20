@@ -15,7 +15,7 @@ export const getVmClientEnvConfig = (): VmClientConfig => {
     cluster: TestEnv.cluster,
     bootnodes: TestEnv.bootnodes,
     userSeed: TestEnv.userSeed,
-    nodeSeed: TestEnv.nodeSeed,
+    nodeSeed: window.crypto.randomUUID(),
   });
 };
 
@@ -38,7 +38,7 @@ export const getNillionClientEnvConfig = (): NillionClientConfig => {
         bootnodes: TestEnv.bootnodes,
         cluster: TestEnv.cluster,
         userSeed: TestEnv.userSeed,
-        nodeSeed: TestEnv.nodeSeed,
+        nodeSeed: window.crypto.randomUUID(),
       };
 
       const key = PrivateKeyBase16.parse(TestEnv.chainPrivateKey0);

@@ -21,7 +21,6 @@ export const TestEnv = {
   NILLION_NILCHAIN_PRIVATE_KEY_0: "",
 
   NILLION_USER_SEED: "test-fixture",
-  NILLION_NODE_SEED: "test-fixture",
 };
 export type TestEnv = typeof TestEnv;
 

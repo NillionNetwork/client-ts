@@ -37,7 +37,6 @@ export const buildWebpackBaseConfig = (packageBaseDir) => ({
       "NILLION_NILCHAIN_CHAIN_ID",
       "NILLION_NILCHAIN_JSON_RPC",
       "NILLION_NILCHAIN_PRIVATE_KEY_0",
-      "NILLION_NODE_SEED",
       "NILLION_USER_SEED",
       "NILLION_TEST_PROGRAMS_NAMESPACE",
     ]),
