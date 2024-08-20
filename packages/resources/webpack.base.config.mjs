@@ -7,7 +7,7 @@ export const buildWebpackBaseConfig = (packageBaseDir) => ({
   mode: "development",
   entry: glob.sync("tests/**/*.test.ts"),
   resolve: {
-    modules: [packageBaseDir, "tests", "test-helpers", "node_modules"],
+    modules: [packageBaseDir, "tests", "test-utils", "node_modules"],
     extensions: [".js", ".ts", ".json"],
     plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
     fallback: {
