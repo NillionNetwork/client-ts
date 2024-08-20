@@ -13,8 +13,7 @@ export const client = NillionClient.create({
     return {
       endpoint: "http://localhost:8080/nilchain",
       signer,
-      userSeed: "nillion-devnet",
-      nodeSeed: "nillion-devnet",
+      userSeed: "example@nillion",
     };
   },
 });

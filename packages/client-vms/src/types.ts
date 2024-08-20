@@ -23,10 +23,7 @@ export type NillionClientConfigComplete = z.infer<
 export const NillionClientConfig = z.object({
   network: z.union([NamedNetwork, z.string().min(1)]).optional(),
   userSeed: z.union([UserSeed, z.string().min(1)]).optional(),
-  nodeSeed: z
-    .union([NodeSeed, z.string().min(1)])
-    .default(() => window.crypto.randomUUID())
-    .optional(),
+  nodeSeed: z.union([NodeSeed, z.string().min(1)]).optional(),
   overrides: z
     .function()
     .args()

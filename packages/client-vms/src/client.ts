@@ -153,7 +153,11 @@ export class NillionClient {
       E.let("seeds", () => {
         const seeds: Record<string, string> = {};
         if (this._config.userSeed) seeds.userSeed = this._config.userSeed;
-        if (this._config.nodeSeed) seeds.nodeSeed = this._config.nodeSeed;
+        if (this._config.nodeSeed) {
+          seeds.nodeSeed = this._config.nodeSeed;
+        } else {
+          seeds.nodeSeed = window.crypto.randomUUID();
+        }
         return seeds;
       }),
       E.bind("overrides", () =>
@@ -169,8 +173,9 @@ export class NillionClient {
             ...seeds,
             ...overrides,
           };
-          Log("Merged config: %O", complete);
-          return NillionClientConfigComplete.parse(complete);
+          const config = NillionClientConfigComplete.parse(complete);
+          Log("Config: %O", complete);
+          return config;
         }),
       ),
       E.flatMap((config: NillionClientConfigComplete) =>
