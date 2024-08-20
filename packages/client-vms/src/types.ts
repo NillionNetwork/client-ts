@@ -6,14 +6,14 @@ import {
 } from "@nillion/client-core";
 import { PaymentClientConfig } from "@nillion/client-payments";
 import { z } from "zod";
-import { VmClientConfig } from "./nilvm";
+import { NilVmClientConfig } from "./nilvm";
 
 export const NillionClientConfigComplete = z
   .object({
     network: NamedNetwork,
     logging: z.boolean().optional(),
   })
-  .merge(VmClientConfig)
+  .merge(NilVmClientConfig)
   .merge(PaymentClientConfig);
 
 export type NillionClientConfigComplete = z.infer<
@@ -23,7 +23,10 @@ export type NillionClientConfigComplete = z.infer<
 export const NillionClientConfig = z.object({
   network: z.union([NamedNetwork, z.string().min(1)]).optional(),
   userSeed: z.union([UserSeed, z.string().min(1)]).optional(),
-  nodeSeed: z.union([NodeSeed, z.string().min(1)]).optional(),
+  nodeSeed: z
+    .union([NodeSeed, z.string().min(1)])
+    .default(() => window.crypto.randomUUID())
+    .optional(),
   overrides: z
     .function()
     .args()

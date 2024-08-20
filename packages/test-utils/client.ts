@@ -3,11 +3,11 @@ import {
   createSignerFromKey,
   PaymentClientConfig,
 } from "../client-payments/src";
-import { NillionClientConfig, VmClientConfig } from "../client-vms/src";
+import { NillionClientConfig, NilVmClientConfig } from "../client-vms/src";
 import { TestEnv } from "./test-env";
 
-export const getVmClientEnvConfig = (): VmClientConfig => {
-  return VmClientConfig.parse({
+export const getVmClientEnvConfig = (): NilVmClientConfig => {
+  return NilVmClientConfig.parse({
     cluster: TestEnv.cluster,
     bootnodes: TestEnv.bootnodes,
     userSeed: TestEnv.userSeed,

@@ -29,7 +29,7 @@ import { UnknownException } from "effect/Cause";
 import { ZodError } from "zod";
 import { Log } from "./logger";
 import { valuesRecordToNadaValues } from "./nada";
-import { VmClient } from "./nilvm";
+import { NilVmClient } from "./nilvm";
 import {
   NillionClientConfig,
   NillionClientConfigComplete,
@@ -37,7 +37,7 @@ import {
 } from "./types";
 
 /**
- * NillionClient integrates {@link VmClient} and {@link PaymentsClient} to provide
+ * NillionClient integrates {@link NilVmClient} and {@link PaymentsClient} to provide
  * a single ergonomic API for interacting with a [Nillion Network](https://docs.nillion.com/network).
  *
  * @example
@@ -58,7 +58,7 @@ import {
  * ```
  */
 export class NillionClient {
-  private _vm: VmClient | undefined;
+  private _vm: NilVmClient | undefined;
   private _chain: PaymentsClient | undefined;
 
   /**
@@ -82,9 +82,9 @@ export class NillionClient {
    * Guarded access to the vm client.
    *
    * @throws Error if the client is not ready.
-   * @returns The initialized {@link VmClient} instance.
+   * @returns The initialized {@link NilVmClient} instance.
    */
-  public get vm(): VmClient {
+  public get vm(): NilVmClient {
     this.isReadyGuard();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this._vm!;
@@ -175,7 +175,7 @@ export class NillionClient {
       ),
       E.flatMap((config: NillionClientConfigComplete) =>
         E.tryPromise(async () => {
-          this._vm = VmClient.create(config);
+          this._vm = NilVmClient.create(config);
           this._chain = PaymentsClient.create(config);
           await this._vm.connect();
           await this._chain.connect();
