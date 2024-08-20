@@ -3,23 +3,27 @@ import {
   NadaValue,
   NadaValues,
   NadaValueType,
+  NamedValue,
   Operation,
   Permissions,
   ProgramBindings,
   ProgramName,
   StoreId,
-  NamedValue,
 } from "@nillion/client-core";
 import { NillionClient } from "@nillion/client-vms";
-import { testPrograms } from "./programs";
-import { TestNadaType, testNadaTypes } from "./nada-values";
 import {
-  expectOk,
   expectErr,
-  loadProgram,
+  expectOk,
   getNillionClientEnvConfig,
+  loadProgram,
 } from "../../test-utils";
-import { TestSimpleType, testSimpleTypes } from "./simple-values";
+import {
+  type TestNadaType,
+  testNadaTypes,
+  testPrograms,
+  type TestSimpleType,
+  testSimpleTypes,
+} from "./helpers";
 
 const SUITE_NAME = "@nillion/client-vms";
 

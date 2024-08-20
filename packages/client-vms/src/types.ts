@@ -1,12 +1,12 @@
-import { z } from "zod";
 import {
   NadaPrimitiveValue,
   NamedNetwork,
   NodeSeed,
   UserSeed,
-  VmClientConfig,
 } from "@nillion/client-core";
 import { PaymentClientConfig } from "@nillion/client-payments";
+import { z } from "zod";
+import { VmClientConfig } from "./nilvm";
 
 export const NillionClientConfigComplete = z
   .object({

@@ -22,19 +22,19 @@ import {
   ProgramName,
   Result,
   StoreId,
-  VmClient,
 } from "@nillion/client-core";
 import { PaymentsClient } from "@nillion/client-payments";
 import { Effect as E, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
+import { ZodError } from "zod";
 import { Log } from "./logger";
+import { valuesRecordToNadaValues } from "./nada";
+import { VmClient } from "./nilvm";
 import {
   NillionClientConfig,
   NillionClientConfigComplete,
   StoreValueArgs,
 } from "./types";
-import { ZodError } from "zod";
-import { valuesRecordToNadaValues } from "./nada";
 
 /**
  * NillionClient integrates {@link VmClient} and {@link PaymentsClient} to provide

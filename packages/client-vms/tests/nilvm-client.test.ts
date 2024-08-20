@@ -10,8 +10,8 @@ import {
   ProgramId,
   ProgramName,
   StoreId,
-  VmClient,
 } from "@nillion/client-core";
+import { VmClient } from "@nillion/client-vms";
 import {
   expectOk,
   getVmClientEnvConfig,
@@ -19,7 +19,7 @@ import {
   TestEnv,
 } from "../../test-utils";
 
-const SUITE_NAME = `@nillion/client-core > non-paid functions`;
+const SUITE_NAME = `@nillion/client-vms > VmClient`;
 
 describe(SUITE_NAME, () => {
   const config = getVmClientEnvConfig();
