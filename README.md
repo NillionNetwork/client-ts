@@ -23,37 +23,44 @@ Typescript client libraries for interacting with a Nillion cluster.
 - HTTP headers are needed in order for the browser to load the wasm bundle:
    - `Cross-Origin-Embedder-Policy: require-corp`
    - `Cross-Origin-Opener-Policy: same-origin`
-- The nilchain spawned with `nillion-devnet` does not support CORS. The recommended workaround is proxy requests to nilchain for local development. 
+- The nilchain spawned with [nillion-devnet](https://docs.nillion.com/nillion-devnet) does not support CORS. The recommended workaround is proxy requests to nilchain for local development. 
 
 ## Quick start
 
 Complete examples are available at [examples/react](https://github.com/NillionNetwork/client-ts/tree/main/examples/react) or [examples/nextjs](https://github.com/NillionNetwork/client-ts/tree/main/examples/nextjs).
 
-1. Add nillion dependencies to a basic React + webpack project.
+
+1. Ensure you are running `nillion-devnet` in another terminal window.
+
+2. Add nillion dependencies to a your React / Next project.
 
   ```shell 
+  // npm
   npm i -D @nillion/client-core@latest @nillion/client-vms@latest @nillion/client-react-hooks@latest
   ```
 
-2. Create a client:
+3. As mentioned, we have to add certain HTTP headers. Adjust your `webpack` / `next.config.mjs` configration. Please refer to the React webpack [here](https://github.com/NillionNetwork/client-ts/blob/main/examples/react/webpack.config.mjs) or nextjs [here](https://github.com/NillionNetwork/client-ts/blob/main/examples/nextjs/next.config.mjs).
+
+4. Create a client to interact with the local devnet :
+
+Note: If `network: NamedNetwork.enum.Devnet` is provided, then we don't need to specify bootnodes, cluster or chain since these values are copied from the partial config.
 
   ```ts
   const client = NillionClient.create({
     network: NamedNetwork.enum.Devnet,
-    
     overrides: async () => {
       // this is the account's private key when running `nillion-devnet` with default seed
       const signer = await createSignerFromKey("9a975f567428d054f2bf3092812e6c42f901ce07d9711bc77ee2cd81101f42c5");
       return {
-        endpoint: "https://testnet-nillion-rpc.lavenderfive.com",
-        userSeed: "unique-user-seed",
+        endpoint: "http://localhost:3000/nilchain",
         signer,
+        userSeed: "nillion-devnet",
       };
     }
   })
   ```
 
-3. Near the root of your component hierarchy, add `NillionClientProvider`:
+5. Near the root of your component hierarchy, add `NillionClientProvider`:
 
   ```tsx
   export function App() {
@@ -65,7 +72,7 @@ Complete examples are available at [examples/react](https://github.com/NillionNe
   }
   ```
 
-4. Expose the client to your component:
+6. Expose the client to your component:
 
   ```tsx
     export default function Home() {
@@ -99,7 +106,10 @@ Complete examples are available at [examples/react](https://github.com/NillionNe
   }
   ```
 
-5. Next, run your app and click "Store". After a few seconds you should see `Status: succcess` and `Id: <uuid>` rendered.
+7. Next, run your app and click "Store". After a few seconds you should see `Status: succcess` and `Id: <uuid>` rendered. Congratulations, now you can interact with the client 🎉 
+
+8. (Optional). Once you want to switch to production ready apps, you can use the `Photon` testnet by switching the network to `Photon`. The configs can be found [here](https://github.com/NillionNetwork/client-ts/blob/main/packages/client-core/src/configs.ts). You are only required to provide a `user-seed`.
+
 
 ## Packages and package hierarchy
 
@@ -148,7 +158,7 @@ const config = {
     const signer = await createSignerFromKey("payment-account-private-key")
     return {
       signer,
-      // webpack devserver adddres proxied to nilchain
+      // webpack devserver address proxied to nilchain
       endpoint: "http://localhost:8080/nilchain", 
       userSeed: "unique-user-seed",
     }
@@ -254,4 +264,4 @@ const values = {
 
 ## Getting help
 
-Ask for help in the [Nillion discord channel](https://discord.gg/nillionnetwork), or if you've found a bug with client-ts, [file an issue](https://github.com/NillionNetwork/client-ts/issues).
+Ask for help in the [Nillion Github Discussions](https://github.com/orgs/NillionNetwork/discussions), or if you've found a bug with client-ts, [file an issue](https://github.com/NillionNetwork/client-ts/issues).
