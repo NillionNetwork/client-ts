@@ -15,7 +15,6 @@ import {
   SecretString,
 } from "@nillion/client-core";
 import * as Wasm from "@nillion/client-wasm";
-import { strToByteArray } from "../../test-utils";
 
 const SUITE_NAME = `@nillion/client-core > initialization`;
 
@@ -106,7 +105,7 @@ describe(SUITE_NAME, () => {
       const asWasm = secret.toWasm();
       expect(asWasm).toBeInstanceOf(Wasm.NadaValue);
       expect(asWasm.to_byte_array()).toEqual(
-        strToByteArray(secret.data as string),
+        new TextEncoder().encode(secret.data as string),
       );
 
       const asTs = NadaValue.fromWasm(NadaValueType.enum.SecretString, asWasm);
