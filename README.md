@@ -19,23 +19,51 @@ Typescript client libraries for interacting with a Nillion cluster.
 
 - Only browser environments are supported.
 - All packages are ES modules.
-- Run a local development cluster with [nilup](https://docs.nillion.com/nilup).
+- Run a local development cluster with [nilup](https://docs.nillion.com/nilup) + use 
 - HTTP headers are needed in order for the browser to load the wasm bundle:
    - `Cross-Origin-Embedder-Policy: require-corp`
    - `Cross-Origin-Opener-Policy: same-origin`
-- The nilchain spawned with `nillion-devnet` does not support CORS. The recommended workaround is proxy requests to nilchain for local development. 
+- The nilchain spawned with [nillion-devnet](https://docs.nillion.com/nillion-devnet) does not support CORS. The recommended workaround is proxy requests to nilchain for local development. 
 
 ## Quick start
 
 Complete examples are available at [examples/react](https://github.com/NillionNetwork/client-ts/tree/main/examples/react) or [examples/nextjs](https://github.com/NillionNetwork/client-ts/tree/main/examples/nextjs).
 
-1. Add nillion dependencies to a basic React + webpack project.
+
+1. In a terminal where you are running `nillion-devnet`, retrive the `nillion-devnet.env` via `vim`. This will give you access to configuration settings in the next step. 
+
+`vim "/Users/XXX/Library/Application Support/nillion.nillion/nillion-devnet.env"`
+
+```
+nillion-devnet --seed my-seed
+ℹ️ cluster id is 222257f5-f3ce-4b80-bdbc-0a51f6050996
+ℹ️ using 256 bit prime
+ℹ️ storing state in /var/folders/1_/2yw8krkx5q5dn2jbhx69s4_r0000gn/T/.tmpU00Jbm (62.14Gbs available)
+🏃 starting nilchain node in: /var/folders/1_/2yw8krkx5q5dn2jbhx69s4_r0000gn/T/.tmpU00Jbm/nillion-chain
+⛓  nilchain JSON RPC available at http://127.0.0.1:48102
+⛓  nilchain gRPC available at localhost:26649
+🏃 starting node 12D3KooWMGxv3uv4QrGFF7bbzxmTJThbtiZkHXAgo3nVrMutz6QN
+⏳ waiting until bootnode is up...
+🏃 starting node 12D3KooWKkbCcG2ujvJhHe5AiXznS9iFmzzy1jRgUTJEhk4vjF7q
+🏃 starting node 12D3KooWMgLTrRAtP9HcUYTtsZNf27z5uKt3xJKXsSS2ohhPGnAm
+👛 funding nilchain keys
+📝 nillion CLI configuration written to /Users/steph/Library/Application Support/nillion.nillion/config.yaml
+🌄 environment file written to /Users/XXX/Library/Application Support/nillion.nillion/nillion-devnet.env
+````
+
+2. Add nillion dependencies to a basic React + webpack project.
 
   ```shell 
+  // npm
   npm i -D @nillion/client-core@latest @nillion/client-vms@latest @nillion/client-react-hooks@latest
+
+  // yarn
+  yarn add --dev @nillion/client-core@latest @nillion/client-vms@latest @nillion/client-react-hooks@latest
   ```
 
-2. Create a client:
+3. As mentioned, we have to add certain HTTP header. Adjust your `webpack` / `next.config.mjs` configration. Please refer to the react webpack [here](https://github.com/NillionNetwork/client-ts/blob/main/examples/react/webpack.config.mjs) and nextjs [here](https://github.com/NillionNetwork/client-ts/blob/main/examples/nextjs/next.config.mjs).
+
+3. Create a client to interact with the local devnet :
 
   ```ts
   const client = NillionClient.create({
@@ -45,9 +73,14 @@ Complete examples are available at [examples/react](https://github.com/NillionNe
       // this is the account's private key when running `nillion-devnet` with default seed
       const signer = await createSignerFromKey("9a975f567428d054f2bf3092812e6c42f901ce07d9711bc77ee2cd81101f42c5");
       return {
-        endpoint: "https://testnet-nillion-rpc.lavenderfive.com",
-        userSeed: "unique-user-seed",
+        endpoint: "http://localhost:8080/nilchain",
         signer,
+        userSeed: "nillion-devnet",
+        bootnodes: [ 
+          "XXX" // From your from nillion-devnet.env 
+        ],
+        cluster: "9e68173f-9c23-4acc-ba81-4f079b639964",
+        chain: "nillion-chain-devnet"
       };
     }
   })
@@ -99,7 +132,7 @@ Complete examples are available at [examples/react](https://github.com/NillionNe
   }
   ```
 
-5. Next, run your app and click "Store". After a few seconds you should see `Status: succcess` and `Id: <uuid>` rendered.
+5. Next, run your app and click "Store". After a few seconds you should see `Status: succcess` and `Id: <uuid>` rendered. Congratulations, now you can interact with the client 🎉
 
 ## Packages and package hierarchy
 
@@ -150,7 +183,8 @@ const config = {
       signer,
       // webpack devserver adddres proxied to nilchain
       endpoint: "http://localhost:8080/nilchain", 
-      userSeed: "unique-user-seed",
+      userSeed: "nillion-devnet",
+      nodeSeed: "nillion-devnet",
     }
   }
 }
