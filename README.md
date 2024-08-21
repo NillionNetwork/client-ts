@@ -162,9 +162,9 @@ const config = {
     const signer = await createSignerFromKey("payment-account-private-key")
     return {
       signer,
-      // webpack devserver adddres proxied to nilchain
+      // webpack devserver address proxied to nilchain
       endpoint: "http://localhost:8080/nilchain", 
-      userSeed: "nillion-devnet",
+      userSeed: "unique-user-seed",
     }
   }
 }
