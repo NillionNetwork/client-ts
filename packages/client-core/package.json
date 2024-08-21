@@ -27,7 +27,7 @@
   "dependencies": {
     "@nillion/client-wasm": "0.1.0-rc.10",
     "debug": "^4.3.6",
-    "effect": "3.6.4",
+    "effect": "3.6.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
