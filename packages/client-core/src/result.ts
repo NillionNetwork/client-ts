@@ -2,6 +2,26 @@ import { Effect as E, pipe } from "effect";
 import { ZodError } from "zod";
 import { isTaggedError } from "./error";
 
+/**
+ * The outcome of a failable operation. This type represents either a successful result or an error.
+ *
+ * - If the operation was successful, `result.ok` contains the success value, and `result.err` is `null`.
+ * - If the operation failed, `result.err` contains the error value, and `result.ok` is `null`.
+ *
+ * @typeParam S - The type of the success value. This represents the data or result produced by the operation if it succeeds.
+ * @typeParam E - The type of the error value. This represents the error or exception encountered by the operation if it fails.
+ *
+ * @example
+ * ```ts
+ * declare result: Result<StoreId, Error>
+ * if(result.err) {
+ *    const err = result.err // err has type Error
+ *    console.log("the operation failed: ", result.err.message)
+ *    return
+ * }
+ * const id = result.ok // id has type StoreId
+ * ```
+ */
 export type Result<S, E> = { ok: S; err: null } | { ok: null; err: E };
 
 export const effectToResultAsync = <S, E extends Error>(
