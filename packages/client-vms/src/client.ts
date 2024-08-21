@@ -22,22 +22,22 @@ import {
   ProgramName,
   Result,
   StoreId,
-  VmClient,
 } from "@nillion/client-core";
 import { PaymentsClient } from "@nillion/client-payments";
 import { Effect as E, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
+import { ZodError } from "zod";
 import { Log } from "./logger";
+import { valuesRecordToNadaValues } from "./nada";
+import { NilVmClient } from "./nilvm";
 import {
   NillionClientConfig,
   NillionClientConfigComplete,
   StoreValueArgs,
 } from "./types";
-import { ZodError } from "zod";
-import { valuesRecordToNadaValues } from "./nada";
 
 /**
- * NillionClient integrates {@link VmClient} and {@link PaymentsClient} to provide
+ * NillionClient integrates {@link NilVmClient} and {@link PaymentsClient} to provide
  * a single ergonomic API for interacting with a [Nillion Network](https://docs.nillion.com/network).
  *
  * @example
@@ -58,14 +58,14 @@ import { valuesRecordToNadaValues } from "./nada";
  * ```
  */
 export class NillionClient {
-  private _vm: VmClient | undefined;
+  private _vm: NilVmClient | undefined;
   private _chain: PaymentsClient | undefined;
 
   /**
    * The constructor is private to enforces the use of the factory creator method.
    *
-   * @see NillionClient.create
    * @param _config - The configuration object for the NillionClient.
+   * @see NillionClient.create
    */
   private constructor(private _config: NillionClientConfig) {}
 
@@ -82,9 +82,9 @@ export class NillionClient {
    * Guarded access to the vm client.
    *
    * @throws Error if the client is not ready.
-   * @returns The initialized {@link VmClient} instance.
+   * @returns The initialized {@link NilVmClient} instance.
    */
-  public get vm(): VmClient {
+  public get vm(): NilVmClient {
     this.isReadyGuard();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this._vm!;
@@ -153,7 +153,11 @@ export class NillionClient {
       E.let("seeds", () => {
         const seeds: Record<string, string> = {};
         if (this._config.userSeed) seeds.userSeed = this._config.userSeed;
-        if (this._config.nodeSeed) seeds.nodeSeed = this._config.nodeSeed;
+        if (this._config.nodeSeed) {
+          seeds.nodeSeed = this._config.nodeSeed;
+        } else {
+          seeds.nodeSeed = window.crypto.randomUUID();
+        }
         return seeds;
       }),
       E.bind("overrides", () =>
@@ -169,13 +173,14 @@ export class NillionClient {
             ...seeds,
             ...overrides,
           };
-          Log("Merged config: %O", complete);
-          return NillionClientConfigComplete.parse(complete);
+          const config = NillionClientConfigComplete.parse(complete);
+          Log("Config: %O", complete);
+          return config;
         }),
       ),
       E.flatMap((config: NillionClientConfigComplete) =>
         E.tryPromise(async () => {
-          this._vm = VmClient.create(config);
+          this._vm = NilVmClient.create(config);
           this._chain = PaymentsClient.create(config);
           await this._vm.connect();
           await this._chain.connect();
@@ -316,6 +321,14 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Updates values at the given store id. Similar to {@link NillionClient.store}, this
+   * function takes care of converting from primitive values to Nada types automatically.
+   *
+   * @param args - An Object with the store id, values and time-to-live.
+   * @returns A promise resolving to the update's unique action id in the network.
+   * @see NillionClient.updateValue
+   */
   update(args: {
     id: StoreId | string;
     values: Record<NamedValue | string, NadaPrimitiveValue | StoreValueArgs>;
@@ -338,6 +351,14 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Pay for the operation.
+   *
+   * Retrieves a quote from the leader, pays for it on nilchian and then returns a {@link PaymentReceipt}.
+   *
+   * @param args - An object containing the operation and its type.
+   * @returns An {@link E.Effect} that resolves to a {@link PaymentReceipt}.
+   */
   pay(args: {
     operation: IntoWasmQuotableOperation & { type: OperationType };
   }): E.Effect<PaymentReceipt, UnknownException> {
@@ -360,6 +381,12 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Initiates execution of the specified program.
+   *
+   * @param args - An object containing program bindings, run-time values, and ids for values to retrieve.
+   * @returns A promise resolving to the {@link ComputeResultId}.
+   */
   runProgram(args: {
     bindings: ProgramBindings;
     values: NadaValues;
@@ -386,6 +413,13 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Fetches the result from a program execution.
+   *
+   * @param args - An object containing the {@link ComputeResultId}.
+   * @returns A promise resolving to a Map of the programs output.
+   * @see NillionClient.runProgram
+   */
   fetchProgramOutput(args: {
     id: ComputeResultId | string;
   }): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
@@ -405,6 +439,12 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Delete the {@link NadaValues} stored at {@link StoreId}.
+   *
+   * @param args - An object containing the {@link StoreId} to delete.
+   * @returns A promise resolving to the deleted {@link StoreId}.
+   */
   deleteValues(args: {
     id: StoreId | string;
   }): Promise<Result<StoreId, UnknownException>> {
@@ -419,16 +459,34 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Fetch network details.
+   *
+   * @returns A promise resolving to the network's {@link ClusterDescriptor}.
+   */
   fetchClusterInfo(): Promise<Result<ClusterDescriptor, UnknownException>> {
     return pipe(this.vm.fetchClusterInfo(), effectToResultAsync);
   }
 
+  /**
+   * Asks the leader to quote the provided operation.
+   *
+   * @param args - An object containing the {@link Operation}.
+   * @returns A promise resolving to the {@link PriceQuote}.
+   * @see NillionClient.pay
+   */
   fetchOperationQuote(args: {
     operation: IntoWasmQuotableOperation & { type: OperationType };
   }): Promise<Result<PriceQuote, UnknownException>> {
     return pipe(this.vm.fetchOperationQuote(args), effectToResultAsync);
   }
 
+  /**
+   * Fetch the {@link NamedValue} at {@link StoreId}.
+   *
+   * @param args - An object containing the {@link StoreId}, {@link NamedValue} and {@link NadaValueType}.
+   * @returns A promise resolving to the {@link Result} containing a `Map` where the keys are {@link NamedValue} and the values are {@link NadaValue}.
+   */
   fetchValue(args: {
     id: StoreId;
     name: NamedValue;
@@ -460,6 +518,12 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Store a program in the network.
+   *
+   * @param args - An object containing the {@link ProgramName} and the program as a {@link Uint8Array}.
+   * @returns A promise resolving to the {@link Result} containing the {@link ProgramId}.
+   */
   storeProgram(args: {
     name: ProgramName | string;
     program: Uint8Array;
@@ -481,6 +545,12 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Stores {@link NadaValues} in the network.
+   *
+   * @param args - An object containing the values, time-to-live, and optional permissions.
+   * @returns A promise resolving to the {@link Result} containing the store id.
+   */
   storeValues(args: {
     values: NadaValues;
     ttl: Days;
@@ -507,6 +577,12 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Updates the store id location with the provided values.
+   *
+   * @param args - An object containing the store id to update with updated values and time-to-live.
+   * @returns A promise resolving to the {@link Result} containing the {@link ActionId}.
+   */
   updateValue(args: {
     id: StoreId;
     values: NadaValues;
@@ -520,6 +596,12 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Fetches a store id's permissions.
+   *
+   * @param args - An object containing the {@link StoreId}.
+   * @returns A promise resolving to the {@link Result} containing the {@link Permissions}.
+   */
   fetchPermissions(args: {
     id: StoreId | string;
   }): Promise<Result<Permissions, UnknownException>> {
@@ -540,6 +622,14 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Sets the permissions for a stored value in the network.
+   *
+   * Existing permissions are overwritten.
+   *
+   * @param args - An object containing the {@link StoreId} and the new {@link Permisisons}.
+   * @returns A promise resolving to the {@link Result} containing the {@link ActionId}.
+   */
   setPermissions(args: {
     id: StoreId | string;
     permissions: Permissions;
@@ -559,5 +649,16 @@ export class NillionClient {
     );
   }
 
+  /**
+   * Creates a new instance of {@link NillionClient}.
+   *
+   * This factory method initializes a `NillionClient` instance using the provided configuration. Before invoking
+   * network calls, the async {@Link NillionClient.connect} method must be called.
+   *
+   * @param config - The configuration object providing settings for initializing the client, such as network settings, user seeds,
+   * and optional overrides.
+   * @returns A new instance of `NillionClient`.
+   * @see NillionClient.connect
+   */
   static create = (config: NillionClientConfig) => new NillionClient(config);
 }

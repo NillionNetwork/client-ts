@@ -21,8 +21,7 @@ export const runDevnet = () => {
     writeFileSync(LOG_FILE, data, { flag: "a" });
   });
 
-  // It appears that nillion-devnet spawns a child process which is the
-  // one that needs to be killed. So, cheap way to find that child's pid is pid + 1.
+  // The command nillion-devnet is proxied through nilup, meaning, we cannot rely on the pid returned by execa.
   const pid = result.pid + 1;
 
   return {

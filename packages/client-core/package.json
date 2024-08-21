@@ -2,7 +2,7 @@
   "name": "@nillion/client-core",
   "license": "MIT",
   "author": "devsupport@nillion.com",
-  "version": "0.1.0-rc.10",
+  "version": "0.1.0-rc.11",
   "homepage": "https://nillion.pub/client-ts",
   "repository": {
     "type": "git",
@@ -25,9 +25,9 @@
     "test:serve": "npx jasmine-browser-runner serve --config=jasmine.config.mjs"
   },
   "dependencies": {
-    "@nillion/client-wasm": "0.1.0-rc.10",
+    "@nillion/client-wasm": "0.1.0-rc.11",
     "debug": "^4.3.6",
-    "effect": "3.6.4",
+    "effect": "3.6.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {

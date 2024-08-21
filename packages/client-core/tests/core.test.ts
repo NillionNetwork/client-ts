@@ -15,18 +15,34 @@ import {
   SecretString,
 } from "@nillion/client-core";
 import * as Wasm from "@nillion/client-wasm";
-import { strToByteArray } from "../../test-utils";
 
-const SUITE_NAME = "@nillion/client-core > nada types";
+const SUITE_NAME = `@nillion/client-core > initialization`;
 
 describe(SUITE_NAME, () => {
-  beforeAll(async () => {
+  beforeAll(() => {
     console.log(`*** Start ${SUITE_NAME} ***`);
-    await init();
   });
 
   afterAll(() => {
     console.log(`*** Finish ${SUITE_NAME} *** \n\n`);
+  });
+
+  describe("init", () => {
+    it("handles multiple init() calls", async () => {
+      await init();
+      await init();
+      expect(true).toBeTruthy();
+    });
+
+    it("window.__NILLION should be defined", () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const nillion = globalThis.__NILLION!;
+      expect(nillion).toBeDefined();
+      expect(nillion.initialized).toBeTruthy();
+      expect(nillion.enableTelemetry).toBeDefined();
+      expect(nillion.enableLogging).toBeDefined();
+      expect(nillion.enableWasmLogging).toBeDefined();
+    });
   });
 
   describe("primitive type guards", () => {
@@ -89,7 +105,7 @@ describe(SUITE_NAME, () => {
       const asWasm = secret.toWasm();
       expect(asWasm).toBeInstanceOf(Wasm.NadaValue);
       expect(asWasm.to_byte_array()).toEqual(
-        strToByteArray(secret.data as string),
+        new TextEncoder().encode(secret.data as string),
       );
 
       const asTs = NadaValue.fromWasm(NadaValueType.enum.SecretString, asWasm);

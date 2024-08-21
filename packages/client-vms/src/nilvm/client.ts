@@ -1,49 +1,47 @@
-import * as Wasm from "@nillion/client-wasm";
 import {
   ActionId,
   ClusterDescriptor,
   ClusterId,
+  Compute,
   ComputeResultId,
+  init,
+  IntoWasmQuotableOperation,
   Multiaddr,
+  NadaPrimitiveValue,
+  NadaValue,
+  OperationType,
   PartyId,
   PaymentReceipt,
-  PriceQuote,
-  ProgramId,
-  StoreId,
-  UserId,
-} from "./types";
-import { Log } from "./logger";
-import {
-  IntoWasmQuotableOperation,
   paymentReceiptInto,
-  priceQuoteFrom,
-} from "./wasm";
-import { NadaValue, NadaPrimitiveValue, Permissions } from "./nada";
-import {
-  Compute,
-  OperationType,
+  Permissions,
   PermissionsRetrieve,
   PermissionsSet,
+  PriceQuote,
+  priceQuoteFrom,
+  ProgramId,
   ProgramStore,
+  StoreId,
+  UserId,
   ValueRetrieve,
   ValuesStore,
   ValuesUpdate,
-} from "./operation";
+} from "@nillion/client-core";
+import * as Wasm from "@nillion/client-wasm";
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
-import { init } from "./init";
 import { z } from "zod";
+import { Log } from "../logger";
 
-export const VmClientConfig = z.object({
+export const NilVmClientConfig = z.object({
   bootnodes: z.array(Multiaddr),
   cluster: ClusterId,
   userSeed: z.string(),
   nodeSeed: z.string(),
 });
 
-export type VmClientConfig = z.infer<typeof VmClientConfig>;
+export type NilVmClientConfig = z.infer<typeof NilVmClientConfig>;
 
-export class VmClient {
+export class NilVmClient {
   // The wasm bundle is loaded asynchronously which can be problematic because most environments don't
   // support top-level awaits. To manage this complexity `this._client` is lazily initialized and guarded
   // by `isReadyGuard`. Users can therefore create the client in one place and then connect when they are
@@ -52,7 +50,7 @@ export class VmClient {
   private _client: Wasm.NillionClient;
   private _ready = false;
 
-  private constructor(private _config: VmClientConfig) {}
+  private constructor(private _config: NilVmClientConfig) {}
 
   get ready(): boolean {
     return this._ready;
@@ -326,5 +324,5 @@ export class VmClient {
     });
   }
 
-  static create = (args: VmClientConfig) => new VmClient(args);
+  static create = (args: NilVmClientConfig) => new NilVmClient(args);
 }

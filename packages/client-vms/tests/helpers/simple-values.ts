@@ -3,7 +3,7 @@ import {
   NadaValueType,
   StoreId,
 } from "@nillion/client-core";
-import { strToByteArray } from "../../test-utils";
+import { strToByteArray } from "../../../test-utils";
 
 export interface TestSimpleType {
   type: NadaValueType;

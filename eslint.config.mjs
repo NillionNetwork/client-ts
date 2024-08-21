@@ -6,7 +6,7 @@ import tsDoc from "eslint-plugin-tsdoc";
 
 export default [
   {
-    ignores: ["docs", "examples", "**/dist", "**/*.mjs"],
+    ignores: ["docs", "examples", "**/dist", "**/dist-test", "**/*.mjs"],
   },
   {
     files: ["**/*.{ts,tsx}"],

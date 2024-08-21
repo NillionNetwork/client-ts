@@ -12,13 +12,13 @@
   "dependencies": {
     "next": "14.2.5",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "@nillion/client-core": "0.1.0-rc.11",
+    "@nillion/client-react-hooks": "0.1.0-rc.11",
+    "@nillion/client-vms": "0.1.0-rc.11"
   },
   "devDependencies": {
-    "@nillion/client-core": "0.1.0-rc.10",
-    "@nillion/client-react-hooks": "0.1.0-rc.10",
-    "@nillion/client-vms": "0.1.0-rc.10",
-    "@types/node": "^20",
+    "@types/node": "^22",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "typescript": "^5"

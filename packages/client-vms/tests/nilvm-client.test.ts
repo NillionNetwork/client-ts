@@ -10,8 +10,8 @@ import {
   ProgramId,
   ProgramName,
   StoreId,
-  VmClient,
 } from "@nillion/client-core";
+import { NilVmClient } from "@nillion/client-vms";
 import {
   expectOk,
   getVmClientEnvConfig,
@@ -19,11 +19,11 @@ import {
   TestEnv,
 } from "../../test-utils";
 
-const SUITE_NAME = `@nillion/client-core > non-paid functions`;
+const SUITE_NAME = `@nillion/client-vms > NilVmClient`;
 
 describe(SUITE_NAME, () => {
   const config = getVmClientEnvConfig();
-  const client = VmClient.create(config);
+  const client = NilVmClient.create(config);
 
   const data = {
     store: StoreId.parse("aaaaaaaa-bbbb-cccc-dddd-ffffffffffff"),

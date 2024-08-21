@@ -1,21 +1,17 @@
-import {
-  NamedNetwork,
-  PrivateKeyBase16,
-  VmClientConfig,
-} from "@nillion/client-core";
+import { NamedNetwork, PrivateKeyBase16 } from "../client-core/src";
 import {
   createSignerFromKey,
   PaymentClientConfig,
 } from "../client-payments/src";
-import { NillionClientConfig } from "../client-vms/src";
+import { NillionClientConfig, NilVmClientConfig } from "../client-vms/src";
 import { TestEnv } from "./test-env";
 
-export const getVmClientEnvConfig = (): VmClientConfig => {
-  return VmClientConfig.parse({
+export const getVmClientEnvConfig = (): NilVmClientConfig => {
+  return NilVmClientConfig.parse({
     cluster: TestEnv.cluster,
     bootnodes: TestEnv.bootnodes,
     userSeed: TestEnv.userSeed,
-    nodeSeed: TestEnv.nodeSeed,
+    nodeSeed: window.crypto.randomUUID(),
   });
 };
 
@@ -38,7 +34,7 @@ export const getNillionClientEnvConfig = (): NillionClientConfig => {
         bootnodes: TestEnv.bootnodes,
         cluster: TestEnv.cluster,
         userSeed: TestEnv.userSeed,
-        nodeSeed: TestEnv.nodeSeed,
+        nodeSeed: window.crypto.randomUUID(),
       };
 
       const key = PrivateKeyBase16.parse(TestEnv.chainPrivateKey0);

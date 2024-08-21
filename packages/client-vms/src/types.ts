@@ -1,19 +1,19 @@
-import { z } from "zod";
 import {
   NadaPrimitiveValue,
   NamedNetwork,
   NodeSeed,
   UserSeed,
-  VmClientConfig,
 } from "@nillion/client-core";
 import { PaymentClientConfig } from "@nillion/client-payments";
+import { z } from "zod";
+import { NilVmClientConfig } from "./nilvm";
 
 export const NillionClientConfigComplete = z
   .object({
     network: NamedNetwork,
     logging: z.boolean().optional(),
   })
-  .merge(VmClientConfig)
+  .merge(NilVmClientConfig)
   .merge(PaymentClientConfig);
 
 export type NillionClientConfigComplete = z.infer<

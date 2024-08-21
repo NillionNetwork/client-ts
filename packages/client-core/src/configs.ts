@@ -14,7 +14,6 @@ export const PartialConfig = {
     endpoint: "http://localhost:26650",
     logging: true,
     userSeed: "nillion-devnet",
-    nodeSeed: "nillion-devnet",
   },
   Nucleus: {
     network: NamedNetwork.enum.Nucleus,

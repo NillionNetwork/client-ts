@@ -47,7 +47,6 @@ Complete examples are available at [examples/react](https://github.com/NillionNe
       return {
         endpoint: "https://testnet-nillion-rpc.lavenderfive.com",
         userSeed: "unique-user-seed",
-        nodeSeed: "unique-node-seed",
         signer,
       };
     }
@@ -151,8 +150,7 @@ const config = {
       signer,
       // webpack devserver adddres proxied to nilchain
       endpoint: "http://localhost:8080/nilchain", 
-      userSeed: "nillion-devnet",
-      nodeSeed: "nillion-devnet",
+      userSeed: "unique-user-seed",
     }
   }
 }

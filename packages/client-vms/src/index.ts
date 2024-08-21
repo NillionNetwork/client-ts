@@ -1,4 +1,5 @@
 export * from "./client";
+export * from "./nilvm";
 export * from "./types";
 export * from "./nada";
 

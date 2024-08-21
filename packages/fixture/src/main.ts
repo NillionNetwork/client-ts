@@ -21,7 +21,6 @@ export const TestEnv = {
   NILLION_NILCHAIN_PRIVATE_KEY_0: "",
 
   NILLION_USER_SEED: "test-fixture",
-  NILLION_NODE_SEED: "test-fixture",
 };
 export type TestEnv = typeof TestEnv;
 
@@ -35,6 +34,7 @@ const killDevnetIfSpawned = () => {
 export const main = async (): Promise<void> => {
   try {
     const { target } = await parseArgs();
+    const requiresPrograms = ["vms"];
     TestEnv.NILLION_TEST_TARGET = target;
 
     Log("Starting client-ts nillion-devnet fixture.");
@@ -47,7 +47,7 @@ export const main = async (): Promise<void> => {
     TestEnv.NILLION_TEST_DEVNET_PID = devnet.pid;
 
     await loadEnv();
-    if (TestEnv.NILLION_TEST_TARGET !== "payments") {
+    if (requiresPrograms.includes(target)) {
       await createProgramFixtures();
     }
     Log("Test environment: %O", TestEnv);
