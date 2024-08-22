@@ -37,19 +37,17 @@ Complete examples are available at [examples/react](https://github.com/NillionNe
   ```shell 
   // npm
   npm i -D @nillion/client-core@latest @nillion/client-vms@latest @nillion/client-react-hooks@latest
-
-  // yarn
-  yarn add --dev @nillion/client-core@latest @nillion/client-vms@latest @nillion/client-react-hooks@latest
   ```
 
 3. As mentioned, we have to add certain HTTP headers. Adjust your `webpack` / `next.config.mjs` configration. Please refer to the React webpack [here](https://github.com/NillionNetwork/client-ts/blob/main/examples/react/webpack.config.mjs) or nextjs [here](https://github.com/NillionNetwork/client-ts/blob/main/examples/nextjs/next.config.mjs).
 
 4. Create a client to interact with the local devnet :
 
+Note: If `network: NamedNetwork.enum.Devnet` is provided, then we don't need to specify bootnodes, cluster or chain since these values are copied from the partial config.
+
   ```ts
   const client = NillionClient.create({
     network: NamedNetwork.enum.Devnet,
-    
     overrides: async () => {
       // this is the account's private key when running `nillion-devnet` with default seed
       const signer = await createSignerFromKey("9a975f567428d054f2bf3092812e6c42f901ce07d9711bc77ee2cd81101f42c5");
@@ -57,11 +55,6 @@ Complete examples are available at [examples/react](https://github.com/NillionNe
         endpoint: "http://localhost:3000/nilchain",
         signer,
         userSeed: "nillion-devnet",
-        bootnodes: [
-          "/ip4/127.0.0.1/tcp/54936/ws/p2p/12D3KooWMvw1hEqm7EWSDEyqTb6pNetUVkepahKY6hixuAuMZfJS",
-        ],
-        cluster: "9e68173f-9c23-4acc-ba81-4f079b639964",
-        chain: "nillion-chain-devnet"
       };
     }
   })
@@ -115,7 +108,7 @@ Complete examples are available at [examples/react](https://github.com/NillionNe
 
 7. Next, run your app and click "Store". After a few seconds you should see `Status: succcess` and `Id: <uuid>` rendered. Congratulations, now you can interact with the client 🎉 
 
-8. (Optional).Once you want to switch to production ready apps, you can use the `Photon` testnet. The configs can be found [here](https://github.com/NillionNetwork/client-ts/blob/24a50f43d82021623f50c1e56e5be8b9deedbb1e/packages/client-core/src/configs.ts#L29C3-L38C5). You do not require the `userSeed` but are required to swtich the `endpoint` with `https://testnet-nillion-rpc.lavenderfive.com`
+8. (Optional). Once you want to switch to production ready apps, you can use the `Photon` testnet by switching the network to `Photon`. The configs can be found [here](https://github.com/NillionNetwork/client-ts/blob/main/packages/client-core/src/configs.ts). You are only required to provide a `user-seed`.
 
 
 ## Packages and package hierarchy
