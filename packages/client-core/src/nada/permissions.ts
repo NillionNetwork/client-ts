@@ -1,6 +1,7 @@
-import { ProgramId, UserId } from "../types";
 import * as Wasm from "@nillion/client-wasm";
+
 import { Log } from "../logger";
+import { ProgramId, UserId } from "../types";
 
 export interface UserPermissions {
   delete: boolean;

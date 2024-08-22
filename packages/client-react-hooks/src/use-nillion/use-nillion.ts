@@ -1,5 +1,6 @@
 import { NillionClient } from "@nillion/client-vms";
 import { useContext } from "react";
+
 import { NillionClientContext } from "./nillion-provider";
 
 export function useNillion(): NillionClient {

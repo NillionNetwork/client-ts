@@ -2,11 +2,12 @@ import {
   ComputeResultId,
   NadaValue,
   NadaValues,
+  NamedValue,
   PartyName,
   ProgramId,
   StoreId,
-  NamedValue,
 } from "@nillion/client-core";
+
 import { TestEnv } from "../../../test-utils";
 
 export interface TestProgram {

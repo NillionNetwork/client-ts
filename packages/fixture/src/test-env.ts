@@ -1,5 +1,7 @@
-import { parse } from "dotenv";
 import fs from "node:fs";
+
+import { parse } from "dotenv";
+
 import { Log } from "./logging";
 import { TestEnv } from "./main";
 

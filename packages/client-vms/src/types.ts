@@ -6,6 +6,7 @@ import {
 } from "@nillion/client-core";
 import { PaymentClientConfig } from "@nillion/client-payments";
 import { z } from "zod";
+
 import { NilVmClientConfig } from "./nilvm";
 
 export const NillionClientConfigComplete = z

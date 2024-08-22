@@ -1,4 +1,18 @@
 import { z } from "zod";
+
+import {
+  Compute,
+  ComputeArgs,
+  ComputeRetrieveResult,
+  ComputeRetrieveResultsArgs,
+} from "./compute";
+import {
+  PermissionsRetrieve,
+  PermissionsRetrieveArgs,
+  PermissionsSet,
+  PermissionsSetArgs,
+} from "./permissions";
+import { ProgramStore, ProgramStoreArgs } from "./program";
 import {
   ValueRetrieve,
   ValueRetrieveArgs,
@@ -9,19 +23,6 @@ import {
   ValuesUpdate,
   ValuesUpdateArgs,
 } from "./values";
-import {
-  PermissionsRetrieve,
-  PermissionsRetrieveArgs,
-  PermissionsSet,
-  PermissionsSetArgs,
-} from "./permissions";
-import {
-  Compute,
-  ComputeArgs,
-  ComputeRetrieveResult,
-  ComputeRetrieveResultsArgs,
-} from "./compute";
-import { ProgramStore, ProgramStoreArgs } from "./program";
 
 export interface Operation {
   type: OperationType;

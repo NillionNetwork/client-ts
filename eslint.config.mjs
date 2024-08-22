@@ -3,6 +3,7 @@ import { fixupConfigRules } from "@eslint/compat";
 import eslintJs from "@eslint/js";
 import eslintTs from "typescript-eslint";
 import tsDoc from "eslint-plugin-tsdoc";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 export default [
   {
@@ -15,11 +16,14 @@ export default [
   {
     plugins: {
       tsdoc: tsDoc,
+      "simple-import-sort": simpleImportSort,
     },
   },
   {
     rules: {
       "tsdoc/syntax": "warn",
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error",
     },
   },
   eslintJs.configs.recommended,

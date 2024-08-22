@@ -30,6 +30,7 @@ import * as Wasm from "@nillion/client-wasm";
 import { Effect as E } from "effect";
 import { UnknownException } from "effect/Cause";
 import { z } from "zod";
+
 import { Log } from "../logger";
 
 export const NilVmClientConfig = z.object({

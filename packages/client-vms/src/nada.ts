@@ -5,8 +5,9 @@ import {
   NadaValues,
   NamedValue,
 } from "@nillion/client-core";
-import { StoreValueArgs } from "./types";
 import { Effect as E } from "effect";
+
+import { StoreValueArgs } from "./types";
 
 export const valuesRecordToNadaValues = (
   values: Record<NamedValue | string, NadaPrimitiveValue | StoreValueArgs>,

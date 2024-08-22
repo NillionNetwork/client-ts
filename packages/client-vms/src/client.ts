@@ -27,6 +27,7 @@ import { PaymentsClient } from "@nillion/client-payments";
 import { Effect as E, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
 import { ZodError } from "zod";
+
 import { Log } from "./logger";
 import { valuesRecordToNadaValues } from "./nada";
 import { NilVmClient } from "./nilvm";

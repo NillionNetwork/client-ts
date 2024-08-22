@@ -1,8 +1,9 @@
 import * as Wasm from "@nillion/client-wasm";
+
 import { Log } from "../logger";
+import { NamedValue } from "../types";
 import { IntoWasm } from "../wasm";
 import { NadaValue } from "./value";
-import { NamedValue } from "../types";
 
 export class NadaValues implements IntoWasm<Wasm.NadaValues> {
   private constructor(private values: Map<string, NadaValue> = new Map()) {}

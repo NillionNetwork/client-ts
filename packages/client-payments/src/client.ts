@@ -1,9 +1,3 @@
-import {
-  NilChainAddress,
-  PriceQuote,
-  Token,
-  TxHash,
-} from "@nillion/client-core";
 import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import {
   GasPrice,
@@ -11,13 +5,20 @@ import {
   SigningStargateClientOptions,
 } from "@cosmjs/stargate";
 import {
+  NilChainAddress,
+  PriceQuote,
+  Token,
+  TxHash,
+} from "@nillion/client-core";
+import { Effect as E } from "effect";
+
+import {
   AccountNotFoundError,
   PaymentError,
   UnknownPaymentError,
 } from "./errors";
-import { MsgPayFor } from "./proto";
 import { Log } from "./logger";
-import { Effect as E } from "effect";
+import { MsgPayFor } from "./proto";
 import { NilChainProtobufTypeUrl, PaymentClientConfig } from "./types";
 import { getKeplr } from "./wallet";
 

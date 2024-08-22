@@ -1,9 +1,10 @@
 import {
   NadaValue,
   NadaValueType,
-  StoreId,
   NamedValue,
+  StoreId,
 } from "@nillion/client-core";
+
 import { strToByteArray } from "../../../test-utils";
 
 export interface TestNadaType {

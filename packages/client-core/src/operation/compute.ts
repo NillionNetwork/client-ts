@@ -1,8 +1,9 @@
-import { IntoWasmQuotableOperation } from "../wasm";
 import * as Wasm from "@nillion/client-wasm";
-import { Operation, OperationType } from "./operation";
+
 import { NadaValues, ProgramBindings } from "../nada";
 import { ComputeResultId, StoreId } from "../types";
+import { IntoWasmQuotableOperation } from "../wasm";
+import { Operation, OperationType } from "./operation";
 
 export interface ComputeArgs {
   bindings: ProgramBindings;

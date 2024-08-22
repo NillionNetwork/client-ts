@@ -1,5 +1,7 @@
-import { execa } from "execa";
 import { writeFileSync } from "node:fs";
+
+import { execa } from "execa";
+
 import { getTestLogFile, Log } from "./logging";
 import { TestEnv } from "./main";
 

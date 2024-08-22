@@ -1,6 +1,7 @@
 import * as Wasm from "@nillion/client-wasm";
-import { PartyId, PartyName, ProgramId } from "../types";
+
 import { Log } from "../logger";
+import { PartyId, PartyName, ProgramId } from "../types";
 
 export class ProgramBindings {
   private constructor(

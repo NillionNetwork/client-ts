@@ -1,11 +1,13 @@
-import { execa, ExecaError } from "execa";
 import path from "node:path";
+
+import { execa, ExecaError } from "execa";
+
 import { parseArgs } from "./args";
-import { loadEnv } from "./test-env";
 import { Log, LOG_RUN_DIR, setupLoggingDir } from "./logging";
 import { createProgramFixtures } from "./prepare-programs";
 import { runDevnet } from "./run-devnet";
 import { runTests } from "./run-tests";
+import { loadEnv } from "./test-env";
 
 export const TestEnv = {
   NILLION_TEST_TARGET: "",

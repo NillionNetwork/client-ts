@@ -1,7 +1,8 @@
-import { z } from "zod";
 import * as Wasm from "@nillion/client-wasm";
-import { isBigInt, isNumber, isUint8Array } from "../type-guards";
+import { z } from "zod";
+
 import { Log } from "../logger";
+import { isBigInt, isNumber, isUint8Array } from "../type-guards";
 
 export const NadaValueType = z.enum([
   "SecretString", // not a native nada type but provided for improved DX

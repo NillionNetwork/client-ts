@@ -1,7 +1,8 @@
-import { IntoWasmQuotableOperation } from "../wasm";
 import * as Wasm from "@nillion/client-wasm";
-import { Operation, OperationType } from "./operation";
+
 import { ProgramName } from "../types";
+import { IntoWasmQuotableOperation } from "../wasm";
+import { Operation, OperationType } from "./operation";
 
 export interface ProgramStoreArgs {
   name: ProgramName;

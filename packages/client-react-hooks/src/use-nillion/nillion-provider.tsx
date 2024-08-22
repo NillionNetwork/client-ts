@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import * as React from "react";
 import { createContext, ReactNode, useContext, useEffect } from "react";
+
 import { Log } from "../logging";
 
 export interface NillionClientProviderProps {
