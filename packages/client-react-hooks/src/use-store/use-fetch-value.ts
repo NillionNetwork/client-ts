@@ -35,8 +35,10 @@ export const useFetchValue = <T extends TData>(
   const queryKey = createStoreCacheKey(args.id);
 
   const queryFn = async (): Promise<T> => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const id = args.id!;
+    if (!args.id)
+      throw new Error(`args.id is not defined: ${JSON.stringify(args)}`);
+
+    const id = args.id;
 
     const response = await nillionClient.fetch({
       ...args,

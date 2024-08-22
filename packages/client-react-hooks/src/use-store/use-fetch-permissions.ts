@@ -29,8 +29,10 @@ export const useFetchPermissions = (
   const enabled = !!args.id;
 
   const queryFn = async (): Promise<TData> => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const response = await nillionClient.fetchPermissions({ id: args.id! });
+    if (!args.id)
+      throw new Error(`args.id is not defined: ${JSON.stringify(args)}`);
+
+    const response = await nillionClient.fetchPermissions({ id: args.id });
     if (response.err) throw response.err as TError;
     return response.ok;
   };

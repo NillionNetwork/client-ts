@@ -8,8 +8,7 @@ export const expectOk = <S, E>(
     return true;
   }
 
-  // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-  fail("Result.ok expected but got Result.err: " + result.err);
+  fail(`Result.ok expected but got Result.err: ${result.err}`);
 };
 
 export const expectErr = <S, E>(
@@ -20,6 +19,5 @@ export const expectErr = <S, E>(
     return true;
   }
 
-  // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-  fail("Result.err expected but got Result.ok: " + result.ok);
+  fail(`Result.ok expected but got Result.err: ${result.err}`);
 };

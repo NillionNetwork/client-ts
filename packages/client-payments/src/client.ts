@@ -53,7 +53,7 @@ export class PaymentsClient {
     return this._address!;
   }
 
-  private isReadyGuard(): void | never {
+  private isReadyGuard(): void {
     if (!this.ready) {
       const message =
         "NilChainPaymentClient not ready. Call `await client.connect()`.";
