@@ -1,9 +1,10 @@
-import { NamedNetwork, PrivateKeyBase16 } from "../client-core/src";
+import { NamedNetwork, PrivateKeyBase16 } from "@nillion/client-core";
 import {
   createSignerFromKey,
   PaymentClientConfig,
-} from "../client-payments/src";
-import { NillionClientConfig, NilVmClientConfig } from "../client-vms/src";
+} from "@nillion/client-payments";
+import { NillionClientConfig, NilVmClientConfig } from "@nillion/client-vms";
+
 import { TestEnv } from "./test-env";
 
 export const getVmClientEnvConfig = (): NilVmClientConfig => {
