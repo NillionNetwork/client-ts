@@ -12,13 +12,12 @@ import {
   StoreId,
 } from "@nillion/client-core";
 import { NilVmClient } from "@nillion/client-vms";
-
 import {
   expectOk,
   getVmClientEnvConfig,
   loadProgram,
   TestEnv,
-} from "../../test-utils";
+} from "@nillion/test-utils";
 
 const SUITE_NAME = `@nillion/client-vms > NilVmClient`;
 

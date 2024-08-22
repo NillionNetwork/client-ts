@@ -2,40 +2,29 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "jsx": "react",
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
     "skipLibCheck": true,
-    "sourceMap": true,
     "strict": true,
-    "strictNullChecks": true,
     "target": "esnext",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
     "baseUrl": ".",
     "paths": {
       "@nillion/client-core": [
         "packages/client-core/src/index.ts"
       ],
       "@nillion/client-vms": [
-        "packages/client-vms-vms/src/index.ts"
+        "packages/client-vms/src/index.ts"
       ],
       "@nillion/client-payments": [
         "packages/client-payments/src/index.ts"
       ],
       "@nillion/client-react-hooks": [
         "packages/client-react-hooks/src/index.ts"
+      ],
+      "@nillion/test-utils": [
+        "packages/test-utils/src/index.ts"
       ]
     }
-  },
-  "exclude": [
-    "docs",
-    "examples",
-    "node_modules"
-  ]
+  }
 }

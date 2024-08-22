@@ -1,5 +1,6 @@
-import * as Wasm from "@nillion/client-wasm";
 import { z } from "zod";
+
+import * as Wasm from "@nillion/client-wasm";
 
 import { Log } from "../logger";
 import { isBigInt, isNumber, isUint8Array } from "../type-guards";

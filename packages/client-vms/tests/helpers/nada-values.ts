@@ -4,8 +4,7 @@ import {
   NamedValue,
   StoreId,
 } from "@nillion/client-core";
-
-import { strToByteArray } from "../../../test-utils";
+import { strToByteArray } from "@nillion/test-utils";
 
 export interface TestNadaType {
   id: StoreId;

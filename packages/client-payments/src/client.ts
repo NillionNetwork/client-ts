@@ -4,13 +4,14 @@ import {
   SigningStargateClient,
   SigningStargateClientOptions,
 } from "@cosmjs/stargate";
+import { Effect as E } from "effect";
+
 import {
   NilChainAddress,
   PriceQuote,
   Token,
   TxHash,
 } from "@nillion/client-core";
-import { Effect as E } from "effect";
 
 import {
   AccountNotFoundError,

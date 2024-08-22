@@ -1,6 +1,6 @@
-import fs from "node:fs";
-
 import { parse } from "dotenv";
+
+import fs from "node:fs";
 
 import { Log } from "./logging";
 import { TestEnv } from "./main";
@@ -37,7 +37,7 @@ export const loadEnv = async (): Promise<void> => {
   const home = process.env.HOME;
   if (!home) throw new Error("Env var HOME unset");
 
-  const path = `${home}/.config//nillion/nillion-devnet.env`;
+  const path = `${home}/.config/nillion/nillion-devnet.env`;
   const file = await waitForFileSync(path);
   const fromEnvFile = parse(file);
 

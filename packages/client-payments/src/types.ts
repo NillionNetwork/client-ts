@@ -1,6 +1,7 @@
 import { OfflineSigner } from "@cosmjs/proto-signing";
-import { ChainId, Url } from "@nillion/client-core";
 import { z } from "zod";
+
+import { ChainId, Url } from "@nillion/client-core";
 
 export const PaymentClientConfig = z.object({
   chain: ChainId,

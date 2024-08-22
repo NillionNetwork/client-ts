@@ -1,8 +1,8 @@
+import { execa } from "execa";
+
 import { randomUUID } from "node:crypto";
 import fs, { writeFileSync } from "node:fs";
 import path from "node:path";
-
-import { execa } from "execa";
 
 import { getPrepareProgramsLogFile, Log } from "./logging";
 import { TestEnv } from "./main";

@@ -1,13 +1,3 @@
 {
-  "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "bundler",
-    "noEmit": true,
-    "sourceMap": true,
-    "strict": true,
-    "module": "esnext",
-    "target": "esnext"
-  }
+  "extends": "../../tsconfig.common.json"
 }

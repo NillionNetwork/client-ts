@@ -7,8 +7,7 @@ import {
   ProgramId,
   StoreId,
 } from "@nillion/client-core";
-
-import { TestEnv } from "../../../test-utils";
+import { TestEnv } from "@nillion/test-utils";
 
 export interface TestProgram {
   name: string;

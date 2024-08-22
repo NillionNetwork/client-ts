@@ -1,6 +1,6 @@
-import path from "node:path";
-
 import { execa, ExecaError } from "execa";
+
+import path from "node:path";
 
 import { parseArgs } from "./args";
 import { Log, LOG_RUN_DIR, setupLoggingDir } from "./logging";

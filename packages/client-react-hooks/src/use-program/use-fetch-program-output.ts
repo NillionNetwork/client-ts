@@ -1,9 +1,10 @@
-import { ComputeResultId, NadaPrimitiveValue } from "@nillion/client-core";
 import {
   useQuery,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
+
+import { ComputeResultId, NadaPrimitiveValue } from "@nillion/client-core";
 
 import { useNillion } from "../use-nillion";
 import { createProgramResultCacheKey } from "../use-store";

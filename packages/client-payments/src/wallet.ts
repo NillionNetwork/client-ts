@@ -1,5 +1,6 @@
 import { DirectSecp256k1Wallet, OfflineSigner } from "@cosmjs/proto-signing";
 import { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
+
 import { NilChainAddressPrefix, PrivateKeyBase16 } from "@nillion/client-core";
 
 declare global {

@@ -1,7 +1,7 @@
+import debug from "debug";
+
 import fs from "node:fs";
 import path from "node:path";
-
-import debug from "debug";
 
 debug.enable("nillion:*");
 export const Log = debug("nillion:fixture");

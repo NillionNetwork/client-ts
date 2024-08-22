@@ -1,3 +1,5 @@
+import { Effect as E } from "effect";
+
 import {
   isObjectLiteral,
   NadaPrimitiveValue,
@@ -5,7 +7,6 @@ import {
   NadaValues,
   NamedValue,
 } from "@nillion/client-core";
-import { Effect as E } from "effect";
 
 import { StoreValueArgs } from "./types";
 

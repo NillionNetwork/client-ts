@@ -1,5 +1,6 @@
-import * as Wasm from "@nillion/client-wasm";
 import { z } from "zod";
+
+import * as Wasm from "@nillion/client-wasm";
 
 // Required lifting for type resolution
 export const TxHash = z.string().length(64).base64().brand<"TxHash">();

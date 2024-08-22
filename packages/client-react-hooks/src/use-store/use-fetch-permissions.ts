@@ -1,9 +1,10 @@
-import { Permissions, StoreId } from "@nillion/client-core";
 import {
   useQuery,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
+
+import { Permissions, StoreId } from "@nillion/client-core";
 
 import { useNillion } from "../use-nillion";
 import { createPermissionsCacheKey } from "./types";

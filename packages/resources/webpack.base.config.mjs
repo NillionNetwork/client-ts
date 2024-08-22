@@ -1,8 +1,8 @@
-import path from "node:path";
-
 import * as glob from "glob";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import webpack from "webpack";
+
+import path from "node:path";
 
 export const buildWebpackBaseConfig = (packageBaseDir) => ({
   mode: "development",
@@ -22,7 +22,14 @@ export const buildWebpackBaseConfig = (packageBaseDir) => ({
     rules: [
       {
         test: /\.tsx?$/,
-        use: "ts-loader",
+        use: {
+          loader: "ts-loader",
+          options: {
+            compilerOptions: {
+              noEmit: false,
+            },
+          },
+        },
         exclude: /node_modules/,
       },
       {

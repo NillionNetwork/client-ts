@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import {
   NadaPrimitiveValue,
   NamedNetwork,
@@ -5,7 +7,6 @@ import {
   UserSeed,
 } from "@nillion/client-core";
 import { PaymentClientConfig } from "@nillion/client-payments";
-import { z } from "zod";
 
 import { NilVmClientConfig } from "./nilvm";
 
