@@ -1,4 +1,7 @@
+import * as React from "react";
+import { useState } from "react";
 import { Box, Button, Chip, Divider, Input, Stack, Typography } from "@mui/joy";
+
 import {
   NadaValue,
   NadaValues,
@@ -12,8 +15,6 @@ import {
   useRunProgram,
   useStoreProgram,
 } from "@nillion/client-react-hooks";
-import * as React from "react";
-import { useState } from "react";
 
 export const Program = () => {
   const [a, setA] = useState("");
@@ -31,10 +32,11 @@ export const Program = () => {
     const response = await fetch(
       "http://localhost:8080/addition_division.nada.bin",
     );
-    const program = (await response.body!.getReader().read()).value!;
+    const body = (await response.body?.getReader().read())?.value;
+    if (!body) throw new Error("program body not defined");
     storeProgram.mutate({
       name: "addition_division",
-      program,
+      program: body,
     });
   };
 
@@ -79,7 +81,10 @@ export const Program = () => {
         <Chip variant="soft">Step 1: Store</Chip>
       </Divider>
       <Stack spacing={2}>
-        <Button onClick={handleStoreProgram} sx={{ width: "200px" }}>
+        <Button
+          onClick={() => void handleStoreProgram()}
+          sx={{ width: "200px" }}
+        >
           Store
         </Button>
         {programId && (
@@ -98,14 +103,18 @@ export const Program = () => {
         value={a}
         type="number"
         placeholder="Enter integer for argument 'A'"
-        onChange={(e) => setA(e.target.value)}
+        onChange={(e) => {
+          setA(e.target.value);
+        }}
         sx={{ my: 2, maxWidth: "400px" }}
       />
       <Input
         value={b}
         type="number"
         placeholder="Enter integer for argument 'B'"
-        onChange={(e) => setB(e.target.value)}
+        onChange={(e) => {
+          setB(e.target.value);
+        }}
         sx={{ my: 2, maxWidth: "400px" }}
       />
       <Divider sx={{ "--Divider-childPosition": "25px", my: 4 }}>
@@ -130,9 +139,9 @@ export const Program = () => {
       </Typography>
       {fetchProgramOutput.data && (
         <Typography variant="outlined" color="success" noWrap>
-          {(fetchProgramOutput.data as unknown as Record<string, bigint>)[
-            "my_output"
-          ]?.toString() + "n"}
+          {(
+            fetchProgramOutput.data as unknown as Record<string, bigint>
+          ).my_output.toString() + "n"}
         </Typography>
       )}
     </Box>

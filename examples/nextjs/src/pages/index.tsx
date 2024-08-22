@@ -1,6 +1,7 @@
 import * as React from "react";
-import { useFetchValue, useStoreValue } from "@nillion/client-react-hooks";
 import { useState } from "react";
+
+import { useFetchValue, useStoreValue } from "@nillion/client-react-hooks";
 
 export default function Home() {
   const [id, setId] = useState("");
@@ -54,8 +55,8 @@ export default function Home() {
       </ul>
       <p>2. Read data</p>
       <button
-        onClick={handleFetchClick}
-        disabled={!Boolean(id) || fetchValue.isPending}
+        onClick={() => void handleFetchClick()}
+        disabled={!id || fetchValue.isPending}
       >
         Force refresh
       </button>

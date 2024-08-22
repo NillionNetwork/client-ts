@@ -1,4 +1,7 @@
+import * as React from "react";
+import { useState } from "react";
 import { Box, Button, Divider, List, ListItem, Typography } from "@mui/joy";
+
 import { NadaValueType, Permissions } from "@nillion/client-core";
 import {
   useDeleteValue,
@@ -9,8 +12,6 @@ import {
   useStoreValue,
   useUpdateValue,
 } from "@nillion/client-react-hooks";
-import * as React from "react";
-import { useState } from "react";
 
 export const Store = () => {
   const data = "Hi, I'm SecretString nice to meet you :)";
@@ -41,8 +42,9 @@ export const Store = () => {
   };
 
   const handleUpdateClick = () => {
+    if (!id) throw new Error("can't update when id is not defined");
     update.mutate({
-      id: id!,
+      id,
       values: {
         data: "I'm an updated SecretString :)",
       },
@@ -51,18 +53,20 @@ export const Store = () => {
   };
 
   const handleFetchPermissionsClick = () => {
-    fetchPermissions.refetch();
+    void fetchPermissions.refetch();
   };
 
   const handleSetPermissionsClick = () => {
+    if (!id) throw new Error("can't set permissions when id is undefined");
     setPermissions.mutate({
-      id: id!,
+      id,
       permissions: Permissions.createDefaultForUser(nillion.vm.userId),
     });
   };
 
   const handleDropClick = () => {
-    drop.mutate(id!);
+    if (!id) throw new Error("can't mutate when id is undefined");
+    drop.mutate(id);
   };
 
   if (storeValue.isSuccess && !id) {

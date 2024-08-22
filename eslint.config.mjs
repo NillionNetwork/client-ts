@@ -6,7 +6,7 @@ import ts from "typescript-eslint";
 
 export default [
   {
-    ignores: ["docs", "examples", "**/dist", "**/dist-test"],
+    ignores: ["docs", "**/dist", "**/dist-test", "**/.next"],
   },
   js.configs.recommended,
   ...ts.configs.recommended,

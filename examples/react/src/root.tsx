@@ -1,12 +1,12 @@
-import { Breadcrumbs, Grid, Link } from "@mui/joy";
 import * as React from "react";
 import { Link as RouterLink, Outlet, useLocation } from "react-router-dom";
+import { Breadcrumbs, Grid, Link } from "@mui/joy";
 
 export const Root = () => {
   const location = useLocation();
   const path = location.pathname;
 
-  let crumbs = [
+  const crumbs = [
     <Link to="/" component={RouterLink}>
       Home
     </Link>,
