@@ -113,7 +113,10 @@ Complete examples are available at [examples/react](https://github.com/NillionNe
   }
   ```
 
-7. Next, run your app and click "Store". After a few seconds you should see `Status: succcess` and `Id: <uuid>` rendered. Congratulations, now you can interact with the client 🎉
+7. Next, run your app and click "Store". After a few seconds you should see `Status: succcess` and `Id: <uuid>` rendered. Congratulations, now you can interact with the client 🎉 
+
+8. (Optional).Once you want to switch to production ready apps, you can use the `Photon` testnet. The configs can be found [here](https://github.com/NillionNetwork/client-ts/blob/24a50f43d82021623f50c1e56e5be8b9deedbb1e/packages/client-core/src/configs.ts#L29C3-L38C5). You do not require the `userSeed` but are required to swtich the `endpoint` with `https://testnet-nillion-rpc.lavenderfive.com`
+
 
 ## Packages and package hierarchy
 
