@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -uo pipefail
+set -uexo pipefail
 
 SRC="$1"
 
