@@ -34,7 +34,7 @@ jobs:
       - uses: extractions/setup-just@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '22.5'
           cache: 'npm'
       - uses: actions/setup-python@v5
         with:

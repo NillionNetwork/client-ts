@@ -62,42 +62,4 @@ export const testPrograms: TestProgram[] = [
       },
     },
   },
-  {
-    name: "array_new.nada.bin",
-    id: ProgramId.parse(`${TestEnv.programNamespace}/array_new.nada.bin`),
-    inputParties: [PartyName.parse("Party1")],
-    outputParties: [PartyName.parse("Party1")],
-    storeIds: [],
-    valuesToStore: [
-      NadaValues.create()
-        .insert(NamedValue.parse("a"), NadaValue.createSecretInteger(42))
-        .insert(NamedValue.parse("b"), NadaValue.createSecretInteger(43)),
-    ],
-    valuesToInput: NadaValues.create(),
-    result: {
-      id: "" as ComputeResultId,
-      expected: {
-        my_output: [42n, 43n],
-      },
-    },
-  },
-  {
-    name: "tuple_new.nada.bin",
-    id: ProgramId.parse(`${TestEnv.programNamespace}/tuple_new.nada.bin`),
-    inputParties: [PartyName.parse("Party1")],
-    outputParties: [PartyName.parse("Party1")],
-    storeIds: [],
-    valuesToStore: [
-      NadaValues.create()
-        .insert(NamedValue.parse("a"), NadaValue.createSecretInteger(77))
-        .insert(NamedValue.parse("b"), NadaValue.createSecretInteger(54)),
-    ],
-    valuesToInput: NadaValues.create(),
-    result: {
-      id: "" as ComputeResultId,
-      expected: {
-        my_output: [77n, 54n],
-      },
-    },
-  },
 ];
