@@ -1,9 +1,6 @@
-import * as esbuild from "esbuild";
 import browserslist from "browserslist";
-import {
-  esbuildPluginBrowserslist,
-  resolveToEsbuildTarget,
-} from "esbuild-plugin-browserslist";
+import * as esbuild from "esbuild";
+import { resolveToEsbuildTarget } from "esbuild-plugin-browserslist";
 
 export const main = async (config) => {
   if (!config.target) {
