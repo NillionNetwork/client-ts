@@ -6,6 +6,7 @@ clean:
     npm -w packages/client-payments run clean
     npm -w packages/client-vms run clean
     npm -w packages/client-react-hooks run clean
+    rm -rf packages/resources/progras/dist
 
 check:
     #!/usr/bin/env bash
