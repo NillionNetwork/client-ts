@@ -22,6 +22,7 @@ export const runDevnet = () => {
   });
 
   // The command nillion-devnet is proxied through nilup, meaning, we cannot rely on the pid returned by execa.
+  // When terminating nillion-devnet we use killall to work around this, however it's useful to track the pid.
   const pid = result.pid + 1;
 
   return {

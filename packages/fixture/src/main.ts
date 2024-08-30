@@ -26,8 +26,10 @@ export type TestEnv = typeof TestEnv;
 
 const killDevnetIfSpawned = () => {
   if (TestEnv.NILLION_TEST_DEVNET_PID !== -1) {
-    Log("Stopping devnet.");
-    return execa`kill -s KILL ${TestEnv.NILLION_TEST_DEVNET_PID}`;
+    Log("Stopping nillion-devnet.");
+    return execa`killall -s 9 nillion-devnet`;
+  } else {
+    Log("Leaving nillion-devnet running since fixture did not start it.");
   }
 };
 
