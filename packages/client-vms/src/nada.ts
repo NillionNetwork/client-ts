@@ -10,24 +10,22 @@ import {
 
 import { StoreValueArgs } from "./types";
 
-export const valuesRecordToNadaValues = (
-  values: Record<NamedValue | string, NadaPrimitiveValue | StoreValueArgs>,
-) =>
+export const toNadaValues = (args: {
+  name: NamedValue | string;
+  value: NadaPrimitiveValue | StoreValueArgs;
+}) =>
   E.try(() => {
     const nadaValues = NadaValues.create();
-    for (const [key, value] of Object.entries(values)) {
-      const name = NamedValue.parse(key, {
-        path: ["valuesRecordToNadaValues", "NamedValue"],
-      });
-      const args = isObjectLiteral(value)
-        ? (value as StoreValueArgs)
-        : {
-            secret: true,
-            data: value,
-          };
-
-      const nadaValue = NadaValue.fromPrimitive(args);
-      nadaValues.insert(name, nadaValue);
-    }
+    const name = NamedValue.parse(args.name, {
+      path: ["toNadaValues", "NamedValue"],
+    });
+    const nadaValueArgs = isObjectLiteral(args.value)
+      ? (args.value as StoreValueArgs)
+      : {
+          secret: true,
+          data: args.value,
+        };
+    const nadaValue = NadaValue.fromPrimitive(nadaValueArgs);
+    nadaValues.insert(name, nadaValue);
     return nadaValues;
   });

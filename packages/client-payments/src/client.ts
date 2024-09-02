@@ -66,6 +66,10 @@ export class PaymentsClient {
   async connect(): Promise<boolean> {
     const { endpoint, chain } = this._config;
     const registry = new Registry();
+
+    // @ts-expect-error ts-proto 2+ migrated from protobufjs to @bufbuild/protobuf causing a type
+    //  misalignment between our generated bindings and cosmjs. Tests are all passing so we'll
+    //  keep as-is.
     registry.register(NilChainProtobufTypeUrl, MsgPayFor);
 
     this._signer = this._config.signer;

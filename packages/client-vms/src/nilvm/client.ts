@@ -36,7 +36,7 @@ import { Log } from "../logger";
 
 export const NilVmClientConfig = z.object({
   bootnodes: z.array(Multiaddr),
-  cluster: ClusterId,
+  clusterId: ClusterId,
   userSeed: z.string(),
   nodeSeed: z.string(),
 });
@@ -69,7 +69,7 @@ export class NilVmClient {
   }
 
   get clusterId(): ClusterId {
-    return ClusterId.parse(this._config.cluster);
+    return this._config.clusterId;
   }
 
   get client(): Wasm.NillionClient {
@@ -82,13 +82,13 @@ export class NilVmClient {
       await init();
     }
 
-    const { cluster, userSeed, nodeSeed, bootnodes } = this._config;
+    const { clusterId, userSeed, nodeSeed, bootnodes } = this._config;
     const userKey = Wasm.UserKey.from_seed(userSeed);
     const nodeKey = Wasm.NodeKey.from_seed(nodeSeed);
     this._client = new Wasm.NillionClient(userKey, nodeKey, bootnodes);
     // TODO(tim): If this fails to connect a websocket.js error is logged and this method simply fails.
     //  Its unclear which context the error occurs in so I haven't yet been able to handle it gracefully.
-    const descriptor = await this._client.cluster_information(cluster);
+    const descriptor = await this._client.cluster_information(clusterId);
     this._ready = true;
 
     Log("Connected to cluster: ", descriptor.id);

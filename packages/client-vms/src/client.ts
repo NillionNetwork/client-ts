@@ -13,11 +13,9 @@ import {
   NadaValue,
   NadaValues,
   NadaValueType,
-  NamedNetwork,
   NamedValue,
   Operation,
   OperationType,
-  PartialConfig,
   PaymentReceipt,
   Permissions,
   PriceQuote,
@@ -27,57 +25,47 @@ import {
   Result,
   StoreId,
 } from "@nillion/client-core";
-import { PaymentsClient } from "@nillion/client-payments";
+import { PaymentClientConfig, PaymentsClient } from "@nillion/client-payments";
 
 import { Log } from "./logger";
-import { valuesRecordToNadaValues } from "./nada";
-import { NilVmClient } from "./nilvm";
-import {
-  NillionClientConfig,
-  NillionClientConfigComplete,
-  StoreValueArgs,
-} from "./types";
+import { toNadaValues } from "./nada";
+import { NilVmClient, NilVmClientConfig } from "./nilvm";
+import { NetworkConfig, StoreValueArgs, UserCredentials } from "./types";
 
 /**
- * NillionClient integrates {@link NilVmClient} and {@link PaymentsClient} to provide
- * a single ergonomic API for interacting with a [Nillion Network](https://docs.nillion.com/network).
+ * NillionClient encapsulates {@link NilVmClient} and {@link PaymentsClient} to provide
+ * a single API for interacting with a [Nillion Network](https://docs.nillion.com/network).
  *
  * @example
  * ```ts
- * declare const config: NillionClientConfig
- * const client = NillionClient.create(config)
- * await client.connect()
- *
- * const response = await client.store({
- *  values: { foo: 42 },
- *  ttl: 1,
+ * const client = NillionClient.create()
+ * client.setNetworkConfig(NamedNetworkConfig.photon)
+ * client.setUserCredentials({
+ *   userSeed: "unique-user-seed",
+ *   signer: "keplr",
  * })
- *
- * if(response.ok) {
- *    const storeId = response.ok
- *    localStorage.storeIds = storeId
- * }
+ * await client.connect()
  * ```
  */
 export class NillionClient {
   private _vm: NilVmClient | undefined;
   private _chain: PaymentsClient | undefined;
+  private _userConfig: UserCredentials | undefined;
+  private _networkConfig: NetworkConfig | undefined;
 
   /**
-   * The constructor is private to enforces the use of the factory creator method.
-   *
-   * @param _config - The configuration object for the NillionClient.
-   * @see NillionClient.create
+   * The constructor is private to enforce use of {@see NillionClient.create}.
    */
-  private constructor(private _config: NillionClientConfig) {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  private constructor() {}
 
   /**
-   * Whether the client is ready to execute operations.
+   * If the client is ready to execute operations.
    *
    * @returns true if both the VM and Payments clients are ready; otherwise, false.
    */
   public get ready(): boolean {
-    return (this._vm?.ready && this._chain?.ready) ?? false;
+    return Boolean(this._userConfig && this._vm?.ready && this._chain?.ready);
   }
 
   /**
@@ -93,7 +81,7 @@ export class NillionClient {
   }
 
   /**
-   * Guarded access to the payments client.
+   * Guarded access to the payments' client.
    *
    * @throws Error if the client is not ready.
    * @returns The initialized {@link PaymentsClient} instance.
@@ -105,14 +93,45 @@ export class NillionClient {
   }
 
   /**
+   * Set the client's {@see NetworkConfig}.
+   *
+   * This must be invoked before {@see NillionClient.connect}.
+   *
+   * @param - {@link NetworkConfig}
+   */
+  public setNetworkConfig(config: NetworkConfig) {
+    this._networkConfig = NetworkConfig.parse(config);
+  }
+
+  /**
+   * Get the client's {@see NetworkConfig}.
+   *
+   */
+  public get networkConfig(): NetworkConfig {
+    this.isReadyGuard();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this._networkConfig!;
+  }
+
+  public setUserCredentials(config: UserCredentials) {
+    this._userConfig = UserCredentials.parse(config);
+  }
+
+  public get userConfig(): UserCredentials {
+    this.isReadyGuard();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this._userConfig!;
+  }
+
+  /**
    * This guards against access before initialization. NillionClient creation is sync,
    * but PaymentClient and VmClient instantiation are async.
    *
    * @throws Error with message indicating the client is not ready.
    */
-  private isReadyGuard(): void | never {
+  private isReadyGuard(): void {
     if (!this.ready) {
-      const message = "NillionClient not ready. Call `await client.connect()`.";
+      const message = "NillionClient not initialiazed.";
       Log(message);
       throw new Error(message);
     }
@@ -133,74 +152,47 @@ export class NillionClient {
       return Promise.resolve(this.ready);
     }
 
-    return E.Do.pipe(
-      E.bind("network", () =>
-        E.try(() => {
-          const name = this._config.network ?? NamedNetwork.enum.Photon;
-          return NamedNetwork.parse(name, {
-            path: ["client.connect", "NamedNetwork"],
-          });
-        }),
-      ),
-      E.bind("partial", ({ network }) =>
-        E.try(() => {
-          let partial: unknown = {};
-          if (network != NamedNetwork.enum.Custom) {
-            const key = network;
-            partial = PartialConfig[key];
-          }
-          return partial as Partial<NillionClientConfigComplete>;
-        }),
-      ),
-      E.let("seeds", () => {
-        const seeds: Record<string, string> = {};
-        if (this._config.userSeed) seeds.userSeed = this._config.userSeed;
-        if (this._config.nodeSeed) {
-          seeds.nodeSeed = this._config.nodeSeed;
-        } else {
-          seeds.nodeSeed = window.crypto.randomUUID();
-        }
-        return seeds;
+    return pipe(
+      E.tryPromise(async () => {
+        const combined = {
+          ...this._userConfig,
+          ...this._networkConfig,
+        };
+        Log("Config: %O", combined);
+
+        const nilVmConfig = NilVmClientConfig.parse({
+          bootnodes: combined.bootnodes,
+          clusterId: combined.clusterId,
+          userSeed: combined.userSeed,
+          nodeSeed: combined.nodeSeed,
+        });
+
+        const signer =
+          typeof combined.signer === "function"
+            ? await combined.signer()
+            : undefined;
+
+        const nilChainConfig = PaymentClientConfig.parse({
+          chainId: combined.nilChainId,
+          endpoint: combined.nilChainEndpoint,
+          signer,
+        });
+
+        this._vm = NilVmClient.create(nilVmConfig);
+        this._chain = PaymentsClient.create(nilChainConfig);
+
+        await this._vm.connect();
+        await this._chain.connect();
+
+        Log("NillionClient connected.");
+        return this.ready;
       }),
-      E.bind("overrides", () =>
-        E.tryPromise(async () =>
-          this._config.overrides ? await this._config.overrides() : {},
-        ),
-      ),
-      E.flatMap(({ network, seeds, partial, overrides }) =>
-        E.try(() => {
-          const complete: unknown = {
-            network,
-            ...partial,
-            ...seeds,
-            ...overrides,
-          };
-          const config = NillionClientConfigComplete.parse(complete);
-          Log("Config: %O", complete);
-          return config;
-        }),
-      ),
-      E.flatMap((config: NillionClientConfigComplete) =>
-        E.tryPromise(async () => {
-          this._vm = NilVmClient.create(config);
-          this._chain = PaymentsClient.create(config);
-          await this._vm.connect();
-          await this._chain.connect();
-
-          if (config.logging) globalThis.__NILLION?.enableLogging();
-          else globalThis.__NILLION?.disableLogging();
-
-          Log("NillionClient connected.");
-          return this.ready;
-        }),
-      ),
       E.mapError((error) => {
         if (error instanceof ZodError) {
-          Log("Config parse error: %O", error.format());
+          Log("Parsing error: %O", error.format());
         } else {
           Log("Connection failed: %O", error);
         }
-        E.dieMessage("Invalid configuration");
       }),
       E.runPromise,
     );
@@ -209,9 +201,11 @@ export class NillionClient {
   /**
    * Disconnects the client. This function is a no-op and serves as a placeholder.
    */
-  disconnect(): void {
-    // TODO(tim): terminate websocket connections / tell worker to terminate / cleanup
-    Log("Disconnect called. This is currently a noop.");
+  disconnect(): Promise<void> {
+    this._vm = undefined;
+    this._chain = undefined;
+    Log("Client disconnected");
+    return Promise.resolve();
   }
 
   /**
@@ -238,12 +232,15 @@ export class NillionClient {
    * @returns A promise resolving to the {@link Result} of the store operation.
    */
   async store(args: {
-    values: Record<NamedValue | string, NadaPrimitiveValue | StoreValueArgs>;
+    name: NamedValue | string;
+    value: NadaPrimitiveValue | StoreValueArgs;
     ttl: Days | number;
     permissions?: Permissions;
   }): Promise<Result<StoreId, UnknownException>> {
     return E.Do.pipe(
-      E.bind("values", () => valuesRecordToNadaValues(args.values)),
+      E.bind("values", () =>
+        toNadaValues({ name: args.name, value: args.value }),
+      ),
       E.flatMap(({ values }) =>
         E.tryPromise(() =>
           this.storeValues({
@@ -333,7 +330,8 @@ export class NillionClient {
    */
   update(args: {
     id: StoreId | string;
-    values: Record<NamedValue | string, NadaPrimitiveValue | StoreValueArgs>;
+    name: NamedValue | string;
+    value: NadaPrimitiveValue | StoreValueArgs;
     ttl: Days | number;
   }): Promise<Result<ActionId, UnknownException>> {
     return E.Do.pipe(
@@ -347,7 +345,9 @@ export class NillionClient {
           Days.parse(args.ttl, { path: ["client.update", "args.ttl"] }),
         ),
       ),
-      E.bind("values", () => valuesRecordToNadaValues(args.values)),
+      E.bind("values", () =>
+        toNadaValues({ name: args.name, value: args.value }),
+      ),
       E.flatMap((args) => E.tryPromise(() => this.updateValue(args))),
       E.runPromise,
     );
@@ -629,7 +629,7 @@ export class NillionClient {
    *
    * Existing permissions are overwritten.
    *
-   * @param args - An object containing the {@link StoreId} and the new {@link Permisisons}.
+   * @param args - An object containing the {@link StoreId} and the new {@link Permissions}.
    * @returns A promise resolving to the {@link Result} containing the {@link ActionId}.
    */
   setPermissions(args: {
@@ -651,16 +651,47 @@ export class NillionClient {
     );
   }
 
+  // /**
+  //  * Create a {@link NillionClient}.
+  //  *
+  //  * This factory method initializes a `NillionClient` instance using the provided configuration. Before invoking
+  //  * network calls, the async {@Link NillionClient.connect} method must be called with {@link NillionUserConfig}
+  //  *
+  //  * @param config - The network configuration.
+  //  * @returns A new instance of `NillionClient`.
+  //  * @see NillionClient.connect
+  //  */
+  // static createWithConfig = (config: NillionNetworkConfig): NillionClient => {
+  //   const client = new NillionClient();
+  //   client._networkConfig = config;
+  //   return client;
+  // };
+  //
+  // /**
+  //  * Create a {@link NillionClient} for a named network.
+  //  *
+  //  * @param network - "photon" or "devnet"
+  //  * @returns A new instance of `NillionClient`.
+  //  * @see NillionClient.connect
+  //  */
+  // static create = (network: NamedNetwork): NillionClient => {
+  //   const parsedNetwork = NamedNetwork.parse(network, {
+  //     path: ["client.create", "network"],
+  //   });
+  //   const config = NamedNetworkConfig[parsedNetwork];
+  //   return NillionClient.createWithConfig(config);
+  // };
+
   /**
-   * Creates a new instance of {@link NillionClient}.
+   * Create a {@link NillionClient}.
    *
-   * This factory method initializes a `NillionClient` instance using the provided configuration. Before invoking
-   * network calls, the async {@Link NillionClient.connect} method must be called.
-   *
-   * @param config - The configuration object providing settings for initializing the client, such as network settings, user seeds,
-   * and optional overrides.
-   * @returns A new instance of `NillionClient`.
+   * This factory initializes a `NillionClient` ready to accept network and user configs.
+   * @returns An unconfigured instance of `NillionClient`.
+   * @see NillionClient.setNetworkConfig
+   * @see NillionClient.
    * @see NillionClient.connect
    */
-  static create = (config: NillionClientConfig) => new NillionClient(config);
+  static create = () => {
+    return new NillionClient();
+  };
 }
