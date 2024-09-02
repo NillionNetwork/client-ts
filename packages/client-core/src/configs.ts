@@ -1,28 +1,31 @@
 import { z } from "zod";
 
-export const NamedNetwork = z.enum(["Photon", "Nucleus", "Devnet", "Custom"]);
+import { ChainId, ClusterId, Multiaddr, Url } from "./types";
+
+export const NamedNetwork = z.enum(["photon", "devnet"]);
 export type NamedNetwork = z.infer<typeof NamedNetwork>;
 
-export const PartialConfig = {
-  Devnet: {
-    network: NamedNetwork.enum.Devnet,
-    cluster: "9e68173f-9c23-4acc-ba81-4f079b639964",
+export const NamedNetworkConfig = {
+  devnet: {
+    clusterId: ClusterId.parse("9e68173f-9c23-4acc-ba81-4f079b639964"),
     bootnodes: [
-      "/ip4/127.0.0.1/tcp/54936/ws/p2p/12D3KooWMvw1hEqm7EWSDEyqTb6pNetUVkepahKY6hixuAuMZfJS",
+      Multiaddr.parse(
+        "/ip4/127.0.0.1/tcp/54936/ws/p2p/12D3KooWMvw1hEqm7EWSDEyqTb6pNetUVkepahKY6hixuAuMZfJS",
+      ),
     ],
-    chain: "nillion-chain-devnet",
-    endpoint: "http://localhost:26650",
-    logging: true,
-    userSeed: "nillion-devnet",
+    nilChainId: ChainId.parse("nillion-chain-devnet"),
+    nilChainEndpoint: Url.parse("http://localhost:3000/nilchain"),
   },
-  Photon: {
-    network: NamedNetwork.enum.Photon,
-    cluster: "b13880d3-dde8-4a75-a171-8a1a9d985e6c",
+  photon: {
+    clusterId: ClusterId.parse("b13880d3-dde8-4a75-a171-8a1a9d985e6c"),
     bootnodes: [
-      "/dns/node-1.testnet-photon.nillion-network.nilogy.xyz/tcp/14211/wss/p2p/12D3KooWCfFYAb77NCjEk711e9BVe2E6mrasPZTtAjJAPtVAdbye",
+      Multiaddr.parse(
+        "/dns/node-1.testnet-photon.nillion-network.nilogy.xyz/tcp/14211/wss/p2p/12D3KooWCfFYAb77NCjEk711e9BVe2E6mrasPZTtAjJAPtVAdbye",
+      ),
     ],
-    chain: "nillion-chain-testnet-1",
-    endpoint: "https://testnet-nillion-rpc.lavenderfive.com",
-    logging: false,
+    nilChainId: ChainId.parse("nillion-chain-testnet-1"),
+    nilChainEndpoint: Url.parse(
+      "https://rpc.testnet.nilchain-rpc-proxy.nilogy.xyz",
+    ),
   },
 };
