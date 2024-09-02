@@ -1,54 +1,61 @@
-import { NamedNetwork, PrivateKeyBase16 } from "@nillion/client-core";
+import { PrivateKeyBase16 } from "@nillion/client-core";
 import {
   createSignerFromKey,
   PaymentClientConfig,
 } from "@nillion/client-payments";
-import { NillionClientConfig, NilVmClientConfig } from "@nillion/client-vms";
+import {
+  NetworkConfig,
+  NilVmClientConfig,
+  UserCredentials,
+} from "@nillion/client-vms";
 
 import { TestEnv } from "./test-env";
 
 export const getVmClientEnvConfig = (): NilVmClientConfig => {
-  return NilVmClientConfig.parse({
-    cluster: TestEnv.cluster,
-    bootnodes: TestEnv.bootnodes,
-    userSeed: TestEnv.userSeed,
-    nodeSeed: window.crypto.randomUUID(),
-  });
+  return NilVmClientConfig.parse(
+    {
+      clusterId: TestEnv.clusterId,
+      bootnodes: TestEnv.bootnodesWebsocket,
+      userSeed: TestEnv.userSeed,
+      nodeSeed: window.crypto.randomUUID(),
+    },
+    { path: ["getVmClientEnvConfig", "NilVmClientConfig"] },
+  );
 };
 
 export const getPaymentsClientEnvConfig =
   async (): Promise<PaymentClientConfig> => {
-    const key = PrivateKeyBase16.parse(TestEnv.chainPrivateKey0);
-    return PaymentClientConfig.parse({
-      chain: TestEnv.chainId,
-      endpoint: TestEnv.chainRpcEndpoint,
-      signer: await createSignerFromKey(key),
-    });
-  };
-
-export const getNillionClientEnvConfig = (): NillionClientConfig => {
-  return {
-    network: NamedNetwork.enum.Custom,
-
-    overrides: async () => {
-      const vmConfig = {
-        bootnodes: TestEnv.bootnodes,
-        cluster: TestEnv.cluster,
-        userSeed: TestEnv.userSeed,
-        nodeSeed: window.crypto.randomUUID(),
-      };
-
-      const key = PrivateKeyBase16.parse(TestEnv.chainPrivateKey0);
-      const paymentsConfig = {
-        chain: TestEnv.chainId,
-        endpoint: TestEnv.chainRpcEndpoint,
+    const key = PrivateKeyBase16.parse(TestEnv.nilChainPrivateKey0);
+    return PaymentClientConfig.parse(
+      {
+        chainId: TestEnv.chainId,
+        endpoint: TestEnv.nilChainJsonRpc,
         signer: await createSignerFromKey(key),
-      };
-
-      return {
-        ...vmConfig,
-        ...paymentsConfig,
-      };
-    },
+      },
+      { path: ["getPaymentsClientEnvConfig", "PaymentClientConfig"] },
+    );
   };
+
+export const getNetworkConfig = (): NetworkConfig => {
+  return NetworkConfig.parse(
+    {
+      clusterId: TestEnv.clusterId,
+      bootnodes: TestEnv.bootnodesWebsocket,
+      nilChainId: TestEnv.chainId,
+      nilChainEndpoint: TestEnv.nilChainJsonRpc,
+    },
+    { path: ["getNetworkConfig", "NetworkConfig"] },
+  );
+};
+
+export const getUserCredentials = (): UserCredentials => {
+  const key = PrivateKeyBase16.parse(TestEnv.nilChainPrivateKey0);
+  return UserCredentials.parse(
+    {
+      userSeed: TestEnv.userSeed,
+      nodeSeed: window.crypto.randomUUID(),
+      signer: () => createSignerFromKey(key),
+    },
+    { path: ["getUserCredentials", "UserCredentials"] },
+  );
 };

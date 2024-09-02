@@ -10,7 +10,12 @@ Log.log = console.log.bind(console);
 export const LOG_RUN_DIR = path.resolve("./logs");
 
 export const setupLoggingDir = () => {
+  if (fs.existsSync(LOG_RUN_DIR)) {
+    Log("Existing logs directory detected. Removing it.");
+    fs.rmSync(LOG_RUN_DIR, { recursive: true });
+  }
   fs.mkdirSync(LOG_RUN_DIR, { recursive: true });
+  Log("Created new logs directory.");
 
   const runTimestamp = new Date().toISOString();
   fs.writeFileSync(`${LOG_RUN_DIR}/timestamp.log`, runTimestamp);

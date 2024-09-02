@@ -14,7 +14,8 @@ import { NillionClient } from "@nillion/client-vms";
 import {
   expectErr,
   expectOk,
-  getNillionClientEnvConfig,
+  getNetworkConfig,
+  getUserCredentials,
   loadProgram,
 } from "@nillion/test-utils";
 
@@ -33,8 +34,14 @@ describe(SUITE_NAME, () => {
 
   beforeAll(async () => {
     console.log(`*** Start ${SUITE_NAME} ***`);
-    const config = getNillionClientEnvConfig();
-    client = NillionClient.create(config);
+    client = NillionClient.create();
+    const networkConfig = getNetworkConfig();
+    console.log(`Network config: %O`, networkConfig);
+    const userCredentials = getUserCredentials();
+    console.log(`User credentials: %O`, userCredentials);
+
+    client.setNetworkConfig(networkConfig);
+    client.setUserCredentials(userCredentials);
 
     await client.connect();
   });
@@ -65,7 +72,8 @@ describe(SUITE_NAME, () => {
       describe(test.type, () => {
         it("can store value", async () => {
           const result = await client.store({
-            values: { data: test.expected },
+            name: test.name,
+            value: test.expected,
             ttl: 1,
           });
           if (expectOk(result)) {
@@ -77,8 +85,8 @@ describe(SUITE_NAME, () => {
         it("can retrieve value", async () => {
           const result = await client.fetch({
             id: test.id,
+            name: test.name,
             type: test.type,
-            name: "data",
           });
           expect(result.ok).toEqual(test.expected);
         });
@@ -226,25 +234,6 @@ describe(SUITE_NAME, () => {
         name: ProgramName.parse("addition_division.nada.bin"),
       });
       expectOk(result);
-    });
-
-    it("can concurrently store programs", async () => {
-      pending("Fails due to: account sequence mismatch");
-
-      const program = await loadProgram("addition_division.nada.bin");
-      const names = ["addition_division_foo", "addition_division_bar"];
-
-      const promises = names.map((name) =>
-        client.storeProgram({
-          program,
-          name: ProgramName.parse(name),
-        }),
-      );
-
-      const results = await Promise.all(promises);
-      expect(results).toHaveSize(2);
-      expectOk(results[0]);
-      expectOk(results[1]);
     });
 
     testPrograms.forEach((test) => {

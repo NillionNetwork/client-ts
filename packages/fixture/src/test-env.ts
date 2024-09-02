@@ -2,7 +2,6 @@ import { parse } from "dotenv";
 
 import fs from "node:fs";
 
-import { Log } from "./logging";
 import { TestEnv } from "./main";
 
 const waitForFileSync = async (path: string): Promise<string> => {
@@ -33,7 +32,6 @@ const waitForFileSync = async (path: string): Promise<string> => {
 };
 
 export const loadEnv = async (): Promise<void> => {
-  Log("Watching for nillion-devnet environment file.");
   const home = process.env.HOME;
   if (!home) throw new Error("Env var HOME unset");
 
@@ -47,6 +45,25 @@ export const loadEnv = async (): Promise<void> => {
   TestEnv.NILLION_CLUSTER_ID = fromEnvFile.NILLION_CLUSTER_ID;
   TestEnv.NILLION_NILCHAIN_CHAIN_ID = fromEnvFile.NILLION_NILCHAIN_CHAIN_ID;
   TestEnv.NILLION_NILCHAIN_JSON_RPC = fromEnvFile.NILLION_NILCHAIN_JSON_RPC;
+
   TestEnv.NILLION_NILCHAIN_PRIVATE_KEY_0 =
     fromEnvFile.NILLION_NILCHAIN_PRIVATE_KEY_0;
+  TestEnv.NILLION_NILCHAIN_PRIVATE_KEY_1 =
+    fromEnvFile.NILLION_NILCHAIN_PRIVATE_KEY_1;
+  TestEnv.NILLION_NILCHAIN_PRIVATE_KEY_2 =
+    fromEnvFile.NILLION_NILCHAIN_PRIVATE_KEY_2;
+  TestEnv.NILLION_NILCHAIN_PRIVATE_KEY_3 =
+    fromEnvFile.NILLION_NILCHAIN_PRIVATE_KEY_3;
+  TestEnv.NILLION_NILCHAIN_PRIVATE_KEY_4 =
+    fromEnvFile.NILLION_NILCHAIN_PRIVATE_KEY_4;
+  TestEnv.NILLION_NILCHAIN_PRIVATE_KEY_5 =
+    fromEnvFile.NILLION_NILCHAIN_PRIVATE_KEY_5;
+  TestEnv.NILLION_NILCHAIN_PRIVATE_KEY_6 =
+    fromEnvFile.NILLION_NILCHAIN_PRIVATE_KEY_6;
+  TestEnv.NILLION_NILCHAIN_PRIVATE_KEY_7 =
+    fromEnvFile.NILLION_NILCHAIN_PRIVATE_KEY_7;
+  TestEnv.NILLION_NILCHAIN_PRIVATE_KEY_8 =
+    fromEnvFile.NILLION_NILCHAIN_PRIVATE_KEY_8;
+  TestEnv.NILLION_NILCHAIN_PRIVATE_KEY_9 =
+    fromEnvFile.NILLION_NILCHAIN_PRIVATE_KEY_9;
 };

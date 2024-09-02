@@ -1,13 +1,14 @@
 import { execa } from "execa";
 
-import { writeFileSync } from "node:fs";
+import fs, { writeFileSync } from "node:fs";
+import * as readline from "node:readline";
 
 import { getDevnetLogFile, Log } from "./logging";
 import { TestEnv } from "./main";
 
 const LOG_FILE = getDevnetLogFile();
 
-export const runDevnet = () => {
+export const runDevnet = async () => {
   Log("Starting nillion devnet.");
 
   const result = execa({
@@ -25,10 +26,40 @@ export const runDevnet = () => {
 
   // The command nillion-devnet is proxied through nilup, meaning, we cannot rely on the pid returned by execa.
   // When terminating nillion-devnet we use killall to work around this, however it's useful to track the pid.
-  const pid = result.pid + 1;
+  TestEnv.NILLION_TEST_DEVNET_PID = result.pid + 1;
 
-  return {
-    result,
-    pid,
-  };
+  const pattern = "nillion-devnet.env";
+  Log("Waiting for nillion-devnet.env to be created.");
+  await waitForLine(LOG_FILE, pattern);
+  if (!fs.existsSync(LOG_FILE)) {
+    throw new Error("Failed to detect nillion-devnet.env.");
+  }
+  Log("Detected nillion-devnet.env.");
+};
+
+const waitForLine = (file: string, pattern: string): Promise<void> => {
+  return new Promise((resolve) => {
+    const readStream = fs.createReadStream(file, { encoding: "utf8" });
+    const rl = readline.createInterface({ input: readStream });
+
+    const checkLine = (line: string) => {
+      if (line.includes(pattern)) {
+        rl.close();
+        fs.unwatchFile(file, watcher);
+        resolve();
+      }
+    };
+
+    rl.on("line", checkLine);
+
+    const watcher = () => {
+      rl.close();
+      const newRl = readline.createInterface({
+        input: fs.createReadStream(file, { encoding: "utf8" }),
+      });
+      newRl.on("line", checkLine);
+    };
+
+    fs.watchFile(file, watcher);
+  });
 };

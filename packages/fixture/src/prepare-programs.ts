@@ -23,9 +23,7 @@ export const createProgramFixtures = async (): Promise<string[]> => {
     programs.push(programId);
     Log("Program namespace: %s", programId);
   }
-
-  const programsNamespace = programs[0].split("/")[0];
-  TestEnv.NILLION_TEST_PROGRAMS_NAMESPACE = programsNamespace;
+  TestEnv.NILLION_TEST_PROGRAMS_NAMESPACE = programs[0].split("/")[0];
 
   return programs;
 };

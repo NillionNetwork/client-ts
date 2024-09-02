@@ -20,7 +20,17 @@ export const TestEnv = {
   NILLION_CLUSTER_ID: "",
   NILLION_NILCHAIN_CHAIN_ID: "",
   NILLION_NILCHAIN_JSON_RPC: "",
+
   NILLION_NILCHAIN_PRIVATE_KEY_0: "",
+  NILLION_NILCHAIN_PRIVATE_KEY_1: "",
+  NILLION_NILCHAIN_PRIVATE_KEY_2: "",
+  NILLION_NILCHAIN_PRIVATE_KEY_3: "",
+  NILLION_NILCHAIN_PRIVATE_KEY_4: "",
+  NILLION_NILCHAIN_PRIVATE_KEY_5: "",
+  NILLION_NILCHAIN_PRIVATE_KEY_6: "",
+  NILLION_NILCHAIN_PRIVATE_KEY_7: "",
+  NILLION_NILCHAIN_PRIVATE_KEY_8: "",
+  NILLION_NILCHAIN_PRIVATE_KEY_9: "",
 
   NILLION_USER_SEED: "test-fixture",
 };
@@ -47,13 +57,13 @@ export const main = async (): Promise<void> => {
     Log("Logs: %s", path.resolve(LOG_RUN_DIR));
     setupLoggingDir();
 
-    const devnet = runDevnet();
-    TestEnv.NILLION_TEST_DEVNET_PID = devnet.pid;
-
+    await runDevnet();
     await loadEnv();
+
     if (requiresPrograms.includes(target)) {
       await createProgramFixtures();
     }
+
     Log("Test environment: %O", TestEnv);
     await runTests();
 

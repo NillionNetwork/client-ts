@@ -28,14 +28,14 @@ describe(SUITE_NAME, () => {
   const data = {
     store: StoreId.parse("aaaaaaaa-bbbb-cccc-dddd-ffffffffffff"),
     program: ProgramId.parse(
-      `${String(TestEnv.programNamespace)}/simple_shares.nada.bin`,
+      `${String(TestEnv.programNamespace)}/addition_division.nada.bin`,
     ),
   };
 
   beforeAll(async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
     console.log(`*** Start ${SUITE_NAME} ***`);
-    console.log(`Config: %O`, config);
+    console.log(`NilVmClient Config: %O`, config);
     await client.connect();
   });
 
@@ -44,12 +44,13 @@ describe(SUITE_NAME, () => {
   });
 
   it("can get quote for compute", async () => {
+    const values = NadaValues.create()
+      .insert(NamedValue.parse("A"), NadaValue.createSecretInteger(1))
+      .insert(NamedValue.parse("B"), NadaValue.createSecretInteger(2));
+
     const args = {
       bindings: ProgramBindings.create(data.program),
-      values: NadaValues.create().insert(
-        NamedValue.parse("foo"),
-        NadaValue.createSecretInteger(1),
-      ),
+      values,
       storeIds: [],
     };
     const operation = Operation.compute(args);
