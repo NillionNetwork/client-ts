@@ -4,7 +4,7 @@ import { z } from "zod";
 import { ChainId, Url } from "@nillion/client-core";
 
 export const PaymentClientConfig = z.object({
-  chain: ChainId,
+  chainId: ChainId,
   endpoint: Url,
   signer: z.custom<OfflineSigner>().optional(),
 });

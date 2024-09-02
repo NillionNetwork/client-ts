@@ -64,7 +64,7 @@ export class PaymentsClient {
   }
 
   async connect(): Promise<boolean> {
-    const { endpoint, chain } = this._config;
+    const { endpoint, chainId } = this._config;
     const registry = new Registry();
 
     // @ts-expect-error ts-proto 2+ migrated from protobufjs to @bufbuild/protobuf causing a type
@@ -77,8 +77,8 @@ export class PaymentsClient {
       // default to keplr signer
       const keplr = await getKeplr();
       if (keplr) {
-        await keplr.enable(chain);
-        this._signer = keplr.getOfflineSigner(chain);
+        await keplr.enable(chainId);
+        this._signer = keplr.getOfflineSigner(chainId);
       } else {
         throw new Error("No signer provided and keplr not found.");
       }

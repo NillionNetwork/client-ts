@@ -26,7 +26,7 @@ export type NetworkConfig = z.infer<typeof NetworkConfig>;
 
 export const UserCredentials = z.object({
   userSeed: UserSeed,
-  nodeSeed: NodeSeed.default(() => Math.random().toString()),
+  nodeSeed: NodeSeed.default(() => window.crypto.randomUUID()),
   signer: z.union([
     z.literal("keplr"),
     z.function().returns(z.custom<OfflineSigner>().promise()),

@@ -54,7 +54,7 @@ export class NillionClient {
   private _networkConfig: NetworkConfig | undefined;
 
   /**
-   * The constructor is private to enforce use of {@see NillionClient.create}.
+   * The constructor is private to enforce use of {@link NillionClient.create}.
    */
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
@@ -93,18 +93,18 @@ export class NillionClient {
   }
 
   /**
-   * Set the client's {@see NetworkConfig}.
+   * Set the client's {@link NetworkConfig}.
    *
-   * This must be invoked before {@see NillionClient.connect}.
+   * This must be invoked before {@link NillionClient.connect}.
    *
-   * @param - {@link NetworkConfig}
+   * @param config - {@link NetworkConfig}
    */
   public setNetworkConfig(config: NetworkConfig) {
     this._networkConfig = NetworkConfig.parse(config);
   }
 
   /**
-   * Get the client's {@see NetworkConfig}.
+   * Get the client's {@link NetworkConfig}.
    *
    */
   public get networkConfig(): NetworkConfig {
@@ -651,44 +651,14 @@ export class NillionClient {
     );
   }
 
-  // /**
-  //  * Create a {@link NillionClient}.
-  //  *
-  //  * This factory method initializes a `NillionClient` instance using the provided configuration. Before invoking
-  //  * network calls, the async {@Link NillionClient.connect} method must be called with {@link NillionUserConfig}
-  //  *
-  //  * @param config - The network configuration.
-  //  * @returns A new instance of `NillionClient`.
-  //  * @see NillionClient.connect
-  //  */
-  // static createWithConfig = (config: NillionNetworkConfig): NillionClient => {
-  //   const client = new NillionClient();
-  //   client._networkConfig = config;
-  //   return client;
-  // };
-  //
-  // /**
-  //  * Create a {@link NillionClient} for a named network.
-  //  *
-  //  * @param network - "photon" or "devnet"
-  //  * @returns A new instance of `NillionClient`.
-  //  * @see NillionClient.connect
-  //  */
-  // static create = (network: NamedNetwork): NillionClient => {
-  //   const parsedNetwork = NamedNetwork.parse(network, {
-  //     path: ["client.create", "network"],
-  //   });
-  //   const config = NamedNetworkConfig[parsedNetwork];
-  //   return NillionClient.createWithConfig(config);
-  // };
-
   /**
    * Create a {@link NillionClient}.
    *
    * This factory initializes a `NillionClient` ready to accept network and user configs.
+   *
    * @returns An unconfigured instance of `NillionClient`.
    * @see NillionClient.setNetworkConfig
-   * @see NillionClient.
+   * @see NillionClient.setUserCredentials
    * @see NillionClient.connect
    */
   static create = () => {
