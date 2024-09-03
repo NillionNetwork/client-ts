@@ -1,5 +1,5 @@
 export * from "./compute";
 export * from "./operation";
-export * from "./permissions";
 export * from "./program";
+export * from "./store-acl";
 export * from "./values";

@@ -1,6 +1,6 @@
 import * as Wasm from "@nillion/client-wasm";
 
-import { NadaValues, NadaValueType, Permissions } from "../nada";
+import { NadaValues, NadaValueType, StoreAcl } from "../nada";
 import { Days, NamedValue, StoreId } from "../types";
 import { IntoWasmQuotableOperation } from "../wasm";
 import { Operation, OperationType } from "./operation";
@@ -42,7 +42,7 @@ export class ValuesDelete {
 export interface ValuesStoreArgs {
   values: NadaValues;
   ttl: Days;
-  permissions?: Permissions;
+  acl?: StoreAcl;
 }
 
 export class ValuesStore implements Operation, IntoWasmQuotableOperation {

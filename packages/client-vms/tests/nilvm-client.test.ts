@@ -5,10 +5,10 @@ import {
   NadaValues,
   NamedValue,
   Operation,
-  Permissions,
   ProgramBindings,
   ProgramId,
   ProgramName,
+  StoreAcl,
   StoreId,
 } from "@nillion/client-core";
 import { NilVmClient } from "@nillion/client-vms";
@@ -62,11 +62,11 @@ describe(SUITE_NAME, () => {
     }
   });
 
-  it("can get quote for permissions retrieve", async () => {
+  it("can get quote for fetch store acl", async () => {
     const args = {
       id: data.store,
     };
-    const operation = Operation.fetchPermissions(args);
+    const operation = Operation.fetchAcl(args);
     const effect = client.fetchOperationQuote({ operation });
     const result = await effectToResultAsync(effect);
 
@@ -75,12 +75,12 @@ describe(SUITE_NAME, () => {
     }
   });
 
-  it("can get quote for permissions update", async () => {
+  it("can get quote for set acl", async () => {
     const args = {
       id: data.store,
-      permissions: Permissions.create(),
+      acl: StoreAcl.create(),
     };
-    const operation = Operation.setPermissions(args);
+    const operation = Operation.setAcl(args);
     const effect = client.fetchOperationQuote({ operation });
     const result = await effectToResultAsync(effect);
 

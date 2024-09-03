@@ -6,13 +6,13 @@ import {
   ComputeRetrieveResult,
   ComputeRetrieveResultsArgs,
 } from "./compute";
-import {
-  PermissionsRetrieve,
-  PermissionsRetrieveArgs,
-  PermissionsSet,
-  PermissionsSetArgs,
-} from "./permissions";
 import { ProgramStore, ProgramStoreArgs } from "./program";
+import {
+  FetchAclArgs,
+  FetchStoreAcl,
+  SetAclArgs,
+  SetStoreAcl,
+} from "./store-acl";
 import {
   ValueRetrieve,
   ValueRetrieveArgs,
@@ -29,14 +29,14 @@ export interface Operation {
 }
 
 export const OperationType = z.enum([
-  // non-paid
+  // free
   "ComputeRetrieveResult",
   "ValuesDelete",
 
   // paid
   "Compute",
-  "PermissionsRetrieve",
-  "PermissionsUpdate",
+  "FetchStoreAcl",
+  "SetStoreAcl",
   "ProgramStore",
   "ValueRetrieve",
   "ValuesStore",
@@ -49,10 +49,9 @@ export const Operation = {
   deleteValues: (args: ValuesDeleteArgs) => new ValuesDelete(args),
   fetchComputeResult: (args: ComputeRetrieveResultsArgs) =>
     new ComputeRetrieveResult(args),
-  fetchPermissions: (args: PermissionsRetrieveArgs) =>
-    new PermissionsRetrieve(args),
+  fetchAcl: (args: FetchAclArgs) => new FetchStoreAcl(args),
   fetchValue: (args: ValueRetrieveArgs) => new ValueRetrieve(args),
-  setPermissions: (args: PermissionsSetArgs) => new PermissionsSet(args),
+  setAcl: (args: SetAclArgs) => new SetStoreAcl(args),
   storeProgram: (args: ProgramStoreArgs) => new ProgramStore(args),
   storeValues: (args: ValuesStoreArgs) => new ValuesStore(args),
   updateValues: (args: ValuesUpdateArgs) => new ValuesUpdate(args),

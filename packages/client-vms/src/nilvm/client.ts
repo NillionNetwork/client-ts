@@ -8,6 +8,7 @@ import {
   ClusterId,
   Compute,
   ComputeResultId,
+  FetchStoreAcl,
   init,
   IntoWasmQuotableOperation,
   Multiaddr,
@@ -17,13 +18,12 @@ import {
   PartyId,
   PaymentReceipt,
   paymentReceiptInto,
-  Permissions,
-  PermissionsRetrieve,
-  PermissionsSet,
   PriceQuote,
   priceQuoteFrom,
   ProgramId,
   ProgramStore,
+  SetStoreAcl,
+  StoreAcl,
   StoreId,
   UserId,
   ValueRetrieve,
@@ -165,10 +165,10 @@ export class NilVmClient {
     });
   }
 
-  fetchPermissions(args: {
+  fetchStoreAcl(args: {
     receipt: PaymentReceipt;
-    operation: PermissionsRetrieve;
-  }): E.Effect<Permissions, UnknownException> {
+    operation: FetchStoreAcl;
+  }): E.Effect<StoreAcl, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { id } = operation.args;
@@ -182,22 +182,22 @@ export class NilVmClient {
       wasmReceipt.free();
       receipt.quote.inner.free();
 
-      const result = Permissions.from(response);
-      Log(`Fetched permissions for ${id} result=`, result);
+      const result = StoreAcl.from(response);
+      Log(`Fetched acl for store ${id}. Acl=%O`, result);
       return result;
     });
   }
 
-  setPermissions(args: {
+  setStoreAcl(args: {
     receipt: PaymentReceipt;
-    operation: PermissionsSet;
+    operation: SetStoreAcl;
   }): E.Effect<ActionId, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
-      const { id, permissions } = operation.args;
+      const { id, acl } = operation.args;
 
       const wasmReceipt = paymentReceiptInto(receipt);
-      const wasmPermissions = permissions.into();
+      const wasmPermissions = acl.into();
       const response = await this.client.update_permissions(
         this.clusterId,
         id,
@@ -209,7 +209,7 @@ export class NilVmClient {
       receipt.quote.inner.free();
 
       const result = ActionId.parse(response);
-      Log(`Set permissions for ${id}`);
+      Log(`Set store Acl for ${id} to Acl=%O`, acl);
       return result;
     });
   }
@@ -305,11 +305,11 @@ export class NilVmClient {
   }): E.Effect<StoreId, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
-      const { values, permissions } = operation.args;
+      const { values, acl } = operation.args;
 
       const wasmValues = values.into();
       const wasmReceipt = paymentReceiptInto(receipt);
-      const wasmPermissions = permissions?.into();
+      const wasmPermissions = acl?.into();
       const response = await this.client.store_values(
         this.clusterId,
         wasmValues,

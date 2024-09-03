@@ -5,9 +5,9 @@ import {
   NadaValueType,
   NamedValue,
   Operation,
-  Permissions,
   ProgramBindings,
   ProgramName,
+  StoreAcl,
   StoreId,
 } from "@nillion/client-core";
 import { NillionClient } from "@nillion/client-vms";
@@ -59,7 +59,7 @@ describe(SUITE_NAME, () => {
 
   it("can fetch an operation quote", async () => {
     const args = {
-      operation: Operation.fetchPermissions({ id: "" as StoreId }),
+      operation: Operation.fetchAcl({ id: "" as StoreId }),
     };
     const result = await client.fetchOperationQuote(args);
     if (expectOk(result)) {
@@ -168,7 +168,7 @@ describe(SUITE_NAME, () => {
     });
   });
 
-  describe("permissions", () => {
+  describe("store acl", () => {
     const name = NamedValue.parse("secretFoo");
     const type = NadaValueType.enum.SecretInteger;
     const value = NadaValue.createSecretInteger(42);
@@ -179,7 +179,7 @@ describe(SUITE_NAME, () => {
       const result = await client.storeValues({
         values,
         ttl: Days.parse(1),
-        permissions: Permissions.createDefaultForUser(client.vm.userId),
+        acl: StoreAcl.createDefaultForUser(client.vm.userId),
       });
 
       if (expectOk(result)) {
@@ -198,25 +198,25 @@ describe(SUITE_NAME, () => {
       }
     });
 
-    it("can retrieve permissions", async () => {
-      const result = await client.fetchPermissions({
+    it("can retrieve store acl", async () => {
+      const result = await client.fetchStoreAcl({
         id,
       });
       expectOk(result);
     });
 
-    it("can update permissions", async () => {
-      const permissions = Permissions.create();
-      const result = await client.setPermissions({
+    it("can set store acl", async () => {
+      const acl = StoreAcl.create();
+      const result = await client.setStoreAcl({
         id,
-        permissions,
+        acl,
       });
 
       expectOk(result);
     });
 
     it("value fetch rejected when not authorized", async () => {
-      const result = await client.fetchPermissions({
+      const result = await client.fetchStoreAcl({
         id,
       });
       if (expectErr(result)) {
@@ -240,15 +240,12 @@ describe(SUITE_NAME, () => {
       describe(test.name, () => {
         beforeAll(async () => {
           for (const values of test.valuesToStore) {
-            const permissions = Permissions.create().allowCompute(
-              client.vm.userId,
-              test.id,
-            );
+            const acl = StoreAcl.create().allowCompute(client.userId, test.id);
 
             const result = await client.storeValues({
               values,
               ttl: Days.parse(1),
-              permissions,
+              acl,
             });
             if (expectOk(result)) {
               test.storeIds.push(result.ok);
@@ -260,11 +257,11 @@ describe(SUITE_NAME, () => {
           const bindings = ProgramBindings.create(test.id);
 
           test.inputParties.forEach((party) => {
-            bindings.addInputParty(party, client.vm.partyId);
+            bindings.addInputParty(party, client.partyId);
           });
 
           test.outputParties.forEach((party) => {
-            bindings.addOutputParty(party, client.vm.partyId);
+            bindings.addOutputParty(party, client.partyId);
           });
 
           const result = await client.compute({

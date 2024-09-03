@@ -16,14 +16,16 @@ import {
   NamedValue,
   Operation,
   OperationType,
+  PartyId,
   PaymentReceipt,
-  Permissions,
   PriceQuote,
   ProgramBindings,
   ProgramId,
   ProgramName,
   Result,
+  StoreAcl,
   StoreId,
+  UserId,
 } from "@nillion/client-core";
 import { PaymentClientConfig, PaymentsClient } from "@nillion/client-payments";
 
@@ -121,6 +123,14 @@ export class NillionClient {
     this.isReadyGuard();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this._userConfig!;
+  }
+
+  public get userId(): UserId {
+    return this.vm.userId;
+  }
+
+  public get partyId(): PartyId {
+    return this.vm.partyId;
   }
 
   /**
@@ -223,7 +233,7 @@ export class NillionClient {
    *    bar: "hello",
    *  },
    *  ttl: 2 // 2 days,
-   *  permissions: Permissions.createDefaultForUser(client.vm.userId),
+   *  acl: StoreAcl.createDefaultForUser(client.vm.userId),
    * })
    * ```
    *
@@ -235,7 +245,7 @@ export class NillionClient {
     name: NamedValue | string;
     value: NadaPrimitiveValue | StoreValueArgs;
     ttl: Days | number;
-    permissions?: Permissions;
+    acl?: StoreAcl;
   }): Promise<Result<StoreId, UnknownException>> {
     return E.Do.pipe(
       E.bind("values", () =>
@@ -246,7 +256,7 @@ export class NillionClient {
           this.storeValues({
             values,
             ttl: args.ttl as Days,
-            permissions: args.permissions,
+            acl: args.acl,
           }),
         ),
       ),
@@ -557,7 +567,7 @@ export class NillionClient {
   storeValues(args: {
     values: NadaValues;
     ttl: Days;
-    permissions?: Permissions;
+    acl?: StoreAcl;
   }): Promise<Result<StoreId, UnknownException>> {
     return E.Do.pipe(
       E.bind("ttl", () =>
@@ -571,7 +581,7 @@ export class NillionClient {
         Operation.storeValues({
           values: args.values,
           ttl,
-          permissions: args.permissions,
+          acl: args.acl,
         }),
       ),
       E.bind("receipt", (args) => this.pay(args)),
@@ -603,51 +613,49 @@ export class NillionClient {
    * Fetches a store id's permissions.
    *
    * @param args - An object containing the {@link StoreId}.
-   * @returns A promise resolving to the {@link Result} containing the {@link Permissions}.
+   * @returns A promise resolving to the {@link Result} containing the {@link StoreAcl}.
    */
-  fetchPermissions(args: {
+  fetchStoreAcl(args: {
     id: StoreId | string;
-  }): Promise<Result<Permissions, UnknownException>> {
+  }): Promise<Result<StoreAcl, UnknownException>> {
     return E.Do.pipe(
       E.bind("id", () =>
         E.try(() =>
           StoreId.parse(args.id, {
-            path: ["client.fetchPermissions", "args.id"],
+            path: ["client.fetchStoreAcl", "args.id"],
           }),
         ),
       ),
-      E.let("operation", ({ id }) => Operation.fetchPermissions({ id })),
+      E.let("operation", ({ id }) => Operation.fetchAcl({ id })),
       E.bind("receipt", ({ operation }) => this.pay({ operation })),
       E.flatMap(({ operation, receipt }) =>
-        this.vm.fetchPermissions({ operation, receipt }),
+        this.vm.fetchStoreAcl({ operation, receipt }),
       ),
       effectToResultAsync,
     );
   }
 
   /**
-   * Sets the permissions for a stored value in the network.
+   * Sets the access control list for a stored value.
    *
-   * Existing permissions are overwritten.
+   * The existing Acl is overwritten.
    *
-   * @param args - An object containing the {@link StoreId} and the new {@link Permissions}.
+   * @param args - An object containing the {@link StoreId} and the new {@link StoreAcl}.
    * @returns A promise resolving to the {@link Result} containing the {@link ActionId}.
    */
-  setPermissions(args: {
+  setStoreAcl(args: {
     id: StoreId | string;
-    permissions: Permissions;
+    acl: StoreAcl;
   }): Promise<Result<ActionId, UnknownException>> {
     return E.Do.pipe(
       E.bind("id", () =>
         E.try(() =>
-          StoreId.parse(args.id, { path: ["setPermissions", "args.id"] }),
+          StoreId.parse(args.id, { path: ["setStoreAcl", "args.id"] }),
         ),
       ),
-      E.let("operation", ({ id }) =>
-        Operation.setPermissions({ id, permissions: args.permissions }),
-      ),
+      E.let("operation", ({ id }) => Operation.setAcl({ id, acl: args.acl })),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap((args) => this.vm.setPermissions(args)),
+      E.flatMap((args) => this.vm.setStoreAcl(args)),
       effectToResultAsync,
     );
   }

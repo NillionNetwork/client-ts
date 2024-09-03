@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-import { Permissions, StoreId } from "@nillion/client-core";
+import { StoreAcl, StoreId } from "@nillion/client-core";
 
 import { nilHookBaseResult, UseNilHook } from "./nil-hook-base";
 import { useNillion } from "./use-nillion";
@@ -8,15 +8,15 @@ import { useNillion } from "./use-nillion";
 interface ExecuteArgs {
   id: StoreId | string;
 }
-type ExecuteResult = Permissions;
+type ExecuteResult = StoreAcl;
 
-type UseNilFetchPermissions = UseNilHook<ExecuteArgs, ExecuteResult>;
+type UseNilFetchStoreAcl = UseNilHook<ExecuteArgs, ExecuteResult>;
 
-export const useNilFetchPermissions = (): UseNilFetchPermissions => {
-  const { client: nilClient } = useNillion();
+export const useNilFetchStoreAcl = (): UseNilFetchStoreAcl => {
+  const { client } = useNillion();
 
   const mutationFn = async (args: ExecuteArgs): Promise<ExecuteResult> => {
-    const response = await nilClient.fetchPermissions(args);
+    const response = await client.fetchStoreAcl(args);
     if (response.err) throw response.err as Error;
     return response.ok;
   };
