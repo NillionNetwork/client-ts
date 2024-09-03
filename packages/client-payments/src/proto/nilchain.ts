@@ -25,10 +25,7 @@ function createBaseMsgPayFor(): MsgPayFor {
 }
 
 export const MsgPayFor = {
-  encode(
-    message: MsgPayFor,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: MsgPayFor, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.resource.length !== 0) {
       writer.uint32(10).bytes(message.resource);
     }
@@ -42,8 +39,7 @@ export const MsgPayFor = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): MsgPayFor {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgPayFor();
     while (reader.pos < end) {
@@ -81,15 +77,9 @@ export const MsgPayFor = {
 
   fromJSON(object: any): MsgPayFor {
     return {
-      resource: isSet(object.resource)
-        ? bytesFromBase64(object.resource)
-        : new Uint8Array(0),
-      fromAddress: isSet(object.fromAddress)
-        ? globalThis.String(object.fromAddress)
-        : "",
-      amount: globalThis.Array.isArray(object?.amount)
-        ? object.amount.map((e: any) => Amount.fromJSON(e))
-        : [],
+      resource: isSet(object.resource) ? bytesFromBase64(object.resource) : new Uint8Array(0),
+      fromAddress: isSet(object.fromAddress) ? globalThis.String(object.fromAddress) : "",
+      amount: globalThis.Array.isArray(object?.amount) ? object.amount.map((e: any) => Amount.fromJSON(e)) : [],
     };
   },
 
@@ -110,9 +100,7 @@ export const MsgPayFor = {
   create<I extends Exact<DeepPartial<MsgPayFor>, I>>(base?: I): MsgPayFor {
     return MsgPayFor.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgPayFor>, I>>(
-    object: I,
-  ): MsgPayFor {
+  fromPartial<I extends Exact<DeepPartial<MsgPayFor>, I>>(object: I): MsgPayFor {
     const message = createBaseMsgPayFor();
     message.resource = object.resource ?? new Uint8Array(0);
     message.fromAddress = object.fromAddress ?? "";
@@ -126,10 +114,7 @@ function createBaseAmount(): Amount {
 }
 
 export const Amount = {
-  encode(
-    message: Amount,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: Amount, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.denom !== "") {
       writer.uint32(10).string(message.denom);
     }
@@ -140,8 +125,7 @@ export const Amount = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Amount {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAmount();
     while (reader.pos < end) {
@@ -224,31 +208,17 @@ function base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-export type DeepPartial<T> = T extends Builtin
-  ? T
-  : T extends globalThis.Array<infer U>
-    ? globalThis.Array<DeepPartial<U>>
-    : T extends ReadonlyArray<infer U>
-      ? ReadonlyArray<DeepPartial<U>>
-      : T extends {}
-        ? { [K in keyof T]?: DeepPartial<T[K]> }
-        : Partial<T>;
+export type DeepPartial<T> = T extends Builtin ? T
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
+  : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin
-  ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
-      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
-    };
+export type Exact<P, I extends P> = P extends Builtin ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;
