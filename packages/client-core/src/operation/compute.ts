@@ -32,12 +32,12 @@ export interface FetchComputeOutputArgs {
   id: ComputeOutputId;
 }
 
-export class ComputeRetrieveResult {
-  type = OperationType.enum.ComputeRetrieveResult;
+export class FetchComputeOutput {
+  type = OperationType.enum.FetchComputeOutput;
 
-  constructor(public args: ComputeRetrieveResultsArgs) {}
+  constructor(public args: FetchComputeOutputArgs) {}
 
   toString(): string {
-    return `Operation(type="ComputeRetrieveResult")`;
+    return `Operation(type="FetchComputeOutput")`;
   }
 }

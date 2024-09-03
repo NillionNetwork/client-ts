@@ -3,10 +3,10 @@ import { z } from "zod";
 import {
   Compute,
   ComputeArgs,
-  ComputeRetrieveResult,
-  ComputeRetrieveResultsArgs,
+  FetchComputeOutput,
+  FetchComputeOutputArgs,
 } from "./compute";
-import { ProgramStore, ProgramStoreArgs } from "./program";
+import { StoreProgram, StoreProgramArgs } from "./program";
 import {
   FetchAclArgs,
   FetchStoreAcl,
@@ -14,14 +14,14 @@ import {
   SetStoreAcl,
 } from "./store-acl";
 import {
-  ValueRetrieve,
-  ValueRetrieveArgs,
-  ValuesDelete,
-  ValuesDeleteArgs,
-  ValuesStore,
-  ValuesStoreArgs,
-  ValuesUpdate,
-  ValuesUpdateArgs,
+  DeleteValue,
+  DeleteValueArgs,
+  FetchValue,
+  FetchValueArgs,
+  StoreValue,
+  StoreValueArgs,
+  UpdateValue,
+  UpdateValueArgs,
 } from "./values";
 
 export interface Operation {
@@ -29,30 +29,31 @@ export interface Operation {
 }
 
 export const OperationType = z.enum([
-  // free
-  "ComputeRetrieveResult",
-  "ValuesDelete",
-
-  // paid
+  "StoreProgram",
   "Compute",
+  "FetchComputeOutput",
+
+  "StoreValue",
+  "FetchValue",
+  "UpdateValue",
+  "DeleteValue",
+
   "FetchStoreAcl",
   "SetStoreAcl",
-  "ProgramStore",
-  "ValueRetrieve",
-  "ValuesStore",
-  "ValuesUpdate",
 ]);
 export type OperationType = z.infer<typeof OperationType>;
 
 export const Operation = {
+  storeProgram: (args: StoreProgramArgs) => new StoreProgram(args),
   compute: (args: ComputeArgs) => new Compute(args),
-  deleteValues: (args: ValuesDeleteArgs) => new ValuesDelete(args),
-  fetchComputeResult: (args: ComputeRetrieveResultsArgs) =>
-    new ComputeRetrieveResult(args),
+  fetchComputeOutput: (args: FetchComputeOutputArgs) =>
+    new FetchComputeOutput(args),
+
+  storeValues: (args: StoreValueArgs) => new StoreValue(args),
+  fetchValue: (args: FetchValueArgs) => new FetchValue(args),
+  updateValues: (args: UpdateValueArgs) => new UpdateValue(args),
+  deleteValues: (args: DeleteValueArgs) => new DeleteValue(args),
+
   fetchAcl: (args: FetchAclArgs) => new FetchStoreAcl(args),
-  fetchValue: (args: ValueRetrieveArgs) => new ValueRetrieve(args),
   setAcl: (args: SetAclArgs) => new SetStoreAcl(args),
-  storeProgram: (args: ProgramStoreArgs) => new ProgramStore(args),
-  storeValues: (args: ValuesStoreArgs) => new ValuesStore(args),
-  updateValues: (args: ValuesUpdateArgs) => new ValuesUpdate(args),
 };

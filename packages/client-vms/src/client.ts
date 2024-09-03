@@ -5,7 +5,7 @@ import { ZodError } from "zod";
 import {
   ActionId,
   ClusterDescriptor,
-  ComputeResultId,
+  ComputeOutputId,
   Days,
   effectToResultAsync,
   IntoWasmQuotableOperation,
@@ -397,14 +397,14 @@ export class NillionClient {
    * Invokes the specified program.
    *
    * @param args - An object containing program bindings, run-time values, and ids for values to be retrieved directly from StoreIds.
-   * @returns A promise resolving to the {@link ComputeResultId} which will points to the program's output.
+   * @returns A promise resolving to the {@link ComputeOutputId} which will points to the program's output.
    * @see NillionClient.fetchComputeOutput
    */
   compute(args: {
     bindings: ProgramBindings;
     values: NadaValues;
     storeIds: (StoreId | string)[];
-  }): Promise<Result<ComputeResultId, UnknownException>> {
+  }): Promise<Result<ComputeOutputId, UnknownException>> {
     return E.Do.pipe(
       E.bind("storeIds", () =>
         E.try(() =>
@@ -421,7 +421,7 @@ export class NillionClient {
         }),
       ),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap((args) => this.vm.runProgram(args)),
+      E.flatMap((args) => this.vm.compute(args)),
       effectToResultAsync,
     );
   }
@@ -429,25 +429,23 @@ export class NillionClient {
   /**
    * Fetches the result from a program execution.
    *
-   * @param args - An object containing the {@link ComputeResultId}.
+   * @param args - An object containing the {@link ComputeOutputId}.
    * @returns A promise resolving to a Map of the program's output.
    * @see NillionClient.compute
    */
   fetchComputeOutput(args: {
-    id: ComputeResultId | string;
+    id: ComputeOutputId | string;
   }): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
     return E.Do.pipe(
       E.bind("id", () =>
         E.try(() =>
-          ComputeResultId.parse(args.id, {
+          ComputeOutputId.parse(args.id, {
             path: ["client.fetchComputeOutput", "args.id"],
           }),
         ),
       ),
-      E.let("operation", ({ id }) => Operation.fetchComputeResult({ id })),
-      E.flatMap(({ operation }) =>
-        this.vm.fetchRunProgramResult(operation.args),
-      ),
+      E.let("operation", ({ id }) => Operation.fetchComputeOutput({ id })),
+      E.flatMap(({ operation }) => this.vm.fetchComputeOutput(operation.args)),
       effectToResultAsync,
     );
   }

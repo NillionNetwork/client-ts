@@ -9,6 +9,7 @@ import {
   Compute,
   ComputeOutputId,
   FetchStoreAcl,
+  FetchValue,
   init,
   IntoWasmQuotableOperation,
   Multiaddr,
@@ -21,14 +22,13 @@ import {
   PriceQuote,
   priceQuoteFrom,
   ProgramId,
-  ProgramStore,
   SetStoreAcl,
   StoreAcl,
   StoreId,
+  StoreProgram,
+  StoreValue,
+  UpdateValue,
   UserId,
-  ValueRetrieve,
-  ValuesStore,
-  ValuesUpdate,
 } from "@nillion/client-core";
 import * as Wasm from "@nillion/client-wasm";
 
@@ -143,7 +143,7 @@ export class NilVmClient {
 
   fetchValue(args: {
     receipt: PaymentReceipt;
-    operation: ValueRetrieve;
+    operation: FetchValue;
   }): E.Effect<NadaValue, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
@@ -214,7 +214,7 @@ export class NilVmClient {
     });
   }
 
-  runProgram(args: {
+  compute(args: {
     receipt: PaymentReceipt;
     operation: Compute;
   }): E.Effect<ComputeOutputId, UnknownException> {
@@ -243,7 +243,7 @@ export class NilVmClient {
 
   storeProgram(args: {
     receipt: PaymentReceipt;
-    operation: ProgramStore;
+    operation: StoreProgram;
   }): E.Effect<ProgramId, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
@@ -276,7 +276,7 @@ export class NilVmClient {
 
   updateValues(args: {
     receipt: PaymentReceipt;
-    operation: ValuesUpdate;
+    operation: UpdateValue;
   }): E.Effect<ActionId, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
@@ -301,7 +301,7 @@ export class NilVmClient {
 
   storeValues(args: {
     receipt: PaymentReceipt;
-    operation: ValuesStore;
+    operation: StoreValue;
   }): E.Effect<StoreId, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
