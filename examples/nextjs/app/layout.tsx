@@ -1,11 +1,13 @@
-import type { Metadata } from "next";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import { theme } from "@/app/lib";
 import { Roboto } from "next/font/google";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Nillion - NextJS",
 };
 
-const font = Roboto({
+const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
   subsets: ["latin"],
   display: "swap",
@@ -17,8 +19,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={font.className}>
-      <body>{children}</body>
+    <html lang="en" className={roboto.className}>
+      <body>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

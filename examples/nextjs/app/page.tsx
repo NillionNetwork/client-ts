@@ -1,36 +1,25 @@
-import { type FC } from "react";
-import { Box } from "@mui/material";
+"use client";
 
-import {
-  ClientWrapper,
-  Compute,
-  ComputeOutput,
-  DeleteValue,
-  FetchPermissions,
-  FetchValue,
-  Login,
-  SetPermissions,
-  StoreProgram,
-  StoreValue,
-  UpdateValue,
-} from "@/app/components";
+import { type FC } from "react";
+import { Box, Button, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 const LoginLayout: FC = () => {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push("/home");
+  };
+
   return (
-    <ClientWrapper>
-      <Box sx={{ m: 4, display: "flex", flexDirection: "column", gap: 4 }}>
-        <Login />
-        <StoreValue />
-        <FetchValue />
-        <UpdateValue />
-        <DeleteValue />
-        <SetPermissions />
-        <FetchPermissions />
-        <StoreProgram />
-        <Compute />
-        <ComputeOutput />
-      </Box>
-    </ClientWrapper>
+    <Box sx={{ m: 4, display: "flex", flexDirection: "column" }}>
+      <Typography variant="h4" gutterBottom>
+        Welcome
+      </Typography>
+      <Button variant="outlined" onClick={handleClick}>
+        Open Nillion Demo
+      </Button>
+    </Box>
   );
 };
 

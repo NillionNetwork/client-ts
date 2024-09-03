@@ -5,18 +5,15 @@ import { GetApp as GetIcon } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import { Box, TextField, Typography } from "@mui/material";
 
-import { useNilFetchValue } from "@nillion/client-react-hooks";
+import { useNilFetchStoreAcl } from "@nillion/client-react-hooks";
 
-export const FetchValue: FC = () => {
-  const nilFetch = useNilFetchValue({
-    type: "SecretInteger",
-    staleAfter: 10000,
-  });
+export const FetchStoreAcl: FC = () => {
+  const nilFetchStoreAcl = useNilFetchStoreAcl();
   const [id, setId] = useState<string>("");
 
   const handleClick = () => {
-    if (!id) throw new Error("fetch-value: Id is required");
-    nilFetch.execute(id);
+    if (!id) throw new Error("fetch-store-acl: Id is required");
+    nilFetchStoreAcl.execute({ id });
   };
 
   return (
@@ -28,10 +25,11 @@ export const FetchValue: FC = () => {
         p: 2,
       }}
     >
-      <Typography variant="h5">Fetch Secret Integer</Typography>
+      <Typography variant="h5" gutterBottom>
+        Fetch Store Acl
+      </Typography>
       <Typography variant="body2">
-        The hook's 'staleAfter' argument enables caching. Remove the key or set
-        it to 0 to disable caching.
+        Info: Currently, fetch-acl can only return an empty acl object.
       </Typography>
       <Box sx={{ mb: 4 }} />
       <TextField
@@ -46,19 +44,24 @@ export const FetchValue: FC = () => {
         variant="outlined"
         sx={{ width: "150px", mt: 4 }}
         startIcon={<GetIcon />}
-        loading={nilFetch.isLoading}
+        loading={nilFetchStoreAcl.isLoading}
         onClick={handleClick}
-        disabled={!id || nilFetch.isLoading}
+        disabled={!id || nilFetchStoreAcl.isLoading}
       >
         Fetch
       </LoadingButton>
       <ul>
         <li>
-          <Typography sx={{ mt: 2 }}>Status: {nilFetch.status}</Typography>
+          <Typography sx={{ mt: 2 }}>
+            Status: {nilFetchStoreAcl.status}
+          </Typography>
         </li>
         <li>
           <Typography sx={{ mt: 2 }}>
-            Secret: {nilFetch.isSuccess ? nilFetch.data : "idle"}
+            Acl:{" "}
+            {nilFetchStoreAcl.isSuccess
+              ? JSON.stringify(nilFetchStoreAcl.data)
+              : "idle"}
           </Typography>
         </li>
       </ul>

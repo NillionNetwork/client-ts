@@ -13,8 +13,7 @@
     "packages/client-vms",
     "packages/client-react-hooks",
     "packages/fixture",
-    "examples/nextjs",
-    "examples/react"
+    "examples/nextjs"
   ],
   "devDependencies": {
     "@commitlint/cli": "^19.4.0",

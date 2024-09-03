@@ -1,22 +1,22 @@
 "use client";
 
 import { type FC, useState } from "react";
-import { GetApp as GetIcon } from "@mui/icons-material";
+import { Save as SaveIcon } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import { Box, TextField, Typography } from "@mui/material";
 
-import { useNilFetchValue } from "@nillion/client-react-hooks";
+import { useNillion, useNilSetStoreAcl } from "@nillion/client-react-hooks";
+import { StoreAcl } from "@nillion/client-core";
 
-export const FetchValue: FC = () => {
-  const nilFetch = useNilFetchValue({
-    type: "SecretInteger",
-    staleAfter: 10000,
-  });
+export const SetStoreAcl: FC = () => {
+  const { client } = useNillion();
+  const nilSetStoreAcl = useNilSetStoreAcl();
   const [id, setId] = useState<string>("");
 
   const handleClick = () => {
-    if (!id) throw new Error("fetch-value: Id is required");
-    nilFetch.execute(id);
+    if (!id) throw new Error("set-store-acl: Id is required");
+    const acl = StoreAcl.createDefaultForUser(client.userId);
+    nilSetStoreAcl.execute({ id, acl });
   };
 
   return (
@@ -28,11 +28,7 @@ export const FetchValue: FC = () => {
         p: 2,
       }}
     >
-      <Typography variant="h5">Fetch Secret Integer</Typography>
-      <Typography variant="body2">
-        The hook's 'staleAfter' argument enables caching. Remove the key or set
-        it to 0 to disable caching.
-      </Typography>
+      <Typography variant="h5">Set Store Acl</Typography>
       <Box sx={{ mb: 4 }} />
       <TextField
         fullWidth
@@ -45,20 +41,22 @@ export const FetchValue: FC = () => {
       <LoadingButton
         variant="outlined"
         sx={{ width: "150px", mt: 4 }}
-        startIcon={<GetIcon />}
-        loading={nilFetch.isLoading}
+        startIcon={<SaveIcon />}
+        loading={nilSetStoreAcl.isLoading}
         onClick={handleClick}
-        disabled={!id || nilFetch.isLoading}
+        disabled={!id || nilSetStoreAcl.isLoading}
       >
-        Fetch
+        Set
       </LoadingButton>
       <ul>
         <li>
-          <Typography sx={{ mt: 2 }}>Status: {nilFetch.status}</Typography>
+          <Typography sx={{ mt: 2 }}>
+            Status: {nilSetStoreAcl.status}
+          </Typography>
         </li>
         <li>
           <Typography sx={{ mt: 2 }}>
-            Secret: {nilFetch.isSuccess ? nilFetch.data : "idle"}
+            Id: {nilSetStoreAcl.isSuccess ? nilSetStoreAcl.data : "idle"}
           </Typography>
         </li>
       </ul>

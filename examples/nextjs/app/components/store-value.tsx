@@ -9,47 +9,50 @@ import { useNilStoreValue } from "@nillion/client-react-hooks";
 
 export const StoreValue: FC = () => {
   const nilStore = useNilStoreValue({ ttl: 1 });
-  const [secret, setSecret] = useState<number>();
+  const [secret, setSecret] = useState<number | null>(null);
+
+  const handleClick = () => {
+    if (!secret) throw new Error("store-value: Value required");
+    nilStore.execute(secret!);
+  };
 
   return (
-    <Box>
-      <Typography variant="h5" gutterBottom>
-        Store secret integer
-      </Typography>
+    <Box
+      sx={{
+        border: "1px solid",
+        borderColor: "grey.400",
+        borderRadius: 2,
+        p: 2,
+      }}
+    >
+      <Typography variant="h5">Store Secret Integer</Typography>
+      <Box sx={{ mb: 4 }} />
       <TextField
         fullWidth
         label="Secret value"
-        value={secret}
+        value={secret ? secret : ""}
         type="number"
         onChange={(e) => {
           setSecret(Number(e.target.value));
         }}
-        slotProps={{
-          input: {
-            endAdornment: (
-              <LoadingButton
-                sx={{ ml: 4 }}
-                startIcon={<SaveIcon />}
-                loading={nilStore.isLoading}
-                onClick={() => {
-                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                  nilStore.execute(secret!);
-                }}
-                disabled={!secret || nilStore.isLoading}
-              >
-                Save
-              </LoadingButton>
-            ),
-          },
-        }}
       />
+      <LoadingButton
+        variant="outlined"
+        sx={{ width: "150px", mt: 4 }}
+        startIcon={<SaveIcon />}
+        loading={nilStore.isLoading}
+        onClick={handleClick}
+        disabled={!secret || nilStore.isLoading}
+      >
+        Save
+      </LoadingButton>
       <ul>
         <li>
           <Typography sx={{ mt: 2 }}>Status: {nilStore.status}</Typography>
         </li>
         <li>
           <Typography sx={{ mt: 2 }}>
-            Id: {nilStore.isSuccess ? nilStore.data : "pending"}
+            Id: {nilStore.isSuccess ? nilStore.data : "idle"}
           </Typography>
         </li>
       </ul>

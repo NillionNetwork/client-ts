@@ -3,7 +3,7 @@
 import { type FC, useState } from "react";
 import { Delete as DeleteIcon } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
-import { Box, Chip, TextField, Typography } from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
 
 import { useNilDeleteValue } from "@nillion/client-react-hooks";
 
@@ -11,11 +11,22 @@ export const DeleteValue: FC = () => {
   const nilDelete = useNilDeleteValue();
   const [id, setId] = useState<string>("");
 
+  const handleClick = () => {
+    if (!id) throw new Error("delete-value: Id is required");
+    nilDelete.execute(id);
+  };
+
   return (
-    <Box>
-      <Typography variant="h5" gutterBottom>
-        Delete
-      </Typography>
+    <Box
+      sx={{
+        border: "1px solid",
+        borderColor: "grey.400",
+        borderRadius: 2,
+        p: 2,
+      }}
+    >
+      <Typography variant="h5">Delete Store</Typography>
+      <Box sx={{ mb: 4 }} />
       <TextField
         fullWidth
         label="Store identifier"
@@ -23,28 +34,22 @@ export const DeleteValue: FC = () => {
         onChange={(e) => {
           setId(e.target.value);
         }}
-        slotProps={{
-          input: {
-            endAdornment: (
-              <LoadingButton
-                startIcon={<DeleteIcon />}
-                loading={nilDelete.isLoading}
-                onClick={() => {
-                  nilDelete.execute(id);
-                }}
-                disabled={!id || nilDelete.isLoading}
-              >
-                Delete
-              </LoadingButton>
-            ),
-          },
-        }}
       />
+      <LoadingButton
+        variant="outlined"
+        sx={{ width: "150px", mt: 4 }}
+        startIcon={<DeleteIcon />}
+        loading={nilDelete.isLoading}
+        onClick={() => {
+          nilDelete.execute(id);
+        }}
+        disabled={!id || nilDelete.isLoading}
+      >
+        Delete
+      </LoadingButton>
       <ul>
         <li>
-          <Typography sx={{ mt: 2 }}>
-            Status: <Chip label={nilDelete.status} />
-          </Typography>
+          <Typography sx={{ mt: 2 }}>Status: {nilDelete.status}</Typography>
         </li>
       </ul>
     </Box>

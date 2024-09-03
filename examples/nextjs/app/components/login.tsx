@@ -55,10 +55,21 @@ export const Login: FC = () => {
   };
 
   return (
-    <Box>
+    <Box
+      sx={{
+        border: "1px solid",
+        borderColor: "grey.400",
+        borderRadius: 2,
+        p: 2,
+      }}
+    >
       <Typography variant="h5" gutterBottom>
-        Sign in
+        Login
       </Typography>
+      <Typography variant="body2">
+        You must login before using the client.
+      </Typography>
+      <Box sx={{ mb: 4 }} />
       <TextField
         required
         fullWidth

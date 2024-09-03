@@ -9,8 +9,8 @@ import { useNilUpdateValue } from "@nillion/client-react-hooks";
 
 export const UpdateValue: FC = () => {
   const nilUpdate = useNilUpdateValue();
-  const [id, setId] = useState<string>();
-  const [secret, setSecret] = useState<number>();
+  const [id, setId] = useState<string>("");
+  const [secret, setSecret] = useState<number | null>(null);
 
   const handleUpdate = () => {
     if (!id || !secret)
@@ -23,10 +23,16 @@ export const UpdateValue: FC = () => {
   };
 
   return (
-    <Box>
-      <Typography variant="h5" gutterBottom>
-        Update secret integer
-      </Typography>
+    <Box
+      sx={{
+        border: "1px solid",
+        borderColor: "grey.400",
+        borderRadius: 2,
+        p: 2,
+      }}
+    >
+      <Typography variant="h5">Update Secret Integer</Typography>
+      <Box sx={{ mb: 4 }} />
       <TextField
         fullWidth
         label="Identifier"
@@ -39,7 +45,7 @@ export const UpdateValue: FC = () => {
       <TextField
         fullWidth
         label="New secret value"
-        value={secret}
+        value={secret ? secret : ""}
         type="number"
         onChange={(e) => {
           setSecret(Number(e.target.value));
@@ -61,7 +67,7 @@ export const UpdateValue: FC = () => {
         </li>
         <li>
           <Typography sx={{ mt: 2 }}>
-            Id: {nilUpdate.isSuccess ? nilUpdate.data : ""}
+            Id: {nilUpdate.isSuccess ? nilUpdate.data : "idle"}
           </Typography>
         </li>
       </ul>
