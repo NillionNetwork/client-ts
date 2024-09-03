@@ -23,7 +23,7 @@ export const useNilCompute = (): UseNilCompute => {
   const { client: nilClient } = useNillion();
 
   const mutationFn = async (args: ExecuteArgs): Promise<ExecuteResult> => {
-    const response = await nilClient.runProgram(args);
+    const response = await nilClient.compute(args);
     if (response.err) throw response.err as Error;
     return response.ok;
   };

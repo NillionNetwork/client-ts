@@ -267,7 +267,7 @@ describe(SUITE_NAME, () => {
             bindings.addOutputParty(party, client.vm.partyId);
           });
 
-          const result = await client.runProgram({
+          const result = await client.compute({
             bindings,
             values: test.valuesToInput,
             storeIds: test.storeIds,

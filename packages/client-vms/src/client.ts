@@ -384,12 +384,13 @@ export class NillionClient {
   }
 
   /**
-   * Initiates execution of the specified program.
+   * Invokes the specified program.
    *
-   * @param args - An object containing program bindings, run-time values, and ids for values to retrieve.
-   * @returns A promise resolving to the {@link ComputeResultId}.
+   * @param args - An object containing program bindings, run-time values, and ids for values to be retrieved directly from StoreIds.
+   * @returns A promise resolving to the {@link ComputeResultId} which will points to the program's output.
+   * @see NillionClient.fetchComputeOutput
    */
-  runProgram(args: {
+  compute(args: {
     bindings: ProgramBindings;
     values: NadaValues;
     storeIds: (StoreId | string)[];
@@ -398,7 +399,7 @@ export class NillionClient {
       E.bind("storeIds", () =>
         E.try(() =>
           args.storeIds.map((id) =>
-            StoreId.parse(id, { path: ["client.runProgram", "args.ids.id"] }),
+            StoreId.parse(id, { path: ["client.compute", "args.ids.id"] }),
           ),
         ),
       ),
@@ -420,7 +421,7 @@ export class NillionClient {
    *
    * @param args - An object containing the {@link ComputeResultId}.
    * @returns A promise resolving to a Map of the programs output.
-   * @see NillionClient.runProgram
+   * @see NillionClient.compute
    */
   fetchProgramOutput(args: {
     id: ComputeResultId | string;
