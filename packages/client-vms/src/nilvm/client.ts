@@ -7,7 +7,7 @@ import {
   ClusterDescriptor,
   ClusterId,
   Compute,
-  ComputeResultId,
+  ComputeOutputId,
   FetchStoreAcl,
   init,
   IntoWasmQuotableOperation,
@@ -112,8 +112,8 @@ export class NilVmClient {
     });
   }
 
-  fetchRunProgramResult(args: {
-    id: ComputeResultId;
+  fetchComputeOutput(args: {
+    id: ComputeOutputId;
   }): E.Effect<Record<string, NadaPrimitiveValue>, UnknownException> {
     return E.tryPromise(async () => {
       const { id } = args;
@@ -217,7 +217,7 @@ export class NilVmClient {
   runProgram(args: {
     receipt: PaymentReceipt;
     operation: Compute;
-  }): E.Effect<ComputeResultId, UnknownException> {
+  }): E.Effect<ComputeOutputId, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { bindings, storeIds, values } = operation.args;
@@ -235,7 +235,7 @@ export class NilVmClient {
       wasmReceipt.free();
       receipt.quote.inner.free();
 
-      const result = ComputeResultId.parse(response);
+      const result = ComputeOutputId.parse(response);
       Log(`Compute started resultId=${result}`);
       return result;
     });

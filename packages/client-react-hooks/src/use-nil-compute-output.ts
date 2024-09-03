@@ -1,11 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 
-import { ComputeResultId } from "@nillion/client-core";
+import { ComputeOutputId } from "@nillion/client-core";
 
 import { nilHookBaseResult, UseNilHook } from "./nil-hook-base";
 import { useNillion } from "./use-nillion";
 
-type ExecuteArgs = ComputeResultId | string;
+type ExecuteArgs = ComputeOutputId | string;
 type ExecuteResult = object;
 
 type UseNilComputeOutput = UseNilHook<ExecuteArgs, ExecuteResult>;

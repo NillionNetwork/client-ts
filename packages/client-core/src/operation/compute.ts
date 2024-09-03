@@ -1,7 +1,7 @@
 import * as Wasm from "@nillion/client-wasm";
 
 import { NadaValues, ProgramBindings } from "../nada";
-import { ComputeResultId, StoreId } from "../types";
+import { ComputeOutputId, StoreId } from "../types";
 import { IntoWasmQuotableOperation } from "../wasm";
 import { Operation, OperationType } from "./operation";
 
@@ -28,8 +28,8 @@ export class Compute implements Operation, IntoWasmQuotableOperation {
   }
 }
 
-export interface ComputeRetrieveResultsArgs {
-  id: ComputeResultId;
+export interface FetchComputeOutputArgs {
+  id: ComputeOutputId;
 }
 
 export class ComputeRetrieveResult {

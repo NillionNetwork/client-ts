@@ -1,5 +1,5 @@
 import {
-  ComputeResultId,
+  ComputeOutputId,
   NadaValue,
   NadaValues,
   NamedValue,
@@ -18,7 +18,7 @@ export interface TestProgram {
   valuesToInput: NadaValues;
   storeIds: StoreId[];
   result: {
-    id: ComputeResultId;
+    id: ComputeOutputId;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expected: any;
   };
@@ -56,7 +56,7 @@ export const testPrograms: TestProgram[] = [
         NadaValue.createSecretIntegerUnsigned(15981n),
       ),
     result: {
-      id: "" as ComputeResultId,
+      id: "" as ComputeOutputId,
       expected: {
         Add0: 1462969515630n,
       },

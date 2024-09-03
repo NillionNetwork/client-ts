@@ -1,4 +1,4 @@
-import { ComputeResultId, StoreId } from "@nillion/client-core";
+import { ComputeOutputId, StoreId } from "@nillion/client-core";
 
 export const REACT_QUERY_STATE_KEY_PREFIX = "__NILLION";
 
@@ -11,5 +11,5 @@ export const createPermissionsCacheKey = (
 ): readonly unknown[] => [REACT_QUERY_STATE_KEY_PREFIX, "PERMISSIONS", id];
 
 export const createComputeResultCacheKey = (
-  id: ComputeResultId | string,
+  id: ComputeOutputId | string,
 ): readonly unknown[] => [REACT_QUERY_STATE_KEY_PREFIX, "COMPUTE", id];

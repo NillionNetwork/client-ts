@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 
 import {
-  ComputeResultId,
+  ComputeOutputId,
   NadaValues,
   ProgramBindings,
   StoreId,
@@ -15,7 +15,7 @@ interface ExecuteArgs {
   values: NadaValues;
   storeIds: (StoreId | string)[];
 }
-type ExecuteResult = ComputeResultId;
+type ExecuteResult = ComputeOutputId;
 
 type UseNilCompute = UseNilHook<ExecuteArgs, ExecuteResult>;
 
