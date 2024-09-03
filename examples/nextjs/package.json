@@ -18,9 +18,9 @@
     "next": "14.2.7",
     "react": "^18",
     "react-dom": "^18",
-    "@nillion/client-core": "0.1.0-rc.13",
-    "@nillion/client-react-hooks": "0.1.0-rc.13",
-    "@nillion/client-vms": "0.1.0-rc.13"
+    "@nillion/client-core": "0.1.0-rc.14",
+    "@nillion/client-react-hooks": "0.1.0-rc.14",
+    "@nillion/client-vms": "0.1.0-rc.14"
   },
   "devDependencies": {
     "@types/node": "^22",
