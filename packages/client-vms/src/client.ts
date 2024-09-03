@@ -420,17 +420,17 @@ export class NillionClient {
    * Fetches the result from a program execution.
    *
    * @param args - An object containing the {@link ComputeResultId}.
-   * @returns A promise resolving to a Map of the programs output.
+   * @returns A promise resolving to a Map of the program's output.
    * @see NillionClient.compute
    */
-  fetchProgramOutput(args: {
+  fetchComputeOutput(args: {
     id: ComputeResultId | string;
   }): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
     return E.Do.pipe(
       E.bind("id", () =>
         E.try(() =>
           ComputeResultId.parse(args.id, {
-            path: ["client.fetchProgramOutput", "args.id"],
+            path: ["client.fetchComputeOutput", "args.id"],
           }),
         ),
       ),

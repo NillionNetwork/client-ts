@@ -14,7 +14,7 @@ export const useNilComputeOutput = (): UseNilComputeOutput => {
   const { client: nilClient } = useNillion();
 
   const mutationFn = async (id: ExecuteArgs): Promise<ExecuteResult> => {
-    const response = await nilClient.fetchProgramOutput({ id });
+    const response = await nilClient.fetchComputeOutput({ id });
     if (response.err) throw response.err as Error;
     return response.ok;
   };

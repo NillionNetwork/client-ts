@@ -279,7 +279,7 @@ describe(SUITE_NAME, () => {
         });
 
         it("can get result", async () => {
-          const result = await client.fetchProgramOutput({
+          const result = await client.fetchComputeOutput({
             id: test.result.id,
           });
           if (expectOk(result)) {
