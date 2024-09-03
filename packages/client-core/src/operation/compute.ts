@@ -1,8 +1,9 @@
-import { IntoWasmQuotableOperation } from "../wasm";
 import * as Wasm from "@nillion/client-wasm";
-import { Operation, OperationType } from "./operation";
+
 import { NadaValues, ProgramBindings } from "../nada";
-import { ComputeResultId, StoreId } from "../types";
+import { ComputeOutputId, StoreId } from "../types";
+import { IntoWasmQuotableOperation } from "../wasm";
+import { Operation, OperationType } from "./operation";
 
 export interface ComputeArgs {
   bindings: ProgramBindings;
@@ -27,16 +28,16 @@ export class Compute implements Operation, IntoWasmQuotableOperation {
   }
 }
 
-export interface ComputeRetrieveResultsArgs {
-  id: ComputeResultId;
+export interface FetchComputeOutputArgs {
+  id: ComputeOutputId;
 }
 
-export class ComputeRetrieveResult {
-  type = OperationType.enum.ComputeRetrieveResult;
+export class FetchComputeOutput {
+  type = OperationType.enum.FetchComputeOutput;
 
-  constructor(public args: ComputeRetrieveResultsArgs) {}
+  constructor(public args: FetchComputeOutputArgs) {}
 
   toString(): string {
-    return `Operation(type="ComputeRetrieveResult")`;
+    return `Operation(type="FetchComputeOutput")`;
   }
 }

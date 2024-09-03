@@ -4,18 +4,23 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 8080",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "14.2.5",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.0.0",
+    "@mui/lab": "^6.0.0-beta.8",
+    "@mui/material": "^6.0.0",
+    "next": "14.2.7",
     "react": "^18",
     "react-dom": "^18",
-    "@nillion/client-core": "0.1.0-rc.12",
-    "@nillion/client-react-hooks": "0.1.0-rc.12",
-    "@nillion/client-vms": "0.1.0-rc.12"
+    "@nillion/client-core": "0.1.0-rc.14",
+    "@nillion/client-react-hooks": "0.1.0-rc.14",
+    "@nillion/client-vms": "0.1.0-rc.14"
   },
   "devDependencies": {
     "@types/node": "^22",

@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-npx lint-staged
-tsc
-git update-index --again
+just check
 
 echo "Checking commit message..."
 npx commitlint -g commitlint.config.mjs --verbose --edit

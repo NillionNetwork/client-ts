@@ -1,5 +1,6 @@
-import path from "node:path";
 import proxy from "express-http-proxy";
+
+import path from "node:path";
 
 export const buildJasmineBaseConfig = (packageBaseDir) => ({
   port: 9191,

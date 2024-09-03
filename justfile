@@ -11,14 +11,17 @@ clean:
 check:
     #!/usr/bin/env bash
     set -uxo pipefail
-    npx prettier -c "packages/**/*.(js|jsx|ts|tsx)"
+    npx prettier -c "packages/**/*.(js|jsx|mjs|ts|tsx)"
 
     echo "Running eslint... "
     npx eslint -c eslint.config.mjs
     echo "done."
 
     echo "Running tsc... "
-    npx tsc
+    npx tsc -p packages/client-core/tsconfig.json
+    npx tsc -p packages/client-payments/tsconfig.json
+    npx tsc -p packages/client-vms/tsconfig.json
+    npx tsc -p packages/client-react-hooks/tsconfig.json
     echo "done."
 
 watch-and-build:

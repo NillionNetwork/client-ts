@@ -1,7 +1,11 @@
+import { Effect as E, pipe } from "effect";
+import { UnknownException } from "effect/Cause";
+import { ZodError } from "zod";
+
 import {
   ActionId,
   ClusterDescriptor,
-  ComputeResultId,
+  ComputeOutputId,
   Days,
   effectToResultAsync,
   IntoWasmQuotableOperation,
@@ -9,73 +13,61 @@ import {
   NadaValue,
   NadaValues,
   NadaValueType,
-  NamedNetwork,
   NamedValue,
   Operation,
   OperationType,
-  PartialConfig,
+  PartyId,
   PaymentReceipt,
-  Permissions,
   PriceQuote,
   ProgramBindings,
   ProgramId,
   ProgramName,
   Result,
+  StoreAcl,
   StoreId,
+  UserId,
 } from "@nillion/client-core";
-import { PaymentsClient } from "@nillion/client-payments";
-import { Effect as E, pipe } from "effect";
-import { UnknownException } from "effect/Cause";
-import { ZodError } from "zod";
+import { PaymentClientConfig, PaymentsClient } from "@nillion/client-payments";
+
 import { Log } from "./logger";
-import { valuesRecordToNadaValues } from "./nada";
-import { NilVmClient } from "./nilvm";
-import {
-  NillionClientConfig,
-  NillionClientConfigComplete,
-  StoreValueArgs,
-} from "./types";
+import { toNadaValues } from "./nada";
+import { NilVmClient, NilVmClientConfig } from "./nilvm";
+import { NetworkConfig, StoreValueArgs, UserCredentials } from "./types";
 
 /**
- * NillionClient integrates {@link NilVmClient} and {@link PaymentsClient} to provide
- * a single ergonomic API for interacting with a [Nillion Network](https://docs.nillion.com/network).
+ * NillionClient encapsulates {@link NilVmClient} and {@link PaymentsClient} to provide
+ * a single API for interacting with a [Nillion Network](https://docs.nillion.com/network).
  *
  * @example
  * ```ts
- * declare const config: NillionClientConfig
- * const client = NillionClient.create(config)
- * await client.connect()
- *
- * const response = await client.store({
- *  values: { foo: 42 },
- *  ttl: 1,
+ * const client = NillionClient.create()
+ * client.setNetworkConfig(NamedNetworkConfig.photon)
+ * client.setUserCredentials({
+ *   userSeed: "unique-user-seed",
+ *   signer: "keplr",
  * })
- *
- * if(response.ok) {
- *    const storeId = response.ok
- *    localStorage.storeIds = storeId
- * }
+ * await client.connect()
  * ```
  */
 export class NillionClient {
   private _vm: NilVmClient | undefined;
   private _chain: PaymentsClient | undefined;
+  private _userConfig: UserCredentials | undefined;
+  private _networkConfig: NetworkConfig | undefined;
 
   /**
-   * The constructor is private to enforces the use of the factory creator method.
-   *
-   * @param _config - The configuration object for the NillionClient.
-   * @see NillionClient.create
+   * The constructor is private to enforce use of {@link NillionClient.create}.
    */
-  private constructor(private _config: NillionClientConfig) {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  private constructor() {}
 
   /**
-   * Whether the client is ready to execute operations.
+   * If the client is ready to execute operations.
    *
    * @returns true if both the VM and Payments clients are ready; otherwise, false.
    */
   public get ready(): boolean {
-    return (this._vm?.ready && this._chain?.ready) ?? false;
+    return Boolean(this._userConfig && this._vm?.ready && this._chain?.ready);
   }
 
   /**
@@ -91,7 +83,7 @@ export class NillionClient {
   }
 
   /**
-   * Guarded access to the payments client.
+   * Guarded access to the payments' client.
    *
    * @throws Error if the client is not ready.
    * @returns The initialized {@link PaymentsClient} instance.
@@ -103,14 +95,53 @@ export class NillionClient {
   }
 
   /**
+   * Set the client's {@link NetworkConfig}.
+   *
+   * This must be invoked before {@link NillionClient.connect}.
+   *
+   * @param config - {@link NetworkConfig}
+   */
+  public setNetworkConfig(config: NetworkConfig) {
+    this._networkConfig = NetworkConfig.parse(config);
+  }
+
+  /**
+   * Get the client's {@link NetworkConfig}.
+   *
+   */
+  public get networkConfig(): NetworkConfig {
+    this.isReadyGuard();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this._networkConfig!;
+  }
+
+  public setUserCredentials(config: UserCredentials) {
+    this._userConfig = UserCredentials.parse(config);
+  }
+
+  public get userConfig(): UserCredentials {
+    this.isReadyGuard();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this._userConfig!;
+  }
+
+  public get userId(): UserId {
+    return this.vm.userId;
+  }
+
+  public get partyId(): PartyId {
+    return this.vm.partyId;
+  }
+
+  /**
    * This guards against access before initialization. NillionClient creation is sync,
    * but PaymentClient and VmClient instantiation are async.
    *
    * @throws Error with message indicating the client is not ready.
    */
-  private isReadyGuard(): void | never {
+  private isReadyGuard(): void {
     if (!this.ready) {
-      const message = "NillionClient not ready. Call `await client.connect()`.";
+      const message = "NillionClient not initialiazed.";
       Log(message);
       throw new Error(message);
     }
@@ -131,74 +162,47 @@ export class NillionClient {
       return Promise.resolve(this.ready);
     }
 
-    return E.Do.pipe(
-      E.bind("network", () =>
-        E.try(() => {
-          const name = this._config.network ?? NamedNetwork.enum.Photon;
-          return NamedNetwork.parse(name, {
-            path: ["client.connect", "NamedNetwork"],
-          });
-        }),
-      ),
-      E.bind("partial", ({ network }) =>
-        E.try(() => {
-          let partial: unknown = {};
-          if (network != NamedNetwork.enum.Custom) {
-            const key = network;
-            partial = PartialConfig[key];
-          }
-          return partial as Partial<NillionClientConfigComplete>;
-        }),
-      ),
-      E.let("seeds", () => {
-        const seeds: Record<string, string> = {};
-        if (this._config.userSeed) seeds.userSeed = this._config.userSeed;
-        if (this._config.nodeSeed) {
-          seeds.nodeSeed = this._config.nodeSeed;
-        } else {
-          seeds.nodeSeed = window.crypto.randomUUID();
-        }
-        return seeds;
+    return pipe(
+      E.tryPromise(async () => {
+        const combined = {
+          ...this._userConfig,
+          ...this._networkConfig,
+        };
+        Log("Config: %O", combined);
+
+        const nilVmConfig = NilVmClientConfig.parse({
+          bootnodes: combined.bootnodes,
+          clusterId: combined.clusterId,
+          userSeed: combined.userSeed,
+          nodeSeed: combined.nodeSeed,
+        });
+
+        const signer =
+          typeof combined.signer === "function"
+            ? await combined.signer()
+            : undefined;
+
+        const nilChainConfig = PaymentClientConfig.parse({
+          chainId: combined.nilChainId,
+          endpoint: combined.nilChainEndpoint,
+          signer,
+        });
+
+        this._vm = NilVmClient.create(nilVmConfig);
+        this._chain = PaymentsClient.create(nilChainConfig);
+
+        await this._vm.connect();
+        await this._chain.connect();
+
+        Log("NillionClient connected.");
+        return this.ready;
       }),
-      E.bind("overrides", () =>
-        E.tryPromise(async () =>
-          this._config.overrides ? await this._config.overrides() : {},
-        ),
-      ),
-      E.flatMap(({ network, seeds, partial, overrides }) =>
-        E.try(() => {
-          const complete: unknown = {
-            network,
-            ...partial,
-            ...seeds,
-            ...overrides,
-          };
-          const config = NillionClientConfigComplete.parse(complete);
-          Log("Config: %O", complete);
-          return config;
-        }),
-      ),
-      E.flatMap((config: NillionClientConfigComplete) =>
-        E.tryPromise(async () => {
-          this._vm = NilVmClient.create(config);
-          this._chain = PaymentsClient.create(config);
-          await this._vm.connect();
-          await this._chain.connect();
-
-          if (config.logging) globalThis.__NILLION?.enableLogging();
-          else globalThis.__NILLION?.disableLogging();
-
-          Log("NillionClient connected.");
-          return this.ready;
-        }),
-      ),
       E.mapError((error) => {
         if (error instanceof ZodError) {
-          Log("Config parse error: %O", error.format());
+          Log("Parsing error: %O", error.format());
         } else {
           Log("Connection failed: %O", error);
         }
-        E.dieMessage("Invalid configuration");
       }),
       E.runPromise,
     );
@@ -207,9 +211,11 @@ export class NillionClient {
   /**
    * Disconnects the client. This function is a no-op and serves as a placeholder.
    */
-  disconnect(): void {
-    // TODO(tim): terminate websocket connections / tell worker to terminate / cleanup
-    Log("Disconnect called. This is currently a noop.");
+  disconnect(): Promise<void> {
+    this._vm = undefined;
+    this._chain = undefined;
+    Log("Client disconnected");
+    return Promise.resolve();
   }
 
   /**
@@ -227,7 +233,7 @@ export class NillionClient {
    *    bar: "hello",
    *  },
    *  ttl: 2 // 2 days,
-   *  permissions: Permissions.createDefaultForUser(client.vm.userId),
+   *  acl: StoreAcl.createDefaultForUser(client.vm.userId),
    * })
    * ```
    *
@@ -236,18 +242,21 @@ export class NillionClient {
    * @returns A promise resolving to the {@link Result} of the store operation.
    */
   async store(args: {
-    values: Record<NamedValue | string, NadaPrimitiveValue | StoreValueArgs>;
+    name: NamedValue | string;
+    value: NadaPrimitiveValue | StoreValueArgs;
     ttl: Days | number;
-    permissions?: Permissions;
+    acl?: StoreAcl;
   }): Promise<Result<StoreId, UnknownException>> {
     return E.Do.pipe(
-      E.bind("values", () => valuesRecordToNadaValues(args.values)),
+      E.bind("values", () =>
+        toNadaValues({ name: args.name, value: args.value }),
+      ),
       E.flatMap(({ values }) =>
         E.tryPromise(() =>
           this.storeValues({
             values,
             ttl: args.ttl as Days,
-            permissions: args.permissions,
+            acl: args.acl,
           }),
         ),
       ),
@@ -331,7 +340,8 @@ export class NillionClient {
    */
   update(args: {
     id: StoreId | string;
-    values: Record<NamedValue | string, NadaPrimitiveValue | StoreValueArgs>;
+    name: NamedValue | string;
+    value: NadaPrimitiveValue | StoreValueArgs;
     ttl: Days | number;
   }): Promise<Result<ActionId, UnknownException>> {
     return E.Do.pipe(
@@ -345,7 +355,9 @@ export class NillionClient {
           Days.parse(args.ttl, { path: ["client.update", "args.ttl"] }),
         ),
       ),
-      E.bind("values", () => valuesRecordToNadaValues(args.values)),
+      E.bind("values", () =>
+        toNadaValues({ name: args.name, value: args.value }),
+      ),
       E.flatMap((args) => E.tryPromise(() => this.updateValue(args))),
       E.runPromise,
     );
@@ -382,21 +394,22 @@ export class NillionClient {
   }
 
   /**
-   * Initiates execution of the specified program.
+   * Invokes the specified program.
    *
-   * @param args - An object containing program bindings, run-time values, and ids for values to retrieve.
-   * @returns A promise resolving to the {@link ComputeResultId}.
+   * @param args - An object containing program bindings, run-time values, and ids for values to be retrieved directly from StoreIds.
+   * @returns A promise resolving to the {@link ComputeOutputId} which will points to the program's output.
+   * @see NillionClient.fetchComputeOutput
    */
-  runProgram(args: {
+  compute(args: {
     bindings: ProgramBindings;
     values: NadaValues;
     storeIds: (StoreId | string)[];
-  }): Promise<Result<ComputeResultId, UnknownException>> {
+  }): Promise<Result<ComputeOutputId, UnknownException>> {
     return E.Do.pipe(
       E.bind("storeIds", () =>
         E.try(() =>
           args.storeIds.map((id) =>
-            StoreId.parse(id, { path: ["client.runProgram", "args.ids.id"] }),
+            StoreId.parse(id, { path: ["client.compute", "args.ids.id"] }),
           ),
         ),
       ),
@@ -408,7 +421,7 @@ export class NillionClient {
         }),
       ),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap((args) => this.vm.runProgram(args)),
+      E.flatMap((args) => this.vm.compute(args)),
       effectToResultAsync,
     );
   }
@@ -416,25 +429,23 @@ export class NillionClient {
   /**
    * Fetches the result from a program execution.
    *
-   * @param args - An object containing the {@link ComputeResultId}.
-   * @returns A promise resolving to a Map of the programs output.
-   * @see NillionClient.runProgram
+   * @param args - An object containing the {@link ComputeOutputId}.
+   * @returns A promise resolving to a Map of the program's output.
+   * @see NillionClient.compute
    */
-  fetchProgramOutput(args: {
-    id: ComputeResultId | string;
+  fetchComputeOutput(args: {
+    id: ComputeOutputId | string;
   }): Promise<Result<Record<string, NadaPrimitiveValue>, UnknownException>> {
     return E.Do.pipe(
       E.bind("id", () =>
         E.try(() =>
-          ComputeResultId.parse(args.id, {
-            path: ["client.fetchProgramOutput", "args.id"],
+          ComputeOutputId.parse(args.id, {
+            path: ["client.fetchComputeOutput", "args.id"],
           }),
         ),
       ),
-      E.let("operation", ({ id }) => Operation.fetchComputeResult({ id })),
-      E.flatMap(({ operation }) =>
-        this.vm.fetchRunProgramResult(operation.args),
-      ),
+      E.let("operation", ({ id }) => Operation.fetchComputeOutput({ id })),
+      E.flatMap(({ operation }) => this.vm.fetchComputeOutput(operation.args)),
       effectToResultAsync,
     );
   }
@@ -554,7 +565,7 @@ export class NillionClient {
   storeValues(args: {
     values: NadaValues;
     ttl: Days;
-    permissions?: Permissions;
+    acl?: StoreAcl;
   }): Promise<Result<StoreId, UnknownException>> {
     return E.Do.pipe(
       E.bind("ttl", () =>
@@ -568,7 +579,7 @@ export class NillionClient {
         Operation.storeValues({
           values: args.values,
           ttl,
-          permissions: args.permissions,
+          acl: args.acl,
         }),
       ),
       E.bind("receipt", (args) => this.pay(args)),
@@ -600,65 +611,64 @@ export class NillionClient {
    * Fetches a store id's permissions.
    *
    * @param args - An object containing the {@link StoreId}.
-   * @returns A promise resolving to the {@link Result} containing the {@link Permissions}.
+   * @returns A promise resolving to the {@link Result} containing the {@link StoreAcl}.
    */
-  fetchPermissions(args: {
+  fetchStoreAcl(args: {
     id: StoreId | string;
-  }): Promise<Result<Permissions, UnknownException>> {
+  }): Promise<Result<StoreAcl, UnknownException>> {
     return E.Do.pipe(
       E.bind("id", () =>
         E.try(() =>
           StoreId.parse(args.id, {
-            path: ["client.fetchPermissions", "args.id"],
+            path: ["client.fetchStoreAcl", "args.id"],
           }),
         ),
       ),
-      E.let("operation", ({ id }) => Operation.fetchPermissions({ id })),
+      E.let("operation", ({ id }) => Operation.fetchAcl({ id })),
       E.bind("receipt", ({ operation }) => this.pay({ operation })),
       E.flatMap(({ operation, receipt }) =>
-        this.vm.fetchPermissions({ operation, receipt }),
+        this.vm.fetchStoreAcl({ operation, receipt }),
       ),
       effectToResultAsync,
     );
   }
 
   /**
-   * Sets the permissions for a stored value in the network.
+   * Sets the access control list for a stored value.
    *
-   * Existing permissions are overwritten.
+   * The existing Acl is overwritten.
    *
-   * @param args - An object containing the {@link StoreId} and the new {@link Permisisons}.
+   * @param args - An object containing the {@link StoreId} and the new {@link StoreAcl}.
    * @returns A promise resolving to the {@link Result} containing the {@link ActionId}.
    */
-  setPermissions(args: {
+  setStoreAcl(args: {
     id: StoreId | string;
-    permissions: Permissions;
+    acl: StoreAcl;
   }): Promise<Result<ActionId, UnknownException>> {
     return E.Do.pipe(
       E.bind("id", () =>
         E.try(() =>
-          StoreId.parse(args.id, { path: ["setPermissions", "args.id"] }),
+          StoreId.parse(args.id, { path: ["setStoreAcl", "args.id"] }),
         ),
       ),
-      E.let("operation", ({ id }) =>
-        Operation.setPermissions({ id, permissions: args.permissions }),
-      ),
+      E.let("operation", ({ id }) => Operation.setAcl({ id, acl: args.acl })),
       E.bind("receipt", (args) => this.pay(args)),
-      E.flatMap((args) => this.vm.setPermissions(args)),
+      E.flatMap((args) => this.vm.setStoreAcl(args)),
       effectToResultAsync,
     );
   }
 
   /**
-   * Creates a new instance of {@link NillionClient}.
+   * Create a {@link NillionClient}.
    *
-   * This factory method initializes a `NillionClient` instance using the provided configuration. Before invoking
-   * network calls, the async {@Link NillionClient.connect} method must be called.
+   * This factory initializes a `NillionClient` ready to accept network and user configs.
    *
-   * @param config - The configuration object providing settings for initializing the client, such as network settings, user seeds,
-   * and optional overrides.
-   * @returns A new instance of `NillionClient`.
+   * @returns An unconfigured instance of `NillionClient`.
+   * @see NillionClient.setNetworkConfig
+   * @see NillionClient.setUserCredentials
    * @see NillionClient.connect
    */
-  static create = (config: NillionClientConfig) => new NillionClient(config);
+  static create = () => {
+    return new NillionClient();
+  };
 }

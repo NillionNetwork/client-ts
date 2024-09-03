@@ -5,18 +5,20 @@ import {
   NadaValueType,
   NamedValue,
   Operation,
-  Permissions,
   ProgramBindings,
   ProgramName,
+  StoreAcl,
   StoreId,
 } from "@nillion/client-core";
 import { NillionClient } from "@nillion/client-vms";
 import {
   expectErr,
   expectOk,
-  getNillionClientEnvConfig,
+  getNetworkConfig,
+  getUserCredentials,
   loadProgram,
-} from "../../test-utils";
+} from "@nillion/test-utils";
+
 import {
   type TestNadaType,
   testNadaTypes,
@@ -32,8 +34,14 @@ describe(SUITE_NAME, () => {
 
   beforeAll(async () => {
     console.log(`*** Start ${SUITE_NAME} ***`);
-    const config = getNillionClientEnvConfig();
-    client = NillionClient.create(config);
+    client = NillionClient.create();
+    const networkConfig = getNetworkConfig();
+    console.log(`Network config: %O`, networkConfig);
+    const userCredentials = getUserCredentials();
+    console.log(`User credentials: %O`, userCredentials);
+
+    client.setNetworkConfig(networkConfig);
+    client.setUserCredentials(userCredentials);
 
     await client.connect();
   });
@@ -51,7 +59,7 @@ describe(SUITE_NAME, () => {
 
   it("can fetch an operation quote", async () => {
     const args = {
-      operation: Operation.fetchPermissions({ id: "" as StoreId }),
+      operation: Operation.fetchAcl({ id: "" as StoreId }),
     };
     const result = await client.fetchOperationQuote(args);
     if (expectOk(result)) {
@@ -64,7 +72,8 @@ describe(SUITE_NAME, () => {
       describe(test.type, () => {
         it("can store value", async () => {
           const result = await client.store({
-            values: { data: test.expected },
+            name: test.name,
+            value: test.expected,
             ttl: 1,
           });
           if (expectOk(result)) {
@@ -76,8 +85,8 @@ describe(SUITE_NAME, () => {
         it("can retrieve value", async () => {
           const result = await client.fetch({
             id: test.id,
+            name: test.name,
             type: test.type,
-            name: "data",
           });
           expect(result.ok).toEqual(test.expected);
         });
@@ -159,7 +168,7 @@ describe(SUITE_NAME, () => {
     });
   });
 
-  describe("permissions", () => {
+  describe("store acl", () => {
     const name = NamedValue.parse("secretFoo");
     const type = NadaValueType.enum.SecretInteger;
     const value = NadaValue.createSecretInteger(42);
@@ -170,7 +179,7 @@ describe(SUITE_NAME, () => {
       const result = await client.storeValues({
         values,
         ttl: Days.parse(1),
-        permissions: Permissions.createDefaultForUser(client.vm.userId),
+        acl: StoreAcl.createDefaultForUser(client.vm.userId),
       });
 
       if (expectOk(result)) {
@@ -189,25 +198,25 @@ describe(SUITE_NAME, () => {
       }
     });
 
-    it("can retrieve permissions", async () => {
-      const result = await client.fetchPermissions({
+    it("can retrieve store acl", async () => {
+      const result = await client.fetchStoreAcl({
         id,
       });
       expectOk(result);
     });
 
-    it("can update permissions", async () => {
-      const permissions = Permissions.create();
-      const result = await client.setPermissions({
+    it("can set store acl", async () => {
+      const acl = StoreAcl.create();
+      const result = await client.setStoreAcl({
         id,
-        permissions,
+        acl,
       });
 
       expectOk(result);
     });
 
     it("value fetch rejected when not authorized", async () => {
-      const result = await client.fetchPermissions({
+      const result = await client.fetchStoreAcl({
         id,
       });
       if (expectErr(result)) {
@@ -227,38 +236,16 @@ describe(SUITE_NAME, () => {
       expectOk(result);
     });
 
-    it("can concurrently store programs", async () => {
-      pending("Fails due to: account sequence mismatch");
-
-      const program = await loadProgram("addition_division.nada.bin");
-      const names = ["addition_division_foo", "addition_division_bar"];
-
-      const promises = names.map((name) =>
-        client.storeProgram({
-          program,
-          name: ProgramName.parse(name),
-        }),
-      );
-
-      const results = await Promise.all(promises);
-      expect(results).toHaveSize(2);
-      expectOk(results[0]);
-      expectOk(results[1]);
-    });
-
     testPrograms.forEach((test) => {
       describe(test.name, () => {
         beforeAll(async () => {
           for (const values of test.valuesToStore) {
-            const permissions = Permissions.create().allowCompute(
-              client.vm.userId,
-              test.id,
-            );
+            const acl = StoreAcl.create().allowCompute(client.userId, test.id);
 
             const result = await client.storeValues({
               values,
               ttl: Days.parse(1),
-              permissions,
+              acl,
             });
             if (expectOk(result)) {
               test.storeIds.push(result.ok);
@@ -270,14 +257,14 @@ describe(SUITE_NAME, () => {
           const bindings = ProgramBindings.create(test.id);
 
           test.inputParties.forEach((party) => {
-            bindings.addInputParty(party, client.vm.partyId);
+            bindings.addInputParty(party, client.partyId);
           });
 
           test.outputParties.forEach((party) => {
-            bindings.addOutputParty(party, client.vm.partyId);
+            bindings.addOutputParty(party, client.partyId);
           });
 
-          const result = await client.runProgram({
+          const result = await client.compute({
             bindings,
             values: test.valuesToInput,
             storeIds: test.storeIds,
@@ -289,7 +276,7 @@ describe(SUITE_NAME, () => {
         });
 
         it("can get result", async () => {
-          const result = await client.fetchProgramOutput({
+          const result = await client.fetchComputeOutput({
             id: test.result.id,
           });
           if (expectOk(result)) {

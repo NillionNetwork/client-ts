@@ -1,13 +1,13 @@
 import {
-  ComputeResultId,
+  ComputeOutputId,
   NadaValue,
   NadaValues,
+  NamedValue,
   PartyName,
   ProgramId,
   StoreId,
-  NamedValue,
 } from "@nillion/client-core";
-import { TestEnv } from "../../../test-utils";
+import { TestEnv } from "@nillion/test-utils";
 
 export interface TestProgram {
   name: string;
@@ -18,7 +18,7 @@ export interface TestProgram {
   valuesToInput: NadaValues;
   storeIds: StoreId[];
   result: {
-    id: ComputeResultId;
+    id: ComputeOutputId;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expected: any;
   };
@@ -56,7 +56,7 @@ export const testPrograms: TestProgram[] = [
         NadaValue.createSecretIntegerUnsigned(15981n),
       ),
     result: {
-      id: "" as ComputeResultId,
+      id: "" as ComputeOutputId,
       expected: {
         Add0: 1462969515630n,
       },

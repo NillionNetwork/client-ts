@@ -1,6 +1,6 @@
 import { effectToResultAsync, PriceQuote } from "@nillion/client-core";
 import { PaymentClientConfig, PaymentsClient } from "@nillion/client-payments";
-import { expectOk, getPaymentsClientEnvConfig } from "../../test-utils";
+import { expectOk, getPaymentsClientEnvConfig } from "@nillion/test-utils";
 
 const SUITE_NAME = "@nillion/client-payments";
 

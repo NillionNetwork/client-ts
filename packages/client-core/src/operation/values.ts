@@ -1,79 +1,80 @@
-import { Operation, OperationType } from "./operation";
-import { IntoWasmQuotableOperation } from "../wasm";
-import { Days, StoreId, NamedValue } from "../types";
-import { NadaValues, NadaValueType, Permissions } from "../nada";
 import * as Wasm from "@nillion/client-wasm";
 
-export interface ValueRetrieveArgs {
+import { NadaValues, NadaValueType, StoreAcl } from "../nada";
+import { Days, NamedValue, StoreId } from "../types";
+import { IntoWasmQuotableOperation } from "../wasm";
+import { Operation, OperationType } from "./operation";
+
+export interface FetchValueArgs {
   id: StoreId;
   name: NamedValue;
   type: NadaValueType;
 }
 
-export class ValueRetrieve implements Operation, IntoWasmQuotableOperation {
-  type = OperationType.enum.ValueRetrieve;
+export class FetchValue implements Operation, IntoWasmQuotableOperation {
+  type = OperationType.enum.FetchValue;
 
-  constructor(public args: ValueRetrieveArgs) {}
+  constructor(public args: FetchValueArgs) {}
 
   intoQuotable(): Wasm.Operation {
     return Wasm.Operation.retrieve_value();
   }
 
   toString(): string {
-    return `Operation(type="ValueRetrieve")`;
+    return `Operation(type="FetchValue")`;
   }
 }
 
-export interface ValuesDeleteArgs {
+export interface DeleteValueArgs {
   id: StoreId;
 }
 
-export class ValuesDelete {
-  type = OperationType.enum.ValuesDelete;
+export class DeleteValue {
+  type = OperationType.enum.DeleteValue;
 
-  constructor(public args: ValuesDeleteArgs) {}
+  constructor(public args: DeleteValueArgs) {}
 
   toString(): string {
-    return `Operation(type="ValuesDelete")`;
+    return `Operation(type="DeleteValue")`;
   }
 }
 
-export interface ValuesStoreArgs {
+export interface StoreValueArgs {
   values: NadaValues;
   ttl: Days;
-  permissions?: Permissions;
+  acl?: StoreAcl;
 }
 
-export class ValuesStore implements Operation, IntoWasmQuotableOperation {
-  type = OperationType.enum.ValuesStore;
+export class StoreValue implements Operation, IntoWasmQuotableOperation {
+  type = OperationType.enum.StoreValue;
 
-  constructor(public args: ValuesStoreArgs) {}
+  constructor(public args: StoreValueArgs) {}
 
   intoQuotable(): Wasm.Operation {
     return Wasm.Operation.store_values(this.args.values.into(), this.args.ttl);
   }
 
   toString(): string {
-    return `Operation(type="ValuesStore")`;
+    return `Operation(type="StoreValue")`;
   }
 }
 
-export interface ValuesUpdateArgs {
+export interface UpdateValueArgs {
   id: StoreId;
   values: NadaValues;
   ttl: Days;
 }
 
-export class ValuesUpdate implements Operation, IntoWasmQuotableOperation {
-  type = OperationType.enum.ValuesUpdate;
+export class UpdateValue implements Operation, IntoWasmQuotableOperation {
+  type = OperationType.enum.UpdateValue;
 
-  constructor(public args: ValuesUpdateArgs) {}
+  constructor(public args: UpdateValueArgs) {}
 
   intoQuotable(): Wasm.Operation {
     return Wasm.Operation.update_values(this.args.values.into(), this.args.ttl);
   }
 
   toString(): string {
-    return `Operation(type="ValuesUpdate")`;
+    return `Operation(type="UpdateValue")`;
   }
 }

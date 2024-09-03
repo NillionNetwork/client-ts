@@ -35,7 +35,6 @@ describe(SUITE_NAME, () => {
     });
 
     it("window.__NILLION should be defined", () => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const nillion = globalThis.__NILLION!;
       expect(nillion).toBeDefined();
       expect(nillion.initialized).toBeTruthy();

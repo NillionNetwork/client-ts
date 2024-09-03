@@ -2,7 +2,7 @@
   "name": "@nillion/client-wasm",
   "license": "Apache-2.0",
   "author": "devsupport@nillion.com",
-  "version": "0.1.0-rc.12",
+  "version": "0.1.0-rc.14",
   "homepage": "https://nillion.pub/client-ts",
   "repository": {
     "type": "git",

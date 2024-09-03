@@ -1,23 +1,25 @@
-import {
-  NilChainAddress,
-  PriceQuote,
-  Token,
-  TxHash,
-} from "@nillion/client-core";
 import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import {
   GasPrice,
   SigningStargateClient,
   SigningStargateClientOptions,
 } from "@cosmjs/stargate";
+import { Effect as E } from "effect";
+
+import {
+  NilChainAddress,
+  PriceQuote,
+  Token,
+  TxHash,
+} from "@nillion/client-core";
+
 import {
   AccountNotFoundError,
   PaymentError,
   UnknownPaymentError,
 } from "./errors";
-import { MsgPayFor } from "./proto";
 import { Log } from "./logger";
-import { Effect as E } from "effect";
+import { MsgPayFor } from "./proto";
 import { NilChainProtobufTypeUrl, PaymentClientConfig } from "./types";
 import { getKeplr } from "./wallet";
 
@@ -52,7 +54,7 @@ export class PaymentsClient {
     return this._address!;
   }
 
-  private isReadyGuard(): void | never {
+  private isReadyGuard(): void {
     if (!this.ready) {
       const message =
         "NilChainPaymentClient not ready. Call `await client.connect()`.";
@@ -62,8 +64,12 @@ export class PaymentsClient {
   }
 
   async connect(): Promise<boolean> {
-    const { endpoint, chain } = this._config;
+    const { endpoint, chainId } = this._config;
     const registry = new Registry();
+
+    // @ts-expect-error ts-proto 2+ migrated from protobufjs to @bufbuild/protobuf causing a type
+    //  misalignment between our generated bindings and cosmjs. Tests are all passing so we'll
+    //  keep as-is.
     registry.register(NilChainProtobufTypeUrl, MsgPayFor);
 
     this._signer = this._config.signer;
@@ -71,8 +77,8 @@ export class PaymentsClient {
       // default to keplr signer
       const keplr = await getKeplr();
       if (keplr) {
-        await keplr.enable(chain);
-        this._signer = keplr.getOfflineSigner(chain);
+        await keplr.enable(chainId);
+        this._signer = keplr.getOfflineSigner(chainId);
       } else {
         throw new Error("No signer provided and keplr not found.");
       }

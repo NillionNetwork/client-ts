@@ -1,9 +1,15 @@
+import { Effect as E } from "effect";
+import { UnknownException } from "effect/Cause";
+import { z } from "zod";
+
 import {
   ActionId,
   ClusterDescriptor,
   ClusterId,
   Compute,
-  ComputeResultId,
+  ComputeOutputId,
+  FetchStoreAcl,
+  FetchValue,
   init,
   IntoWasmQuotableOperation,
   Multiaddr,
@@ -13,28 +19,24 @@ import {
   PartyId,
   PaymentReceipt,
   paymentReceiptInto,
-  Permissions,
-  PermissionsRetrieve,
-  PermissionsSet,
   PriceQuote,
   priceQuoteFrom,
   ProgramId,
-  ProgramStore,
+  SetStoreAcl,
+  StoreAcl,
   StoreId,
+  StoreProgram,
+  StoreValue,
+  UpdateValue,
   UserId,
-  ValueRetrieve,
-  ValuesStore,
-  ValuesUpdate,
 } from "@nillion/client-core";
 import * as Wasm from "@nillion/client-wasm";
-import { Effect as E } from "effect";
-import { UnknownException } from "effect/Cause";
-import { z } from "zod";
+
 import { Log } from "../logger";
 
 export const NilVmClientConfig = z.object({
   bootnodes: z.array(Multiaddr),
-  cluster: ClusterId,
+  clusterId: ClusterId,
   userSeed: z.string(),
   nodeSeed: z.string(),
 });
@@ -67,7 +69,7 @@ export class NilVmClient {
   }
 
   get clusterId(): ClusterId {
-    return ClusterId.parse(this._config.cluster);
+    return this._config.clusterId;
   }
 
   get client(): Wasm.NillionClient {
@@ -80,13 +82,13 @@ export class NilVmClient {
       await init();
     }
 
-    const { cluster, userSeed, nodeSeed, bootnodes } = this._config;
+    const { clusterId, userSeed, nodeSeed, bootnodes } = this._config;
     const userKey = Wasm.UserKey.from_seed(userSeed);
     const nodeKey = Wasm.NodeKey.from_seed(nodeSeed);
     this._client = new Wasm.NillionClient(userKey, nodeKey, bootnodes);
     // TODO(tim): If this fails to connect a websocket.js error is logged and this method simply fails.
     //  Its unclear which context the error occurs in so I haven't yet been able to handle it gracefully.
-    const descriptor = await this._client.cluster_information(cluster);
+    const descriptor = await this._client.cluster_information(clusterId);
     this._ready = true;
 
     Log("Connected to cluster: ", descriptor.id);
@@ -110,8 +112,8 @@ export class NilVmClient {
     });
   }
 
-  fetchRunProgramResult(args: {
-    id: ComputeResultId;
+  fetchComputeOutput(args: {
+    id: ComputeOutputId;
   }): E.Effect<Record<string, NadaPrimitiveValue>, UnknownException> {
     return E.tryPromise(async () => {
       const { id } = args;
@@ -141,7 +143,7 @@ export class NilVmClient {
 
   fetchValue(args: {
     receipt: PaymentReceipt;
-    operation: ValueRetrieve;
+    operation: FetchValue;
   }): E.Effect<NadaValue, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
@@ -163,10 +165,10 @@ export class NilVmClient {
     });
   }
 
-  fetchPermissions(args: {
+  fetchStoreAcl(args: {
     receipt: PaymentReceipt;
-    operation: PermissionsRetrieve;
-  }): E.Effect<Permissions, UnknownException> {
+    operation: FetchStoreAcl;
+  }): E.Effect<StoreAcl, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { id } = operation.args;
@@ -180,22 +182,22 @@ export class NilVmClient {
       wasmReceipt.free();
       receipt.quote.inner.free();
 
-      const result = Permissions.from(response);
-      Log(`Fetched permissions for ${id} result=`, result);
+      const result = StoreAcl.from(response);
+      Log(`Fetched acl for store ${id}. Acl=%O`, result);
       return result;
     });
   }
 
-  setPermissions(args: {
+  setStoreAcl(args: {
     receipt: PaymentReceipt;
-    operation: PermissionsSet;
+    operation: SetStoreAcl;
   }): E.Effect<ActionId, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
-      const { id, permissions } = operation.args;
+      const { id, acl } = operation.args;
 
       const wasmReceipt = paymentReceiptInto(receipt);
-      const wasmPermissions = permissions.into();
+      const wasmPermissions = acl.into();
       const response = await this.client.update_permissions(
         this.clusterId,
         id,
@@ -207,15 +209,15 @@ export class NilVmClient {
       receipt.quote.inner.free();
 
       const result = ActionId.parse(response);
-      Log(`Set permissions for ${id}`);
+      Log(`Set store Acl for ${id} to Acl=%O`, acl);
       return result;
     });
   }
 
-  runProgram(args: {
+  compute(args: {
     receipt: PaymentReceipt;
     operation: Compute;
-  }): E.Effect<ComputeResultId, UnknownException> {
+  }): E.Effect<ComputeOutputId, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
       const { bindings, storeIds, values } = operation.args;
@@ -233,7 +235,7 @@ export class NilVmClient {
       wasmReceipt.free();
       receipt.quote.inner.free();
 
-      const result = ComputeResultId.parse(response);
+      const result = ComputeOutputId.parse(response);
       Log(`Compute started resultId=${result}`);
       return result;
     });
@@ -241,7 +243,7 @@ export class NilVmClient {
 
   storeProgram(args: {
     receipt: PaymentReceipt;
-    operation: ProgramStore;
+    operation: StoreProgram;
   }): E.Effect<ProgramId, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
@@ -274,7 +276,7 @@ export class NilVmClient {
 
   updateValues(args: {
     receipt: PaymentReceipt;
-    operation: ValuesUpdate;
+    operation: UpdateValue;
   }): E.Effect<ActionId, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
@@ -299,15 +301,15 @@ export class NilVmClient {
 
   storeValues(args: {
     receipt: PaymentReceipt;
-    operation: ValuesStore;
+    operation: StoreValue;
   }): E.Effect<StoreId, UnknownException> {
     return E.tryPromise(async () => {
       const { receipt, operation } = args;
-      const { values, permissions } = operation.args;
+      const { values, acl } = operation.args;
 
       const wasmValues = values.into();
       const wasmReceipt = paymentReceiptInto(receipt);
-      const wasmPermissions = permissions?.into();
+      const wasmPermissions = acl?.into();
       const response = await this.client.store_values(
         this.clusterId,
         wasmValues,

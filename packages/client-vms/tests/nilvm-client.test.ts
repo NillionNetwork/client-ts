@@ -5,10 +5,10 @@ import {
   NadaValues,
   NamedValue,
   Operation,
-  Permissions,
   ProgramBindings,
   ProgramId,
   ProgramName,
+  StoreAcl,
   StoreId,
 } from "@nillion/client-core";
 import { NilVmClient } from "@nillion/client-vms";
@@ -17,7 +17,7 @@ import {
   getVmClientEnvConfig,
   loadProgram,
   TestEnv,
-} from "../../test-utils";
+} from "@nillion/test-utils";
 
 const SUITE_NAME = `@nillion/client-vms > NilVmClient`;
 
@@ -28,14 +28,14 @@ describe(SUITE_NAME, () => {
   const data = {
     store: StoreId.parse("aaaaaaaa-bbbb-cccc-dddd-ffffffffffff"),
     program: ProgramId.parse(
-      `${String(TestEnv.programNamespace)}/simple_shares.nada.bin`,
+      `${String(TestEnv.programNamespace)}/addition_division.nada.bin`,
     ),
   };
 
   beforeAll(async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
     console.log(`*** Start ${SUITE_NAME} ***`);
-    console.log(`Config: %O`, config);
+    console.log(`NilVmClient Config: %O`, config);
     await client.connect();
   });
 
@@ -44,12 +44,13 @@ describe(SUITE_NAME, () => {
   });
 
   it("can get quote for compute", async () => {
+    const values = NadaValues.create()
+      .insert(NamedValue.parse("A"), NadaValue.createSecretInteger(1))
+      .insert(NamedValue.parse("B"), NadaValue.createSecretInteger(2));
+
     const args = {
       bindings: ProgramBindings.create(data.program),
-      values: NadaValues.create().insert(
-        NamedValue.parse("foo"),
-        NadaValue.createSecretInteger(1),
-      ),
+      values,
       storeIds: [],
     };
     const operation = Operation.compute(args);
@@ -61,11 +62,11 @@ describe(SUITE_NAME, () => {
     }
   });
 
-  it("can get quote for permissions retrieve", async () => {
+  it("can get quote for fetch store acl", async () => {
     const args = {
       id: data.store,
     };
-    const operation = Operation.fetchPermissions(args);
+    const operation = Operation.fetchAcl(args);
     const effect = client.fetchOperationQuote({ operation });
     const result = await effectToResultAsync(effect);
 
@@ -74,12 +75,12 @@ describe(SUITE_NAME, () => {
     }
   });
 
-  it("can get quote for permissions update", async () => {
+  it("can get quote for set acl", async () => {
     const args = {
       id: data.store,
-      permissions: Permissions.create(),
+      acl: StoreAcl.create(),
     };
-    const operation = Operation.setPermissions(args);
+    const operation = Operation.setAcl(args);
     const effect = client.fetchOperationQuote({ operation });
     const result = await effectToResultAsync(effect);
 

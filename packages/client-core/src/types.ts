@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import * as Wasm from "@nillion/client-wasm";
 
 // Required lifting for type resolution
@@ -25,8 +26,8 @@ export const ClusterDescriptor = z
   .brand<"ClusterDescriptor">();
 export type ClusterDescriptor = z.infer<typeof ClusterDescriptor>;
 
-export const ComputeResultId = z.string().uuid().brand<"ComputeResultId">();
-export type ComputeResultId = z.infer<typeof ComputeResultId>;
+export const ComputeOutputId = z.string().uuid().brand<"ComputeOutputId">();
+export type ComputeOutputId = z.infer<typeof ComputeOutputId>;
 
 export const Days = z.number().int().min(1).brand<"Days">();
 export type Days = z.infer<typeof Days>;

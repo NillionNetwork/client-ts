@@ -1,4 +1,5 @@
 import yargs from "yargs";
+
 import { isValidTestSuiteName, TestSuiteName } from "./run-tests";
 
 export const parseArgs = async (): Promise<{ target: TestSuiteName }> => {

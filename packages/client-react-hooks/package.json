@@ -2,7 +2,7 @@
   "name": "@nillion/client-react-hooks",
   "license": "MIT",
   "author": "devsupport@nillion.com",
-  "version": "0.1.0-rc.12",
+  "version": "0.1.0-rc.14",
   "homepage": "https://nillion.pub/client-ts",
   "repository": {
     "type": "git",
@@ -21,7 +21,7 @@
     "build:watch": "node esbuild.config.mjs --watch"
   },
   "dependencies": {
-    "@nillion/client-vms": "0.1.0-rc.12",
+    "@nillion/client-vms": "0.1.0-rc.14",
     "@tanstack/react-query": "^5.52.0",
     "debug": "^4.3.6",
     "react": "^18.3.1"

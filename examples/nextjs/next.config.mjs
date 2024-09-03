@@ -1,20 +1,18 @@
+/* eslint-disable */
 /** @type {import("next").NextConfig} */
 const nextConfig = {
-  webpack: (
-    config,
-    { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack },
-  ) => {
-    config.resolve.fallback = {
-      crypto: false,
-      stream: false,
-      buffer: false,
-      vm: false,
-    };
-
-    config.module.rules.push({
-      test: /\.wasm$/,
-      type: "asset/resource",
-    });
+  webpack: (config) => {
+    // config.resolve.fallback = {
+    //   crypto: false,
+    //   stream: false,
+    //   buffer: false,
+    //   vm: false,
+    // };
+    //
+    // config.module.rules.push({
+    //   test: /\.wasm$/,
+    //   type: "asset/resource",
+    // });
 
     return config;
   },

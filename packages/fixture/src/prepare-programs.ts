@@ -1,7 +1,9 @@
 import { execa } from "execa";
+
 import { randomUUID } from "node:crypto";
-import path from "node:path";
 import fs, { writeFileSync } from "node:fs";
+import path from "node:path";
+
 import { getPrepareProgramsLogFile, Log } from "./logging";
 import { TestEnv } from "./main";
 
@@ -21,9 +23,7 @@ export const createProgramFixtures = async (): Promise<string[]> => {
     programs.push(programId);
     Log("Program namespace: %s", programId);
   }
-
-  const programsNamespace = programs[0].split("/")[0];
-  TestEnv.NILLION_TEST_PROGRAMS_NAMESPACE = programsNamespace;
+  TestEnv.NILLION_TEST_PROGRAMS_NAMESPACE = programs[0].split("/")[0];
 
   return programs;
 };

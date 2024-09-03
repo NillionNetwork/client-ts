@@ -13,8 +13,7 @@
     "packages/client-vms",
     "packages/client-react-hooks",
     "packages/fixture",
-    "examples/nextjs",
-    "examples/react"
+    "examples/nextjs"
   ],
   "devDependencies": {
     "@commitlint/cli": "^19.4.0",
@@ -30,6 +29,7 @@
     "esbuild": "^0.23.1",
     "esbuild-plugin-browserslist": "^0.14.0",
     "eslint": "^9.9.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-tsdoc": "^0.3.0",
     "express-http-proxy": "^2.1.1",
     "glob": "^11.0.0",
@@ -46,9 +46,9 @@
     "ts-jest": "^29.2.4",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
-    "ts-proto": "^1.181.2",
     "tsconfig-paths-webpack-plugin": "^4.1.0",
     "typedoc": "^0.26.6",
+    "typedoc-plugin-markdown": "^4.2.6",
     "typedoc-plugin-mermaid": "^1.12.0",
     "typedoc-plugin-zod": "^1.2.1",
     "typescript": "^5.5.4",
@@ -58,7 +58,7 @@
   },
   "scripts": {
     "prepare": "husky",
-    "builddocs": "npx typedoc",
+    "builddocs": "npx typedoc --tsconfig ./tsconfig.typedoc.json",
     "servedocs": "npx serve docs"
   },
   "lint-staged": {
