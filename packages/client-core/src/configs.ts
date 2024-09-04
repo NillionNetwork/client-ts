@@ -14,7 +14,7 @@ export const NamedNetworkConfig = {
       ),
     ],
     nilChainId: ChainId.parse("nillion-chain-devnet"),
-    nilChainEndpoint: Url.parse("http://localhost:3000/nilchain"),
+    nilChainEndpoint: Url.parse("http://127.0.0.1:48102"),
   },
   photon: {
     clusterId: ClusterId.parse("b13880d3-dde8-4a75-a171-8a1a9d985e6c"),
@@ -25,7 +25,7 @@ export const NamedNetworkConfig = {
     ],
     nilChainId: ChainId.parse("nillion-chain-testnet-1"),
     nilChainEndpoint: Url.parse(
-      "https://rpc.testnet.nilchain-rpc-proxy.nilogy.xyz",
+      "http://rpc.testnet-numia.nilchain-rpc-proxy.nilogy.xyz",
     ),
   },
 };
