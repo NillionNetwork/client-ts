@@ -1,6 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Days, NadaPrimitiveValue, StoreId } from "@nillion/client-core";
+import {
+  Days,
+  NadaPrimitiveValue,
+  NamedValue,
+  StoreId,
+} from "@nillion/client-core";
 
 import { createStoreCacheKey } from "./cache-key";
 import { nilHookBaseResult, UseNilHook } from "./nil-hook-base";
@@ -8,6 +13,7 @@ import { useNillion } from "./use-nillion";
 
 interface ExecuteArgs {
   id: StoreId | string;
+  name: NamedValue | string;
   data: NadaPrimitiveValue;
   ttl: Days | number;
 }
@@ -21,10 +27,10 @@ export const useNilUpdateValue = (): UseNilUpdateValue => {
   const queryClient = useQueryClient();
 
   const mutationFn = async (args: ExecuteArgs): Promise<ExecuteResult> => {
-    const { id, data, ttl } = args;
+    const { id, data, name, ttl } = args;
     const response = await nilClient.update({
       id,
-      name: "data",
+      name,
       value: data,
       ttl,
     });

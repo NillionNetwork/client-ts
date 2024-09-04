@@ -13,7 +13,7 @@ export const StoreValue: FC = () => {
 
   const handleClick = () => {
     if (!secret) throw new Error("store-value: Value required");
-    nilStore.execute({ data: secret, ttl: 1 }!);
+    nilStore.execute({ name: "data", data: secret, ttl: 1 }!);
   };
 
   return (

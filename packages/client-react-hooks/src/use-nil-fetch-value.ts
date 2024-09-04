@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   NadaPrimitiveValue,
   NadaValueType,
+  NamedValue,
   StoreId,
 } from "@nillion/client-core";
 
@@ -19,6 +20,7 @@ interface Options {
 
 interface ExecuteArgs {
   id: StoreId | string;
+  name: NamedValue | string;
 }
 type ExecuteResult = NadaPrimitiveValue;
 
@@ -29,7 +31,7 @@ export const useNilFetchValue = (options: Options): UseNilFetchValue => {
   const queryClient = useQueryClient();
 
   const mutationFn = async (args: ExecuteArgs): Promise<ExecuteResult> => {
-    const { id } = args;
+    const { id, name } = args;
     const key = createStoreCacheKey(id);
 
     if (options.staleAfter) {
@@ -52,7 +54,7 @@ export const useNilFetchValue = (options: Options): UseNilFetchValue => {
 
     const response = await nilClient.fetch({
       id,
-      name: "data",
+      name,
       type: options.type,
     });
     if (response.err) throw response.err as Error;
