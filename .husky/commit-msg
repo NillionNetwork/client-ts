@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "Checking commit message..."
+npx commitlint -g commitlint.config.mjs --verbose --edit $1
