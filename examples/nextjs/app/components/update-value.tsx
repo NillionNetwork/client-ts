@@ -17,6 +17,7 @@ export const UpdateValue: FC = () => {
       throw new Error("update-value: Id and new value required");
     nilUpdate.execute({
       id,
+      name: "data",
       data: secret,
       ttl: 1,
     });

@@ -16,7 +16,7 @@ export const FetchValue: FC = () => {
 
   const handleClick = () => {
     if (!id) throw new Error("fetch-value: Id is required");
-    nilFetch.execute({ id });
+    nilFetch.execute({ id, name: "data" });
   };
 
   return (

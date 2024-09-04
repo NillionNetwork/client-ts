@@ -1,24 +1,10 @@
-import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { type FC } from "react";
+import { ClientWrapper } from "@/app/components";
 
-export const metadata: Metadata = {
-  title: "Nillion - NextJS",
+const HomeLayout: FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
+  return <ClientWrapper>{children}</ClientWrapper>;
 };
 
-const font = Roboto({
-  weight: ["300", "400", "500", "700"],
-  subsets: ["latin"],
-  display: "swap",
-});
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en" className={font.className}>
-      <body>{children}</body>
-    </html>
-  );
-}
+export default HomeLayout;
