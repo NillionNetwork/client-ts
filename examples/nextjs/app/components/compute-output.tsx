@@ -14,7 +14,7 @@ export const ComputeOutput: FC = () => {
 
   const handleClick = () => {
     if (!computeId) throw new Error("compute-output: Compute id is required");
-    nilComputeOutput.execute(computeId);
+    nilComputeOutput.execute({ id: computeId });
   };
 
   let computeOutput = "idle";

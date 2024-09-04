@@ -16,7 +16,9 @@ interface Options {
   acl?: StoreAcl;
 }
 
-type ExecuteArgs = NadaPrimitiveValue;
+interface ExecuteArgs {
+  data: NadaPrimitiveValue;
+}
 type ExecuteResult = StoreId;
 
 type UseNilStoreValue = UseNilHook<ExecuteArgs, ExecuteResult>;
@@ -26,10 +28,11 @@ export const useNilStoreValue = (options: Options): UseNilStoreValue => {
   const queryClient = useQueryClient();
   const { ttl, acl } = options;
 
-  const mutationFn = async (value: ExecuteArgs): Promise<ExecuteResult> => {
+  const mutationFn = async (args: ExecuteArgs): Promise<ExecuteResult> => {
+    const { data } = args;
     const response = await nilClient.store({
       name: "data",
-      value,
+      value: data,
       ttl,
       acl,
     });
@@ -37,7 +40,7 @@ export const useNilStoreValue = (options: Options): UseNilStoreValue => {
 
     const id = response.ok;
     const key = createStoreCacheKey(id);
-    queryClient.setQueryData(key, value);
+    queryClient.setQueryData(key, data);
     return id;
   };
 
