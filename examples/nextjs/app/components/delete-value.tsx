@@ -13,7 +13,7 @@ export const DeleteValue: FC = () => {
 
   const handleClick = () => {
     if (!id) throw new Error("delete-value: Id is required");
-    nilDelete.execute(id);
+    nilDelete.execute({ id });
   };
 
   return (
@@ -40,9 +40,7 @@ export const DeleteValue: FC = () => {
         sx={{ width: "150px", mt: 4 }}
         startIcon={<DeleteIcon />}
         loading={nilDelete.isLoading}
-        onClick={() => {
-          nilDelete.execute(id);
-        }}
+        onClick={handleClick}
         disabled={!id || nilDelete.isLoading}
       >
         Delete

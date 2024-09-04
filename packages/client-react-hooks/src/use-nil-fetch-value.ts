@@ -17,7 +17,9 @@ interface Options {
   staleAfter?: number;
 }
 
-type ExecuteArgs = StoreId | string;
+interface ExecuteArgs {
+  id: StoreId | string;
+}
 type ExecuteResult = NadaPrimitiveValue;
 
 type UseNilFetchValue = UseNilHook<ExecuteArgs, ExecuteResult>;
@@ -26,22 +28,25 @@ export const useNilFetchValue = (options: Options): UseNilFetchValue => {
   const { client: nilClient } = useNillion();
   const queryClient = useQueryClient();
 
-  const mutationFn = async (id: ExecuteArgs): Promise<ExecuteResult> => {
+  const mutationFn = async (args: ExecuteArgs): Promise<ExecuteResult> => {
+    const { id } = args;
     const key = createStoreCacheKey(id);
 
-    const cachedData = queryClient.getQueryState<ExecuteResult>(key);
-    if (cachedData) {
-      const currentTime = Date.now();
-      const dataAge = currentTime - cachedData.dataUpdatedAt;
-      const staleTimeThreshold = options.staleAfter ?? 5 * 60 * 1000; // default to 5 minutes
+    if (options.staleAfter) {
+      const cachedData = queryClient.getQueryState<ExecuteResult>(key);
+      if (cachedData) {
+        const currentTime = Date.now();
+        const dataAge = currentTime - cachedData.dataUpdatedAt;
+        const staleTimeThreshold = options.staleAfter ?? 5 * 60 * 1000; // default to 5 minutes
 
-      if (
-        dataAge <= staleTimeThreshold &&
-        cachedData.status === "success" &&
-        cachedData.data
-      ) {
-        Log("Cache hit: %O", cachedData.data);
-        return cachedData.data;
+        if (
+          dataAge <= staleTimeThreshold &&
+          cachedData.status === "success" &&
+          cachedData.data
+        ) {
+          Log("Cache hit: %O", cachedData.data);
+          return cachedData.data;
+        }
       }
     }
 

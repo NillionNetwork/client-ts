@@ -12,8 +12,8 @@ import { useNillion } from "./use-nillion";
 
 interface ExecuteArgs {
   bindings: ProgramBindings;
-  values: NadaValues;
-  storeIds: (StoreId | string)[];
+  values?: NadaValues;
+  storeIds?: (StoreId | string)[];
 }
 type ExecuteResult = ComputeOutputId;
 
@@ -23,7 +23,12 @@ export const useNilCompute = (): UseNilCompute => {
   const { client: nilClient } = useNillion();
 
   const mutationFn = async (args: ExecuteArgs): Promise<ExecuteResult> => {
-    const response = await nilClient.compute(args);
+    const computeArgs = {
+      bindings: args.bindings,
+      values: args.values ?? NadaValues.create(),
+      storeIds: args.storeIds ?? [],
+    };
+    const response = await nilClient.compute(computeArgs);
     if (response.err) throw response.err as Error;
     return response.ok;
   };

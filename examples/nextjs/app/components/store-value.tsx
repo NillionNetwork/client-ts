@@ -8,12 +8,12 @@ import { Box, TextField, Typography } from "@mui/material";
 import { useNilStoreValue } from "@nillion/client-react-hooks";
 
 export const StoreValue: FC = () => {
-  const nilStore = useNilStoreValue({ ttl: 1 });
+  const nilStore = useNilStoreValue();
   const [secret, setSecret] = useState<number | null>(null);
 
   const handleClick = () => {
     if (!secret) throw new Error("store-value: Value required");
-    nilStore.execute(secret!);
+    nilStore.execute({ data: secret, ttl: 1 }!);
   };
 
   return (

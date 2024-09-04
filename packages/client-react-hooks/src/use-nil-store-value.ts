@@ -11,25 +11,25 @@ import { createStoreCacheKey } from "./cache-key";
 import { nilHookBaseResult, UseNilHook } from "./nil-hook-base";
 import { useNillion } from "./use-nillion";
 
-interface Options {
+interface ExecuteArgs {
+  data: NadaPrimitiveValue;
   ttl: Days | number;
   acl?: StoreAcl;
 }
 
-type ExecuteArgs = NadaPrimitiveValue;
 type ExecuteResult = StoreId;
 
 type UseNilStoreValue = UseNilHook<ExecuteArgs, ExecuteResult>;
 
-export const useNilStoreValue = (options: Options): UseNilStoreValue => {
+export const useNilStoreValue = (): UseNilStoreValue => {
   const { client: nilClient } = useNillion();
   const queryClient = useQueryClient();
-  const { ttl, acl } = options;
 
-  const mutationFn = async (value: ExecuteArgs): Promise<ExecuteResult> => {
+  const mutationFn = async (args: ExecuteArgs): Promise<ExecuteResult> => {
+    const { data, ttl, acl } = args;
     const response = await nilClient.store({
       name: "data",
-      value,
+      value: data,
       ttl,
       acl,
     });
@@ -37,7 +37,7 @@ export const useNilStoreValue = (options: Options): UseNilStoreValue => {
 
     const id = response.ok;
     const key = createStoreCacheKey(id);
-    queryClient.setQueryData(key, value);
+    queryClient.setQueryData(key, data);
     return id;
   };
 

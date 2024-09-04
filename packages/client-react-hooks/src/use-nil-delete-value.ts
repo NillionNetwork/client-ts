@@ -7,7 +7,10 @@ import { nilHookBaseResult } from "./nil-hook-base";
 import { UseNilHook } from "./nil-hook-base";
 import { useNillion } from "./use-nillion";
 
-type ExecuteArgs = StoreId | string;
+interface ExecuteArgs {
+  id: StoreId | string;
+}
+
 type ExecuteResult = StoreId;
 
 type UseNilDeleteValue = UseNilHook<ExecuteArgs, ExecuteResult>;
@@ -16,12 +19,11 @@ export const useNilDeleteValue = (): UseNilDeleteValue => {
   const { client: nilClient } = useNillion();
   const queryClient = useQueryClient();
 
-  const mutationFn = async (id: ExecuteArgs): Promise<ExecuteResult> => {
+  const mutationFn = async (args: ExecuteArgs): Promise<ExecuteResult> => {
+    const { id } = args;
     const key = createStoreCacheKey(id);
 
-    const response = await nilClient.deleteValues({
-      id,
-    });
+    const response = await nilClient.deleteValues(args);
     if (response.err) throw response.err as Error;
 
     const cachedData = queryClient.getQueryState(key);
