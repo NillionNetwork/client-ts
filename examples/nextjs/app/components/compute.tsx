@@ -31,9 +31,7 @@ export const Compute: FC = () => {
       .insert(NamedValue.parse("A"), NadaValue.createSecretInteger(2))
       .insert(NamedValue.parse("B"), NadaValue.createSecretInteger(4));
 
-    const storeIds = [] as string[];
-
-    nilCompute.execute({ bindings, values, storeIds });
+    nilCompute.execute({ bindings, values });
   };
 
   return (
