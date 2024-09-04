@@ -12,15 +12,29 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 
-import { NamedNetwork, NamedNetworkConfig } from "@nillion/client-core";
-import { type NetworkConfig, NillionClient } from "@nillion/client-vms";
+import {
+  ChainId,
+  ClusterId,
+  Multiaddr,
+  NamedNetwork,
+  NamedNetworkConfig,
+  Url,
+} from "@nillion/client-core";
+import { NetworkConfig, NillionClient } from "@nillion/client-vms";
 
 import { Log } from "./logging";
 
 interface WithConfigProps {
-  config?: NetworkConfig;
+  config?: ProviderNetworkConfig;
   network?: NamedNetwork;
   client?: never;
+}
+
+interface ProviderNetworkConfig {
+  bootnodes?: (Multiaddr | string)[];
+  clusterId?: ClusterId | string;
+  nilChainId?: ChainId | string;
+  nilChainEndpoint?: Url | string;
 }
 
 interface WithClientProps {
@@ -57,7 +71,7 @@ export const NillionProvider: React.FC<
     else Log("No react query context detected; creating one.");
 
     // default to photon
-    let combined = NamedNetworkConfig.photon;
+    let combined: ProviderNetworkConfig = NamedNetworkConfig.photon;
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- parse and on failure throw if invalid "network" value
     if (network && NamedNetwork.parse(network)) {
