@@ -1,5 +1,9 @@
 import { UseMutationResult } from "@tanstack/react-query";
 
+/**
+ * NilHookState is a set of states that a NilHook can be in.
+ @enum
+ */
 export const NilHookState = {
   Idle: {
     status: "idle",
@@ -42,11 +46,25 @@ export type UseNilHook<ExecuteArgs, ExecuteResult> = NilHookBaseResult<
     | NilHookErrorResult
   );
 
+/**
+ * NilHookBaseResult is a set of functions that a NilHook can use.
+ * @property execute - A function that executes the NilHook.
+ * @property executeAsync - A function that executes the NilHook asynchronously.
+ * @interface
+ */
 export interface NilHookBaseResult<ExecuteArgs, ExecuteResult> {
   execute: (args: ExecuteArgs) => void;
   executeAsync: (args: ExecuteArgs) => Promise<ExecuteResult>;
 }
 
+/**
+ * NilHookIdleResult is a set of states that a NilHook can be in when it is idle.
+ * @property status - The status of the NilHook.
+ * @property isLoading - Whether the NilHook is loading.
+ * @property isSuccess - Whether the NilHook is successful.
+ * @property isError - Whether the NilHook has an error.
+ * @interface
+ */
 export interface NilHookIdleResult {
   status: "idle";
   isLoading: false;
@@ -55,6 +73,14 @@ export interface NilHookIdleResult {
   isIdle: true;
 }
 
+/**
+ * NilHookLoadingResult is a set of states that a NilHook can be in when it is loading.
+ * @property status - The status of the NilHook.
+ * @property isLoading - Whether the NilHook is loading.
+ * @property isSuccess - Whether the NilHook is successful.
+ * @property isError - Whether the NilHook has an error.
+ * @interface
+ */
 export interface NilHookLoadingResult {
   status: "loading";
   isLoading: true;
@@ -63,6 +89,15 @@ export interface NilHookLoadingResult {
   isIdle: false;
 }
 
+/**
+ * NilHookSuccessResult is a set of states that a NilHook can be in when it is successful.
+ * @property status - The status of the NilHook.
+ * @property data - The data of the NilHook.
+ * @property isLoading - Whether the NilHook is loading.
+ * @property isSuccess - Whether the NilHook is successful.
+ * @property isError - Whether the NilHook has an error.
+ * @interface
+ */
 export interface NilHookSuccessResult<R> {
   status: "success";
   data: R;
@@ -72,6 +107,15 @@ export interface NilHookSuccessResult<R> {
   isIdle: false;
 }
 
+/**
+ * NilHookErrorResult is a set of states that a NilHook can be in when it has an error.
+ * @property status - The status of the NilHook.
+ * @property error - The error of the NilHook.
+ * @property isLoading - Whether the NilHook is loading.
+ * @property isSuccess - Whether the NilHook is successful.
+ * @property isError - Whether the NilHook has an error.
+ * @interface
+ */
 export interface NilHookErrorResult {
   status: "error";
   error: Error;
@@ -81,6 +125,11 @@ export interface NilHookErrorResult {
   isIdle: false;
 }
 
+/**
+ * nilHookBaseResult is a function that returns the state of a NilHook.
+ * @param mutate - The result of a mutation.
+ * @returns The state of the NilHook.
+ */
 export const nilHookBaseResult = <T, E, R>(
   mutate: UseMutationResult<T, E, R>,
 ) => {

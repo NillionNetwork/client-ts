@@ -24,12 +24,26 @@ import { NetworkConfig, NillionClient } from "@nillion/client-vms";
 
 import { Log } from "./logging";
 
+/**
+ * WithConfigProps
+ * @property config is a ProviderNetworkConfig
+ * @property network is a NamedNetwork
+ * @property client is not allowed
+ * @interface
+ **/
 interface WithConfigProps {
   config?: ProviderNetworkConfig;
   network?: NamedNetwork;
   client?: never;
 }
 
+/** ProviderNetworkConfig
+ * @property bootnodes is an array of Multiaddr or string
+ * @property clusterId is a ClusterId or string
+ * @property nilChainId is a ChainId or string
+ * @property nilChainEndpoint is a Url or string
+ * @interface
+ */
 interface ProviderNetworkConfig {
   bootnodes?: (Multiaddr | string)[];
   clusterId?: ClusterId | string;
@@ -37,14 +51,34 @@ interface ProviderNetworkConfig {
   nilChainEndpoint?: Url | string;
 }
 
+/**
+ * WithClientProps
+ *
+ * @property client is a NillionClient
+ * @property config is not allowed
+ * @property network is not allowed
+ * @interface
+ */
 interface WithClientProps {
   client: NillionClient;
   config?: never;
   network?: never;
 }
 
+/**
+ * NillionProviderProps
+ *
+ * @type Alias for either WithConfigProps or WithClientProps
+ */
 export type NillionProviderProps = WithConfigProps | WithClientProps;
 
+/**
+ * NillionContext
+ *
+ * @property client is a NillionClient
+ * @property logout is a function that returns a Promise<void>
+ * @interface
+ */
 export interface NillionContext {
   client: NillionClient;
   logout: () => Promise<void>;
@@ -57,6 +91,12 @@ export const NillionContext = createContext<NillionContext | undefined>(
 // Moving this into the hook means the client doesn't persist when strict mode is enabled
 const client = NillionClient.create();
 
+/**
+ * NillionProvider
+ *
+ * @param NillionProviderProps
+ * @returns ReactNode
+ */
 export const NillionProvider: React.FC<
   NillionProviderProps & { children: ReactNode }
 > = (props): ReactNode => {
