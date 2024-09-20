@@ -25,7 +25,7 @@ export const NamedNetworkConfig = {
     ],
     nilChainId: ChainId.parse("nillion-chain-testnet-1"),
     nilChainEndpoint: Url.parse(
-      "http://rpc.testnet-numia.nilchain-rpc-proxy.nilogy.xyz",
+      "https://rpc.testnet.nilchain-rpc-proxy.nilogy.xyz",
     ),
   },
 };
