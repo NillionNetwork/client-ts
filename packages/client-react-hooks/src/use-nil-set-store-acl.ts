@@ -6,14 +6,30 @@ import { nilHookBaseResult } from "./nil-hook-base";
 import { UseNilHook } from "./nil-hook-base";
 import { useNillion } from "./use-nillion";
 
-interface ExecuteArgs {
+/**
+ * `ExecuteArgs` is an interface that can be passed to the `execute` function.
+ * @param id: `StoreId` or `string`
+ * @param acl: `StoreAcl`
+ */
+export interface ExecuteArgs {
   id: StoreId | string;
   acl: StoreAcl;
 }
 type ExecuteResult = ActionId;
 
+/**
+ * `UseNilSetStoreAcl` is a hook that allows you to set a store acl.
+ * @property execute - It executes the NilHook synchronously, allowing the user to check for its status via {@link isSuccess} and {@link isError}.
+ * @property executeAsync -  It executes the NilHook asynchronously, allowing the usage of `async/await` or `.then()`.
+ * @interface
+ * @notExported
+ */
 type UseNilSetStoreAcl = UseNilHook<ExecuteArgs, ExecuteResult>;
 
+/**
+ * `useNilSetStoreAcl` is a hook that allows you to set a store acl.
+ * @returns {@link UseNilSetStoreAcl}
+ */
 export const useNilSetStoreAcl = (): UseNilSetStoreAcl => {
   const { client } = useNillion();
 
@@ -28,9 +44,11 @@ export const useNilSetStoreAcl = (): UseNilSetStoreAcl => {
   });
 
   return {
+    /** `execute` function that takes an `ExecuteArgs` object and executes the set store acl */
     execute: (args: ExecuteArgs) => {
       mutate.mutate(args);
     },
+    /** `executeAsync` function that takes an `ExecuteArgs` object and executes the set store acl asynchronously */
     executeAsync: async (args: ExecuteArgs) => mutate.mutateAsync(args),
     ...nilHookBaseResult(mutate),
   };

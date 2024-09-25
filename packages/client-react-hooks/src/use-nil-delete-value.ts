@@ -7,14 +7,29 @@ import { nilHookBaseResult } from "./nil-hook-base";
 import { UseNilHook } from "./nil-hook-base";
 import { useNillion } from "./use-nillion";
 
-interface ExecuteArgs {
+/**
+ * `ExecuteArgs` is an interface that can be passed to the `execute` function
+ * @param id: `StoreId` or `string`
+ */
+export interface ExecuteArgs {
   id: StoreId | string;
 }
 
 type ExecuteResult = StoreId;
 
-type UseNilDeleteValue = UseNilHook<ExecuteArgs, ExecuteResult>;
+/**
+ * `UseNilDeleteValue` is a hook that allows you to delete a value from a store.
+ * @property execute - It executes the NilHook synchronously, allowing the user to check for its status via {@link isSuccess} and {@link isError}.
+ * @property executeAsync -  It executes the NilHook asynchronously, allowing the usage of `async/await` or `.then()`.
+ * @interface
+ */
+export type UseNilDeleteValue = UseNilHook<ExecuteArgs, ExecuteResult>;
 
+/**
+ * `useNilDeleteValue` is a hook that allows you to delete a value from a store.
+ * @returns {@link UseNilDeleteValue}
+ * @interface
+ */
 export const useNilDeleteValue = (): UseNilDeleteValue => {
   const { client: nilClient } = useNillion();
   const queryClient = useQueryClient();
@@ -39,9 +54,11 @@ export const useNilDeleteValue = (): UseNilDeleteValue => {
   });
 
   return {
+    /** execute function that takes an `ExecuteArgs` object and executes the delete value */
     execute: (args: ExecuteArgs) => {
       mutate.mutate(args);
     },
+    /** executeAsync function that takes an `ExecuteArgs` object and executes the delete value asynchronously */
     executeAsync: async (args: ExecuteArgs) => mutate.mutateAsync(args),
     ...nilHookBaseResult(mutate),
   };
