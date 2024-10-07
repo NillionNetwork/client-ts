@@ -47,19 +47,13 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths-webpack-plugin": "^4.1.0",
-    "typedoc": "^0.26.6",
-    "typedoc-plugin-markdown": "^4.2.6",
-    "typedoc-plugin-mermaid": "^1.12.0",
-    "typedoc-plugin-zod": "^1.2.1",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.2.0",
     "webpack": "^5.93.0",
     "webpack-cli": "^5.1.4"
   },
   "scripts": {
-    "prepare": "husky",
-    "builddocs": "npx typedoc --tsconfig ./tsconfig.typedoc.json",
-    "servedocs": "npx serve docs"
+    "prepare": "husky"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint -c eslint.config.mjs"
