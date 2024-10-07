@@ -85,6 +85,10 @@ export class PaymentsClient {
     }
 
     const accounts = await this._signer.getAccounts();
+    if (!accounts[0]) {
+      throw new Error("No accounts found for provided signer.");
+    }
+
     this._address = NilChainAddress.parse(accounts[0].address);
 
     const options: SigningStargateClientOptions = {
