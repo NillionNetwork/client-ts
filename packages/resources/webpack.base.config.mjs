@@ -25,6 +25,7 @@ export const buildWebpackBaseConfig = (packageBaseDir) => ({
         use: {
           loader: "ts-loader",
           options: {
+            transpileOnly: true,
             compilerOptions: {
               noEmit: false,
             },
