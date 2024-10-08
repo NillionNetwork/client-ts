@@ -1,0 +1,8 @@
+version: v2
+managed:
+  enabled: true
+clean: true
+plugins:
+  - local: protoc-gen-es
+    opt: target=ts
+    out: src/gen-proto

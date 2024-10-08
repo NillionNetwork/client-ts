@@ -1,3 +1,4 @@
+import { create } from "@bufbuild/protobuf";
 import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import {
   GasPrice,
@@ -18,8 +19,9 @@ import {
   PaymentError,
   UnknownPaymentError,
 } from "./errors";
+import { MsgPayForSchema } from "./gen-proto/nillion/meta/v1/msg_pay_for_pb";
+import { MsgPayForCompatWrapper } from "./grpc-compat";
 import { Log } from "./logger";
-import { MsgPayFor } from "./proto";
 import { NilChainProtobufTypeUrl, PaymentClientConfig } from "./types";
 import { getKeplr } from "./wallet";
 
@@ -67,10 +69,7 @@ export class PaymentsClient {
     const { endpoint, chainId } = this._config;
     const registry = new Registry();
 
-    // @ts-expect-error ts-proto 2+ migrated from protobufjs to @bufbuild/protobuf causing a type
-    //  misalignment between our generated bindings and cosmjs. Tests are all passing so we'll
-    //  keep as-is.
-    registry.register(NilChainProtobufTypeUrl, MsgPayFor);
+    registry.register(NilChainProtobufTypeUrl, MsgPayForCompatWrapper);
 
     this._signer = this._config.signer;
     if (!this._signer) {
@@ -109,7 +108,7 @@ export class PaymentsClient {
   pay(quote: PriceQuote): E.Effect<TxHash, PaymentError> {
     return E.Do.pipe(
       E.let("transferMessage", () =>
-        MsgPayFor.create({
+        create(MsgPayForSchema, {
           fromAddress: this.address,
           resource: quote.nonce,
           amount: [{ denom: Token.Unil, amount: String(quote.cost.total) }],

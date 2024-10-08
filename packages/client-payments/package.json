@@ -18,8 +18,8 @@
   "scripts": {
     "clean": "rm -rf dist dist-test",
     "build": "node esbuild.config.mjs",
-    "build:proto": "protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src proto/nilchain.proto",
     "build:watch": "node esbuild.config.mjs --watch",
+    "build:proto": "npx buf generate",
     "test": "npx jasmine-browser-runner runSpecs --config=jasmine.config.mjs",
     "test:build": "npx webpack --config webpack.config.mjs",
     "test:build:watch": "npx webpack --config webpack.config.mjs --watch",
@@ -35,11 +35,12 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@bufbuild/buf": "^1.44.0",
+    "@bufbuild/protoc-gen-es": "^2.1.0",
     "@keplr-wallet/types": "^0.12.130",
     "@types/debug": "^4.1.12",
     "browserslist": "^4.24.0",
-    "esbuild-plugin-browserslist": "^0.15.0",
-    "ts-proto": "^2.2.3"
+    "esbuild-plugin-browserslist": "^0.15.0"
   },
   "files": [
     "dist",
