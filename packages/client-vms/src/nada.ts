@@ -12,7 +12,7 @@ import { StoreValueArgs } from "./types";
 
 /**
  * `toNadaValues` is a function that takes a `NamedValue` or `string` and a `NadaPrimitiveValue` or `StoreValueArgs` and returns a `NadaValues` object.
- * @param args: {@link toNadaValuesArgs}
+ * @param args - {@link toNadaValuesArgs}
  * @returns {@link NadaValues}
  * @throws
  * @example

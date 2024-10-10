@@ -8,10 +8,10 @@ import { useNillion } from "./use-nillion";
 
 /**
  * `ExecuteArgs` is an interface that can be passed to the `execute` function.
- * @param id: `StoreId` or `string`
- * @param acl: `StoreAcl`
+ * @param id - `StoreId` or `string`
+ * @param acl - `StoreAcl`
  */
-export interface ExecuteArgs {
+interface ExecuteArgs {
   id: StoreId | string;
   acl: StoreAcl;
 }
@@ -19,10 +19,8 @@ type ExecuteResult = ActionId;
 
 /**
  * `UseNilSetStoreAcl` is a hook that allows you to set a store acl.
- * @property execute - It executes the NilHook synchronously, allowing the user to check for its status via {@link isSuccess} and {@link isError}.
- * @property executeAsync -  It executes the NilHook asynchronously, allowing the usage of `async/await` or `.then()`.
- * @interface
- * @notExported
+ * execute - It executes the NilHook synchronously, allowing the user to check for its status via {@link isSuccess} and {@link isError}.
+ * executeAsync -  It executes the NilHook asynchronously, allowing the usage of `async/await` or `.then()`.
  */
 type UseNilSetStoreAcl = UseNilHook<ExecuteArgs, ExecuteResult>;
 

@@ -35,9 +35,9 @@ import * as Wasm from "@nillion/client-wasm";
 import { Log } from "../logger";
 
 /* `NilVmClientConfig` is an object that contains the configuration for the NilVmClient
- * @param bootnodes: `Multiaddr[]`
- * @param clusterId: `ClusterId`
- * @param userSeed: `string`
+ * @param bootnodes - `Multiaddr[]`
+ * @param clusterId - `ClusterId`
+ * @param userSeed - `string`
  */
 export const NilVmClientConfig = z.object({
   bootnodes: z.array(Multiaddr),
@@ -50,7 +50,6 @@ export type NilVmClientConfig = z.infer<typeof NilVmClientConfig>;
 
 /**
  * `NilVmClient` is a class that allows you to interact with Nillion.
- * @class
  */
 export class NilVmClient {
   // The wasm bundle is loaded asynchronously which can be problematic because most environments don't
@@ -63,12 +62,12 @@ export class NilVmClient {
 
   private constructor(private _config: NilVmClientConfig) {}
 
-  /* `ready` is a boolean that indicates whether the client is ready to be used */
+  /** `ready` is a boolean that indicates whether the client is ready to be used */
   get ready(): boolean {
     return this._ready;
   }
 
-  /* `partyId` is a `PartyId` object that represents the party ID of the client */
+  /** `partyId` is a `PartyId` object that represents the party ID of the client */
   get partyId(): PartyId {
     this.isReadyGuard();
     return PartyId.parse(this._client.party_id);
@@ -80,18 +79,18 @@ export class NilVmClient {
     return UserId.parse(this._client.user_id);
   }
 
-  /* `clusterId` is a `ClusterId` object that represents the cluster ID of the client */
+  /** `clusterId` is a `ClusterId` object that represents the cluster ID of the client */
   get clusterId(): ClusterId {
     return this._config.clusterId;
   }
 
-  /* `client` is a `Wasm.NillionClient` object that represents the client */
+  /** `client` is a `Wasm.NillionClient` object that represents the client */
   get client(): Wasm.NillionClient {
     this.isReadyGuard();
     return this._client;
   }
 
-  /* `connect` is an async function that connects the client to the cluster */
+  /** `connect` is an async function that connects the client to the cluster */
   async connect(): Promise<boolean> {
     if (!globalThis.__NILLION?.initialized) {
       await init();
@@ -110,7 +109,7 @@ export class NilVmClient {
     return this._ready;
   }
 
-  /* `isReadyGuard` is a function that checks if the client is ready */
+  /** `isReadyGuard` is a function that checks if the client is ready */
   private isReadyGuard(): void | never {
     if (!this._ready) {
       const message = "NilVmClient not ready. Call `await client.connect()`.";
@@ -119,7 +118,7 @@ export class NilVmClient {
     }
   }
 
-  /* `fetchClusterInfo` is an effect that fetches the cluster information */
+  /** `fetchClusterInfo` is an effect that fetches the cluster information */
   fetchClusterInfo(): E.Effect<ClusterDescriptor, UnknownException> {
     return E.tryPromise(async () => {
       const response = await this.client.cluster_information(this.clusterId);
@@ -129,7 +128,7 @@ export class NilVmClient {
     });
   }
 
-  /* `fetchComputeOutput` is an effect that fetches the compute */
+  /** `fetchComputeOutput` is an effect that fetches the compute */
   fetchComputeOutput(args: {
     id: ComputeOutputId;
   }): E.Effect<Record<string, NadaPrimitiveValue>, UnknownException> {
@@ -144,7 +143,7 @@ export class NilVmClient {
     });
   }
 
-  /* `fetchOperationQuote` is an effect that fetches the operation quote */
+  /** `fetchOperationQuote` is an effect that fetches the operation quote */
   fetchOperationQuote(args: {
     operation: IntoWasmQuotableOperation & { type: OperationType };
   }): E.Effect<PriceQuote, UnknownException> {
@@ -160,7 +159,7 @@ export class NilVmClient {
     });
   }
 
-  /* `fetchValue` is an effect that fetches the value */
+  /** `fetchValue` is an effect that fetches the value */
   fetchValue(args: {
     receipt: PaymentReceipt;
     operation: FetchValue;
@@ -185,7 +184,7 @@ export class NilVmClient {
     });
   }
 
-  /* `fetchStoreAcl` is an effect that fetches the store acl */
+  /** `fetchStoreAcl` is an effect that fetches the store acl */
   fetchStoreAcl(args: {
     receipt: PaymentReceipt;
     operation: FetchStoreAcl;
@@ -209,7 +208,7 @@ export class NilVmClient {
     });
   }
 
-  /* `setStoreAcl` is an effect that sets the store acl */
+  /** `setStoreAcl` is an effect that sets the store acl */
   setStoreAcl(args: {
     receipt: PaymentReceipt;
     operation: SetStoreAcl;
@@ -236,7 +235,7 @@ export class NilVmClient {
     });
   }
 
-  /* `compute` is an effect that computes the operation */
+  /** `compute` is an effect that computes the operation */
   compute(args: {
     receipt: PaymentReceipt;
     operation: Compute;
@@ -264,7 +263,7 @@ export class NilVmClient {
     });
   }
 
-  /* `storeProgram` is an effect that stores the program */
+  /** `storeProgram` is an effect that stores the program */
   storeProgram(args: {
     receipt: PaymentReceipt;
     operation: StoreProgram;
@@ -289,7 +288,7 @@ export class NilVmClient {
     });
   }
 
-  /* `deleteProgram` is an effect that deletes the program */
+  /** `deleteProgram` is an effect that deletes the program */
   deleteValues(args: { id: StoreId }): E.Effect<StoreId, UnknownException> {
     return E.tryPromise(async () => {
       const { id } = args;
@@ -299,7 +298,7 @@ export class NilVmClient {
     });
   }
 
-  /* `deleteProgram` is an effect that deletes the program */
+  /** `deleteProgram` is an effect that deletes the program */
   updateValues(args: {
     receipt: PaymentReceipt;
     operation: UpdateValue;
@@ -325,7 +324,7 @@ export class NilVmClient {
     });
   }
 
-  /* `storeValues` is an effect that stores the values */
+  /** `storeValues` is an effect that stores the values */
   storeValues(args: {
     receipt: PaymentReceipt;
     operation: StoreValue;
@@ -353,6 +352,6 @@ export class NilVmClient {
     });
   }
 
-  /* `create` is a static function that creates a new NilVmClient */
+  /** `create` is a static function that creates a new NilVmClient */
   static create = (args: NilVmClientConfig) => new NilVmClient(args);
 }

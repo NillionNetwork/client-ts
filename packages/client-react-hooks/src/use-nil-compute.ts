@@ -11,11 +11,11 @@ import { nilHookBaseResult, UseNilHook } from "./nil-hook-base";
 import { useNillion } from "./use-nillion";
 
 /** ExecuteArgs is an interface that can be passed to the `execute` function.
- * @param bindings: `ProgramBindings`
- * @param values?: `NadaValues`
- * @param storeIds?: array of `StoreId`s or strings
+ * @param bindings - `ProgramBindings`
+ * @param values - `NadaValues`
+ * @param storeIds - array of `StoreId`s or strings
  */
-export interface ExecuteArgs {
+interface ExecuteArgs {
   bindings: ProgramBindings;
   values?: NadaValues;
   storeIds?: (StoreId | string)[];
@@ -24,16 +24,14 @@ type ExecuteResult = ComputeOutputId;
 
 /**
  * `UseNilCompute` is a hook that allows you to execute a compute operation on Nillion.
- * @property execute - It executes the NilHook synchronously, allowing the user to check for its status via {@link isSuccess} and {@link isError}.
- * @property executeAsync -  It executes the NilHook asynchronously, allowing the usage of `async/await` or `.then()`.
- * @type
+ * execute - It executes the NilHook synchronously, allowing the user to check for its status via {@link isSuccess} and {@link isError}.
+ * executeAsync -  It executes the NilHook asynchronously, allowing the usage of `async/await` or `.then()`.
  */
-export type UseNilCompute = UseNilHook<ExecuteArgs, ExecuteResult>;
+type UseNilCompute = UseNilHook<ExecuteArgs, ExecuteResult>;
 
 /**
  * `useNilCompute` is a hook that allows you to execute a compute.
  * @returns {@link UseNilCompute}
- * @interface
  */
 export const useNilCompute = (): UseNilCompute => {
   const { client: nilClient } = useNillion();

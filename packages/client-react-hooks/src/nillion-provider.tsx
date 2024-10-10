@@ -25,25 +25,25 @@ import { NetworkConfig, NillionClient } from "@nillion/client-vms";
 import { Log } from "./logging";
 
 /**
- * WithConfigProps
- * @property config is a ProviderNetworkConfig
- * @property network is a NamedNetwork
- * @property client is not allowed
+ * `WithConfigProps`
+ * `config` is a ProviderNetworkConfig
+ * `network` is a NamedNetwork
+ * `client` is not allowed
  **/
-export interface WithConfigProps {
+interface WithConfigProps {
   config?: ProviderNetworkConfig;
   network?: NamedNetwork;
   client?: never;
 }
 
 /**
- * ProviderNetworkConfig
- * @property bootnodes is an array of Multiaddr or string
- * @property clusterId is a ClusterId or string
- * @property nilChainId is a ChainId or string
- * @property nilChainEndpoint is a Url or string
+ * `ProviderNetworkConfig`
+ * `bootnodes` is an array of Multiaddr or string
+ * `clusterId` is a ClusterId or string
+ * `nilChainId` is a ChainId or string
+ * `nilChainEndpoint` is a Url or string
  */
-export interface ProviderNetworkConfig {
+interface ProviderNetworkConfig {
   bootnodes?: (Multiaddr | string)[];
   clusterId?: ClusterId | string;
   nilChainId?: ChainId | string;
@@ -51,28 +51,27 @@ export interface ProviderNetworkConfig {
 }
 
 /**
- * WithClientProps
- * @property client is a NillionClient
- * @property config is not allowed
- * @property network is not allowed
+ * `WithClientProps`
+ * `client` is a `NillionClient`
+ * `config` is not allowed
+ * `network` is not allowed
  */
-export interface WithClientProps {
+interface WithClientProps {
   client: NillionClient;
   config?: never;
   network?: never;
 }
 
 /**
- * NillionProviderProps
- * @type Alias for either WithConfigProps or WithClientProps
+ * `NillionProviderProps`
+ * Alias for either WithConfigProps or WithClientProps
  */
 export type NillionProviderProps = WithConfigProps | WithClientProps;
 
 /**
- * NillionContext
- * @property client is a NillionClient
- * @property logout is a function that returns a Promise<void>
- * @interface
+ * `NillionContext`
+ * `client` is a NillionClient
+ * `logout` is a function that returns a Promise<void>
  */
 export interface NillionContext {
   client: NillionClient;
@@ -80,8 +79,8 @@ export interface NillionContext {
 }
 
 /**
- * NillionContext
- * @type React.Context<NillionContext | undefined>
+ * `NillionContext`
+ * It provides a `NillionClient` context
  */
 export const NillionContext = createContext<NillionContext | undefined>(
   undefined,
@@ -92,7 +91,7 @@ const client = NillionClient.create();
 
 /**
  * NillionProvider
- * @param NillionProviderProps & { children: ReactNode }
+ * @param NillionProviderProps - expects provider props or a `ReactNode`
  * @returns ReactNode
  */
 export const NillionProvider: React.FC<

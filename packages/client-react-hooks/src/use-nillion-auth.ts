@@ -22,9 +22,9 @@ export interface UseNillionAuthContext {
  * It is a union of the `UserSeed` type and a string, which can be used to
  * create a `UserSeed`. Additionally, it can include a nodeSeed and a signer
  * field, which can be used to specify a custom signer for the client.
- * @param userSeed: `UserSeed` or string
- * @param nodeSeed?: string
- * @param signer?: "kelpr" or a function that returns a `Promise<OfflineSigner>`
+ * @param userSeed - `UserSeed` or string
+ * @param nodeSeed - string
+ * @param signer - "kelpr" or a function that returns a `Promise<OfflineSigner>`
  */
 export interface UserCredentials {
   userSeed: UserSeed | string;
@@ -41,7 +41,6 @@ export interface UserCredentials {
  * can be called to log out of the client.
  * @returns UseNillionAuthContext
  * @throws Error if NillionContext is not set
- * @interface
  */
 export function useNillionAuth(): UseNillionAuthContext {
   const context = useContext(NillionContext);

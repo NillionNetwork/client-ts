@@ -13,12 +13,12 @@ import { nilHookBaseResult, UseNilHook } from "./nil-hook-base";
 import { useNillion } from "./use-nillion";
 
 /** `ExecuteArgs` is an interface that can be passed to the `execute` function
- * @param name: `NamedValue` or `string`
- * @param data: `NadaPrimitiveValue`
- * @param ttl: `Days` or `number`
- * @param acl?: `StoreAcl`
+ * @param name - `NamedValue` or `string`
+ * @param data - `NadaPrimitiveValue`
+ * @param ttl  - `Days` or `number`
+ * @param acl  - `StoreAcl`
  */
-export interface ExecuteArgs {
+interface ExecuteArgs {
   name: NamedValue | string;
   data: NadaPrimitiveValue;
   ttl: Days | number;
@@ -32,7 +32,6 @@ type UseNilStoreValue = UseNilHook<ExecuteArgs, ExecuteResult>;
 /**
  * `useNilStoreValue` is a hook that allows you to store a value in Nillion.
  * @returns {@link UseNilStoreValue}
- * @interface
  */
 export const useNilStoreValue = (): UseNilStoreValue => {
   const { client: nilClient } = useNillion();

@@ -15,20 +15,20 @@ import { useNillion } from "./use-nillion";
 
 /**
  * `Options` is an interface that can be passed to the `useNilFetchValue` hook.
- * @param type: `NadaValueType`
- * @param staleAfter?: `number`
+ * @param type - `NadaValueType`
+ * @param staleAfter - `number`
  */
-export interface Options {
+interface Options {
   type: NadaValueType;
   staleAfter?: number;
 }
 
 /**
  * `ExecuteArgs` is an interface that can be passed to the `execute` function.
- * @param id: `StoreId` or `string`
- * @param name: `NamedValue` or `string`
+ * @param id - `StoreId` or `string`
+ * @param name - `NamedValue` or `string`
  */
-export interface ExecuteArgs {
+interface ExecuteArgs {
   id: StoreId | string;
   name: NamedValue | string;
 }
@@ -36,11 +36,10 @@ type ExecuteResult = NadaPrimitiveValue;
 
 /**
  * `UseNilFetchValue` is a hook that allows you to fetch a value from a store.
- * @property execute - It executes the NilHook synchronously, allowing the user to check for its status via {@link isSuccess} and {@link isError}.
- * @property executeAsync -  It executes the NilHook asynchronously, allowing the usage of `async/await` or `.then()`.
- * @interface
+ * execute - It executes the NilHook synchronously, allowing the user to check for its status via {@link isSuccess} and {@link isError}.
+ * executeAsync -  It executes the NilHook asynchronously, allowing the usage of `async/await` or `.then()`.
  */
-export type UseNilFetchValue = UseNilHook<ExecuteArgs, ExecuteResult>;
+type UseNilFetchValue = UseNilHook<ExecuteArgs, ExecuteResult>;
 
 /**
  * `useNilFetchValue` is a hook that allows you to fetch a value from a store.

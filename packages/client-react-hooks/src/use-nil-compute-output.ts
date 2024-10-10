@@ -7,7 +7,7 @@ import { useNillion } from "./use-nillion";
 
 /**
  * `ExecuteArgs` is an interface that can be passed to the `execute` function.
- * @param id: `ComputeOutputId` or `string`
+ * @param id - `ComputeOutputId` or `string`
  */
 interface ExecuteArgs {
   id: ComputeOutputId | string;
@@ -17,16 +17,14 @@ type ExecuteResult = Record<string, NadaPrimitiveValue>;
 
 /**
  * `UseNilComputeOutput` is a hook that allows you to execute a compute output.
- * @property execute - It executes the NilHook synchronously, allowing the user to check for its status via {@link isSuccess} and {@link isError}.
- * @property executeAsync -  It executes the NilHook asynchronously, allowing the usage of `async/await` or `.then()`.
- * @type
+ * execute - It executes the NilHook synchronously, allowing the user to check for its status via {@link isSuccess} and {@link isError}.
+ * executeAsync -  It executes the NilHook asynchronously, allowing the usage of `async/await` or `.then()`.
  */
-export type UseNilComputeOutput = UseNilHook<ExecuteArgs, ExecuteResult>;
+type UseNilComputeOutput = UseNilHook<ExecuteArgs, ExecuteResult>;
 
 /**
  * `useNilComputeOutput` is a hook that allows you to execute a compute output.
  * @returns {@link UseNilComputeOutput}
- * @interface
  */
 export const useNilComputeOutput = (): UseNilComputeOutput => {
   const { client: nilClient } = useNillion();

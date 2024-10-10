@@ -8,10 +8,10 @@ import { useNillion } from "./use-nillion";
 
 /**
  * `ExecuteArgs` is an interface that can be passed to the `execute` function.
- * @param name: `ProgramName` or `string`
- * @param program: `Uint
+ * @param name - `ProgramName` or `string`
+ * @param program - `Uint8Array`
  */
-export interface ExecuteArgs {
+interface ExecuteArgs {
   name: ProgramName | string;
   program: Uint8Array;
 }
@@ -22,7 +22,6 @@ type UseNilStoreProgram = UseNilHook<ExecuteArgs, ExecuteResult>;
 /**
  * `useNilStoreProgram` is a hook that allows you to store a program in Nillion.
  * @returns {@link UseNilStoreProgram}
- * @interface
  */
 export const useNilStoreProgram = (): UseNilStoreProgram => {
   const { client: nilClient } = useNillion();
