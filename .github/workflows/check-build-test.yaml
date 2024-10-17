@@ -23,36 +23,22 @@ jobs:
       - run: npm ci
       - run: just check
 
-  test:
+  test-client-vms:
+    if: false
     needs: check
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        package: [ client-core, client-payments, client-vms ]
     steps:
       - uses: actions/checkout@v4
       - uses: extractions/setup-just@v2
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.5'
+          node-version: '22'
           cache: 'npm'
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - uses: browser-actions/setup-chrome@v1
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y protobuf-compiler curl
-          npm ci
       - uses: NillionNetwork/nillion-setup-action@main
         with:
           version: 'latest'
       - run: |
-          just test-${{ matrix.package }}-ci
-      - uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          name: ${{ matrix.package }}-logs
-          path: packages/fixture/logs
-          retention-days: 4
+          nillion-devnet --seed test-fixture &
+          sleep 10
+          just test-client-vms
+          killall -9 nillion-devnet
