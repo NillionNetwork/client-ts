@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package nillion.preprocessing.v1.stream;
+
+import "nillion/preprocessing/v1/element.proto";
+
+// A message sent between nodes during the execution of a preprocessing protocol.
+message PreprocessingStreamMessage {
+  // An identifier for the instance of the generation being ran.
+  //
+  // Only the first ever message on the stream requires having this attribute set. Any subsequent message will
+  // have this field ignored.
+  bytes generation_id = 1; 
+
+  // The element being generated.
+  //
+  // Only the first ever message on the stream requires having this attribute set. Any subsequent message will
+  // have this field ignored.
+  nillion.preprocessing.v1.element.PreprocessingElement element = 2;
+
+  // The preprocessing message in bincode format.
+  bytes bincode_message = 3;
+}
+

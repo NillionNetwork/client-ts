@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import jest from "eslint-plugin-jest";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import tsDoc from "eslint-plugin-tsdoc";
 import globals from "globals";
@@ -6,7 +7,13 @@ import ts from "typescript-eslint";
 
 export default [
   {
-    ignores: ["**/dist", "**/dist-test", "**/.next", "examples"],
+    ignores: [
+      "**/dist",
+      "**/dist-test",
+      "**/.next",
+      "examples",
+      "client-react-hooks",
+    ],
   },
   js.configs.recommended,
   ...ts.configs.recommended,
@@ -96,8 +103,18 @@ export default [
     },
   },
   {
-    files: ["**/*.test.ts", "packages/test-utils/**/*.ts"],
+    files: ["**/*.test.ts"],
+    plugins: {
+      jest: jest,
+    },
+    languageOptions: {
+      globals: {
+        ...jest.environments.globals.globals,
+      },
+    },
     rules: {
+      ...jest.configs.style.rules,
+      "jest/no-conditional-expect": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
     },
   },
