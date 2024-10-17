@@ -87,7 +87,7 @@ export const NillionProvider: React.FC<
   }, []);
 
   const context: NillionContext = {
-    client: nillionClient,
+    chainClient: nillionClient,
     logout: async () => {
       await nillionClient.disconnect();
     },
