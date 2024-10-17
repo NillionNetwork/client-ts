@@ -2,17 +2,13 @@
 .idea
 .vscode
 
-packages/client-payments/src/proto/nilchain.ts # generated protobuf codec
+packages/**/gen-proto
 !packages/client-wasm/dist
-docs
-logs
 
-# npm related artefacts
 node_modules
 dist
-dist-test
+**/coverage
 .next
 
-# python related artefacts
 __pycache__
 venv
