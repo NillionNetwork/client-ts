@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package nillion.membership.v1;
+
+import "google/protobuf/empty.proto";
+import "nillion/membership/v1/cluster.proto";
+
+// Exposes information about a node's membership.
+service Membership {
+  // Get the definition of the cluster the node queried is part of.
+  rpc Cluster(google.protobuf.Empty) returns (cluster.Cluster);
+}
+
