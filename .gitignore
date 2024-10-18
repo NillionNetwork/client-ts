@@ -3,7 +3,7 @@
 .vscode
 
 packages/**/gen-proto
-!packages/client-wasm/dist
+!client-wasm/dist
 
 node_modules
 dist
