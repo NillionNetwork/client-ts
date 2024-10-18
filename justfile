@@ -9,14 +9,8 @@ check:
     #!/usr/bin/env bash
     set -uxo pipefail
     npx prettier -c "**/*.(js|jsx|mjs|ts|tsx)"
-
-    echo "Running eslint... "
     npx eslint -c eslint.config.mjs
-    echo "done."
-
-    echo "Running tsc... "
     npx tsc -p client-vms/tsconfig.json
-    echo "done."
 
 watch-and-build:
     #!/usr/bin/env bash

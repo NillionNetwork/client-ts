@@ -15,13 +15,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: extractions/setup-just@v2
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
       - run: npm ci
-      - run: just check
+      - run: npx prettier -c "**/*.(js|jsx|mjs|ts|tsx)"
+      - run: npx tsc -p client-vms/tsconfig.json
+      - run: npx eslint -c eslint.config.mjs
 
   test-client-vms:
     if: false
