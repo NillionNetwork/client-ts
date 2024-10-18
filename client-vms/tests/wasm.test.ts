@@ -1,7 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 
-import { PartyId } from "@nillion/client-vms/types";
-import { NadaValuesRecord } from "@nillion/client-vms/vm/operation/retrieve-values";
+import { NadaValuesRecord, PartyId } from "@nillion/client-vms/types";
 import { NadaValue, NadaValues } from "@nillion/client-wasm";
 
 const data = [

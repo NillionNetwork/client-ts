@@ -8,7 +8,7 @@ import { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1
 import { RetrieveValuesRequestSchema } from "@nillion/client-vms/gen-proto/nillion/values/v1/retrieve_pb";
 import { Values } from "@nillion/client-vms/gen-proto/nillion/values/v1/service_pb";
 import { PaymentClient } from "@nillion/client-vms/payment";
-import { Uuid } from "@nillion/client-vms/types";
+import { NadaValuesRecord, Uuid } from "@nillion/client-vms/types";
 import { type NodeConfig, VmClient } from "@nillion/client-vms/vm/client";
 import { Operation } from "@nillion/client-vms/vm/operation/operation";
 import { decode_values, PartyShares, SecretMasker } from "@nillion/client-wasm";
@@ -20,7 +20,6 @@ export const RetrieveValuesConfig = z.object({
 });
 export type RetrieveValuesConfig = z.infer<typeof RetrieveValuesConfig>;
 
-export type NadaValuesRecord = Record<string, { type: string; value: string }>;
 export class RetrieveValues implements Operation<NadaValuesRecord> {
   private constructor(private readonly config: RetrieveValuesConfig) {}
 
@@ -58,8 +57,8 @@ export class RetrieveValues implements Operation<NadaValuesRecord> {
     if (results.length !== nodes.length)
       throw new Error("Results length does not match nodes length");
 
-    // TODO: refine wasm exported type
-    return masker.unmask(results).to_record() as unknown as NadaValuesRecord;
+    const record = masker.unmask(results).to_record() as unknown;
+    return NadaValuesRecord.parse(record);
   }
 
   private pay(): Promise<SignedReceipt> {

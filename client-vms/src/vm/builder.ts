@@ -112,7 +112,7 @@ export class VmClientBuilder {
         break;
       }
       case Prime.SAFE_256_BITS: {
-        masker = SecretMasker.new_128_bit_safe_prime(
+        masker = SecretMasker.new_256_bit_safe_prime(
           polynomialDegree,
           partyIds,
         );

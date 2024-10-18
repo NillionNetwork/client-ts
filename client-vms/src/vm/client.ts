@@ -3,6 +3,8 @@ import { z } from "zod";
 import { PoolStatusResponse } from "@nillion/client-vms/gen-proto/nillion/leader_queries/v1/pool_status_pb";
 import { PaymentClient } from "@nillion/client-vms/payment";
 import { GrpcTransport, PartyId } from "@nillion/client-vms/types";
+import { InvokeComputeBuilder } from "@nillion/client-vms/vm/operation/invoke-compute";
+import { RetrieveComputeResultBuilder } from "@nillion/client-vms/vm/operation/retrieve-compute-result";
 import { UpdatePermissionsBuilder } from "@nillion/client-vms/vm/operation/update-permissions";
 import { SecretMasker } from "@nillion/client-wasm";
 
@@ -59,5 +61,13 @@ export class VmClient {
 
   storeProgram(): StoreProgramBuilder {
     return StoreProgramBuilder.init(this);
+  }
+
+  invokeCompute(): InvokeComputeBuilder {
+    return InvokeComputeBuilder.init(this);
+  }
+
+  retrieveComputeResult(): RetrieveComputeResultBuilder {
+    return RetrieveComputeResultBuilder.init(this);
   }
 }

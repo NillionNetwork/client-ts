@@ -59,8 +59,31 @@ export type Uuid = z.infer<typeof Uuid>;
 export const TtlDays = z.number().positive();
 export type TtlDays = z.infer<typeof TtlDays>;
 
-export const UserId = z.string().length(88).regex(new RegExp(`^\\w+$`));
+export const UserId = z.string().min(87).max(89).regex(new RegExp(`^\\w+$`));
 export type UserId = z.infer<typeof UserId>;
+
+export const PartyName = z.string().min(1);
+export type PartyName = z.infer<typeof PartyName>;
 
 export const ProgramId = z.string().min(90).regex(new RegExp(`^\\w+/.+$`));
 export type ProgramId = z.infer<typeof ProgramId>;
+
+export const InputBindings = z.object({
+  party: PartyName,
+  user: UserId,
+});
+export type InputBindings = z.infer<typeof InputBindings>;
+
+export const OutputBindings = z.object({
+  party: PartyName,
+  users: z.array(UserId),
+});
+export type OutputBindings = z.infer<typeof OutputBindings>;
+
+export const NadaValuesRecord = z.record(
+  z.object({
+    type: z.string(),
+    value: z.string(),
+  }),
+);
+export type NadaValuesRecord = z.infer<typeof NadaValuesRecord>;

@@ -1,12 +1,9 @@
 import { describe, expect } from "@jest/globals";
 import { ZodError } from "zod";
 
-import {
-  Permissions,
-  Permissions as ValuePermissions,
-} from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
+import { Permissions as ValuePermissions } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
 import { createSignerFromKey } from "@nillion/client-vms/payment";
-import { ProgramId } from "@nillion/client-vms/types";
+import { ProgramId, Uuid } from "@nillion/client-vms/types";
 import { VmClient, VmClientBuilder } from "@nillion/client-vms/vm";
 import { ValuesPermissionsBuilder } from "@nillion/client-vms/vm/operation";
 import { NadaValue } from "@nillion/client-wasm";
@@ -32,7 +29,7 @@ describe("VmClient", () => {
 
     client = await new VmClientBuilder()
       .authTokenTtl(1)
-      .seed("test-seed")
+      .seed("test")
       .bootnodeUrl(Env.bootnodeUrl)
       .chainUrl(Env.nilChainJsonRpc)
       .signer(signer)
@@ -121,23 +118,49 @@ describe("VmClient", () => {
     });
   });
 
-  describe("programs", () => {
-    let id: ProgramId;
-    it("can store", async () => {
-      const name = "simple_shares.nada.bin";
+  describe("compute", () => {
+    const name = "addition_division.nada.bin";
+    let programId: ProgramId;
+    let computeResultId: Uuid;
+
+    it("can upload program", async () => {
       const regex = new RegExp(`^.+\\/${name}$`);
       const program = loadProgram(name);
 
-      id = await client
+      programId = await client
         .storeProgram()
         .name(name)
         .program(program)
         .build()
         .invoke();
 
-      console.log(id);
-      expect(id).toBeTruthy();
-      expect(id).toMatch(regex);
+      expect(programId).toBeTruthy();
+      expect(programId).toMatch(regex);
+    });
+
+    it("can invoke compute", async () => {
+      computeResultId = await client
+        .invokeCompute()
+        .program(programId)
+        .inputParty("Party1", client.config.id)
+        .outputParty("Party1", [client.config.id])
+        .computeTimeValues("A", NadaValue.new_secret_integer("1"))
+        .computeTimeValues("B", NadaValue.new_secret_integer("4"))
+        .build()
+        .invoke();
+
+      expect(computeResultId).toBeTruthy();
+    });
+
+    it("can retrieve compute result", async () => {
+      const result = await client
+        .retrieveComputeResult()
+        .id(computeResultId)
+        .build()
+        .invoke();
+
+      expect(result).toBeTruthy();
+      expect(result.my_output?.value).toBe("3");
     });
   });
 });

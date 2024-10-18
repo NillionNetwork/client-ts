@@ -14,6 +14,7 @@ export class ValuesPermissionsBuilder {
   private readonly _deleteAllowedUserIds: UserId[] = [];
   private readonly _computePermissions: [UserId, ProgramId[]][] = [];
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
 
   owner(id: UserId): this {

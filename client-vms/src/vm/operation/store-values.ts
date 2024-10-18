@@ -5,21 +5,11 @@ import { z } from "zod";
 
 import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
 import { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import {
-  ComputePermissionsSchema,
-  Permissions as ValuesPermissions,
-  PermissionsSchema,
-} from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
+import { Permissions as ValuesPermissions } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
 import { Values } from "@nillion/client-vms/gen-proto/nillion/values/v1/service_pb";
 import { StoreValuesRequestSchema } from "@nillion/client-vms/gen-proto/nillion/values/v1/store_pb";
 import { PaymentClient } from "@nillion/client-vms/payment";
-import {
-  PartyId,
-  ProgramId,
-  TtlDays,
-  UserId,
-  Uuid,
-} from "@nillion/client-vms/types";
+import { PartyId, TtlDays, Uuid } from "@nillion/client-vms/types";
 import { collapse } from "@nillion/client-vms/util";
 import { type NodeConfig, VmClient } from "@nillion/client-vms/vm/client";
 import { Operation } from "@nillion/client-vms/vm/operation/operation";
