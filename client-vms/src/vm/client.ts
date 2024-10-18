@@ -3,6 +3,7 @@ import { z } from "zod";
 import { PoolStatusResponse } from "@nillion/client-vms/gen-proto/nillion/leader_queries/v1/pool_status_pb";
 import { PaymentClient } from "@nillion/client-vms/payment";
 import { GrpcTransport, PartyId } from "@nillion/client-vms/types";
+import { UpdatePermissionsBuilder } from "@nillion/client-vms/vm/operation/update-permissions";
 import { SecretMasker } from "@nillion/client-wasm";
 
 import {
@@ -50,6 +51,10 @@ export class VmClient {
 
   retrievePermissions(): RetrievePermissionsBuilder {
     return RetrievePermissionsBuilder.init(this);
+  }
+
+  updatePermissions(): UpdatePermissionsBuilder {
+    return UpdatePermissionsBuilder.init(this);
   }
 
   storeProgram(): StoreProgramBuilder {

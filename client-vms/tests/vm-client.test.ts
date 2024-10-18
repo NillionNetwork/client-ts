@@ -1,9 +1,14 @@
 import { describe, expect } from "@jest/globals";
 import { ZodError } from "zod";
 
+import {
+  Permissions,
+  Permissions as ValuePermissions,
+} from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
 import { createSignerFromKey } from "@nillion/client-vms/payment";
+import { ProgramId } from "@nillion/client-vms/types";
 import { VmClient, VmClientBuilder } from "@nillion/client-vms/vm";
-import { ProgramId } from "@nillion/client-vms/vm/operation";
+import { ValuesPermissionsBuilder } from "@nillion/client-vms/vm/operation";
 import { NadaValue } from "@nillion/client-wasm";
 
 import { Env, loadProgram, PrivateKeyPerSuite } from "./helpers";
@@ -22,7 +27,7 @@ describe("VmClient", () => {
     expect.assertions(2);
   });
 
-  fit("builder can create client", async () => {
+  it("builder can create client", async () => {
     const signer = await createSignerFromKey(PrivateKeyPerSuite.VmClient);
 
     client = await new VmClientBuilder()
@@ -44,6 +49,7 @@ describe("VmClient", () => {
   describe("values", () => {
     const expectedName = "foo";
     const expectedValue = 42;
+    let expectedPermissions: ValuePermissions;
     let expectedId: string;
 
     it("can store", async () => {
@@ -73,14 +79,36 @@ describe("VmClient", () => {
     });
 
     it("can retrieve permissions", async () => {
-      const permissions = await client
+      expectedPermissions = await client
         .retrievePermissions()
         .id(expectedId)
         .build()
         .invoke();
 
+      expect(expectedPermissions).toBeDefined();
+      expect(expectedPermissions.ownerUserId).toEqual(client.config.id);
+    });
+
+    it("can update permissions", async () => {
+      const owner = expectedPermissions.ownerUserId;
+      const updatedPermissions = ValuesPermissionsBuilder.empty()
+        .owner(owner)
+        .grantDelete(owner)
+        .build();
+
+      const permissions = await client
+        .updatePermissions()
+        .permissions(updatedPermissions)
+        .id(expectedId)
+        .build()
+        .invoke();
+
       expect(permissions).toBeDefined();
-      expect(permissions.ownerUserId).toEqual(client.config.id);
+      expect(permissions.ownerUserId).toEqual(owner);
+      expect(permissions.deleteAllowedUserIds).toHaveLength(1);
+      expect(permissions.retrieveAllowedUserIds).toHaveLength(0);
+      expect(permissions.updateAllowedUserIds).toHaveLength(0);
+      expect(permissions.computePermissions).toHaveLength(0);
     });
 
     it("can delete", async () => {
@@ -107,6 +135,7 @@ describe("VmClient", () => {
         .build()
         .invoke();
 
+      console.log(id);
       expect(id).toBeTruthy();
       expect(id).toMatch(regex);
     });
