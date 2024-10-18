@@ -6,6 +6,12 @@ check:
     npx eslint -c eslint.config.mjs
     npx tsc -p client-vms/tsconfig.json
 
+update-deps:
+    #!/usr/bin/env bash
+    set -uxo pipefail
+    npx npm-check-updates -u --workspaces --root
+    npm installnp
+
 watch-and-build:
     #!/usr/bin/env bash
     set -uxo pipefail
