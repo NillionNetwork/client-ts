@@ -3,11 +3,15 @@ import { z } from "zod";
 import { PoolStatusResponse } from "@nillion/client-vms/gen-proto/nillion/leader_queries/v1/pool_status_pb";
 import { PaymentClient } from "@nillion/client-vms/payment";
 import { GrpcTransport, PartyId } from "@nillion/client-vms/types";
-import { StoreValuesBuilder } from "@nillion/client-vms/vm/operation";
-import { DeleteValuesBuilder } from "@nillion/client-vms/vm/operation/delete-values";
-import { QueryPoolStatusBuilder } from "@nillion/client-vms/vm/operation/query-pool-status";
-import { RetrieveValuesBuilder } from "@nillion/client-vms/vm/operation/retrieve-values";
 import { SecretMasker } from "@nillion/client-wasm";
+
+import {
+  DeleteValuesBuilder,
+  QueryPoolStatusBuilder,
+  RetrievePermissionsBuilder,
+  RetrieveValuesBuilder,
+  StoreValuesBuilder,
+} from "./operation";
 
 export const NodeConfig = z.object({
   id: z.instanceof(PartyId),

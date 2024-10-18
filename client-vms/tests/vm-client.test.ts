@@ -71,6 +71,17 @@ describe("VmClient", () => {
       expect(values.value).toBe("42");
     });
 
+    it("can retrieve permissions", async () => {
+      const permissions = await client
+        .retrievePermissions()
+        .id(expectedId)
+        .build()
+        .invoke();
+
+      expect(permissions).toBeDefined();
+      expect(permissions.ownerUserId).toEqual(client.config.id);
+    });
+
     it("can delete", async () => {
       const actual = await client
         .deleteValues()
