@@ -17,8 +17,6 @@ export const DeleteValuesConfig = z.object({
 export type DeleteValuesConfig = z.infer<typeof DeleteValuesConfig>;
 
 export class DeleteValues implements Operation<Uuid> {
-  readonly name = "operation-name";
-
   private constructor(private readonly config: DeleteValuesConfig) {}
 
   async invoke(): Promise<Uuid> {
@@ -35,6 +33,7 @@ export class DeleteValues implements Operation<Uuid> {
       return client.deleteValues(request);
     });
 
+    // TODO: implement collapse
     const results = await Promise.all(promises);
     if (results.length !== nodes.length)
       throw new Error("Results length does not match nodes length");

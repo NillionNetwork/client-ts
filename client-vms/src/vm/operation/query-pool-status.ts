@@ -16,8 +16,6 @@ export const QueryPoolStatusConfig = z.object({
 export type QueryPoolStatusConfig = z.infer<typeof QueryPoolStatusConfig>;
 
 export class QueryPoolStatus implements Operation<PoolStatusResponse> {
-  readonly name = "pool-status";
-
   private constructor(private readonly config: QueryPoolStatusConfig) {}
 
   private get payer(): PaymentClient {

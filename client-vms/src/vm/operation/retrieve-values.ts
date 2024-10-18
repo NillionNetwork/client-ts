@@ -21,10 +21,7 @@ export const RetrieveValuesConfig = z.object({
 export type RetrieveValuesConfig = z.infer<typeof RetrieveValuesConfig>;
 
 export type NadaValuesRecord = Record<string, { type: string; value: string }>;
-
 export class RetrieveValues implements Operation<NadaValuesRecord> {
-  readonly name = "retrieve-values";
-
   private constructor(private readonly config: RetrieveValuesConfig) {}
 
   private get payer(): PaymentClient {
@@ -57,11 +54,12 @@ export class RetrieveValues implements Operation<NadaValuesRecord> {
       );
     });
 
-    const shares = await Promise.all(promises);
-    if (shares.length !== nodes.length)
+    const results = await Promise.all(promises);
+    if (results.length !== nodes.length)
       throw new Error("Results length does not match nodes length");
 
-    return masker.unmask(shares).to_record() as unknown as NadaValuesRecord;
+    // TODO: refine wasm exported type
+    return masker.unmask(results).to_record() as unknown as NadaValuesRecord;
   }
 
   private pay(): Promise<SignedReceipt> {
@@ -87,7 +85,6 @@ export class RetrieveValues implements Operation<NadaValuesRecord> {
 
 export class RetrieveValuesBuilder {
   private _id?: Uuid;
-
   private constructor(private readonly vm: VmClient) {}
 
   id(value: Uuid): this {

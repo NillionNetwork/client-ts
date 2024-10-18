@@ -5,13 +5,12 @@ import { VmClient } from "@nillion/client-vms/vm/client";
 import { Operation } from "@nillion/client-vms/vm/operation/operation";
 
 export const FooConfig = z.object({
-  vm: z.instanceof(VmClient),
+  // due to import resolution order we cannot use instanceof because VmClient isn't defined first
+  vm: z.custom<VmClient>(),
 });
 export type FooConfig = z.infer<typeof FooConfig>;
 
 export class Foo implements Operation<null> {
-  readonly name = "operation-name";
-
   private constructor(private readonly config: FooConfig) {}
 
   invoke(): Promise<null> {

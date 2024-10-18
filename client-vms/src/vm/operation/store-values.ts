@@ -14,6 +14,7 @@ import { Values } from "@nillion/client-vms/gen-proto/nillion/values/v1/service_
 import { StoreValuesRequestSchema } from "@nillion/client-vms/gen-proto/nillion/values/v1/store_pb";
 import { PaymentClient } from "@nillion/client-vms/payment";
 import { PartyId, Uuid } from "@nillion/client-vms/types";
+import { collapse } from "@nillion/client-vms/util";
 import { type NodeConfig, VmClient } from "@nillion/client-vms/vm/client";
 import { Operation } from "@nillion/client-vms/vm/operation/operation";
 import {
@@ -42,8 +43,6 @@ export const StoreValuesConfig = z.object({
 export type StoreValuesConfig = z.infer<typeof StoreValuesConfig>;
 
 export class StoreValues implements Operation<Uuid> {
-  readonly name = "storeValues";
-
   private constructor(private readonly config: StoreValuesConfig) {}
 
   private get payer(): PaymentClient {
@@ -91,21 +90,8 @@ export class StoreValues implements Operation<Uuid> {
       );
     });
 
-    const results = await Promise.all(promises);
-
-    if (results.length === 0) throw new Error("Results array is empty");
-
-    return results
-      .map((result) => stringifyUuid(result.valuesId))
-      .reduce<Uuid>((acc, cur) => {
-        if (acc === "") {
-          return cur;
-        } else if (acc != cur) {
-          throw new Error("Nodes returned different store ids");
-        } else {
-          return cur;
-        }
-      }, "");
+    const results = (await Promise.all(promises)).map((e) => e.valuesId);
+    return stringifyUuid(collapse(results));
   }
 
   get isUpdate(): boolean {
@@ -122,7 +108,7 @@ export class StoreValues implements Operation<Uuid> {
     return payer.payForOperation(
       create(PriceQuoteRequestSchema, {
         operation: {
-          case: this.name,
+          case: "storeValues",
           value: {
             particlesCount: classify.particles,
             secretSharedCount: classify.shares,

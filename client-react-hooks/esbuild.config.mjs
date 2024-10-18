@@ -1,4 +1,4 @@
-import { main } from "../resources/esbuild.base.config.mjs";
+import { main } from "../esbuild.base.config.mjs";
 
 const config = {
   bundle: true,
