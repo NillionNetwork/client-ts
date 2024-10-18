@@ -1,4 +1,7 @@
+import fs from "node:fs";
+import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
 export const Env = {
   bootnodesWebsocket: [process.env.NILLION_BOOTNODE_WEBSOCKET ?? ""],
@@ -36,16 +39,9 @@ export const PrivateKeyPerSuite = {
   // Env.nilChainPrivateKey9,
 };
 
-export const loadProgram = async (name: string): Promise<Uint8Array> => {
-  const path = `__resources__/programs/dist/${name}`;
-  try {
-    const response = await fetch(path);
-    const body = (await response.body?.getReader().read())?.value;
-    if (body) return body;
-    throw new Error(`Could not find program for ${name}`);
-  } catch (e) {
-    console.error("failed to load program: ", path);
-    console.error("error: ", e);
-    throw e;
-  }
+export const loadProgram = (name: string): Uint8Array => {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const absolute = path.join(__dirname, "/nada/dist/", name);
+  return new Uint8Array(fs.readFileSync(absolute));
 };

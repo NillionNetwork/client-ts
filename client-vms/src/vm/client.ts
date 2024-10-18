@@ -10,6 +10,7 @@ import {
   QueryPoolStatusBuilder,
   RetrievePermissionsBuilder,
   RetrieveValuesBuilder,
+  StoreProgramBuilder,
   StoreValuesBuilder,
 } from "./operation";
 
@@ -45,5 +46,13 @@ export class VmClient {
 
   deleteValues(): DeleteValuesBuilder {
     return DeleteValuesBuilder.init(this);
+  }
+
+  retrievePermissions(): RetrievePermissionsBuilder {
+    return RetrievePermissionsBuilder.init(this);
+  }
+
+  storeProgram(): StoreProgramBuilder {
+    return StoreProgramBuilder.init(this);
   }
 }

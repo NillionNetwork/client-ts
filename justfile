@@ -1,10 +1,4 @@
 # >>> Start all >>>
-clean:
-    #!/usr/bin/env bash
-    set -euxo pipefail
-    npm -w client-vms run clean
-    rm -rf resources/progras/dist
-
 check:
     #!/usr/bin/env bash
     set -uxo pipefail
@@ -76,10 +70,15 @@ test-client-vms-ci:
     echo "Tidying up"
     killall -9 nillion-devnet
 
+client-vms-compile-nada:
+    #!/usr/bin/env bash
+    pushd client-vms/tests/nada
+    ./build.sh
+    popd
+
 test-client-vms:
     #!/usr/bin/env bash
     set -euxo pipefail
-    just clean
     npm -w client-vms run build:proto
     npm -w client-vms run test
 

@@ -3,9 +3,10 @@ import { ZodError } from "zod";
 
 import { createSignerFromKey } from "@nillion/client-vms/payment";
 import { VmClient, VmClientBuilder } from "@nillion/client-vms/vm";
+import { ProgramId } from "@nillion/client-vms/vm/operation";
 import { NadaValue } from "@nillion/client-wasm";
 
-import { Env, PrivateKeyPerSuite } from "./helpers";
+import { Env, loadProgram, PrivateKeyPerSuite } from "./helpers";
 
 describe("VmClient", () => {
   let client: VmClient;
@@ -21,7 +22,7 @@ describe("VmClient", () => {
     expect.assertions(2);
   });
 
-  it("builder can create client", async () => {
+  fit("builder can create client", async () => {
     const signer = await createSignerFromKey(PrivateKeyPerSuite.VmClient);
 
     client = await new VmClientBuilder()
@@ -89,6 +90,25 @@ describe("VmClient", () => {
         .build()
         .invoke();
       expect(actual).toEqual(expectedId);
+    });
+  });
+
+  describe("programs", () => {
+    let id: ProgramId;
+    it("can store", async () => {
+      const name = "simple_shares.nada.bin";
+      const regex = new RegExp(`^.+\\/${name}$`);
+      const program = loadProgram(name);
+
+      id = await client
+        .storeProgram()
+        .name(name)
+        .program(program)
+        .build()
+        .invoke();
+
+      expect(id).toBeTruthy();
+      expect(id).toMatch(regex);
     });
   });
 });
