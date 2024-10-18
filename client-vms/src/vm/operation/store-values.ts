@@ -7,16 +7,23 @@ import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/p
 import { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
 import {
   ComputePermissionsSchema,
-  Permissions,
+  Permissions as ValuesPermissions,
   PermissionsSchema,
 } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
 import { Values } from "@nillion/client-vms/gen-proto/nillion/values/v1/service_pb";
 import { StoreValuesRequestSchema } from "@nillion/client-vms/gen-proto/nillion/values/v1/store_pb";
 import { PaymentClient } from "@nillion/client-vms/payment";
-import { PartyId, Uuid } from "@nillion/client-vms/types";
+import {
+  PartyId,
+  ProgramId,
+  TtlDays,
+  UserId,
+  Uuid,
+} from "@nillion/client-vms/types";
 import { collapse } from "@nillion/client-vms/util";
 import { type NodeConfig, VmClient } from "@nillion/client-vms/vm/client";
 import { Operation } from "@nillion/client-vms/vm/operation/operation";
+import { ValuesPermissionsBuilder } from "@nillion/client-vms/vm/operation/values-permissions-builder";
 import {
   compute_values_size,
   encode_values,
@@ -25,20 +32,13 @@ import {
   SecretMasker,
 } from "@nillion/client-wasm";
 
-// domain primitives
-
-export const TtlDays = z.number().positive();
-export type TtlDays = z.infer<typeof TtlDays>;
-
-// domain for store value operation
-
 export const StoreValuesConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
   vm: z.custom<VmClient>(),
   id: Uuid.nullish(),
   values: z.instanceof(NadaValues),
   ttl: TtlDays,
-  permissions: z.custom<Permissions>(),
+  permissions: z.custom<ValuesPermissions>(),
 });
 export type StoreValuesConfig = z.infer<typeof StoreValuesConfig>;
 
@@ -129,7 +129,7 @@ export class StoreValues implements Operation<Uuid> {
 export class StoreValuesBuilder {
   private _id?: Uuid;
   private _ttl?: TtlDays;
-  private _permissions?: Permissions;
+  private _permissions?: ValuesPermissions;
   private readonly _values = new NadaValues();
 
   private constructor(private readonly vm: VmClient) {}
@@ -156,7 +156,7 @@ export class StoreValuesBuilder {
     return this;
   }
 
-  permissions(value: Permissions): this {
+  permissions(value: ValuesPermissions): this {
     this._permissions = value;
     return this;
   }
@@ -173,65 +173,4 @@ export class StoreValuesBuilder {
   }
 
   static init = (vm: VmClient) => new StoreValuesBuilder(vm);
-}
-
-type UserId = string;
-type ProgramId = string;
-
-class ValuesPermissionsBuilder {
-  private readonly _ownerUserId: UserId;
-  private readonly _retrieveAllowedUserIds: UserId[];
-  private readonly _updateAllowedUserIds: UserId[];
-  private readonly _deleteAllowedUserIds: UserId[];
-  private readonly _computePermissions: [UserId, ProgramId[]][];
-
-  private constructor(owner: UserId) {
-    this._ownerUserId = owner;
-    this._retrieveAllowedUserIds = [this._ownerUserId];
-    this._updateAllowedUserIds = [this._ownerUserId];
-    this._deleteAllowedUserIds = [this._ownerUserId];
-    this._computePermissions = [];
-  }
-
-  allowRetrieve(id: UserId): this {
-    this._retrieveAllowedUserIds.push(id);
-    return this;
-  }
-
-  allowUpdate(id: UserId): this {
-    this._updateAllowedUserIds.push(id);
-    return this;
-  }
-
-  allowDelete(id: UserId): this {
-    this._deleteAllowedUserIds.push(id);
-    return this;
-  }
-
-  allowCompute(id: UserId, programs: ProgramId[]): this {
-    this._computePermissions.push([id, programs]);
-    return this;
-  }
-
-  build(): Permissions {
-    const computePermissions = this._computePermissions.map(
-      ([userId, programIds]) =>
-        create(ComputePermissionsSchema, {
-          userId,
-          programIds,
-        }),
-    );
-
-    return create(PermissionsSchema, {
-      ownerUserId: this._ownerUserId,
-      retrieveAllowedUserIds: this._retrieveAllowedUserIds,
-      updateAllowedUserIds: this._updateAllowedUserIds,
-      deleteAllowedUserIds: this._deleteAllowedUserIds,
-      computePermissions,
-    });
-  }
-
-  static default(owner: UserId) {
-    return new ValuesPermissionsBuilder(owner);
-  }
 }

@@ -66,7 +66,6 @@ export class RetrievePermissions implements Operation<ValuesPermissions> {
 
 export class RetrievePermissionsBuilder {
   private _id?: Uuid;
-
   private constructor(private readonly vm: VmClient) {}
 
   id(value: Uuid): this {

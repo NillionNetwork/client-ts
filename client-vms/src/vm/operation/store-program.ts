@@ -12,6 +12,7 @@ import { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1
 import { Programs } from "@nillion/client-vms/gen-proto/nillion/programs/v1/service_pb";
 import { StoreProgramRequestSchema } from "@nillion/client-vms/gen-proto/nillion/programs/v1/store_pb";
 import { PaymentClient } from "@nillion/client-vms/payment";
+import { ProgramId } from "@nillion/client-vms/types";
 import { collapse } from "@nillion/client-vms/util";
 import { VmClient } from "@nillion/client-vms/vm/client";
 import { ProgramMetadata } from "@nillion/client-wasm";
@@ -25,8 +26,6 @@ export const StoreProgramConfig = z.object({
   program: z.instanceof(Uint8Array),
 });
 export type StoreProgramConfig = z.infer<typeof StoreProgramConfig>;
-
-export type ProgramId = string;
 
 export class StoreProgram implements Operation<ProgramId> {
   private constructor(private readonly config: StoreProgramConfig) {}
@@ -51,7 +50,8 @@ export class StoreProgram implements Operation<ProgramId> {
     });
 
     const results = (await Promise.all(promises)).map((e) => e.programId);
-    return collapse(results);
+    const value = collapse(results);
+    return ProgramId.parse(value);
   }
 
   private pay(): Promise<SignedReceipt> {

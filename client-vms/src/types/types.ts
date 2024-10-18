@@ -55,3 +55,12 @@ export class PartyId {
 
 export const Uuid = z.string().uuid();
 export type Uuid = z.infer<typeof Uuid>;
+
+export const TtlDays = z.number().positive();
+export type TtlDays = z.infer<typeof TtlDays>;
+
+export const UserId = z.string().length(88).regex(new RegExp(`^\\w+$`));
+export type UserId = z.infer<typeof UserId>;
+
+export const ProgramId = z.string().min(90).regex(new RegExp(`^\\w+/.+$`));
+export type ProgramId = z.infer<typeof ProgramId>;
