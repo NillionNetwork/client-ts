@@ -47,7 +47,8 @@ publish args="":
 pack-client-wasm:
     #!/usr/bin/env bash
     set -euxo pipefail
-    npm -w wasm pack --pack-destination dist
+    mkdir dist
+    npm -w client-wasm pack --pack-destination dist
 
 publish-client-wasm args="":
     #!/usr/bin/env bash
@@ -85,6 +86,7 @@ test-client-vms:
 pack-client-vms:
     #!/usr/bin/env bash
     set -euxo pipefail
+    mkdir dist
     npm -w client-vms run clean
     npm -w client-vms run build
     npm -w client-vms pack --pack-destination dist
