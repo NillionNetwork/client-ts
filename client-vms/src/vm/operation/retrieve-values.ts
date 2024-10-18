@@ -23,20 +23,8 @@ export type RetrieveValuesConfig = z.infer<typeof RetrieveValuesConfig>;
 export class RetrieveValues implements Operation<NadaValuesRecord> {
   private constructor(private readonly config: RetrieveValuesConfig) {}
 
-  private get payer(): PaymentClient {
-    return this.config.vm.config.payer;
-  }
-
-  private get nodes(): NodeConfig[] {
-    return this.config.vm.config.nodes;
-  }
-
-  private get masker(): SecretMasker {
-    return this.config.vm.config.masker;
-  }
-
   async invoke(): Promise<NadaValuesRecord> {
-    const { nodes, masker } = this;
+    const { nodes, masker } = this.config.vm;
     const signedReceipt = await this.pay();
 
     const promises = nodes.map(async (node) => {
@@ -62,8 +50,10 @@ export class RetrieveValues implements Operation<NadaValuesRecord> {
   }
 
   private pay(): Promise<SignedReceipt> {
-    const { id } = this.config;
-    const { payer } = this.config.vm.config;
+    const {
+      id,
+      vm: { payer },
+    } = this.config;
 
     return payer.payForOperation(
       create(PriceQuoteRequestSchema, {

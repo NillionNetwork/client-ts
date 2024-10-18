@@ -44,7 +44,7 @@ export class InvokeCompute implements Operation<Uuid> {
   private constructor(private readonly config: InvokeComputeConfig) {}
 
   async invoke(): Promise<Uuid> {
-    const { nodes, masker } = this.config.vm.config;
+    const { nodes, masker } = this.config.vm;
 
     const signedReceipt = await this.pay();
     const shares = masker.mask(this.config.computeTimeValues).map((share) => ({
@@ -92,8 +92,11 @@ export class InvokeCompute implements Operation<Uuid> {
   }
 
   private async pay(): Promise<SignedReceipt> {
-    const { programId, computeTimeValues } = this.config;
-    const { payer } = this.config.vm.config;
+    const {
+      programId,
+      computeTimeValues,
+      vm: { payer },
+    } = this.config;
 
     return payer.payForOperation(
       create(PriceQuoteRequestSchema, {

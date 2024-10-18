@@ -35,8 +35,10 @@ export class StoreProgram implements Operation<ProgramId> {
   }
 
   async invoke(): Promise<ProgramId> {
-    const { program } = this.config;
-    const { nodes } = this.config.vm.config;
+    const {
+      program,
+      vm: { nodes },
+    } = this.config;
     const signedReceipt = await this.pay();
 
     const promises = nodes.map((node) => {
@@ -58,9 +60,7 @@ export class StoreProgram implements Operation<ProgramId> {
     const {
       name,
       program,
-      vm: {
-        config: { payer },
-      },
+      vm: { payer },
     } = this.config;
 
     const contentsSha256 = sha256(program);

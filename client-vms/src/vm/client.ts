@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { PoolStatusResponse } from "@nillion/client-vms/gen-proto/nillion/leader_queries/v1/pool_status_pb";
 import { PaymentClient } from "@nillion/client-vms/payment";
-import { GrpcTransport, PartyId } from "@nillion/client-vms/types";
+import { GrpcTransport, PartyId, UserId } from "@nillion/client-vms/types";
 import { InvokeComputeBuilder } from "@nillion/client-vms/vm/operation/invoke-compute";
 import { RetrieveComputeResultBuilder } from "@nillion/client-vms/vm/operation/retrieve-compute-result";
 import { UpdatePermissionsBuilder } from "@nillion/client-vms/vm/operation/update-permissions";
@@ -24,7 +24,7 @@ export const NodeConfig = z.object({
 export type NodeConfig = z.infer<typeof NodeConfig>;
 
 export const VmClientConfig = z.object({
-  id: z.string().min(1),
+  id: UserId,
   payer: z.instanceof(PaymentClient),
   masker: z.instanceof(SecretMasker),
   leader: NodeConfig,
@@ -34,6 +34,26 @@ export type VmClientConfig = z.infer<typeof VmClientConfig>;
 
 export class VmClient {
   constructor(readonly config: VmClientConfig) {}
+
+  get id(): UserId {
+    return this.config.id;
+  }
+
+  get leader(): NodeConfig {
+    return this.config.leader;
+  }
+
+  get nodes(): NodeConfig[] {
+    return this.config.nodes;
+  }
+
+  get payer(): PaymentClient {
+    return this.config.payer;
+  }
+
+  get masker(): SecretMasker {
+    return this.config.masker;
+  }
 
   queryPoolStatus(): Promise<PoolStatusResponse> {
     return QueryPoolStatusBuilder.init(this).build().invoke();

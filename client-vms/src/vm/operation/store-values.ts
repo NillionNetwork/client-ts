@@ -8,10 +8,9 @@ import { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1
 import { Permissions as ValuesPermissions } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
 import { Values } from "@nillion/client-vms/gen-proto/nillion/values/v1/service_pb";
 import { StoreValuesRequestSchema } from "@nillion/client-vms/gen-proto/nillion/values/v1/store_pb";
-import { PaymentClient } from "@nillion/client-vms/payment";
 import { PartyId, TtlDays, Uuid } from "@nillion/client-vms/types";
 import { collapse } from "@nillion/client-vms/util";
-import { type NodeConfig, VmClient } from "@nillion/client-vms/vm/client";
+import { VmClient } from "@nillion/client-vms/vm/client";
 import { Operation } from "@nillion/client-vms/vm/operation/operation";
 import { ValuesPermissionsBuilder } from "@nillion/client-vms/vm/operation/values-permissions-builder";
 import {
@@ -19,7 +18,6 @@ import {
   encode_values,
   NadaValue,
   NadaValues,
-  SecretMasker,
 } from "@nillion/client-wasm";
 
 export const StoreValuesConfig = z.object({
@@ -35,21 +33,12 @@ export type StoreValuesConfig = z.infer<typeof StoreValuesConfig>;
 export class StoreValues implements Operation<Uuid> {
   private constructor(private readonly config: StoreValuesConfig) {}
 
-  private get payer(): PaymentClient {
-    return this.config.vm.config.payer;
-  }
-
-  private get nodes(): NodeConfig[] {
-    return this.config.vm.config.nodes;
-  }
-
-  private get masker(): SecretMasker {
-    return this.config.vm.config.masker;
-  }
-
   async invoke(): Promise<Uuid> {
-    const { masker, nodes, config } = this;
-    const { values, permissions } = config;
+    const {
+      values,
+      permissions,
+      vm: { masker, nodes },
+    } = this.config;
 
     const signedReceipt = await this.pay();
     const shares = masker.mask(values).map((share) => ({
@@ -89,8 +78,11 @@ export class StoreValues implements Operation<Uuid> {
   }
 
   private pay(): Promise<SignedReceipt> {
-    const { masker, payer, config } = this;
-    const { ttl: ttlDays, values } = config;
+    const {
+      ttl: ttlDays,
+      values,
+      vm: { payer, masker },
+    } = this.config;
 
     const payloadSize = compute_values_size(values);
     const classify = masker.classify_values(values);
@@ -140,9 +132,7 @@ export class StoreValuesBuilder {
   }
 
   defaultPermissions(): this {
-    this._permissions = ValuesPermissionsBuilder.default(
-      this.vm.config.id,
-    ).build();
+    this._permissions = ValuesPermissionsBuilder.default(this.vm.id).build();
     return this;
   }
 

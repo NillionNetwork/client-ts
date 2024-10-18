@@ -20,20 +20,22 @@ export class DeleteValues implements Operation<Uuid> {
   private constructor(private readonly config: DeleteValuesConfig) {}
 
   async invoke(): Promise<Uuid> {
-    const { vm, id } = this.config;
-    const { nodes } = vm.config;
+    const {
+      vm: { nodes },
+      id,
+    } = this.config;
 
     const valuesId = parseUuid(id);
 
     const promises = nodes.map((node) => {
       const client = createClient(Values, node.transport);
-      const request = create(DeleteValuesRequestSchema, {
-        valuesId,
-      });
-      return client.deleteValues(request);
+      return client.deleteValues(
+        create(DeleteValuesRequestSchema, {
+          valuesId,
+        }),
+      );
     });
 
-    // TODO: implement collapse
     const results = await Promise.all(promises);
     if (results.length !== nodes.length)
       throw new Error("Results length does not match nodes length");

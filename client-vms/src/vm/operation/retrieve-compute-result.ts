@@ -3,6 +3,7 @@ import { parse as parseUuid } from "uuid";
 import { z } from "zod";
 
 import { Compute } from "@nillion/client-vms/gen-proto/nillion/compute/v1/service_pb";
+import { Log } from "@nillion/client-vms/logger";
 import { NadaValuesRecord, Uuid } from "@nillion/client-vms/types";
 import { VmClient } from "@nillion/client-vms/vm/client";
 import { Operation } from "@nillion/client-vms/vm/operation/operation";
@@ -21,7 +22,7 @@ export class RetrieveComputeResult implements Operation<NadaValuesRecord> {
   private constructor(private readonly config: RetrieveComputeResultConfig) {}
 
   async invoke(): Promise<NadaValuesRecord> {
-    const { nodes, masker } = this.config.vm.config;
+    const { nodes, masker } = this.config.vm;
     const computeId = parseUuid(this.config.id);
 
     const promises = nodes.map(async (node) => {
@@ -31,15 +32,17 @@ export class RetrieveComputeResult implements Operation<NadaValuesRecord> {
       });
 
       for await (const response of asyncIterable) {
-        if (response.state.case === "error") {
-          throw new Error("Failed response from node", { cause: response });
-        } else if (response.state.case === "success") {
+        if (response.state.case === "success") {
           return new PartyShares(
             node.id.toWasm(),
             decode_values(response.state.value.bincodeValues),
           );
+        } else if (response.state.case === "waitingComputation") {
+          Log("Waiting for compute result from: %s", node.id.toBase64());
         } else {
-          // wait
+          throw new Error("Compute result failure from node", {
+            cause: response,
+          });
         }
       }
     });

@@ -44,8 +44,10 @@ export class RetrievePermissions implements Operation<ValuesPermissions> {
   }
 
   private async pay(): Promise<SignedReceipt> {
-    const { id } = this.config;
-    const { payer } = this.config.vm.config;
+    const {
+      id,
+      vm: { payer },
+    } = this.config;
 
     return payer.payForOperation(
       create(PriceQuoteRequestSchema, {

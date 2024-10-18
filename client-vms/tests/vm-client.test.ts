@@ -83,7 +83,7 @@ describe("VmClient", () => {
         .invoke();
 
       expect(expectedPermissions).toBeDefined();
-      expect(expectedPermissions.ownerUserId).toEqual(client.config.id);
+      expect(expectedPermissions.ownerUserId).toEqual(client.id);
     });
 
     it("can update permissions", async () => {
@@ -142,8 +142,8 @@ describe("VmClient", () => {
       computeResultId = await client
         .invokeCompute()
         .program(programId)
-        .inputParty("Party1", client.config.id)
-        .outputParty("Party1", [client.config.id])
+        .inputParty("Party1", client.id)
+        .outputParty("Party1", [client.id])
         .computeTimeValues("A", NadaValue.new_secret_integer("1"))
         .computeTimeValues("B", NadaValue.new_secret_integer("4"))
         .build()

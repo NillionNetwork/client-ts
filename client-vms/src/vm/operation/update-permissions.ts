@@ -25,8 +25,10 @@ export class UpdatePermissions implements Operation<ValuesPermissions> {
   private constructor(private readonly config: UpdatePermissionsConfig) {}
 
   async invoke(): Promise<ValuesPermissions> {
-    const { permissions } = this.config;
-    const { nodes } = this.config.vm.config;
+    const {
+      permissions,
+      vm: { nodes },
+    } = this.config;
 
     const signedReceipt = await this.pay();
 
@@ -45,8 +47,10 @@ export class UpdatePermissions implements Operation<ValuesPermissions> {
   }
 
   private pay(): Promise<SignedReceipt> {
-    const { id } = this.config;
-    const { payer } = this.config.vm.config;
+    const {
+      id,
+      vm: { payer },
+    } = this.config;
 
     return payer.payForOperation(
       create(PriceQuoteRequestSchema, {
