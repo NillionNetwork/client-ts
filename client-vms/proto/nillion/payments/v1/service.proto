@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package nillion.payments.v1;
+
+import "nillion/payments/v1/quote.proto";
+import "nillion/payments/v1/receipt.proto";
+
+// Payments API.
+service Payments {
+  // Generate a price quote for an operation.
+  rpc PriceQuote(quote.PriceQuoteRequest) returns (quote.SignedQuote);
+
+  // Get a payment receipt for a paid operation.
+  rpc PaymentReceipt(receipt.PaymentReceiptRequest) returns (receipt.SignedReceipt);
+}
+
+

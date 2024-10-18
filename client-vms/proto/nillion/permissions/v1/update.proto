@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package nillion.permissions.v1.update;
+
+import "nillion/payments/v1/receipt.proto";
+import "nillion/permissions/v1/permissions.proto";
+
+// A request to update the permissions associated with a set of previously stored values.
+message UpdatePermissionsRequest {
+  // The receipt that proves this operation was paid for.
+  //
+  // The receipt must be for a `UpdatePermissions` operation.
+  nillion.payments.v1.receipt.SignedReceipt signed_receipt = 1;  
+
+  nillion.permissions.v1.permissions.Permissions permissions = 2;
+}
