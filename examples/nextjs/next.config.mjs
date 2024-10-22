@@ -1,4 +1,3 @@
-/* eslint-disable */
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   async headers() {

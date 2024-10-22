@@ -5,26 +5,15 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
-    "skipLibCheck": true,
     "strict": true,
+    "noUncheckedIndexedAccess": true,
     "target": "esnext",
     "baseUrl": ".",
+    "allowJs": true,
+    "skipLibCheck": true,
     "paths": {
-      "@nillion/client-core": [
-        "packages/client-core/src/index.ts"
-      ],
-      "@nillion/client-vms": [
-        "packages/client-vms/src/index.ts"
-      ],
-      "@nillion/client-payments": [
-        "packages/client-payments/src/index.ts"
-      ],
-      "@nillion/client-react-hooks": [
-        "packages/client-react-hooks/src/index.ts"
-      ],
-      "@nillion/test-utils": [
-        "packages/test-utils/src/index.ts"
-      ]
+      "@nillion/client-wasm/*": ["client-wasm/src/*"],
+      "@nillion/client-vms/*": ["client-vms/src/*"]
     }
   }
 }
