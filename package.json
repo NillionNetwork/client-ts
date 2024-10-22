@@ -4,7 +4,7 @@
   "license": "Apache-2.0",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=23"
   },
   "workspaces": [
     "client-vms",
