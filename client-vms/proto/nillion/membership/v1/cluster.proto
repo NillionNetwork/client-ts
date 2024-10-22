@@ -27,7 +27,7 @@ message ClusterMember {
   // The identity for this member.
   //
   // This is a unique identifier derived from the public key.
-  bytes identity = 1;
+  NodeId identity = 1;
 
   // The public key for this member.
   //
@@ -65,3 +65,13 @@ enum Prime {
   SAFE_256_BITS = 2;
 }
 
+// A node identifier.
+//
+// This is currently used from a client perspective when:
+//
+// * Creating an authentication token.
+// * Creating secret shares.
+message NodeId {
+  // The contents of this node identifier.
+  bytes contents = 1;
+}

@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file nillion/membership/v1/cluster.proto.
  */
 export const file_nillion_membership_v1_cluster: GenFile = /*@__PURE__*/
-  fileDesc("CiNuaWxsaW9uL21lbWJlcnNoaXAvdjEvY2x1c3Rlci5wcm90bxIdbmlsbGlvbi5tZW1iZXJzaGlwLnYxLmNsdXN0ZXIi5QEKB0NsdXN0ZXISPQoHbWVtYmVycxgBIAMoCzIsLm5pbGxpb24ubWVtYmVyc2hpcC52MS5jbHVzdGVyLkNsdXN0ZXJNZW1iZXISPAoGbGVhZGVyGAIgASgLMiwubmlsbGlvbi5tZW1iZXJzaGlwLnYxLmNsdXN0ZXIuQ2x1c3Rlck1lbWJlchIzCgVwcmltZRgDIAEoDjIkLm5pbGxpb24ubWVtYmVyc2hpcC52MS5jbHVzdGVyLlByaW1lEhkKEXBvbHlub21pYWxfZGVncmVlGAQgASgNEg0KBWthcHBhGAUgASgNIrMBCg1DbHVzdGVyTWVtYmVyEhAKCGlkZW50aXR5GAEgASgMEjkKCnB1YmxpY19rZXkYAiABKAsyJS5uaWxsaW9uLmF1dGgudjEucHVibGljX2tleS5QdWJsaWNLZXkSFQoNZ3JwY19lbmRwb2ludBgDIAEoCRI+CgtwdWJsaWNfa2V5cxgEIAEoCzIpLm5pbGxpb24ubWVtYmVyc2hpcC52MS5jbHVzdGVyLlB1YmxpY0tleXMiSwoKUHVibGljS2V5cxI9Cg5hdXRoZW50aWNhdGlvbhgBIAEoCzIlLm5pbGxpb24uYXV0aC52MS5wdWJsaWNfa2V5LlB1YmxpY0tleSo/CgVQcmltZRIQCgxTQUZFXzY0X0JJVFMQABIRCg1TQUZFXzEyOF9CSVRTEAESEQoNU0FGRV8yNTZfQklUUxACQskBCiFjb20ubmlsbGlvbi5tZW1iZXJzaGlwLnYxLmNsdXN0ZXJCDENsdXN0ZXJQcm90b1ABogIETk1WQ6oCHU5pbGxpb24uTWVtYmVyc2hpcC5WMS5DbHVzdGVyygIdTmlsbGlvblxNZW1iZXJzaGlwXFYxXENsdXN0ZXLiAilOaWxsaW9uXE1lbWJlcnNoaXBcVjFcQ2x1c3RlclxHUEJNZXRhZGF0YeoCIE5pbGxpb246Ok1lbWJlcnNoaXA6OlYxOjpDbHVzdGVyYgZwcm90bzM", [file_nillion_auth_v1_public_key]);
+  fileDesc("CiNuaWxsaW9uL21lbWJlcnNoaXAvdjEvY2x1c3Rlci5wcm90bxIdbmlsbGlvbi5tZW1iZXJzaGlwLnYxLmNsdXN0ZXIi5QEKB0NsdXN0ZXISPQoHbWVtYmVycxgBIAMoCzIsLm5pbGxpb24ubWVtYmVyc2hpcC52MS5jbHVzdGVyLkNsdXN0ZXJNZW1iZXISPAoGbGVhZGVyGAIgASgLMiwubmlsbGlvbi5tZW1iZXJzaGlwLnYxLmNsdXN0ZXIuQ2x1c3Rlck1lbWJlchIzCgVwcmltZRgDIAEoDjIkLm5pbGxpb24ubWVtYmVyc2hpcC52MS5jbHVzdGVyLlByaW1lEhkKEXBvbHlub21pYWxfZGVncmVlGAQgASgNEg0KBWthcHBhGAUgASgNItoBCg1DbHVzdGVyTWVtYmVyEjcKCGlkZW50aXR5GAEgASgLMiUubmlsbGlvbi5tZW1iZXJzaGlwLnYxLmNsdXN0ZXIuTm9kZUlkEjkKCnB1YmxpY19rZXkYAiABKAsyJS5uaWxsaW9uLmF1dGgudjEucHVibGljX2tleS5QdWJsaWNLZXkSFQoNZ3JwY19lbmRwb2ludBgDIAEoCRI+CgtwdWJsaWNfa2V5cxgEIAEoCzIpLm5pbGxpb24ubWVtYmVyc2hpcC52MS5jbHVzdGVyLlB1YmxpY0tleXMiSwoKUHVibGljS2V5cxI9Cg5hdXRoZW50aWNhdGlvbhgBIAEoCzIlLm5pbGxpb24uYXV0aC52MS5wdWJsaWNfa2V5LlB1YmxpY0tleSIaCgZOb2RlSWQSEAoIY29udGVudHMYASABKAwqPwoFUHJpbWUSEAoMU0FGRV82NF9CSVRTEAASEQoNU0FGRV8xMjhfQklUUxABEhEKDVNBRkVfMjU2X0JJVFMQAkLJAQohY29tLm5pbGxpb24ubWVtYmVyc2hpcC52MS5jbHVzdGVyQgxDbHVzdGVyUHJvdG9QAaICBE5NVkOqAh1OaWxsaW9uLk1lbWJlcnNoaXAuVjEuQ2x1c3RlcsoCHU5pbGxpb25cTWVtYmVyc2hpcFxWMVxDbHVzdGVy4gIpTmlsbGlvblxNZW1iZXJzaGlwXFYxXENsdXN0ZXJcR1BCTWV0YWRhdGHqAiBOaWxsaW9uOjpNZW1iZXJzaGlwOjpWMTo6Q2x1c3RlcmIGcHJvdG8z", [file_nillion_auth_v1_public_key]);
 
 /**
  * The definition of a cluster.
@@ -74,9 +74,9 @@ export type ClusterMember = Message<"nillion.membership.v1.cluster.ClusterMember
    *
    * This is a unique identifier derived from the public key.
    *
-   * @generated from field: bytes identity = 1;
+   * @generated from field: nillion.membership.v1.cluster.NodeId identity = 1;
    */
-  identity: Uint8Array;
+  identity?: NodeId;
 
   /**
    * The public key for this member.
@@ -129,6 +129,32 @@ export type PublicKeys = Message<"nillion.membership.v1.cluster.PublicKeys"> & {
  */
 export const PublicKeysSchema: GenMessage<PublicKeys> = /*@__PURE__*/
   messageDesc(file_nillion_membership_v1_cluster, 2);
+
+/**
+ * A node identifier.
+ *
+ * This is currently used from a client perspective when:
+ *
+ * * Creating an authentication token.
+ * * Creating secret shares.
+ *
+ * @generated from message nillion.membership.v1.cluster.NodeId
+ */
+export type NodeId = Message<"nillion.membership.v1.cluster.NodeId"> & {
+  /**
+   * The contents of this node identifier.
+   *
+   * @generated from field: bytes contents = 1;
+   */
+  contents: Uint8Array;
+};
+
+/**
+ * Describes the message nillion.membership.v1.cluster.NodeId.
+ * Use `create(NodeIdSchema)` to create a new message.
+ */
+export const NodeIdSchema: GenMessage<NodeId> = /*@__PURE__*/
+  messageDesc(file_nillion_membership_v1_cluster, 3);
 
 /**
  * A prime number.

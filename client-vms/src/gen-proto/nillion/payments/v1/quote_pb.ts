@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file nillion/payments/v1/quote.proto.
  */
 export const file_nillion_payments_v1_quote: GenFile = /*@__PURE__*/
-  fileDesc("Ch9uaWxsaW9uL3BheW1lbnRzL3YxL3F1b3RlLnByb3RvEhluaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlIvcDChFQcmljZVF1b3RlUmVxdWVzdBItCgtwb29sX3N0YXR1cxgBIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEkAKDXN0b3JlX3Byb2dyYW0YAiABKAsyJy5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlN0b3JlUHJvZ3JhbUgAEkQKD3JldHJpZXZlX3ZhbHVlcxgDIAEoCzIpLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuUmV0cmlldmVWYWx1ZXNIABJOChRyZXRyaWV2ZV9wZXJtaXNzaW9ucxgEIAEoCzIuLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuUmV0cmlldmVQZXJtaXNzaW9uc0gAEj4KDHN0b3JlX3ZhbHVlcxgFIAEoCzImLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuU3RvcmVWYWx1ZXNIABJCCg5pbnZva2VfY29tcHV0ZRgGIAEoCzIoLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuSW52b2tlQ29tcHV0ZUgAEkoKEnVwZGF0ZV9wZXJtaXNzaW9ucxgHIAEoCzIsLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuVXBkYXRlUGVybWlzc2lvbnNIAEILCglvcGVyYXRpb24iLwoLU2lnbmVkUXVvdGUSDQoFcXVvdGUYASABKAwSEQoJc2lnbmF0dXJlGAIgASgMIpcCCgpQcmljZVF1b3RlEg0KBW5vbmNlGAEgASgMEjIKBGZlZXMYAiABKAsyJC5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlF1b3RlRmVlcxI9CgdyZXF1ZXN0GAMgASgLMiwubmlsbGlvbi5wYXltZW50cy52MS5xdW90ZS5QcmljZVF1b3RlUmVxdWVzdBIuCgpleHBpcmVzX2F0GAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBJXChpwcmVwcm9jZXNzaW5nX3JlcXVpcmVtZW50cxgFIAMoCzIzLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuUHJlcHJvY2Vzc2luZ1JlcXVpcmVtZW50InUKCVF1b3RlRmVlcxINCgV0b3RhbBgBIAEoBBIMCgRiYXNlGAIgASgEEhIKCmNvbmdlc3Rpb24YAyABKAQSDwoHc3RvcmFnZRgEIAEoBBIVCg1wcmVwcm9jZXNzaW5nGAUgASgEEg8KB2NvbXB1dGUYBiABKAQicwoMU3RvcmVQcm9ncmFtEjwKCG1ldGFkYXRhGAEgASgLMioubmlsbGlvbi5wYXltZW50cy52MS5xdW90ZS5Qcm9ncmFtTWV0YWRhdGESFwoPY29udGVudHNfc2hhMjU2GAIgASgMEgwKBG5hbWUYAyABKAkiuQIKD1Byb2dyYW1NZXRhZGF0YRIUCgxwcm9ncmFtX3NpemUYASABKAQSEwoLbWVtb3J5X3NpemUYAiABKAQSGQoRaW5zdHJ1Y3Rpb25fY291bnQYAyABKAQSUgoMaW5zdHJ1Y3Rpb25zGAQgAygLMjwubmlsbGlvbi5wYXltZW50cy52MS5xdW90ZS5Qcm9ncmFtTWV0YWRhdGEuSW5zdHJ1Y3Rpb25zRW50cnkSVwoacHJlcHJvY2Vzc2luZ19yZXF1aXJlbWVudHMYBSADKAsyMy5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlByZXByb2Nlc3NpbmdSZXF1aXJlbWVudBozChFJbnN0cnVjdGlvbnNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAQ6AjgBInIKGFByZXByb2Nlc3NpbmdSZXF1aXJlbWVudBJHCgdlbGVtZW50GAEgASgOMjYubmlsbGlvbi5wcmVwcm9jZXNzaW5nLnYxLmVsZW1lbnQuUHJlcHJvY2Vzc2luZ0VsZW1lbnQSDQoFY291bnQYAiABKAQiIwoOUmV0cmlldmVWYWx1ZXMSEQoJdmFsdWVzX2lkGAEgASgMIigKE1JldHJpZXZlUGVybWlzc2lvbnMSEQoJdmFsdWVzX2lkGAEgASgMIiYKEVVwZGF0ZVBlcm1pc3Npb25zEhEKCXZhbHVlc19pZBgBIAEoDCKIAQoLU3RvcmVWYWx1ZXMSFwoPcGFydGljbGVzX2NvdW50GAEgASgEEhsKE3NlY3JldF9zaGFyZWRfY291bnQYAiABKAQSGwoTcHVibGljX3ZhbHVlc19jb3VudBgDIAEoBBIQCgh0dGxfZGF5cxgEIAEoDRIUCgxwYXlsb2FkX3NpemUYBSABKAQiQAoNSW52b2tlQ29tcHV0ZRISCgpwcm9ncmFtX2lkGAEgASgJEhsKE3ZhbHVlc19wYXlsb2FkX3NpemUYAiABKARCswEKHWNvbS5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlQgpRdW90ZVByb3RvUAGiAgROUFZRqgIZTmlsbGlvbi5QYXltZW50cy5WMS5RdW90ZcoCGU5pbGxpb25cUGF5bWVudHNcVjFcUXVvdGXiAiVOaWxsaW9uXFBheW1lbnRzXFYxXFF1b3RlXEdQQk1ldGFkYXRh6gIcTmlsbGlvbjo6UGF5bWVudHM6OlYxOjpRdW90ZWIGcHJvdG8z", [file_google_protobuf_empty, file_google_protobuf_timestamp, file_nillion_preprocessing_v1_element]);
+  fileDesc("Ch9uaWxsaW9uL3BheW1lbnRzL3YxL3F1b3RlLnByb3RvEhluaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlIskEChFQcmljZVF1b3RlUmVxdWVzdBItCgtwb29sX3N0YXR1cxgBIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEkAKDXN0b3JlX3Byb2dyYW0YAiABKAsyJy5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlN0b3JlUHJvZ3JhbUgAEkQKD3JldHJpZXZlX3ZhbHVlcxgDIAEoCzIpLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuUmV0cmlldmVWYWx1ZXNIABJOChRyZXRyaWV2ZV9wZXJtaXNzaW9ucxgEIAEoCzIuLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuUmV0cmlldmVQZXJtaXNzaW9uc0gAEj4KDHN0b3JlX3ZhbHVlcxgFIAEoCzImLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuU3RvcmVWYWx1ZXNIABJCCg5pbnZva2VfY29tcHV0ZRgGIAEoCzIoLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuSW52b2tlQ29tcHV0ZUgAElAKFW92ZXJ3cml0ZV9wZXJtaXNzaW9ucxgHIAEoCzIvLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuT3ZlcndyaXRlUGVybWlzc2lvbnNIABJKChJ1cGRhdGVfcGVybWlzc2lvbnMYCCABKAsyLC5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlVwZGF0ZVBlcm1pc3Npb25zSABCCwoJb3BlcmF0aW9uIi8KC1NpZ25lZFF1b3RlEg0KBXF1b3RlGAEgASgMEhEKCXNpZ25hdHVyZRgCIAEoDCKXAgoKUHJpY2VRdW90ZRINCgVub25jZRgBIAEoDBIyCgRmZWVzGAIgASgLMiQubmlsbGlvbi5wYXltZW50cy52MS5xdW90ZS5RdW90ZUZlZXMSPQoHcmVxdWVzdBgDIAEoCzIsLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuUHJpY2VRdW90ZVJlcXVlc3QSLgoKZXhwaXJlc19hdBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASVwoacHJlcHJvY2Vzc2luZ19yZXF1aXJlbWVudHMYBSADKAsyMy5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlByZXByb2Nlc3NpbmdSZXF1aXJlbWVudCJ1CglRdW90ZUZlZXMSDQoFdG90YWwYASABKAQSDAoEYmFzZRgCIAEoBBISCgpjb25nZXN0aW9uGAMgASgEEg8KB3N0b3JhZ2UYBCABKAQSFQoNcHJlcHJvY2Vzc2luZxgFIAEoBBIPCgdjb21wdXRlGAYgASgEInMKDFN0b3JlUHJvZ3JhbRI8CghtZXRhZGF0YRgBIAEoCzIqLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuUHJvZ3JhbU1ldGFkYXRhEhcKD2NvbnRlbnRzX3NoYTI1NhgCIAEoDBIMCgRuYW1lGAMgASgJIrkCCg9Qcm9ncmFtTWV0YWRhdGESFAoMcHJvZ3JhbV9zaXplGAEgASgEEhMKC21lbW9yeV9zaXplGAIgASgEEhkKEWluc3RydWN0aW9uX2NvdW50GAMgASgEElIKDGluc3RydWN0aW9ucxgEIAMoCzI8Lm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuUHJvZ3JhbU1ldGFkYXRhLkluc3RydWN0aW9uc0VudHJ5ElcKGnByZXByb2Nlc3NpbmdfcmVxdWlyZW1lbnRzGAUgAygLMjMubmlsbGlvbi5wYXltZW50cy52MS5xdW90ZS5QcmVwcm9jZXNzaW5nUmVxdWlyZW1lbnQaMwoRSW5zdHJ1Y3Rpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgEOgI4ASJyChhQcmVwcm9jZXNzaW5nUmVxdWlyZW1lbnQSRwoHZWxlbWVudBgBIAEoDjI2Lm5pbGxpb24ucHJlcHJvY2Vzc2luZy52MS5lbGVtZW50LlByZXByb2Nlc3NpbmdFbGVtZW50Eg0KBWNvdW50GAIgASgEIiMKDlJldHJpZXZlVmFsdWVzEhEKCXZhbHVlc19pZBgBIAEoDCIoChNSZXRyaWV2ZVBlcm1pc3Npb25zEhEKCXZhbHVlc19pZBgBIAEoDCIpChRPdmVyd3JpdGVQZXJtaXNzaW9ucxIRCgl2YWx1ZXNfaWQYASABKAwiJgoRVXBkYXRlUGVybWlzc2lvbnMSEQoJdmFsdWVzX2lkGAEgASgMIrABCgtTdG9yZVZhbHVlcxIXCg9wYXJ0aWNsZXNfY291bnQYASABKAQSGwoTc2VjcmV0X3NoYXJlZF9jb3VudBgCIAEoBBIbChNwdWJsaWNfdmFsdWVzX2NvdW50GAMgASgEEhAKCHR0bF9kYXlzGAQgASgNEhQKDHBheWxvYWRfc2l6ZRgFIAEoBBImCh5lY2RzYV9wcml2YXRlX2tleV9zaGFyZXNfY291bnQYBiABKAQiQAoNSW52b2tlQ29tcHV0ZRISCgpwcm9ncmFtX2lkGAEgASgJEhsKE3ZhbHVlc19wYXlsb2FkX3NpemUYAiABKARCswEKHWNvbS5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlQgpRdW90ZVByb3RvUAGiAgROUFZRqgIZTmlsbGlvbi5QYXltZW50cy5WMS5RdW90ZcoCGU5pbGxpb25cUGF5bWVudHNcVjFcUXVvdGXiAiVOaWxsaW9uXFBheW1lbnRzXFYxXFF1b3RlXEdQQk1ldGFkYXRh6gIcTmlsbGlvbjo6UGF5bWVudHM6OlYxOjpRdW90ZWIGcHJvdG8z", [file_google_protobuf_empty, file_google_protobuf_timestamp, file_nillion_preprocessing_v1_element]);
 
 /**
  * A price quote request.
@@ -75,9 +75,17 @@ export type PriceQuoteRequest = Message<"nillion.payments.v1.quote.PriceQuoteReq
     case: "invokeCompute";
   } | {
     /**
-     * A retrieve permissions operation.
+     * An overwrite permissions operation.
      *
-     * @generated from field: nillion.payments.v1.quote.UpdatePermissions update_permissions = 7;
+     * @generated from field: nillion.payments.v1.quote.OverwritePermissions overwrite_permissions = 7;
+     */
+    value: OverwritePermissions;
+    case: "overwritePermissions";
+  } | {
+    /**
+     * An update permissions operation.
+     *
+     * @generated from field: nillion.payments.v1.quote.UpdatePermissions update_permissions = 8;
      */
     value: UpdatePermissions;
     case: "updatePermissions";
@@ -393,6 +401,27 @@ export const RetrievePermissionsSchema: GenMessage<RetrievePermissions> = /*@__P
   messageDesc(file_nillion_payments_v1_quote, 8);
 
 /**
+ * An overwrite permissions operation.
+ *
+ * @generated from message nillion.payments.v1.quote.OverwritePermissions
+ */
+export type OverwritePermissions = Message<"nillion.payments.v1.quote.OverwritePermissions"> & {
+  /**
+   * The identifier of the values entity whose permissions are to be overwritten.
+   *
+   * @generated from field: bytes values_id = 1;
+   */
+  valuesId: Uint8Array;
+};
+
+/**
+ * Describes the message nillion.payments.v1.quote.OverwritePermissions.
+ * Use `create(OverwritePermissionsSchema)` to create a new message.
+ */
+export const OverwritePermissionsSchema: GenMessage<OverwritePermissions> = /*@__PURE__*/
+  messageDesc(file_nillion_payments_v1_quote, 9);
+
+/**
  * An update permissions operation.
  *
  * @generated from message nillion.payments.v1.quote.UpdatePermissions
@@ -411,7 +440,7 @@ export type UpdatePermissions = Message<"nillion.payments.v1.quote.UpdatePermiss
  * Use `create(UpdatePermissionsSchema)` to create a new message.
  */
 export const UpdatePermissionsSchema: GenMessage<UpdatePermissions> = /*@__PURE__*/
-  messageDesc(file_nillion_payments_v1_quote, 9);
+  messageDesc(file_nillion_payments_v1_quote, 10);
 
 /**
  * A store values operation.
@@ -456,6 +485,13 @@ export type StoreValues = Message<"nillion.payments.v1.quote.StoreValues"> & {
    * @generated from field: uint64 payload_size = 5;
    */
   payloadSize: bigint;
+
+  /**
+   * The size of the payload to be stored.
+   *
+   * @generated from field: uint64 ecdsa_private_key_shares_count = 6;
+   */
+  ecdsaPrivateKeySharesCount: bigint;
 };
 
 /**
@@ -463,7 +499,7 @@ export type StoreValues = Message<"nillion.payments.v1.quote.StoreValues"> & {
  * Use `create(StoreValuesSchema)` to create a new message.
  */
 export const StoreValuesSchema: GenMessage<StoreValues> = /*@__PURE__*/
-  messageDesc(file_nillion_payments_v1_quote, 10);
+  messageDesc(file_nillion_payments_v1_quote, 11);
 
 /**
  * An invoke compute operation.
@@ -491,5 +527,5 @@ export type InvokeCompute = Message<"nillion.payments.v1.quote.InvokeCompute"> &
  * Use `create(InvokeComputeSchema)` to create a new message.
  */
 export const InvokeComputeSchema: GenMessage<InvokeCompute> = /*@__PURE__*/
-  messageDesc(file_nillion_payments_v1_quote, 11);
+  messageDesc(file_nillion_payments_v1_quote, 12);
 

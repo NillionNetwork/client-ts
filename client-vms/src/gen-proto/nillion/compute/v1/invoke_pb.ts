@@ -6,13 +6,15 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import type { SignedReceipt } from "../../payments/v1/receipt_pb";
 import { file_nillion_payments_v1_receipt } from "../../payments/v1/receipt_pb";
+import type { UserId } from "../../auth/v1/user_pb";
+import { file_nillion_auth_v1_user } from "../../auth/v1/user_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file nillion/compute/v1/invoke.proto.
  */
 export const file_nillion_compute_v1_invoke: GenFile = /*@__PURE__*/
-  fileDesc("Ch9uaWxsaW9uL2NvbXB1dGUvdjEvaW52b2tlLnByb3RvEhluaWxsaW9uLmNvbXB1dGUudjEuaW52b2tlIpMCChRJbnZva2VDb21wdXRlUmVxdWVzdBJCCg5zaWduZWRfcmVjZWlwdBgBIAEoCzIqLm5pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdC5TaWduZWRSZWNlaXB0EhEKCXZhbHVlX2lkcxgCIAMoDBIWCg5iaW5jb2RlX3ZhbHVlcxgDIAEoDBJECg5pbnB1dF9iaW5kaW5ncxgEIAMoCzIsLm5pbGxpb24uY29tcHV0ZS52MS5pbnZva2UuSW5wdXRQYXJ0eUJpbmRpbmcSRgoPb3V0cHV0X2JpbmRpbmdzGAUgAygLMi0ubmlsbGlvbi5jb21wdXRlLnYxLmludm9rZS5PdXRwdXRQYXJ0eUJpbmRpbmciKwoVSW52b2tlQ29tcHV0ZVJlc3BvbnNlEhIKCmNvbXB1dGVfaWQYASABKAwiOAoRSW5wdXRQYXJ0eUJpbmRpbmcSEgoKcGFydHlfbmFtZRgBIAEoCRIPCgd1c2VyX2lkGAIgASgJIjoKEk91dHB1dFBhcnR5QmluZGluZxISCgpwYXJ0eV9uYW1lGAEgASgJEhAKCHVzZXJfaWRzGAIgAygJQrQBCh1jb20ubmlsbGlvbi5jb21wdXRlLnYxLmludm9rZUILSW52b2tlUHJvdG9QAaICBE5DVkmqAhlOaWxsaW9uLkNvbXB1dGUuVjEuSW52b2tlygIZTmlsbGlvblxDb21wdXRlXFYxXEludm9rZeICJU5pbGxpb25cQ29tcHV0ZVxWMVxJbnZva2VcR1BCTWV0YWRhdGHqAhxOaWxsaW9uOjpDb21wdXRlOjpWMTo6SW52b2tlYgZwcm90bzM", [file_nillion_payments_v1_receipt]);
+  fileDesc("Ch9uaWxsaW9uL2NvbXB1dGUvdjEvaW52b2tlLnByb3RvEhluaWxsaW9uLmNvbXB1dGUudjEuaW52b2tlIpMCChRJbnZva2VDb21wdXRlUmVxdWVzdBJCCg5zaWduZWRfcmVjZWlwdBgBIAEoCzIqLm5pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdC5TaWduZWRSZWNlaXB0EhEKCXZhbHVlX2lkcxgCIAMoDBIWCg5iaW5jb2RlX3ZhbHVlcxgDIAEoDBJECg5pbnB1dF9iaW5kaW5ncxgEIAMoCzIsLm5pbGxpb24uY29tcHV0ZS52MS5pbnZva2UuSW5wdXRQYXJ0eUJpbmRpbmcSRgoPb3V0cHV0X2JpbmRpbmdzGAUgAygLMi0ubmlsbGlvbi5jb21wdXRlLnYxLmludm9rZS5PdXRwdXRQYXJ0eUJpbmRpbmciKwoVSW52b2tlQ29tcHV0ZVJlc3BvbnNlEhIKCmNvbXB1dGVfaWQYASABKAwiUwoRSW5wdXRQYXJ0eUJpbmRpbmcSEgoKcGFydHlfbmFtZRgBIAEoCRIqCgR1c2VyGAIgASgLMhwubmlsbGlvbi5hdXRoLnYxLnVzZXIuVXNlcklkIlUKEk91dHB1dFBhcnR5QmluZGluZxISCgpwYXJ0eV9uYW1lGAEgASgJEisKBXVzZXJzGAIgAygLMhwubmlsbGlvbi5hdXRoLnYxLnVzZXIuVXNlcklkQrQBCh1jb20ubmlsbGlvbi5jb21wdXRlLnYxLmludm9rZUILSW52b2tlUHJvdG9QAaICBE5DVkmqAhlOaWxsaW9uLkNvbXB1dGUuVjEuSW52b2tlygIZTmlsbGlvblxDb21wdXRlXFYxXEludm9rZeICJU5pbGxpb25cQ29tcHV0ZVxWMVxJbnZva2VcR1BCTWV0YWRhdGHqAhxOaWxsaW9uOjpDb21wdXRlOjpWMTo6SW52b2tlYgZwcm90bzM", [file_nillion_payments_v1_receipt, file_nillion_auth_v1_user]);
 
 /**
  * A request to invoke a computation.
@@ -87,7 +89,7 @@ export const InvokeComputeResponseSchema: GenMessage<InvokeComputeResponse> = /*
   messageDesc(file_nillion_compute_v1_invoke, 1);
 
 /**
- * The bindings for input parties in this program.
+ * The bindings for input parties in a program.
  *
  * @generated from message nillion.compute.v1.invoke.InputPartyBinding
  */
@@ -102,9 +104,9 @@ export type InputPartyBinding = Message<"nillion.compute.v1.invoke.InputPartyBin
   /**
    * The user identity this party is being bound to.
    *
-   * @generated from field: string user_id = 2;
+   * @generated from field: nillion.auth.v1.user.UserId user = 2;
    */
-  userId: string;
+  user?: UserId;
 };
 
 /**
@@ -115,7 +117,7 @@ export const InputPartyBindingSchema: GenMessage<InputPartyBinding> = /*@__PURE_
   messageDesc(file_nillion_compute_v1_invoke, 2);
 
 /**
- * The bindings for output parties in this program.
+ * The bindings for output parties in a program.
  *
  * @generated from message nillion.compute.v1.invoke.OutputPartyBinding
  */
@@ -130,9 +132,9 @@ export type OutputPartyBinding = Message<"nillion.compute.v1.invoke.OutputPartyB
   /**
    * The user identities this party is being bound to.
    *
-   * @generated from field: repeated string user_ids = 2;
+   * @generated from field: repeated nillion.auth.v1.user.UserId users = 2;
    */
-  userIds: string[];
+  users: UserId[];
 };
 
 /**

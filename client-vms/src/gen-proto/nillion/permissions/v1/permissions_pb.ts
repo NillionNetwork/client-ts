@@ -4,13 +4,15 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
+import type { UserId } from "../../auth/v1/user_pb";
+import { file_nillion_auth_v1_user } from "../../auth/v1/user_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file nillion/permissions/v1/permissions.proto.
  */
 export const file_nillion_permissions_v1_permissions: GenFile = /*@__PURE__*/
-  fileDesc("CihuaWxsaW9uL3Blcm1pc3Npb25zL3YxL3Blcm1pc3Npb25zLnByb3RvEiJuaWxsaW9uLnBlcm1pc3Npb25zLnYxLnBlcm1pc3Npb25zIt4BCgtQZXJtaXNzaW9ucxIVCg1vd25lcl91c2VyX2lkGAEgASgJEiEKGXJldHJpZXZlX2FsbG93ZWRfdXNlcl9pZHMYAiADKAkSHwoXdXBkYXRlX2FsbG93ZWRfdXNlcl9pZHMYAyADKAkSHwoXZGVsZXRlX2FsbG93ZWRfdXNlcl9pZHMYBCADKAkSUwoTY29tcHV0ZV9wZXJtaXNzaW9ucxgFIAMoCzI2Lm5pbGxpb24ucGVybWlzc2lvbnMudjEucGVybWlzc2lvbnMuQ29tcHV0ZVBlcm1pc3Npb25zIjoKEkNvbXB1dGVQZXJtaXNzaW9ucxIPCgd1c2VyX2lkGAEgASgJEhMKC3Byb2dyYW1faWRzGAIgAygJQuYBCiZjb20ubmlsbGlvbi5wZXJtaXNzaW9ucy52MS5wZXJtaXNzaW9uc0IQUGVybWlzc2lvbnNQcm90b1ABogIETlBWUKoCIk5pbGxpb24uUGVybWlzc2lvbnMuVjEuUGVybWlzc2lvbnPKAiJOaWxsaW9uXFBlcm1pc3Npb25zXFYxXFBlcm1pc3Npb25z4gIuTmlsbGlvblxQZXJtaXNzaW9uc1xWMVxQZXJtaXNzaW9uc1xHUEJNZXRhZGF0YeoCJU5pbGxpb246OlBlcm1pc3Npb25zOjpWMTo6UGVybWlzc2lvbnNiBnByb3RvMw");
+  fileDesc("CihuaWxsaW9uL3Blcm1pc3Npb25zL3YxL3Blcm1pc3Npb25zLnByb3RvEiJuaWxsaW9uLnBlcm1pc3Npb25zLnYxLnBlcm1pc3Npb25zIo8CCgtQZXJtaXNzaW9ucxIrCgVvd25lchgBIAEoCzIcLm5pbGxpb24uYXV0aC52MS51c2VyLlVzZXJJZBIuCghyZXRyaWV2ZRgCIAMoCzIcLm5pbGxpb24uYXV0aC52MS51c2VyLlVzZXJJZBIsCgZ1cGRhdGUYAyADKAsyHC5uaWxsaW9uLmF1dGgudjEudXNlci5Vc2VySWQSLAoGZGVsZXRlGAQgAygLMhwubmlsbGlvbi5hdXRoLnYxLnVzZXIuVXNlcklkEkcKB2NvbXB1dGUYBSADKAsyNi5uaWxsaW9uLnBlcm1pc3Npb25zLnYxLnBlcm1pc3Npb25zLkNvbXB1dGVQZXJtaXNzaW9ucyJVChJDb21wdXRlUGVybWlzc2lvbnMSKgoEdXNlchgBIAEoCzIcLm5pbGxpb24uYXV0aC52MS51c2VyLlVzZXJJZBITCgtwcm9ncmFtX2lkcxgCIAMoCULmAQomY29tLm5pbGxpb24ucGVybWlzc2lvbnMudjEucGVybWlzc2lvbnNCEFBlcm1pc3Npb25zUHJvdG9QAaICBE5QVlCqAiJOaWxsaW9uLlBlcm1pc3Npb25zLlYxLlBlcm1pc3Npb25zygIiTmlsbGlvblxQZXJtaXNzaW9uc1xWMVxQZXJtaXNzaW9uc+ICLk5pbGxpb25cUGVybWlzc2lvbnNcVjFcUGVybWlzc2lvbnNcR1BCTWV0YWRhdGHqAiVOaWxsaW9uOjpQZXJtaXNzaW9uczo6VjE6OlBlcm1pc3Npb25zYgZwcm90bzM", [file_nillion_auth_v1_user]);
 
 /**
  * The permissions for a set of stored values.
@@ -21,37 +23,37 @@ export type Permissions = Message<"nillion.permissions.v1.permissions.Permission
   /**
    * The user id for the owner of these values.
    *
-   * @generated from field: string owner_user_id = 1;
+   * @generated from field: nillion.auth.v1.user.UserId owner = 1;
    */
-  ownerUserId: string;
+  owner?: UserId;
 
   /**
    * The list of user ids that are allowed to retrieve the stored values.
    *
-   * @generated from field: repeated string retrieve_allowed_user_ids = 2;
+   * @generated from field: repeated nillion.auth.v1.user.UserId retrieve = 2;
    */
-  retrieveAllowedUserIds: string[];
+  retrieve: UserId[];
 
   /**
    * The list of user ids that are allowed to update the stored values.
    *
-   * @generated from field: repeated string update_allowed_user_ids = 3;
+   * @generated from field: repeated nillion.auth.v1.user.UserId update = 3;
    */
-  updateAllowedUserIds: string[];
+  update: UserId[];
 
   /**
    * The list of user ids that are allowed to delete the stored values.
    *
-   * @generated from field: repeated string delete_allowed_user_ids = 4;
+   * @generated from field: repeated nillion.auth.v1.user.UserId delete = 4;
    */
-  deleteAllowedUserIds: string[];
+  delete: UserId[];
 
   /**
    * The list of compute permissions.
    *
-   * @generated from field: repeated nillion.permissions.v1.permissions.ComputePermissions compute_permissions = 5;
+   * @generated from field: repeated nillion.permissions.v1.permissions.ComputePermissions compute = 5;
    */
-  computePermissions: ComputePermissions[];
+  compute: ComputePermissions[];
 };
 
 /**
@@ -70,9 +72,9 @@ export type ComputePermissions = Message<"nillion.permissions.v1.permissions.Com
   /**
    * The user id we're granting permissions to.
    *
-   * @generated from field: string user_id = 1;
+   * @generated from field: nillion.auth.v1.user.UserId user = 1;
    */
-  userId: string;
+  user?: UserId;
 
   /**
    * The program ids this user is allowed to use the stored values in.

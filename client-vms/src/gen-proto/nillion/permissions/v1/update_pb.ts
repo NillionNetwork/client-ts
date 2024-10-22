@@ -4,9 +4,11 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
+import type { UserId } from "../../auth/v1/user_pb";
+import { file_nillion_auth_v1_user } from "../../auth/v1/user_pb";
 import type { SignedReceipt } from "../../payments/v1/receipt_pb";
 import { file_nillion_payments_v1_receipt } from "../../payments/v1/receipt_pb";
-import type { Permissions } from "./permissions_pb";
+import type { ComputePermissions } from "./permissions_pb";
 import { file_nillion_permissions_v1_permissions } from "./permissions_pb";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -14,10 +16,14 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file nillion/permissions/v1/update.proto.
  */
 export const file_nillion_permissions_v1_update: GenFile = /*@__PURE__*/
-  fileDesc("CiNuaWxsaW9uL3Blcm1pc3Npb25zL3YxL3VwZGF0ZS5wcm90bxIdbmlsbGlvbi5wZXJtaXNzaW9ucy52MS51cGRhdGUipAEKGFVwZGF0ZVBlcm1pc3Npb25zUmVxdWVzdBJCCg5zaWduZWRfcmVjZWlwdBgBIAEoCzIqLm5pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdC5TaWduZWRSZWNlaXB0EkQKC3Blcm1pc3Npb25zGAIgASgLMi8ubmlsbGlvbi5wZXJtaXNzaW9ucy52MS5wZXJtaXNzaW9ucy5QZXJtaXNzaW9uc0LIAQohY29tLm5pbGxpb24ucGVybWlzc2lvbnMudjEudXBkYXRlQgtVcGRhdGVQcm90b1ABogIETlBWVaoCHU5pbGxpb24uUGVybWlzc2lvbnMuVjEuVXBkYXRlygIdTmlsbGlvblxQZXJtaXNzaW9uc1xWMVxVcGRhdGXiAilOaWxsaW9uXFBlcm1pc3Npb25zXFYxXFVwZGF0ZVxHUEJNZXRhZGF0YeoCIE5pbGxpb246OlBlcm1pc3Npb25zOjpWMTo6VXBkYXRlYgZwcm90bzM", [file_nillion_payments_v1_receipt, file_nillion_permissions_v1_permissions]);
+  fileDesc("CiNuaWxsaW9uL3Blcm1pc3Npb25zL3YxL3VwZGF0ZS5wcm90bxIdbmlsbGlvbi5wZXJtaXNzaW9ucy52MS51cGRhdGUi8AIKGFVwZGF0ZVBlcm1pc3Npb25zUmVxdWVzdBJCCg5zaWduZWRfcmVjZWlwdBgBIAEoCzIqLm5pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdC5TaWduZWRSZWNlaXB0EkIKCHJldHJpZXZlGAIgASgLMjAubmlsbGlvbi5wZXJtaXNzaW9ucy52MS51cGRhdGUuUGVybWlzc2lvbkNvbW1hbmQSQAoGdXBkYXRlGAMgASgLMjAubmlsbGlvbi5wZXJtaXNzaW9ucy52MS51cGRhdGUuUGVybWlzc2lvbkNvbW1hbmQSQAoGZGVsZXRlGAQgASgLMjAubmlsbGlvbi5wZXJtaXNzaW9ucy52MS51cGRhdGUuUGVybWlzc2lvbkNvbW1hbmQSSAoHY29tcHV0ZRgFIAEoCzI3Lm5pbGxpb24ucGVybWlzc2lvbnMudjEudXBkYXRlLkNvbXB1dGVQZXJtaXNzaW9uQ29tbWFuZCJuChFQZXJtaXNzaW9uQ29tbWFuZBIrCgVncmFudBgBIAMoCzIcLm5pbGxpb24uYXV0aC52MS51c2VyLlVzZXJJZBIsCgZyZXZva2UYAiADKAsyHC5uaWxsaW9uLmF1dGgudjEudXNlci5Vc2VySWQiqQEKGENvbXB1dGVQZXJtaXNzaW9uQ29tbWFuZBJFCgVncmFudBgBIAMoCzI2Lm5pbGxpb24ucGVybWlzc2lvbnMudjEucGVybWlzc2lvbnMuQ29tcHV0ZVBlcm1pc3Npb25zEkYKBnJldm9rZRgCIAMoCzI2Lm5pbGxpb24ucGVybWlzc2lvbnMudjEucGVybWlzc2lvbnMuQ29tcHV0ZVBlcm1pc3Npb25zQsgBCiFjb20ubmlsbGlvbi5wZXJtaXNzaW9ucy52MS51cGRhdGVCC1VwZGF0ZVByb3RvUAGiAgROUFZVqgIdTmlsbGlvbi5QZXJtaXNzaW9ucy5WMS5VcGRhdGXKAh1OaWxsaW9uXFBlcm1pc3Npb25zXFYxXFVwZGF0ZeICKU5pbGxpb25cUGVybWlzc2lvbnNcVjFcVXBkYXRlXEdQQk1ldGFkYXRh6gIgTmlsbGlvbjo6UGVybWlzc2lvbnM6OlYxOjpVcGRhdGViBnByb3RvMw", [file_nillion_auth_v1_user, file_nillion_payments_v1_receipt, file_nillion_permissions_v1_permissions]);
 
 /**
- * A request to update the permissions associated with a set of previously stored values.
+ * A request to update the permissions on a set of values to another user.
+ *
+ * Any `revoke_*` permissions only have an effect if the user id provided already had
+ * that permission before. e.g. using `revoke_retrieve` for a user id that doesn't have
+ * retrieve permissions has no effect.
  *
  * @generated from message nillion.permissions.v1.update.UpdatePermissionsRequest
  */
@@ -32,9 +38,32 @@ export type UpdatePermissionsRequest = Message<"nillion.permissions.v1.update.Up
   signedReceipt?: SignedReceipt;
 
   /**
-   * @generated from field: nillion.permissions.v1.permissions.Permissions permissions = 2;
+   * The retrieve values permissions to be granted/revoked.
+   *
+   * @generated from field: nillion.permissions.v1.update.PermissionCommand retrieve = 2;
    */
-  permissions?: Permissions;
+  retrieve?: PermissionCommand;
+
+  /**
+   * The update values permissions to be granted/revoked.
+   *
+   * @generated from field: nillion.permissions.v1.update.PermissionCommand update = 3;
+   */
+  update?: PermissionCommand;
+
+  /**
+   * The delete values permissions to be granted/revoked.
+   *
+   * @generated from field: nillion.permissions.v1.update.PermissionCommand delete = 4;
+   */
+  delete?: PermissionCommand;
+
+  /**
+   * The compute permissions to be granted/revoked.
+   *
+   * @generated from field: nillion.permissions.v1.update.ComputePermissionCommand compute = 5;
+   */
+  compute?: ComputePermissionCommand;
 };
 
 /**
@@ -43,4 +72,60 @@ export type UpdatePermissionsRequest = Message<"nillion.permissions.v1.update.Up
  */
 export const UpdatePermissionsRequestSchema: GenMessage<UpdatePermissionsRequest> = /*@__PURE__*/
   messageDesc(file_nillion_permissions_v1_update, 0);
+
+/**
+ * The set of users that are being granted/revoke permissions for an action.
+ *
+ * @generated from message nillion.permissions.v1.update.PermissionCommand
+ */
+export type PermissionCommand = Message<"nillion.permissions.v1.update.PermissionCommand"> & {
+  /**
+   * The list of users that we're granting permissions to.
+   *
+   * @generated from field: repeated nillion.auth.v1.user.UserId grant = 1;
+   */
+  grant: UserId[];
+
+  /**
+   * The list of users that we're revoking permissions from.
+   *
+   * @generated from field: repeated nillion.auth.v1.user.UserId revoke = 2;
+   */
+  revoke: UserId[];
+};
+
+/**
+ * Describes the message nillion.permissions.v1.update.PermissionCommand.
+ * Use `create(PermissionCommandSchema)` to create a new message.
+ */
+export const PermissionCommandSchema: GenMessage<PermissionCommand> = /*@__PURE__*/
+  messageDesc(file_nillion_permissions_v1_update, 1);
+
+/**
+ * The set of users that are being granted/revoke permissions for compute actions.
+ *
+ * @generated from message nillion.permissions.v1.update.ComputePermissionCommand
+ */
+export type ComputePermissionCommand = Message<"nillion.permissions.v1.update.ComputePermissionCommand"> & {
+  /**
+   * The user ids that will be allowed to compute on the stored values.
+   *
+   * @generated from field: repeated nillion.permissions.v1.permissions.ComputePermissions grant = 1;
+   */
+  grant: ComputePermissions[];
+
+  /**
+   * The user ids that will be revoked the permission to compute the stored values.
+   *
+   * @generated from field: repeated nillion.permissions.v1.permissions.ComputePermissions revoke = 2;
+   */
+  revoke: ComputePermissions[];
+};
+
+/**
+ * Describes the message nillion.permissions.v1.update.ComputePermissionCommand.
+ * Use `create(ComputePermissionCommandSchema)` to create a new message.
+ */
+export const ComputePermissionCommandSchema: GenMessage<ComputePermissionCommand> = /*@__PURE__*/
+  messageDesc(file_nillion_permissions_v1_update, 2);
 

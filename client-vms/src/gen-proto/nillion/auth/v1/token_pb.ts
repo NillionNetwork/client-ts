@@ -8,13 +8,15 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { PublicKey } from "./public_key_pb";
 import { file_nillion_auth_v1_public_key } from "./public_key_pb";
+import type { NodeId } from "../../membership/v1/cluster_pb";
+import { file_nillion_membership_v1_cluster } from "../../membership/v1/cluster_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file nillion/auth/v1/token.proto.
  */
 export const file_nillion_auth_v1_token: GenFile = /*@__PURE__*/
-  fileDesc("ChtuaWxsaW9uL2F1dGgvdjEvdG9rZW4ucHJvdG8SFW5pbGxpb24uYXV0aC52MS50b2tlbiJ1CgtTaWduZWRUb2tlbhIYChBzZXJpYWxpemVkX3Rva2VuGAEgASgMEjkKCnB1YmxpY19rZXkYAiABKAsyJS5uaWxsaW9uLmF1dGgudjEucHVibGljX2tleS5QdWJsaWNLZXkSEQoJc2lnbmF0dXJlGAMgASgMIl8KBVRva2VuEg0KBW5vbmNlGAEgASgMEhcKD3RhcmdldF9pZGVudGl0eRgCIAEoDBIuCgpleHBpcmVzX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEKfAQoZY29tLm5pbGxpb24uYXV0aC52MS50b2tlbkIKVG9rZW5Qcm90b1ABogIETkFWVKoCFU5pbGxpb24uQXV0aC5WMS5Ub2tlbsoCFU5pbGxpb25cQXV0aFxWMVxUb2tlbuICIU5pbGxpb25cQXV0aFxWMVxUb2tlblxHUEJNZXRhZGF0YeoCGE5pbGxpb246OkF1dGg6OlYxOjpUb2tlbmIGcHJvdG8z", [file_google_protobuf_timestamp, file_nillion_auth_v1_public_key]);
+  fileDesc("ChtuaWxsaW9uL2F1dGgvdjEvdG9rZW4ucHJvdG8SFW5pbGxpb24uYXV0aC52MS50b2tlbiJ1CgtTaWduZWRUb2tlbhIYChBzZXJpYWxpemVkX3Rva2VuGAEgASgMEjkKCnB1YmxpY19rZXkYAiABKAsyJS5uaWxsaW9uLmF1dGgudjEucHVibGljX2tleS5QdWJsaWNLZXkSEQoJc2lnbmF0dXJlGAMgASgMIoYBCgVUb2tlbhINCgVub25jZRgBIAEoDBI+Cg90YXJnZXRfaWRlbnRpdHkYAiABKAsyJS5uaWxsaW9uLm1lbWJlcnNoaXAudjEuY2x1c3Rlci5Ob2RlSWQSLgoKZXhwaXJlc19hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCnwEKGWNvbS5uaWxsaW9uLmF1dGgudjEudG9rZW5CClRva2VuUHJvdG9QAaICBE5BVlSqAhVOaWxsaW9uLkF1dGguVjEuVG9rZW7KAhVOaWxsaW9uXEF1dGhcVjFcVG9rZW7iAiFOaWxsaW9uXEF1dGhcVjFcVG9rZW5cR1BCTWV0YWRhdGHqAhhOaWxsaW9uOjpBdXRoOjpWMTo6VG9rZW5iBnByb3RvMw", [file_google_protobuf_timestamp, file_nillion_auth_v1_public_key, file_nillion_membership_v1_cluster]);
 
 /**
  * A signed authentication token.
@@ -75,9 +77,9 @@ export type Token = Message<"nillion.auth.v1.token.Token"> & {
    * This needs to match the target node's identity for the token to be considered valid, and is used to prevent
    * a node from taking the token and impersonating the user.
    *
-   * @generated from field: bytes target_identity = 2;
+   * @generated from field: nillion.membership.v1.cluster.NodeId target_identity = 2;
    */
-  targetIdentity: Uint8Array;
+  targetIdentity?: NodeId;
 
   /**
    * The timestamp at which this token expires.

@@ -4,6 +4,7 @@ package nillion.auth.v1.token;
 
 import "google/protobuf/timestamp.proto";
 import "nillion/auth/v1/public_key.proto";
+import "nillion/membership/v1/cluster.proto";
 
 // A signed authentication token.
 message SignedToken {
@@ -31,7 +32,7 @@ message Token {
   //
   // This needs to match the target node's identity for the token to be considered valid, and is used to prevent
   // a node from taking the token and impersonating the user.
-  bytes target_identity = 2;
+  nillion.membership.v1.cluster.NodeId target_identity = 2;
 
   // The timestamp at which this token expires.
   google.protobuf.Timestamp expires_at = 3;

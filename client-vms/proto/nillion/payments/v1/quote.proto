@@ -27,8 +27,11 @@ message PriceQuoteRequest {
     // A invoke compute operation.
     InvokeCompute invoke_compute = 6;
 
-    // A retrieve permissions operation.
-    UpdatePermissions update_permissions = 7;
+    // An overwrite permissions operation.
+    OverwritePermissions overwrite_permissions = 7;
+
+    // An update permissions operation.
+    UpdatePermissions update_permissions = 8;
   }
 }
 
@@ -145,6 +148,12 @@ message RetrievePermissions {
   bytes values_id = 1;   
 }
 
+// An overwrite permissions operation.
+message OverwritePermissions {
+  // The identifier of the values entity whose permissions are to be overwritten.
+  bytes values_id = 1;
+}
+
 // An update permissions operation.
 message UpdatePermissions {
   // The identifier of the values entity whose permissions are to be updated.
@@ -170,6 +179,9 @@ message StoreValues {
 
   // The size of the payload to be stored.
   uint64 payload_size = 5;
+
+  // The size of the payload to be stored.
+  uint64 ecdsa_private_key_shares_count = 6;
 }
 
 // An invoke compute operation.

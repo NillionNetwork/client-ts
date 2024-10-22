@@ -3,6 +3,7 @@ syntax = "proto3";
 package nillion.compute.v1.invoke;
 
 import "nillion/payments/v1/receipt.proto";
+import "nillion/auth/v1/user.proto";
 
 // A request to invoke a computation.
 message InvokeComputeRequest {
@@ -30,20 +31,20 @@ message InvokeComputeResponse {
   bytes compute_id = 1;
 }
 
-// The bindings for input parties in this program.
+// The bindings for input parties in a program.
 message InputPartyBinding {
   // The name of the party as defined in the program.
   string party_name = 1;
 
   // The user identity this party is being bound to.
-  string user_id = 2;
+  nillion.auth.v1.user.UserId user = 2;
 }
 
-// The bindings for output parties in this program.
+// The bindings for output parties in a program.
 message OutputPartyBinding {
   // The name of the party as defined in the program.
   string party_name = 1;
 
   // The user identities this party is being bound to.
-  repeated string user_ids = 2;
+  repeated nillion.auth.v1.user.UserId users = 2;
 }
