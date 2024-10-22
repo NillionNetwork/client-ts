@@ -10,7 +10,7 @@ update-deps:
     #!/usr/bin/env bash
     set -uxo pipefail
     npx npm-check-updates -u --workspaces --root
-    npm installnp
+    npm install
 
 watch-and-build:
     #!/usr/bin/env bash
