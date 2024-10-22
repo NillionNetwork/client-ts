@@ -7,26 +7,30 @@ import {
   SignedToken,
   TokenSchema,
 } from "@nillion/client-vms/gen-proto/nillion/auth/v1/token_pb";
+import { NodeIdSchema } from "@nillion/client-vms/gen-proto/nillion/membership/v1/cluster_pb";
 import { PartyId } from "@nillion/client-vms/types";
 
 describe("TokenManager", () => {
   const manager = TokenAuthManager.fromSeed("test");
   const nodeId = PartyId.from(Uint8Array.from([1, 2, 3]));
+  const targetIdentity = create(NodeIdSchema, {
+    contents: Uint8Array.from([1, 2, 3]),
+  });
   const token = create(TokenSchema, {
     nonce: new Uint8Array(32).fill(1),
-    targetIdentity: Uint8Array.from([1, 2, 3]),
+    targetIdentity,
     expiresAt: timestampFromDate(new Date("2024-10-15T10:00:00.000Z")),
   });
   let signedToken: SignedToken;
   let signature: Uint8Array;
   // From signing and serialising token above with the 'test' seed
   const serialized =
-    "Ci8KIAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBEgMBAgMaBgig+ri4BhIlCAESIQJfgZVtWCa619MNrtK1yMmOcgRsHsgyPaM2RFR2GD+3yhpAmbvCdxsuz0If2N+rtASR4CPAerKLNg+hOzZeobXaZ0F/ESGyJ309foWA0WMMhAGe3it3MZk+omJ3I6ZWRiAXtg==";
+    "CjEKIAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBEgUKAwECAxoGCKD6uLgGEiUIARIhAl+BlW1YJrrX0w2u0rXIyY5yBGweyDI9ozZEVHYYP7fKGkBKOWqX7OpxU+Oj+1e7Ypa2I5xr+j1rAUMmLQPmuhyHFi/j40HuRLXW9NL6xE5P6bs98JOvPuOyHzSzCEuIWp6c";
 
   it("can generate a token", () => {
     const token = manager.generateToken(nodeId);
     expect(manager.isTokenExpired(token)).toBeFalsy();
-    expect(token.targetIdentity).toEqual(nodeId.inner);
+    expect(token.targetIdentity?.contents).toEqual(nodeId.inner);
   });
 
   it("can sign a token", () => {

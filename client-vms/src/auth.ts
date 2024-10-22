@@ -16,6 +16,7 @@ import {
   Token,
   TokenSchema,
 } from "@nillion/client-vms/gen-proto/nillion/auth/v1/token_pb";
+import { NodeIdSchema } from "@nillion/client-vms/gen-proto/nillion/membership/v1/cluster_pb";
 import { PartyId } from "@nillion/client-vms/types";
 
 const HEADER_NAME_BASE64_AUTH = "x-nillion-token";
@@ -60,7 +61,9 @@ export class TokenAuthManager {
 
     return create(TokenSchema, {
       nonce: randomBytes(NONCE_LENGTH),
-      targetIdentity: id.inner,
+      targetIdentity: create(NodeIdSchema, {
+        contents: id.inner,
+      }),
       expiresAt,
     });
   }

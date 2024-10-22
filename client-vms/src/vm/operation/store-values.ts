@@ -5,14 +5,18 @@ import { z } from "zod";
 
 import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
 import { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import { Permissions as ValuesPermissions } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
 import { Values } from "@nillion/client-vms/gen-proto/nillion/values/v1/service_pb";
 import { StoreValuesRequestSchema } from "@nillion/client-vms/gen-proto/nillion/values/v1/store_pb";
-import { PartyId, TtlDays, Uuid } from "@nillion/client-vms/types";
+import {
+  PartyId,
+  TtlDays,
+  Uuid,
+  ValuesPermissions,
+  ValuesPermissionsBuilder,
+} from "@nillion/client-vms/types";
 import { collapse } from "@nillion/client-vms/util";
 import { VmClient } from "@nillion/client-vms/vm/client";
 import { Operation } from "@nillion/client-vms/vm/operation/operation";
-import { ValuesPermissionsBuilder } from "@nillion/client-vms/vm/operation/values-permissions-builder";
 import {
   compute_values_size,
   encode_values,
@@ -34,13 +38,13 @@ export class StoreValues implements Operation<Uuid> {
   private constructor(private readonly config: StoreValuesConfig) {}
 
   async invoke(): Promise<Uuid> {
+    const signedReceipt = await this.pay();
+
     const {
       values,
-      permissions,
       vm: { masker, nodes },
     } = this.config;
 
-    const signedReceipt = await this.pay();
     const shares = masker.mask(values).map((share) => ({
       node: PartyId.from(share.party.to_byte_array()),
       bincodeValues: encode_values(share.shares),
@@ -49,6 +53,8 @@ export class StoreValues implements Operation<Uuid> {
     const updateIdentifier = this.isUpdate
       ? new TextEncoder().encode(this.config.id ?? undefined)
       : undefined;
+
+    const permissions = this.config.permissions.toProto();
 
     const promises = nodes.map((node) => {
       const client = createClient(Values, node.transport);
@@ -63,7 +69,7 @@ export class StoreValues implements Operation<Uuid> {
         create(StoreValuesRequestSchema, {
           signedReceipt,
           bincodeValues: share.bincodeValues,
-          permissions: permissions,
+          permissions,
           updateIdentifier,
         }),
       );
@@ -132,7 +138,7 @@ export class StoreValuesBuilder {
   }
 
   defaultPermissions(): this {
-    this._permissions = ValuesPermissionsBuilder.default(this.vm.id).build();
+    this._permissions = ValuesPermissionsBuilder.default(this.vm.id);
     return this;
   }
 

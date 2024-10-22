@@ -4,14 +4,9 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 export const Env = {
-  bootnodesWebsocket: [process.env.NILLION_BOOTNODE_WEBSOCKET ?? ""],
-  bootnodesMultiAddr: [process.env.NILLION_BOOTNODE_MULTIADDRESS ?? ""],
-  clusterId: process.env.NILLION_CLUSTER_ID ?? "",
   bootnodeUrl: process.env.NILLION_BOOTNODE_URL ?? "",
   chainId: process.env.NILLION_NILCHAIN_CHAIN_ID ?? "",
-  nilChainJsonRpc: process.env.NILLION_NILCHAIN_JSON_RPC ?? "",
-  nilChainRestApi: process.env.NILLION_NILCHAIN_REST_API ?? "",
-  nilChainGrpc: process.env.NILLION_NILCHAIN_GRPC ?? "",
+  nilChainUrl: process.env.NILLION_NILCHAIN_JSON_RPC ?? "",
   nilChainPrivateKey0: process.env.NILLION_NILCHAIN_PRIVATE_KEY_0 ?? "",
   nilChainPrivateKey1: process.env.NILLION_NILCHAIN_PRIVATE_KEY_1 ?? "",
   nilChainPrivateKey2: process.env.NILLION_NILCHAIN_PRIVATE_KEY_2 ?? "",

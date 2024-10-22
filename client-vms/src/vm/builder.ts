@@ -9,10 +9,11 @@ import {
   createAuthInterceptor,
   TokenAuthManager,
 } from "@nillion/client-vms/auth";
+import { Configs } from "@nillion/client-vms/configs";
 import { Prime } from "@nillion/client-vms/gen-proto/nillion/membership/v1/cluster_pb";
 import { Membership } from "@nillion/client-vms/gen-proto/nillion/membership/v1/service_pb";
 import { PaymentClientBuilder } from "@nillion/client-vms/payment";
-import { PartyId } from "@nillion/client-vms/types";
+import { PartyId, UserId } from "@nillion/client-vms/types";
 import { OfflineSignerSchema } from "@nillion/client-vms/types";
 import { VmClient, VmClientConfig } from "@nillion/client-vms/vm/client";
 import { SecretMasker } from "@nillion/client-wasm";
@@ -30,6 +31,7 @@ export class VmClientBuilder {
   private _chainUrl?: string;
   private _signer?: OfflineSigner;
   private _seed?: string;
+  private _network?: string;
   private _authTokenTtl?: number;
 
   bootnodeUrl(url: string): this {
@@ -47,6 +49,11 @@ export class VmClientBuilder {
     return this;
   }
 
+  network(name: "devnet"): this {
+    this._network = name;
+    return this;
+  }
+
   seed(seed: string): this {
     this._seed = seed;
     return this;
@@ -58,10 +65,17 @@ export class VmClientBuilder {
   }
 
   async build(): Promise<VmClient> {
+    const bootnodeUrlCandidate = this._network
+      ? Configs.Devnet.bootnodeUrl
+      : this._bootnodeUrl;
+    const chainUrlCandidate = this._network
+      ? Configs.Devnet.nilChainUrl
+      : this._chainUrl;
+
     const { bootnodeUrl, chainUrl, signer, seed } = VmClientBuilderConfig.parse(
       {
-        bootnodeUrl: this._bootnodeUrl,
-        chainUrl: this._chainUrl,
+        bootnodeUrl: bootnodeUrlCandidate,
+        chainUrl: chainUrlCandidate,
         signer: this._signer,
         seed: this._seed,
         authTokenTtl: this._authTokenTtl,
@@ -69,11 +83,10 @@ export class VmClientBuilder {
     );
 
     const tokenAuthManager = TokenAuthManager.fromSeed(seed);
-
     const cluster = await fetchClusterDetails(bootnodeUrl);
 
     // eslint-disable-next-line
-    const id = PartyId.from(cluster.leader?.identity!);
+    const id = PartyId.from(cluster.leader?.identity!?.contents);
     const leader = {
       id,
       transport: createGrpcWebTransport({
@@ -85,7 +98,8 @@ export class VmClientBuilder {
     };
 
     const nodes = cluster.members.map((node) => {
-      const id = PartyId.from(node.identity);
+      // eslint-disable-next-line
+      const id = PartyId.from(node.identity?.contents!);
       return {
         id,
         transport: createGrpcWebTransport({
@@ -130,7 +144,7 @@ export class VmClientBuilder {
       .build();
 
     const config = VmClientConfig.parse({
-      id: bs58.encode(sha512(tokenAuthManager.publicKey.contents)),
+      id: UserId.from(tokenAuthManager.publicKey),
       payer,
       masker,
       leader,

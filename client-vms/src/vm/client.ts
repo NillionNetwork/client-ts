@@ -4,6 +4,7 @@ import { PoolStatusResponse } from "@nillion/client-vms/gen-proto/nillion/leader
 import { PaymentClient } from "@nillion/client-vms/payment";
 import { GrpcTransport, PartyId, UserId } from "@nillion/client-vms/types";
 import { InvokeComputeBuilder } from "@nillion/client-vms/vm/operation/invoke-compute";
+import { OverwritePermissionsBuilder } from "@nillion/client-vms/vm/operation/overwrite-permissions";
 import { RetrieveComputeResultBuilder } from "@nillion/client-vms/vm/operation/retrieve-compute-result";
 import { UpdatePermissionsBuilder } from "@nillion/client-vms/vm/operation/update-permissions";
 import { SecretMasker } from "@nillion/client-wasm";
@@ -24,7 +25,7 @@ export const NodeConfig = z.object({
 export type NodeConfig = z.infer<typeof NodeConfig>;
 
 export const VmClientConfig = z.object({
-  id: UserId,
+  id: z.instanceof(UserId),
   payer: z.instanceof(PaymentClient),
   masker: z.instanceof(SecretMasker),
   leader: NodeConfig,
@@ -77,6 +78,10 @@ export class VmClient {
 
   updatePermissions(): UpdatePermissionsBuilder {
     return UpdatePermissionsBuilder.init(this);
+  }
+
+  overwritePermissions(): OverwritePermissionsBuilder {
+    return OverwritePermissionsBuilder.init(this);
   }
 
   storeProgram(): StoreProgramBuilder {

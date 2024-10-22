@@ -40,7 +40,7 @@ describe("PaymentClient", () => {
     });
 
     client = await builder
-      .chainUrl(Env.nilChainJsonRpc)
+      .chainUrl(Env.nilChainUrl)
       .leader(leader)
       .signer(signer)
       .build();

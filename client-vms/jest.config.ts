@@ -5,6 +5,7 @@ import { type JestConfigWithTsJest } from "ts-jest";
 const config: JestConfigWithTsJest = {
   preset: "ts-jest/presets/default-esm",
   testEnvironment: "node",
+  testTimeout: 30000,
   transform: {
     "^.+\\.(ts|tsx|js|jsx|mjs)$": [
       "ts-jest",

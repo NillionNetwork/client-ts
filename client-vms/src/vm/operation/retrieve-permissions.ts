@@ -5,10 +5,10 @@ import { z } from "zod";
 
 import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
 import { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import { Permissions as ValuesPermissions } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
+import { Permissions as PermissionsProto } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
 import { RetrievePermissionsRequestSchema } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/retrieve_pb";
 import { Permissions } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/service_pb";
-import { Uuid } from "@nillion/client-vms/types";
+import { Uuid, ValuesPermissions } from "@nillion/client-vms/types";
 import { collapse } from "@nillion/client-vms/util";
 import { VmClient } from "@nillion/client-vms/vm/client";
 import { Operation } from "@nillion/client-vms/vm/operation/operation";
@@ -40,7 +40,8 @@ export class RetrievePermissions implements Operation<ValuesPermissions> {
     });
 
     const results = await Promise.all(promises);
-    return collapse<ValuesPermissions>(results);
+    const result = collapse<PermissionsProto>(results);
+    return ValuesPermissions.from(result);
   }
 
   private async pay(): Promise<SignedReceipt> {

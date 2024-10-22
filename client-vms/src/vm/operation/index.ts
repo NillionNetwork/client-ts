@@ -5,4 +5,3 @@ export * from "./retrieve-permissions";
 export * from "./retrieve-values";
 export * from "./store-program";
 export * from "./store-values";
-export * from "./values-permissions-builder";

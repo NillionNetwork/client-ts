@@ -3,7 +3,7 @@ import { Client } from "@connectrpc/connect";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { z } from "zod";
 
-import { MsgPayForSchema } from "@nillion/client-vms/gen-proto/nillion/meta/v1/msg_pay_for_pb";
+import { MsgPayForSchema } from "@nillion/client-vms/gen-proto/nillion/meta/v1/tx_pb";
 import {
   PriceQuoteRequest,
   PriceQuoteSchema,

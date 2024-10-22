@@ -56,14 +56,14 @@ export class InvokeCompute implements Operation<Uuid> {
     const inputBindings = this.config.inputBindings.map((bindings) =>
       create(InputPartyBindingSchema, {
         partyName: bindings.party,
-        userId: bindings.user,
+        user: bindings.user.toProto(),
       }),
     );
 
     const outputBindings = this.config.outputBindings.map((bindings) =>
       create(OutputPartyBindingSchema, {
         partyName: bindings.party,
-        userIds: bindings.users,
+        users: bindings.users.map((user) => user.toProto()),
       }),
     );
 

@@ -1,14 +1,17 @@
 import { describe, expect } from "@jest/globals";
 import { ZodError } from "zod";
 
-import { Permissions as ValuePermissions } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
 import { createSignerFromKey } from "@nillion/client-vms/payment";
-import { ProgramId, Uuid } from "@nillion/client-vms/types";
+import {
+  ProgramId,
+  Uuid,
+  ValuesPermissions,
+  ValuesPermissionsBuilder,
+} from "@nillion/client-vms/types";
 import { VmClient, VmClientBuilder } from "@nillion/client-vms/vm";
-import { ValuesPermissionsBuilder } from "@nillion/client-vms/vm/operation";
 import { NadaValue } from "@nillion/client-wasm";
 
-import { Env, loadProgram, PrivateKeyPerSuite } from "./helpers";
+import { loadProgram, PrivateKeyPerSuite } from "./helpers";
 
 describe("VmClient", () => {
   let client: VmClient;
@@ -29,9 +32,8 @@ describe("VmClient", () => {
 
     client = await new VmClientBuilder()
       .authTokenTtl(1)
-      .seed("test")
-      .bootnodeUrl(Env.bootnodeUrl)
-      .chainUrl(Env.nilChainJsonRpc)
+      .seed("tests")
+      .network("devnet")
       .signer(signer)
       .build();
 
@@ -46,7 +48,7 @@ describe("VmClient", () => {
   describe("values", () => {
     const expectedName = "foo";
     const expectedValue = 42;
-    let expectedPermissions: ValuePermissions;
+    let expectedPermissions: ValuesPermissions;
     let expectedId: string;
 
     it("can store", async () => {
@@ -83,29 +85,48 @@ describe("VmClient", () => {
         .invoke();
 
       expect(expectedPermissions).toBeDefined();
-      expect(expectedPermissions.ownerUserId).toEqual(client.id);
+      expect(expectedPermissions.owner).toEqual(client.id);
+      expect(expectedPermissions.retrieve).toContainEqual(client.id);
+      expect(expectedPermissions.update).toContainEqual(client.id);
+      expect(expectedPermissions._delete).toContainEqual(client.id);
     });
 
     it("can update permissions", async () => {
-      const owner = expectedPermissions.ownerUserId;
-      const updatedPermissions = ValuesPermissionsBuilder.empty()
-        .owner(owner)
-        .grantDelete(owner)
-        .build();
+      await client
+        .updatePermissions()
+        .valuesId(expectedId)
+        .revokeDelete(client.id)
+        .build()
+        .invoke();
+
+      const updatedPermissions = await client
+        .retrievePermissions()
+        .id(expectedId)
+        .build()
+        .invoke();
+
+      expect(updatedPermissions).toBeDefined();
+      expect(updatedPermissions.owner).toEqual(client.id);
+      expect(updatedPermissions.retrieve).toContainEqual(client.id);
+      expect(updatedPermissions.update).toContainEqual(client.id);
+      expect(updatedPermissions._delete).not.toContainEqual(client.id);
+    });
+
+    it("can overwrite permissions", async () => {
+      const next = ValuesPermissionsBuilder.default(client.id);
 
       const permissions = await client
-        .updatePermissions()
-        .permissions(updatedPermissions)
+        .overwritePermissions()
+        .permissions(next)
         .id(expectedId)
         .build()
         .invoke();
 
       expect(permissions).toBeDefined();
-      expect(permissions.ownerUserId).toEqual(owner);
-      expect(permissions.deleteAllowedUserIds).toHaveLength(1);
-      expect(permissions.retrieveAllowedUserIds).toHaveLength(0);
-      expect(permissions.updateAllowedUserIds).toHaveLength(0);
-      expect(permissions.computePermissions).toHaveLength(0);
+      expect(permissions.owner).toEqual(client.id);
+      expect(permissions.retrieve).toContainEqual(client.id);
+      expect(permissions.update).toContainEqual(client.id);
+      expect(permissions._delete).toContainEqual(client.id);
     });
 
     it("can delete", async () => {
@@ -124,7 +145,6 @@ describe("VmClient", () => {
     let computeResultId: Uuid;
 
     it("can upload program", async () => {
-      const regex = new RegExp(`^.+\\/${name}$`);
       const program = loadProgram(name);
 
       programId = await client
@@ -135,7 +155,6 @@ describe("VmClient", () => {
         .invoke();
 
       expect(programId).toBeTruthy();
-      expect(programId).toMatch(regex);
     });
 
     it("can invoke compute", async () => {

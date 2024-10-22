@@ -35,6 +35,7 @@ export default ts.config(
       "@typescript-eslint": ts.plugin,
     },
     rules: {
+      "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
