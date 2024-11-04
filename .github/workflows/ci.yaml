@@ -25,7 +25,6 @@ jobs:
       - run: pnpm exec tsc -p client-vms/tsconfig.json
 
   test-client-vms:
-    if: false
     needs: check
     runs-on: ubuntu-latest
     steps:
@@ -34,12 +33,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "23"
-          cache: "npm"
       - uses: NillionNetwork/nillion-setup-action@main
         with:
-          version: "latest"
+          version: "v0.7.0-rc.38"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - run: |
-          nillion-devnet --seed test-fixture &
+          cd client-vms/tests/nada
+          ./build.sh
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install
+      - run: |
+          nillion-devnet --seed test &
           sleep 10
-          just test-client-vms
+          pnpm --filter client-vms test
           killall -9 nillion-devnet
