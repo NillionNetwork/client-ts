@@ -20,7 +20,7 @@ jobs:
           node-version: "23"
       - uses: pnpm/action-setup@v4
       - run: pnpm install
-      - run: pnpm exec prettier -c "**/*.(js|jsx|mjs|ts|tsx)"
+      - run: pnpm exec biome format
       - run: pnpm exec tsc -p client-vms/tsconfig.json
       - run: pnpm exec eslint -c eslint.config.mjs
 

@@ -2,7 +2,7 @@
 check:
     #!/usr/bin/env bash
     set -uxo pipefail
-    pnpm exec prettier -c "**/*.(js|jsx|mjs|ts|tsx)"
+    pnpm exec biome format
     pnpm exec eslint -c eslint.config.mjs
     pnpm exec tsc -p client-vms/tsconfig.json
 
