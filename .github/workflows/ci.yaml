@@ -40,7 +40,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: |
-          cd client-vms/tests/nada
+          cd client-vms/tests-nada-programs
           ./build.sh
       - uses: pnpm/action-setup@v4
       - run: pnpm install

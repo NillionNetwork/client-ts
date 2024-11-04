@@ -36,6 +36,6 @@ export const PrivateKeyPerSuite = {
 export const loadProgram = (name: string): Uint8Array => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  const absolute = path.join(__dirname, "/nada/dist/", name);
+  const absolute = path.join(__dirname, "/tests-nada-programs/dist/", name);
   return new Uint8Array(fs.readFileSync(absolute));
 };
