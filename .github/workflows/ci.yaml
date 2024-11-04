@@ -21,8 +21,8 @@ jobs:
       - uses: pnpm/action-setup@v4
       - run: pnpm install
       - run: pnpm exec biome format
+      - run: pnpm exec biome lint
       - run: pnpm exec tsc -p client-vms/tsconfig.json
-      - run: pnpm exec eslint -c eslint.config.mjs
 
   test-client-vms:
     if: false

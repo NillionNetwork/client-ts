@@ -7,7 +7,6 @@ import type { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
 import { NilChainAddressPrefix, type PrivateKeyBase16 } from "./types";
 
 declare global {
-  // eslint-disable-next-line
   interface Window extends KeplrWindow {}
 }
 

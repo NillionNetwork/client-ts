@@ -83,12 +83,10 @@ export class VmClientBuilder {
     const tokenAuthManager = TokenAuthManager.fromSeed(seed);
     const cluster = await fetchClusterDetails(bootnodeUrl);
 
-    // eslint-disable-next-line
     const id = PartyId.from(cluster.leader?.identity!?.contents);
     const leader = {
       id,
       transport: createGrpcWebTransport({
-        // eslint-disable-next-line
         baseUrl: cluster.leader?.grpcEndpoint!,
         useBinaryFormat: true,
         interceptors: [createAuthInterceptor(tokenAuthManager, id)],
@@ -96,7 +94,6 @@ export class VmClientBuilder {
     };
 
     const nodes = cluster.members.map((node) => {
-      // eslint-disable-next-line
       const id = PartyId.from(node.identity?.contents!);
       return {
         id,

@@ -3,7 +3,7 @@ check:
     #!/usr/bin/env bash
     set -uxo pipefail
     pnpm exec biome format
-    pnpm exec eslint -c eslint.config.mjs
+    pnpm exec biome lint
     pnpm exec tsc -p client-vms/tsconfig.json
 
 watch-and-build:
