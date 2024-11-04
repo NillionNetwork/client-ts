@@ -1,8 +1,6 @@
 import { createClient } from "@connectrpc/connect";
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import { OfflineSigner } from "@cosmjs/proto-signing";
-import { sha512 } from "@noble/hashes/sha2";
-import bs58 from "bs58";
 import { z } from "zod";
 
 import {

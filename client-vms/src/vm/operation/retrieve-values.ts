@@ -7,11 +7,10 @@ import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/p
 import { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
 import { RetrieveValuesRequestSchema } from "@nillion/client-vms/gen-proto/nillion/values/v1/retrieve_pb";
 import { Values } from "@nillion/client-vms/gen-proto/nillion/values/v1/service_pb";
-import { PaymentClient } from "@nillion/client-vms/payment";
 import { NadaValuesRecord, Uuid } from "@nillion/client-vms/types";
-import { type NodeConfig, VmClient } from "@nillion/client-vms/vm/client";
+import { VmClient } from "@nillion/client-vms/vm/client";
 import { Operation } from "@nillion/client-vms/vm/operation/operation";
-import { decode_values, PartyShares, SecretMasker } from "@nillion/client-wasm";
+import { decode_values, PartyShares } from "@nillion/client-wasm";
 
 export const RetrieveValuesConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first

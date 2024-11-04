@@ -19,6 +19,7 @@ import {
  * allowing us to bypass the type check safely in this context.
  */
 export const MsgPayForCompatWrapper: TsProtoGeneratedType = {
+  // @ts-expect-error see MsgPayForCompatWrapper comment
   encode: (
     message: MsgPayFor,
     writer: BinaryWriter = new BinaryWriter(),
@@ -41,6 +42,7 @@ export const MsgPayForCompatWrapper: TsProtoGeneratedType = {
     }
     return writer;
   },
+  // @ts-expect-error see MsgPayForCompatWrapper comment
   decode: (_input: BinaryReader | Uint8Array, _length?: number): MsgPayFor => {
     throw new Error("MsgPayForCompatWrapper: decode not implemented");
   },
