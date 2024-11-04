@@ -1,10 +1,10 @@
 import { create } from "@bufbuild/protobuf";
 
 import {
-  Permissions as PermissionsProtobuf,
+  type Permissions as PermissionsProtobuf,
   PermissionsSchema,
-} from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
-import { ProgramId, UserId } from "@nillion/client-vms/types";
+} from "#/gen-proto/nillion/permissions/v1/permissions_pb";
+import { type ProgramId, UserId } from "#/types";
 
 export class ValuesPermissions {
   constructor(

@@ -6,7 +6,7 @@ pre-commit:
       stage_fixed: true
     tsc-check:
       glob: "*.{ts,tsx}"
-      run: pnpm exec tsc
+      run: pnpm exec tsc -p client-vms/tsconfig.json
       stage_fixed: true
 
 pre-push:

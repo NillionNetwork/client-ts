@@ -1,13 +1,13 @@
 import { z } from "zod";
 
-import { PoolStatusResponse } from "@nillion/client-vms/gen-proto/nillion/leader_queries/v1/pool_status_pb";
-import { PaymentClient } from "@nillion/client-vms/payment";
-import { GrpcTransport, PartyId, UserId } from "@nillion/client-vms/types";
-import { InvokeComputeBuilder } from "@nillion/client-vms/vm/operation/invoke-compute";
-import { OverwritePermissionsBuilder } from "@nillion/client-vms/vm/operation/overwrite-permissions";
-import { RetrieveComputeResultBuilder } from "@nillion/client-vms/vm/operation/retrieve-compute-result";
-import { UpdatePermissionsBuilder } from "@nillion/client-vms/vm/operation/update-permissions";
 import { SecretMasker } from "@nillion/client-wasm";
+import type { PoolStatusResponse } from "#/gen-proto/nillion/leader_queries/v1/pool_status_pb";
+import { PaymentClient } from "#/payment";
+import { GrpcTransport, PartyId, UserId } from "#/types";
+import { InvokeComputeBuilder } from "#/vm/operation/invoke-compute";
+import { OverwritePermissionsBuilder } from "#/vm/operation/overwrite-permissions";
+import { RetrieveComputeResultBuilder } from "#/vm/operation/retrieve-compute-result";
+import { UpdatePermissionsBuilder } from "#/vm/operation/update-permissions";
 
 import {
   DeleteValuesBuilder,

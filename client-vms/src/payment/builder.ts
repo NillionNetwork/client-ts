@@ -1,10 +1,10 @@
 import { createClient } from "@connectrpc/connect";
-import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
+import { type OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import { GasPrice, SigningStargateClient } from "@cosmjs/stargate";
 import { z } from "zod";
 
-import { Payments } from "@nillion/client-vms/gen-proto/nillion/payments/v1/service_pb";
-import { GrpcTransport, OfflineSignerSchema } from "@nillion/client-vms/types";
+import { Payments } from "#/gen-proto/nillion/payments/v1/service_pb";
+import { GrpcTransport, OfflineSignerSchema } from "#/types";
 
 import { PaymentClient, PaymentClientConfig } from "./client";
 import { MsgPayForCompatWrapper } from "./grpc-compat";

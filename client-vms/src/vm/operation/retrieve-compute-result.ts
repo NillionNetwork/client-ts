@@ -2,12 +2,12 @@ import { createClient } from "@connectrpc/connect";
 import { parse as parseUuid } from "uuid";
 import { z } from "zod";
 
-import { Compute } from "@nillion/client-vms/gen-proto/nillion/compute/v1/service_pb";
-import { Log } from "@nillion/client-vms/logger";
-import { NadaValuesRecord, Uuid } from "@nillion/client-vms/types";
-import { VmClient } from "@nillion/client-vms/vm/client";
-import { Operation } from "@nillion/client-vms/vm/operation/operation";
-import { decode_values, PartyShares } from "@nillion/client-wasm";
+import { PartyShares, decode_values } from "@nillion/client-wasm";
+import { Compute } from "#/gen-proto/nillion/compute/v1/service_pb";
+import { Log } from "#/logger";
+import { NadaValuesRecord, Uuid } from "#/types";
+import type { VmClient } from "#/vm/client";
+import type { Operation } from "#/vm/operation/operation";
 
 export const RetrieveComputeResultConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first

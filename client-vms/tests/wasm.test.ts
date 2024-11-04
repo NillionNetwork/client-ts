@@ -1,7 +1,6 @@
-import { describe, expect, it } from "@jest/globals";
-
-import { NadaValuesRecord, PartyId } from "@nillion/client-vms/types";
 import { NadaValue, NadaValues } from "@nillion/client-wasm";
+import { describe, expect, it } from "vitest";
+import { type NadaValuesRecord, PartyId } from "#/types";
 
 const data = [
   {
@@ -47,7 +46,7 @@ describe("Wasm compatability", () => {
           expect(values).toHaveLength(index + 1);
         });
 
-        it(`can retrieve from NadaValues`, () => {
+        it("can retrieve from NadaValues", () => {
           const record = values.to_record() as unknown as NadaValuesRecord;
           const actual = record[test.name];
           expect(actual).toBeDefined();

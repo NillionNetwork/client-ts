@@ -1,17 +1,16 @@
-import { describe, expect } from "@jest/globals";
-import { ZodError } from "zod";
-
-import { createSignerFromKey } from "@nillion/client-vms/payment";
-import {
-  ProgramId,
-  Uuid,
-  ValuesPermissions,
-  ValuesPermissionsBuilder,
-} from "@nillion/client-vms/types";
-import { VmClient, VmClientBuilder } from "@nillion/client-vms/vm";
 import { NadaValue } from "@nillion/client-wasm";
+import { describe, expect, it } from "vitest";
+import { ZodError } from "zod";
+import { createSignerFromKey } from "#/payment";
+import {
+  type ProgramId,
+  type Uuid,
+  type ValuesPermissions,
+  ValuesPermissionsBuilder,
+} from "#/types";
+import { type VmClient, VmClientBuilder } from "#/vm";
 
-import { loadProgram, PrivateKeyPerSuite } from "./helpers";
+import { Env, PrivateKeyPerSuite, loadProgram } from "./helpers";
 
 describe("VmClient", () => {
   let client: VmClient;
@@ -33,7 +32,8 @@ describe("VmClient", () => {
     client = await new VmClientBuilder()
       .authTokenTtl(1)
       .seed("tests")
-      .network("devnet")
+      .bootnodeUrl(Env.bootnodeUrl)
+      .chainUrl(Env.nilChainUrl)
       .signer(signer)
       .build();
 

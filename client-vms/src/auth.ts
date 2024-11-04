@@ -6,18 +6,18 @@ import { sha256 } from "@noble/hashes/sha2";
 import { randomBytes } from "@noble/hashes/utils";
 
 import {
-  PublicKey,
+  type PublicKey,
   PublicKeySchema,
   PublicKeyType,
-} from "@nillion/client-vms/gen-proto/nillion/auth/v1/public_key_pb";
+} from "#/gen-proto/nillion/auth/v1/public_key_pb";
 import {
-  SignedToken,
+  type SignedToken,
   SignedTokenSchema,
-  Token,
+  type Token,
   TokenSchema,
-} from "@nillion/client-vms/gen-proto/nillion/auth/v1/token_pb";
-import { NodeIdSchema } from "@nillion/client-vms/gen-proto/nillion/membership/v1/cluster_pb";
-import { PartyId } from "@nillion/client-vms/types";
+} from "#/gen-proto/nillion/auth/v1/token_pb";
+import { NodeIdSchema } from "#/gen-proto/nillion/membership/v1/cluster_pb";
+import type { PartyId } from "#/types";
 
 const HEADER_NAME_BASE64_AUTH = "x-nillion-token";
 const NONCE_LENGTH = 32;

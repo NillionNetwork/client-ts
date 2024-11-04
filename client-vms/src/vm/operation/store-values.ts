@@ -3,26 +3,26 @@ import { createClient } from "@connectrpc/connect";
 import { stringify as stringifyUuid } from "uuid";
 import { z } from "zod";
 
-import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
-import { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import { Values } from "@nillion/client-vms/gen-proto/nillion/values/v1/service_pb";
-import { StoreValuesRequestSchema } from "@nillion/client-vms/gen-proto/nillion/values/v1/store_pb";
+import {
+  type NadaValue,
+  NadaValues,
+  compute_values_size,
+  encode_values,
+} from "@nillion/client-wasm";
+import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
+import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
+import { Values } from "#/gen-proto/nillion/values/v1/service_pb";
+import { StoreValuesRequestSchema } from "#/gen-proto/nillion/values/v1/store_pb";
 import {
   PartyId,
   TtlDays,
   Uuid,
-  ValuesPermissions,
+  type ValuesPermissions,
   ValuesPermissionsBuilder,
-} from "@nillion/client-vms/types";
-import { collapse } from "@nillion/client-vms/util";
-import { VmClient } from "@nillion/client-vms/vm/client";
-import { Operation } from "@nillion/client-vms/vm/operation/operation";
-import {
-  compute_values_size,
-  encode_values,
-  NadaValue,
-  NadaValues,
-} from "@nillion/client-wasm";
+} from "#/types";
+import { collapse } from "#/util";
+import type { VmClient } from "#/vm/client";
+import type { Operation } from "#/vm/operation/operation";
 
 export const StoreValuesConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first

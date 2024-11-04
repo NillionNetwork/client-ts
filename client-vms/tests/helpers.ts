@@ -4,7 +4,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 export const Env = {
-  bootnodeUrl: process.env.NILLION_BOOTNODE_URL ?? "",
+  bootnodeUrl: process.env.NILLION_GRPC_ENDPOINT ?? "",
   chainId: process.env.NILLION_NILCHAIN_CHAIN_ID ?? "",
   nilChainUrl: process.env.NILLION_NILCHAIN_JSON_RPC ?? "",
   nilChainPrivateKey0: process.env.NILLION_NILCHAIN_PRIVATE_KEY_0 ?? "",
@@ -17,7 +17,6 @@ export const Env = {
   nilChainPrivateKey7: process.env.NILLION_NILCHAIN_PRIVATE_KEY_7 ?? "",
   nilChainPrivateKey8: process.env.NILLION_NILCHAIN_PRIVATE_KEY_8 ?? "",
   nilChainPrivateKey9: process.env.NILLION_NILCHAIN_PRIVATE_KEY_9 ?? "",
-  userSeed: process.env.NILLION_USER_SEED ?? "",
   programNamespace: process.env.NILLION_TEST_PROGRAMS_NAMESPACE ?? "",
 };
 

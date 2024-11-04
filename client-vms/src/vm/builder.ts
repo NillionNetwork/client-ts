@@ -1,20 +1,15 @@
 import { createClient } from "@connectrpc/connect";
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
-import { OfflineSigner } from "@cosmjs/proto-signing";
-import { z } from "zod";
-
-import {
-  createAuthInterceptor,
-  TokenAuthManager,
-} from "@nillion/client-vms/auth";
-import { Configs } from "@nillion/client-vms/configs";
-import { Prime } from "@nillion/client-vms/gen-proto/nillion/membership/v1/cluster_pb";
-import { Membership } from "@nillion/client-vms/gen-proto/nillion/membership/v1/service_pb";
-import { PaymentClientBuilder } from "@nillion/client-vms/payment";
-import { PartyId, UserId } from "@nillion/client-vms/types";
-import { OfflineSignerSchema } from "@nillion/client-vms/types";
-import { VmClient, VmClientConfig } from "@nillion/client-vms/vm/client";
+import type { OfflineSigner } from "@cosmjs/proto-signing";
 import { SecretMasker } from "@nillion/client-wasm";
+import { z } from "zod";
+import { TokenAuthManager, createAuthInterceptor } from "#/auth";
+import { Prime } from "#/gen-proto/nillion/membership/v1/cluster_pb";
+import { Membership } from "#/gen-proto/nillion/membership/v1/service_pb";
+import { PaymentClientBuilder } from "#/payment";
+import { PartyId, UserId } from "#/types";
+import { OfflineSignerSchema } from "#/types";
+import { VmClient, VmClientConfig } from "#/vm/client";
 
 const VmClientBuilderConfig = z.object({
   bootnodeUrl: z.string().url("Invalid bootnode url"),
@@ -63,17 +58,10 @@ export class VmClientBuilder {
   }
 
   async build(): Promise<VmClient> {
-    const bootnodeUrlCandidate = this._network
-      ? Configs.Devnet.bootnodeUrl
-      : this._bootnodeUrl;
-    const chainUrlCandidate = this._network
-      ? Configs.Devnet.nilChainUrl
-      : this._chainUrl;
-
     const { bootnodeUrl, chainUrl, signer, seed } = VmClientBuilderConfig.parse(
       {
-        bootnodeUrl: bootnodeUrlCandidate,
-        chainUrl: chainUrlCandidate,
+        bootnodeUrl: this._bootnodeUrl,
+        chainUrl: this._chainUrl,
         signer: this._signer,
         seed: this._seed,
         authTokenTtl: this._authTokenTtl,
@@ -128,7 +116,7 @@ export class VmClientBuilder {
         break;
       }
       default: {
-        throw new Error(`Unsupported cluster prime: {cluster.prime}`);
+        throw new Error(`Unsupported cluster prime: ${cluster.prime}`);
       }
     }
 

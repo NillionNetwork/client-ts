@@ -2,12 +2,12 @@ import { create } from "@bufbuild/protobuf";
 import { createClient } from "@connectrpc/connect";
 import { z } from "zod";
 
-import { PoolStatusResponse } from "@nillion/client-vms/gen-proto/nillion/leader_queries/v1/pool_status_pb";
-import { LeaderQueries } from "@nillion/client-vms/gen-proto/nillion/leader_queries/v1/service_pb";
-import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
-import { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import { VmClient } from "@nillion/client-vms/vm/client";
-import { Operation } from "@nillion/client-vms/vm/operation/operation";
+import type { PoolStatusResponse } from "#/gen-proto/nillion/leader_queries/v1/pool_status_pb";
+import { LeaderQueries } from "#/gen-proto/nillion/leader_queries/v1/service_pb";
+import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
+import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
+import type { VmClient } from "#/vm/client";
+import type { Operation } from "#/vm/operation/operation";
 
 export const QueryPoolStatusConfig = z.object({
   vm: z.custom<VmClient>(),
