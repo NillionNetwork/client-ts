@@ -53,5 +53,5 @@ jobs:
       - run: |
           nillion-devnet --seed test &
           sleep 10
-          pnpm --filter client-vms test
+          pnpm --filter client-vms test -- --coverage
           killall -9 nillion-devnet
