@@ -4,13 +4,10 @@ import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
 import { ReceiptSchema } from "#/gen-proto/nillion/payments/v1/receipt_pb";
-import {
-  type PaymentClient,
-  PaymentClientBuilder,
-  createSignerFromKey,
-} from "#/payment";
-import { fetchClusterDetails } from "#/vm";
-
+import { PaymentClientBuilder } from "#/payment/builder";
+import type { PaymentClient } from "#/payment/client";
+import { createSignerFromKey } from "#/payment/wallet";
+import { fetchClusterDetails } from "#/vm/builder";
 import { Env, PrivateKeyPerSuite } from "./helpers";
 
 describe("PaymentClient", () => {

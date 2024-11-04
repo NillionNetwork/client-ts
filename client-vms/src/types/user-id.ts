@@ -1,6 +1,5 @@
 import { create } from "@bufbuild/protobuf";
 import { sha256 } from "@noble/hashes/sha2";
-
 import type { PublicKey } from "#/gen-proto/nillion/auth/v1/public_key_pb";
 import {
   type UserId as UserIdProto,

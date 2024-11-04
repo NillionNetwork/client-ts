@@ -1,14 +1,13 @@
 import { create } from "@bufbuild/protobuf";
 import { createClient } from "@connectrpc/connect";
+import { PartyShares, decode_values } from "@nillion/client-wasm";
 import { parse as parseUuid } from "uuid";
 import { z } from "zod";
-
-import { PartyShares, decode_values } from "@nillion/client-wasm";
 import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
 import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
 import { RetrieveValuesRequestSchema } from "#/gen-proto/nillion/values/v1/retrieve_pb";
 import { Values } from "#/gen-proto/nillion/values/v1/service_pb";
-import { NadaValuesRecord, Uuid } from "#/types";
+import { NadaValuesRecord, Uuid } from "#/types/types";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
 
@@ -41,8 +40,9 @@ export class RetrieveValues implements Operation<NadaValuesRecord> {
     });
 
     const results = await Promise.all(promises);
-    if (results.length !== nodes.length)
+    if (results.length !== nodes.length) {
       throw new Error("Results length does not match nodes length");
+    }
 
     const record = masker.unmask(results).to_record() as unknown;
     return NadaValuesRecord.parse(record);

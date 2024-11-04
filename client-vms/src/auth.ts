@@ -4,7 +4,6 @@ import type { Interceptor } from "@connectrpc/connect";
 import { secp256k1 } from "@noble/curves/secp256k1";
 import { sha256 } from "@noble/hashes/sha2";
 import { randomBytes } from "@noble/hashes/utils";
-
 import {
   type PublicKey,
   PublicKeySchema,
@@ -17,7 +16,7 @@ import {
   TokenSchema,
 } from "#/gen-proto/nillion/auth/v1/token_pb";
 import { NodeIdSchema } from "#/gen-proto/nillion/membership/v1/cluster_pb";
-import type { PartyId } from "#/types";
+import type { PartyId } from "#/types/types";
 
 const HEADER_NAME_BASE64_AUTH = "x-nillion-token";
 const NONCE_LENGTH = 32;
@@ -89,9 +88,8 @@ export class TokenAuthManager {
       const expires = timestampDate(token.expiresAt);
       const now = new Date();
       return expires < now;
-    } else {
-      return false;
     }
+    return false;
   }
 
   verify(signed: SignedToken): boolean {

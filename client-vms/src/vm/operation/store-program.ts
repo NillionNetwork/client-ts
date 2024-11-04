@@ -1,9 +1,8 @@
 import { create } from "@bufbuild/protobuf";
 import { createClient } from "@connectrpc/connect";
+import { ProgramMetadata } from "@nillion/client-wasm";
 import { sha256 } from "@noble/hashes/sha2";
 import { z } from "zod";
-
-import { ProgramMetadata } from "@nillion/client-wasm";
 import {
   type PreprocessingRequirement,
   PriceQuoteRequestSchema,
@@ -12,11 +11,10 @@ import {
 import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
 import { Programs } from "#/gen-proto/nillion/programs/v1/service_pb";
 import { StoreProgramRequestSchema } from "#/gen-proto/nillion/programs/v1/store_pb";
-import type { PaymentClient } from "#/payment";
-import { ProgramId } from "#/types";
+import type { PaymentClient } from "#/payment/client";
+import { ProgramId } from "#/types/types";
 import { collapse } from "#/util";
 import type { VmClient } from "#/vm/client";
-
 import type { Operation } from "./operation";
 
 export const StoreProgramConfig = z.object({

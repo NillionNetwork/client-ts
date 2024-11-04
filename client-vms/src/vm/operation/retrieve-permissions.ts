@@ -2,13 +2,13 @@ import { create } from "@bufbuild/protobuf";
 import { createClient } from "@connectrpc/connect";
 import { parse as parseUuid } from "uuid";
 import { z } from "zod";
-
 import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
 import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
 import type { Permissions as PermissionsProto } from "#/gen-proto/nillion/permissions/v1/permissions_pb";
 import { RetrievePermissionsRequestSchema } from "#/gen-proto/nillion/permissions/v1/retrieve_pb";
 import { Permissions } from "#/gen-proto/nillion/permissions/v1/service_pb";
-import { Uuid, ValuesPermissions } from "#/types";
+import { Uuid } from "#/types/types";
+import { ValuesPermissions } from "#/types/values-permissions";
 import { collapse } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";

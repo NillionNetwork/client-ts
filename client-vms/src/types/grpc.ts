@@ -1,6 +1,6 @@
 import type { DescService } from "@bufbuild/protobuf";
-import { Client, Transport } from "@connectrpc/connect";
-import { OfflineSigner } from "@cosmjs/proto-signing";
+import type { Client, Transport } from "@connectrpc/connect";
+import type { OfflineSigner } from "@cosmjs/proto-signing";
 import { z } from "zod";
 
 export const GrpcTransport = z.custom<Transport>((value: unknown) =>

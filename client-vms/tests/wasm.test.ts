@@ -1,6 +1,6 @@
 import { NadaValue, NadaValues } from "@nillion/client-wasm";
 import { describe, expect, it } from "vitest";
-import { type NadaValuesRecord, PartyId } from "#/types";
+import { type NadaValuesRecord, PartyId } from "#/types/types";
 
 const data = [
   {

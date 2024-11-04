@@ -7,7 +7,7 @@ import {
   TokenSchema,
 } from "#/gen-proto/nillion/auth/v1/token_pb";
 import { NodeIdSchema } from "#/gen-proto/nillion/membership/v1/cluster_pb";
-import { PartyId } from "#/types";
+import { PartyId } from "#/types/types";
 
 describe("TokenManager", () => {
   const manager = TokenAuthManager.fromSeed("test");

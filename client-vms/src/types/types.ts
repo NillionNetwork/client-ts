@@ -1,7 +1,6 @@
 import { type Timestamp, timestampDate } from "@bufbuild/protobuf/wkt";
-import { z } from "zod";
-
 import { PartyId as WasmPartyId } from "@nillion/client-wasm";
+import { z } from "zod";
 import type {
   PriceQuoteRequest,
   QuoteFees,

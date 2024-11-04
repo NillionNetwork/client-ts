@@ -1,22 +1,20 @@
-import { z } from "zod";
-
 import { SecretMasker } from "@nillion/client-wasm";
+import { z } from "zod";
 import type { PoolStatusResponse } from "#/gen-proto/nillion/leader_queries/v1/pool_status_pb";
-import { PaymentClient } from "#/payment";
-import { GrpcTransport, PartyId, UserId } from "#/types";
-import { InvokeComputeBuilder } from "#/vm/operation/invoke-compute";
-import { OverwritePermissionsBuilder } from "#/vm/operation/overwrite-permissions";
-import { RetrieveComputeResultBuilder } from "#/vm/operation/retrieve-compute-result";
-import { UpdatePermissionsBuilder } from "#/vm/operation/update-permissions";
-
-import {
-  DeleteValuesBuilder,
-  QueryPoolStatusBuilder,
-  RetrievePermissionsBuilder,
-  RetrieveValuesBuilder,
-  StoreProgramBuilder,
-  StoreValuesBuilder,
-} from "./operation";
+import { PaymentClient } from "#/payment/client";
+import { GrpcTransport } from "#/types/grpc";
+import { PartyId } from "#/types/types";
+import { UserId } from "#/types/user-id";
+import { DeleteValuesBuilder } from "./operation/delete-values";
+import { InvokeComputeBuilder } from "./operation/invoke-compute";
+import { OverwritePermissionsBuilder } from "./operation/overwrite-permissions";
+import { QueryPoolStatusBuilder } from "./operation/query-pool-status";
+import { RetrieveComputeResultBuilder } from "./operation/retrieve-compute-result";
+import { RetrievePermissionsBuilder } from "./operation/retrieve-permissions";
+import { RetrieveValuesBuilder } from "./operation/retrieve-values";
+import { StoreProgramBuilder } from "./operation/store-program";
+import { StoreValuesBuilder } from "./operation/store-values";
+import { UpdatePermissionsBuilder } from "./operation/update-permissions";
 
 export const NodeConfig = z.object({
   id: z.instanceof(PartyId),

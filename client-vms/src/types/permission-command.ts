@@ -1,5 +1,4 @@
 import { create } from "@bufbuild/protobuf";
-
 import {
   type PermissionCommand as PermissionCommandProtobuf,
   PermissionCommandSchema,

@@ -1,7 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 import { createClient } from "@connectrpc/connect";
 import { z } from "zod";
-
 import type { PoolStatusResponse } from "#/gen-proto/nillion/leader_queries/v1/pool_status_pb";
 import { LeaderQueries } from "#/gen-proto/nillion/leader_queries/v1/service_pb";
 import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";

@@ -1,15 +1,15 @@
 import { NadaValue } from "@nillion/client-wasm";
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
-import { createSignerFromKey } from "#/payment";
+import type { ProgramId, Uuid } from "#/types/types";
 import {
-  type ProgramId,
-  type Uuid,
   type ValuesPermissions,
   ValuesPermissionsBuilder,
-} from "#/types";
-import { type VmClient, VmClientBuilder } from "#/vm";
+} from "#/types/values-permissions";
+import { VmClientBuilder } from "#/vm/builder";
+import type { VmClient } from "#/vm/client";
 
+import { createSignerFromKey } from "#/payment/wallet";
 import { Env, PrivateKeyPerSuite, loadProgram } from "./helpers";
 
 describe("VmClient", () => {

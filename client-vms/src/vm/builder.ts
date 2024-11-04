@@ -6,9 +6,10 @@ import { z } from "zod";
 import { TokenAuthManager, createAuthInterceptor } from "#/auth";
 import { Prime } from "#/gen-proto/nillion/membership/v1/cluster_pb";
 import { Membership } from "#/gen-proto/nillion/membership/v1/service_pb";
-import { PaymentClientBuilder } from "#/payment";
-import { PartyId, UserId } from "#/types";
-import { OfflineSignerSchema } from "#/types";
+import { PaymentClientBuilder } from "#/payment/builder";
+import { OfflineSignerSchema } from "#/types/grpc";
+import { PartyId } from "#/types/types";
+import { UserId } from "#/types/user-id";
 import { VmClient, VmClientConfig } from "#/vm/client";
 
 const VmClientBuilderConfig = z.object({

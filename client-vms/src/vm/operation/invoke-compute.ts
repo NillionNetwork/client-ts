@@ -1,14 +1,13 @@
 import { create } from "@bufbuild/protobuf";
 import { createClient } from "@connectrpc/connect";
-import { parse as parseUuid, stringify as stringifyUuid } from "uuid";
-import { z } from "zod";
-
 import {
   type NadaValue,
   NadaValues,
   compute_values_size,
   encode_values,
 } from "@nillion/client-wasm";
+import { parse as parseUuid, stringify as stringifyUuid } from "uuid";
+import { z } from "zod";
 import {
   InputPartyBindingSchema,
   InvokeComputeRequestSchema,
@@ -22,9 +21,9 @@ import {
   OutputBindings,
   PartyId,
   ProgramId,
-  type UserId,
   Uuid,
-} from "#/types";
+} from "#/types/types";
+import type { UserId } from "#/types/user-id";
 import { collapse } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
@@ -73,8 +72,9 @@ export class InvokeCompute implements Operation<Uuid> {
         (share) => share.node.toBase64() === node.id.toBase64(),
       );
 
-      if (!share)
+      if (!share) {
         throw new Error("Failed to match share.party with a known node.id");
+      }
 
       return client.invokeCompute(
         create(InvokeComputeRequestSchema, {

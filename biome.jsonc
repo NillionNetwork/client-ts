@@ -30,7 +30,8 @@
       "style": {
         "all": true,
         "noNonNullAssertion": "off",
-        "useNamingConvention": "off"
+        "useNamingConvention": "off",
+        "noParameterProperties": "off"
       },
       "suspicious": {
         "all": false

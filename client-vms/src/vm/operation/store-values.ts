@@ -1,25 +1,22 @@
 import { create } from "@bufbuild/protobuf";
 import { createClient } from "@connectrpc/connect";
-import { stringify as stringifyUuid } from "uuid";
-import { z } from "zod";
-
 import {
   type NadaValue,
   NadaValues,
   compute_values_size,
   encode_values,
 } from "@nillion/client-wasm";
+import { stringify as stringifyUuid } from "uuid";
+import { z } from "zod";
 import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
 import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
 import { Values } from "#/gen-proto/nillion/values/v1/service_pb";
 import { StoreValuesRequestSchema } from "#/gen-proto/nillion/values/v1/store_pb";
+import { PartyId, TtlDays, Uuid } from "#/types/types";
 import {
-  PartyId,
-  TtlDays,
-  Uuid,
   type ValuesPermissions,
   ValuesPermissionsBuilder,
-} from "#/types";
+} from "#/types/values-permissions";
 import { collapse } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
@@ -62,8 +59,9 @@ export class StoreValues implements Operation<Uuid> {
         (share) => share.node.toBase64() === node.id.toBase64(),
       );
 
-      if (!share)
+      if (!share) {
         throw new Error("Failed to match share.party with a known node.id");
+      }
 
       return client.storeValues(
         create(StoreValuesRequestSchema, {

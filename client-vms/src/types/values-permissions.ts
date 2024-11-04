@@ -1,10 +1,10 @@
 import { create } from "@bufbuild/protobuf";
-
 import {
   type Permissions as PermissionsProtobuf,
   PermissionsSchema,
 } from "#/gen-proto/nillion/permissions/v1/permissions_pb";
-import { type ProgramId, UserId } from "#/types";
+import type { ProgramId } from "#/types/types";
+import { UserId } from "#/types/user-id";
 
 export class ValuesPermissions {
   constructor(
@@ -40,9 +40,11 @@ export class ValuesPermissions {
     const _delete = new Set(value.delete.map((id) => UserId.fromProto(id)));
 
     const compute = new Map<UserId, ProgramId[]>();
-    value.compute.forEach((e) =>
-      compute.set(UserId.fromProto(e.user!), e.programIds),
-    );
+
+    for (const perms of value.compute) {
+      compute.set(UserId.fromProto(perms.user!), perms.programIds);
+    }
+
     return new ValuesPermissions(owner, retrieve, update, _delete, compute);
   }
 }
