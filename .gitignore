@@ -1,8 +1,9 @@
 .DS_Store
 .idea
 .vscode
+.husky
 
-packages/**/gen-proto
+**/gen-proto
 !client-wasm/dist
 
 node_modules
