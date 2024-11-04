@@ -7,7 +7,6 @@ import type { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
 import { NilChainAddressPrefix, type PrivateKeyBase16 } from "./types";
 
 declare global {
-  // eslint-disable-next-line
   interface Window extends KeplrWindow {}
 }
 
@@ -41,7 +40,7 @@ export const createSignerFromKey = async (
   const privateKey = new Uint8Array(key.length / 2);
 
   for (let i = 0, j = 0; i < key.length; i += 2, j++) {
-    privateKey[j] = parseInt(key.slice(i, i + 2), 16);
+    privateKey[j] = Number.parseInt(key.slice(i, i + 2), 16);
   }
 
   return await DirectSecp256k1Wallet.fromKey(privateKey, NilChainAddressPrefix);

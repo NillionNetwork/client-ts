@@ -73,7 +73,6 @@ export const NillionProvider: React.FC<
     // default to photon
     let combined: ProviderNetworkConfig = NamedNetworkConfig.photon;
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- parse and on failure throw if invalid "network" value
     if (network && NamedNetwork.parse(network)) {
       combined = NamedNetworkConfig[network];
     }
@@ -87,6 +86,7 @@ export const NillionProvider: React.FC<
   }, []);
 
   const context: NillionContext = {
+  // @ts-ignore
     chainClient: nillionClient,
     logout: async () => {
       await nillionClient.disconnect();

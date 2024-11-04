@@ -1,22 +1,16 @@
 import { createClient } from "@connectrpc/connect";
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
-import { OfflineSigner } from "@cosmjs/proto-signing";
-import { sha512 } from "@noble/hashes/sha2";
-import bs58 from "bs58";
-import { z } from "zod";
-
-import {
-  createAuthInterceptor,
-  TokenAuthManager,
-} from "@nillion/client-vms/auth";
-import { Configs } from "@nillion/client-vms/configs";
-import { Prime } from "@nillion/client-vms/gen-proto/nillion/membership/v1/cluster_pb";
-import { Membership } from "@nillion/client-vms/gen-proto/nillion/membership/v1/service_pb";
-import { PaymentClientBuilder } from "@nillion/client-vms/payment";
-import { PartyId, UserId } from "@nillion/client-vms/types";
-import { OfflineSignerSchema } from "@nillion/client-vms/types";
-import { VmClient, VmClientConfig } from "@nillion/client-vms/vm/client";
+import type { OfflineSigner } from "@cosmjs/proto-signing";
 import { SecretMasker } from "@nillion/client-wasm";
+import { z } from "zod";
+import { TokenAuthManager, createAuthInterceptor } from "#/auth";
+import { Prime } from "#/gen-proto/nillion/membership/v1/cluster_pb";
+import { Membership } from "#/gen-proto/nillion/membership/v1/service_pb";
+import { PaymentClientBuilder } from "#/payment/builder";
+import { OfflineSignerSchema } from "#/types/grpc";
+import { PartyId } from "#/types/types";
+import { UserId } from "#/types/user-id";
+import { VmClient, VmClientConfig } from "#/vm/client";
 
 const VmClientBuilderConfig = z.object({
   bootnodeUrl: z.string().url("Invalid bootnode url"),
@@ -65,17 +59,10 @@ export class VmClientBuilder {
   }
 
   async build(): Promise<VmClient> {
-    const bootnodeUrlCandidate = this._network
-      ? Configs.Devnet.bootnodeUrl
-      : this._bootnodeUrl;
-    const chainUrlCandidate = this._network
-      ? Configs.Devnet.nilChainUrl
-      : this._chainUrl;
-
     const { bootnodeUrl, chainUrl, signer, seed } = VmClientBuilderConfig.parse(
       {
-        bootnodeUrl: bootnodeUrlCandidate,
-        chainUrl: chainUrlCandidate,
+        bootnodeUrl: this._bootnodeUrl,
+        chainUrl: this._chainUrl,
         signer: this._signer,
         seed: this._seed,
         authTokenTtl: this._authTokenTtl,
@@ -85,12 +72,10 @@ export class VmClientBuilder {
     const tokenAuthManager = TokenAuthManager.fromSeed(seed);
     const cluster = await fetchClusterDetails(bootnodeUrl);
 
-    // eslint-disable-next-line
     const id = PartyId.from(cluster.leader?.identity!?.contents);
     const leader = {
       id,
       transport: createGrpcWebTransport({
-        // eslint-disable-next-line
         baseUrl: cluster.leader?.grpcEndpoint!,
         useBinaryFormat: true,
         interceptors: [createAuthInterceptor(tokenAuthManager, id)],
@@ -98,7 +83,6 @@ export class VmClientBuilder {
     };
 
     const nodes = cluster.members.map((node) => {
-      // eslint-disable-next-line
       const id = PartyId.from(node.identity?.contents!);
       return {
         id,
@@ -133,7 +117,7 @@ export class VmClientBuilder {
         break;
       }
       default: {
-        throw new Error(`Unsupported cluster prime: {cluster.prime}`);
+        throw new Error(`Unsupported cluster prime: ${cluster.prime}`);
       }
     }
 

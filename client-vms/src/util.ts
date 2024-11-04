@@ -4,10 +4,13 @@ export const collapse = <T>(list: T[]): T | never => {
   }
 
   return list.reduce((acc, cur) => {
-    if (acc === undefined) return cur;
+    if (acc === undefined) {
+      return cur;
+    }
     // TODO: serialized to account for objects but could be improved
-    if (JSON.stringify(acc) !== JSON.stringify(cur))
+    if (JSON.stringify(acc) !== JSON.stringify(cur)) {
       throw new Error(`Element mismatch: ${JSON.stringify(list)}`);
+    }
     return cur;
   });
 };

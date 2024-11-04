@@ -1,23 +1,19 @@
 import { create, fromBinary } from "@bufbuild/protobuf";
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
-
-import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
-import { ReceiptSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import {
-  createSignerFromKey,
-  PaymentClient,
-  PaymentClientBuilder,
-} from "@nillion/client-vms/payment";
-import { fetchClusterDetails } from "@nillion/client-vms/vm";
-
+import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
+import { ReceiptSchema } from "#/gen-proto/nillion/payments/v1/receipt_pb";
+import { PaymentClientBuilder } from "#/payment/builder";
+import type { PaymentClient } from "#/payment/client";
+import { createSignerFromKey } from "#/payment/wallet";
+import { fetchClusterDetails } from "#/vm/builder";
 import { Env, PrivateKeyPerSuite } from "./helpers";
 
 describe("PaymentClient", () => {
   let client: PaymentClient;
 
-  test("builder rejects if missing values", async () => {
+  it("builder rejects if missing values", async () => {
     try {
       const builder = new PaymentClientBuilder();
       await builder.build();
@@ -29,7 +25,7 @@ describe("PaymentClient", () => {
     expect.assertions(2);
   });
 
-  test("builder can create client", async () => {
+  it("builder can create client", async () => {
     const cluster = await fetchClusterDetails(Env.bootnodeUrl);
     const signer = await createSignerFromKey(PrivateKeyPerSuite.Payments);
     const builder = new PaymentClientBuilder();
@@ -48,7 +44,7 @@ describe("PaymentClient", () => {
     expect(client).toBeDefined();
   });
 
-  test("can pay for an operation", async () => {
+  it("can pay for an operation", async () => {
     const request = create(PriceQuoteRequestSchema, {
       operation: {
         case: "poolStatus",

@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "23"
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install
+      - run: pnpm exec biome format
+      - run: pnpm exec biome lint
+      - run: pnpm exec tsc -p client-vms/tsconfig.json
+
+  test-client-vms:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        # Aws credentials are required so that nilup can access rc builds
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "eu-west-1"
+      - uses: NillionNetwork/nillion-setup-action@main
+        with:
+          version: "v0.7.0-rc.38"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          cd client-vms/tests-nada-programs
+          ./build.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "23.0"
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install
+      - run: |
+          nillion-devnet --seed test &
+          sleep 10
+          cd client-vms
+          pnpm vitest --coverage
+          killall -9 nillion-devnet
+      - run: cat client-vms/coverage/coverage-summary.json
+      - uses: davelosert/vitest-coverage-report-action@v2
+        if: always()
+        with:
+          working-directory: ./client-vms
+          comment-on: "pr"

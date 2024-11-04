@@ -1,10 +1,9 @@
 import { create } from "@bufbuild/protobuf";
-
 import {
-  PermissionCommand as PermissionCommandProtobuf,
+  type PermissionCommand as PermissionCommandProtobuf,
   PermissionCommandSchema,
-} from "@nillion/client-vms/gen-proto/nillion/permissions/v1/update_pb";
-import { UserId } from "@nillion/client-vms/types/user-id";
+} from "#/gen-proto/nillion/permissions/v1/update_pb";
+import { UserId } from "#/types/user-id";
 
 export class PermissionCommand {
   constructor(

@@ -1,23 +1,21 @@
 import { create } from "@bufbuild/protobuf";
 import { createClient } from "@connectrpc/connect";
+import { ProgramMetadata } from "@nillion/client-wasm";
 import { sha256 } from "@noble/hashes/sha2";
 import { z } from "zod";
-
 import {
-  PreprocessingRequirement,
+  type PreprocessingRequirement,
   PriceQuoteRequestSchema,
   ProgramMetadataSchema,
-} from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
-import { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import { Programs } from "@nillion/client-vms/gen-proto/nillion/programs/v1/service_pb";
-import { StoreProgramRequestSchema } from "@nillion/client-vms/gen-proto/nillion/programs/v1/store_pb";
-import { PaymentClient } from "@nillion/client-vms/payment";
-import { ProgramId } from "@nillion/client-vms/types";
-import { collapse } from "@nillion/client-vms/util";
-import { VmClient } from "@nillion/client-vms/vm/client";
-import { ProgramMetadata } from "@nillion/client-wasm";
-
-import { Operation } from "./operation";
+} from "#/gen-proto/nillion/payments/v1/quote_pb";
+import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
+import { Programs } from "#/gen-proto/nillion/programs/v1/service_pb";
+import { StoreProgramRequestSchema } from "#/gen-proto/nillion/programs/v1/store_pb";
+import type { PaymentClient } from "#/payment/client";
+import { ProgramId } from "#/types/types";
+import { collapse } from "#/util";
+import type { VmClient } from "#/vm/client";
+import type { Operation } from "./operation";
 
 export const StoreProgramConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first

@@ -2,15 +2,15 @@ import { create } from "@bufbuild/protobuf";
 import { createClient } from "@connectrpc/connect";
 import { parse as parseUuid } from "uuid";
 import { z } from "zod";
-
-import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
-import { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import { OverwritePermissionsRequestSchema } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/overwrite_pb";
-import { Permissions as PermissionsService } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/service_pb";
-import { Uuid, ValuesPermissions } from "@nillion/client-vms/types";
-import { collapse } from "@nillion/client-vms/util";
-import { VmClient } from "@nillion/client-vms/vm/client";
-import { Operation } from "@nillion/client-vms/vm/operation/operation";
+import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
+import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
+import { OverwritePermissionsRequestSchema } from "#/gen-proto/nillion/permissions/v1/overwrite_pb";
+import { Permissions as PermissionsService } from "#/gen-proto/nillion/permissions/v1/service_pb";
+import { Uuid } from "#/types/types";
+import type { ValuesPermissions } from "#/types/values-permissions";
+import { collapse } from "#/util";
+import type { VmClient } from "#/vm/client";
+import type { Operation } from "#/vm/operation/operation";
 
 export const OverwritePermissionsConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first

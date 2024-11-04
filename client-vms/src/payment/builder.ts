@@ -1,11 +1,9 @@
 import { createClient } from "@connectrpc/connect";
-import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
+import { type OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import { GasPrice, SigningStargateClient } from "@cosmjs/stargate";
 import { z } from "zod";
-
-import { Payments } from "@nillion/client-vms/gen-proto/nillion/payments/v1/service_pb";
-import { GrpcTransport, OfflineSignerSchema } from "@nillion/client-vms/types";
-
+import { Payments } from "#/gen-proto/nillion/payments/v1/service_pb";
+import { GrpcTransport, OfflineSignerSchema } from "#/types/grpc";
 import { PaymentClient, PaymentClientConfig } from "./client";
 import { MsgPayForCompatWrapper } from "./grpc-compat";
 import { NilChainProtobufTypeUrl, NilToken } from "./types";
@@ -47,8 +45,9 @@ export class PaymentClientBuilder {
     registry.register(NilChainProtobufTypeUrl, MsgPayForCompatWrapper);
 
     const accounts = await signer.getAccounts();
-    if (accounts.length === 0)
+    if (accounts.length === 0) {
       throw new Error("No accounts on the offline signer");
+    }
     const address = accounts[0]?.address ?? "";
 
     const chain = await SigningStargateClient.connectWithSigner(

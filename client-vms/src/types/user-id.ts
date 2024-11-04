@@ -1,11 +1,10 @@
 import { create } from "@bufbuild/protobuf";
 import { sha256 } from "@noble/hashes/sha2";
-
-import { PublicKey } from "@nillion/client-vms/gen-proto/nillion/auth/v1/public_key_pb";
+import type { PublicKey } from "#/gen-proto/nillion/auth/v1/public_key_pb";
 import {
-  UserId as UserIdProto,
+  type UserId as UserIdProto,
   UserIdSchema,
-} from "@nillion/client-vms/gen-proto/nillion/auth/v1/user_pb";
+} from "#/gen-proto/nillion/auth/v1/user_pb";
 
 export class UserId {
   constructor(private inner: Uint8Array) {
