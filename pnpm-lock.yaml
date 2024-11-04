@@ -93,6 +93,9 @@ importers:
       '@types/debug':
         specifier: ^4.1.12
         version: 4.1.12
+      '@types/node':
+        specifier: ^22.8.7
+        version: 22.8.7
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
