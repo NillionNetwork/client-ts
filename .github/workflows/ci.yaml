@@ -29,10 +29,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: extractions/setup-just@v2
-      - uses: actions/setup-node@v4
+        # Aws credentials are required so that nilup can access rc builds
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
-          node-version: "23"
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "eu-west-1"
       - uses: NillionNetwork/nillion-setup-action@main
         with:
           version: "v0.7.0-rc.38"
@@ -42,8 +44,12 @@ jobs:
       - run: |
           cd client-vms/tests-nada-programs
           ./build.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "23"
       - uses: pnpm/action-setup@v4
       - run: pnpm install
+
       - run: |
           nillion-devnet --seed test &
           sleep 10
