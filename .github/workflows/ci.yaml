@@ -1,4 +1,4 @@
-name: Check and test
+name: CI
 
 on:
   pull_request:
@@ -18,11 +18,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "23"
-          cache: "npm"
-      - run: npm ci
-      - run: npx prettier -c "**/*.(js|jsx|mjs|ts|tsx)"
-      - run: npx tsc -p client-vms/tsconfig.json
-      - run: npx eslint -c eslint.config.mjs
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install
+      - run: pnpm exec prettier -c "**/*.(js|jsx|mjs|ts|tsx)"
+      - run: pnpm exec tsc -p client-vms/tsconfig.json
+      - run: pnpm exec eslint -c eslint.config.mjs
 
   test-client-vms:
     if: false

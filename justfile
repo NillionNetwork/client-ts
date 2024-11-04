@@ -2,23 +2,17 @@
 check:
     #!/usr/bin/env bash
     set -uxo pipefail
-    npx prettier -c "**/*.(js|jsx|mjs|ts|tsx)"
-    npx eslint -c eslint.config.mjs
-    npx tsc -p client-vms/tsconfig.json
-
-update-deps:
-    #!/usr/bin/env bash
-    set -uxo pipefail
-    npx npm-check-updates -u --workspaces --root
-    npm install
+    pnpm exec prettier -c "**/*.(js|jsx|mjs|ts|tsx)"
+    pnpm exec eslint -c eslint.config.mjs
+    pnpm exec tsc -p client-vms/tsconfig.json
 
 watch-and-build:
     #!/usr/bin/env bash
     set -uxo pipefail
     just clean
-    npx concurrently -c "auto" \
-      "npm -w client-vms run build:watch" \
-      "npm -w client-react-hooks run build:watch"
+    pnpm exec concurrently -c "auto" \
+      "pnpm --filter client-vms run build:watch" \
+      "pnpm --filter client-react-hooks run build:watch"
 
 test:
     #!/usr/bin/env bash
@@ -36,9 +30,9 @@ unpublish:
     #!/usr/bin/env bash
     set -euxo pipefail
     echo "warning: only for use with a local registry"
-    npm unpublish --force @nillion/client-wasm --registry=http://localhost:4873
-    npm unpublish --force @nillion/client-vms --registry=http://localhost:4873
-    npm unpublish --force @nillion/client-react-hooks --registry=http://localhost:4873
+    pnpm unpublish --force @nillion/client-wasm --registry=http://localhost:4873
+    pnpm unpublish --force @nillion/client-vms --registry=http://localhost:4873
+    pnpm unpublish --force @nillion/client-react-hooks --registry=http://localhost:4873
 
 publish args="":
     #!/usr/bin/env bash
@@ -54,12 +48,12 @@ pack-client-wasm:
     #!/usr/bin/env bash
     set -euxo pipefail
     mkdir dist
-    npm -w client-wasm pack --pack-destination dist
+    pnpm --filter client-wasm pack --pack-destination dist
 
 publish-client-wasm args="":
     #!/usr/bin/env bash
     set -euxo pipefail
-    npm -w client-wasm publish {{args}}
+    pnpm --filter client-wasm publish {{args}}
 # <<< End @nillion/client-wasm <<<
 
 # >>> Start @nillion/client-vms >>>
@@ -72,8 +66,8 @@ test-client-vms-ci:
     sleep 10
     popd
     just clean
-    npm -w client-vms run build:proto
-    npm -w client-vms run test -- --coverage
+    pnpm --filter client-vms run build:proto
+    pnpm --filter client-vms run test -- --coverage
     echo "Tidying up"
     killall -9 nillion-devnet
 
@@ -86,23 +80,23 @@ client-vms-compile-nada:
 test-client-vms:
     #!/usr/bin/env bash
     set -euxo pipefail
-    npm -w client-vms run build:proto
-    npm -w client-vms run test
+    pnpm --filter client-vms run build:proto
+    pnpm --filter client-vms run test
 
 pack-client-vms:
     #!/usr/bin/env bash
     set -euxo pipefail
     mkdir dist
-    npm -w client-vms run clean
-    npm -w client-vms run build
-    npm -w client-vms pack --pack-destination dist
+    pnpm --filter client-vms run clean
+    pnpm --filter client-vms run build
+    pnpm --filter client-vms pack --pack-destination dist
 
 publish-client-vms args="":
     #!/usr/bin/env bash
     set -euxo pipefail
-    npm -w client-vms run clean
-    npm -w client-vms run build
-    npm -w client-vms publish {{args}}
+    pnpm --filter client-vms run clean
+    pnpm --filter client-vms run build
+    pnpm --filter client-vms publish {{args}}
 # <<< End @nillion/client-vms <<<
 
 
@@ -110,14 +104,14 @@ publish-client-vms args="":
 pack-client-react-hooks:
     #!/usr/bin/env bash
     set -euxo pipefail
-    npm -w client-react-hooks run clean
-    npm -w client-react-hooks run build
-    npm -w client-react-hooks pack --pack-destination dist
+    pnpm --filter client-react-hooks run clean
+    pnpm --filter client-react-hooks run build
+    pnpm --filter client-react-hooks pack --pack-destination dist
 
 publish-client-react-hooks args="":
     #!/usr/bin/env bash
     set -euxo pipefail
-    npm -w client-react-hooks run clean
-    npm -w client-react-hooks run build
-    npm -w client-react-hooks publish {{args}}
+    pnpm --filter client-react-hooks run clean
+    pnpm --filter client-react-hooks run build
+    pnpm --filter client-react-hooks publish {{args}}
 # <<< End @nillion/client-react-hooks <<<

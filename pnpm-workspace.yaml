@@ -1,0 +1,4 @@
+packages:
+  - client-vms
+  - client-wasm
+  - client-react-hooks
