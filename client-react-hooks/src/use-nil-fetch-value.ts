@@ -13,19 +13,38 @@ import { nilHookBaseResult } from "./nil-hook-base";
 import { UseNilHook } from "./nil-hook-base";
 import { useNillion } from "./use-nillion";
 
+/**
+ * `Options` is an interface that can be passed to the `useNilFetchValue` hook.
+ * @param type - `NadaValueType`
+ * @param staleAfter - `number`
+ */
 interface Options {
   type: NadaValueType;
   staleAfter?: number;
 }
 
+/**
+ * `ExecuteArgs` is an interface that can be passed to the `execute` function.
+ * @param id - `StoreId` or `string`
+ * @param name - `NamedValue` or `string`
+ */
 interface ExecuteArgs {
   id: StoreId | string;
   name: NamedValue | string;
 }
 type ExecuteResult = NadaPrimitiveValue;
 
+/**
+ * `UseNilFetchValue` is a hook that allows you to fetch a value from a store.
+ * execute - It executes the NilHook synchronously, allowing the user to check for its status via {@link isSuccess} and {@link isError}.
+ * executeAsync -  It executes the NilHook asynchronously, allowing the usage of `async/await` or `.then()`.
+ */
 type UseNilFetchValue = UseNilHook<ExecuteArgs, ExecuteResult>;
 
+/**
+ * `useNilFetchValue` is a hook that allows you to fetch a value from a store.
+ * @returns {@link UseNilFetchValue}
+ */
 export const useNilFetchValue = (options: Options): UseNilFetchValue => {
   const { client: nilClient } = useNillion();
   const queryClient = useQueryClient();
@@ -69,9 +88,11 @@ export const useNilFetchValue = (options: Options): UseNilFetchValue => {
   });
 
   return {
+    /** execute function that takes an ExecuteArgs object and executes the fetch value */
     execute: (args: ExecuteArgs) => {
       mutate.mutate(args);
     },
+    /** executeAsync function that takes an ExecuteArgs object and executes the fetch value asynchronously */
     executeAsync: async (args: ExecuteArgs) => mutate.mutateAsync(args),
     ...nilHookBaseResult(mutate),
   };
