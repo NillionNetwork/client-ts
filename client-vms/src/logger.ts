@@ -1,4 +1,8 @@
-import debug from "debug";
+import pino from "pino";
 
-export const Log = debug("nillion::client");
-Log.log = console.log.bind(console);
+export const Log = pino({
+  level: "debug",
+  transport: {
+    target: "pino-pretty",
+  },
+});

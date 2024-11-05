@@ -1,17 +1,23 @@
 import { create } from "@bufbuild/protobuf";
-import { createClient } from "@connectrpc/connect";
+import { type Client, createClient } from "@connectrpc/connect";
+import { Effect as E, pipe } from "effect";
+import type { UnknownException } from "effect/Cause";
 import { parse as parseUuid } from "uuid";
 import { z } from "zod";
 import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
 import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
-import type { Permissions as PermissionsProto } from "#/gen-proto/nillion/permissions/v1/permissions_pb";
-import { RetrievePermissionsRequestSchema } from "#/gen-proto/nillion/permissions/v1/retrieve_pb";
-import { Permissions } from "#/gen-proto/nillion/permissions/v1/service_pb";
-import { Uuid } from "#/types/types";
+import {
+  type RetrievePermissionsRequest,
+  RetrievePermissionsRequestSchema,
+} from "#/gen-proto/nillion/permissions/v1/retrieve_pb";
+import { Permissions as PermissionsService } from "#/gen-proto/nillion/permissions/v1/service_pb";
+import { Log } from "#/logger";
+import { type PartyId, Uuid } from "#/types/types";
 import { ValuesPermissions } from "#/types/values-permissions";
 import { collapse } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const RetrievePermissionsConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
@@ -22,26 +28,69 @@ export type RetrievePermissionsConfig = z.infer<
   typeof RetrievePermissionsConfig
 >;
 
+type NodeRequestOptions = {
+  nodeId: PartyId;
+  client: Client<typeof PermissionsService>;
+  request: RetrievePermissionsRequest;
+};
+
 export class RetrievePermissions implements Operation<ValuesPermissions> {
   private constructor(private readonly config: RetrievePermissionsConfig) {}
 
-  async invoke(): Promise<ValuesPermissions> {
-    const { nodes } = this.config.vm.config;
+  invoke(): Promise<ValuesPermissions> {
+    return pipe(
+      E.tryPromise(() => this.pay()),
+      E.map((receipt) => this.prepareRequestPerNode(receipt)),
+      E.flatMap(E.all),
+      E.map((requests) =>
+        requests.map((request) =>
+          retryGrpcRequestIfRecoverable<ValuesPermissions>(
+            "RetrievePermissions",
+            this.invokeNodeRequest(request),
+          ),
+        ),
+      ),
+      E.flatMap((effects) =>
+        E.all(effects, { concurrency: this.config.vm.nodes.length }),
+      ),
+      E.flatMap(collapse),
+      E.tapBoth({
+        onFailure: (e) =>
+          E.sync(() => Log.error("Retrieve permissions failed: %O", e)),
+        onSuccess: (data) =>
+          E.sync(() => Log.info("Retrieved permissions: %O", data)),
+      }),
+      E.runPromise,
+    );
+  }
 
-    const signedReceipt = await this.pay();
-
-    const promises = nodes.map((node) => {
-      const client = createClient(Permissions, node.transport);
-      return client.retrievePermissions(
-        create(RetrievePermissionsRequestSchema, {
+  prepareRequestPerNode(
+    signedReceipt: SignedReceipt,
+  ): E.Effect<NodeRequestOptions, UnknownException>[] {
+    return this.config.vm.nodes.map((node) =>
+      E.succeed({
+        nodeId: node.id,
+        client: createClient(PermissionsService, node.transport),
+        request: create(RetrievePermissionsRequestSchema, {
           signedReceipt,
         }),
-      );
-    });
+      }),
+    );
+  }
 
-    const results = await Promise.all(promises);
-    const result = collapse<PermissionsProto>(results);
-    return ValuesPermissions.from(result);
+  invokeNodeRequest(
+    options: NodeRequestOptions,
+  ): E.Effect<ValuesPermissions, UnknownException> {
+    const { nodeId, client, request } = options;
+    return pipe(
+      E.tryPromise(() => client.retrievePermissions(request)),
+      E.map((response) => ValuesPermissions.from(response)),
+      E.tap((_permissions) =>
+        Log.debug(
+          `Retrieved permissions: node=${nodeId.toBase64()} values=${this.config.id} `,
+        ),
+      ),
+    );
   }
 
   private async pay(): Promise<SignedReceipt> {

@@ -1,7 +1,9 @@
 import { create } from "@bufbuild/protobuf";
-import { createClient } from "@connectrpc/connect";
+import { type Client, createClient } from "@connectrpc/connect";
 import { ProgramMetadata } from "@nillion/client-wasm";
 import { sha256 } from "@noble/hashes/sha2";
+import { Effect as E, pipe } from "effect";
+import type { UnknownException } from "effect/Cause";
 import { z } from "zod";
 import {
   type PreprocessingRequirement,
@@ -10,11 +12,16 @@ import {
 } from "#/gen-proto/nillion/payments/v1/quote_pb";
 import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
 import { Programs } from "#/gen-proto/nillion/programs/v1/service_pb";
-import { StoreProgramRequestSchema } from "#/gen-proto/nillion/programs/v1/store_pb";
+import {
+  type StoreProgramRequest,
+  StoreProgramRequestSchema,
+} from "#/gen-proto/nillion/programs/v1/store_pb";
+import { Log } from "#/logger";
 import type { PaymentClient } from "#/payment/client";
-import { ProgramId } from "#/types/types";
+import { type PartyId, ProgramId, ProgramName } from "#/types/types";
 import { collapse } from "#/util";
 import type { VmClient } from "#/vm/client";
+import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 import type { Operation } from "./operation";
 
 export const StoreProgramConfig = z.object({
@@ -25,6 +32,12 @@ export const StoreProgramConfig = z.object({
 });
 export type StoreProgramConfig = z.infer<typeof StoreProgramConfig>;
 
+type NodeRequestOptions = {
+  nodeId: PartyId;
+  client: Client<typeof Programs>;
+  request: StoreProgramRequest;
+};
+
 export class StoreProgram implements Operation<ProgramId> {
   private constructor(private readonly config: StoreProgramConfig) {}
 
@@ -33,25 +46,57 @@ export class StoreProgram implements Operation<ProgramId> {
   }
 
   async invoke(): Promise<ProgramId> {
-    const {
-      program,
-      vm: { nodes },
-    } = this.config;
-    const signedReceipt = await this.pay();
+    return pipe(
+      E.tryPromise(() => this.pay()),
+      E.map((receipt) => this.prepareRequestPerNode(receipt)),
+      E.flatMap(E.all),
+      E.map((requests) =>
+        requests.map((request) =>
+          retryGrpcRequestIfRecoverable<ProgramId>(
+            "StoreProgram",
+            this.invokeNodeRequest(request),
+          ),
+        ),
+      ),
+      E.flatMap((effects) =>
+        E.all(effects, { concurrency: this.config.vm.nodes.length }),
+      ),
+      E.flatMap(collapse),
+      E.tapBoth({
+        onFailure: (e) =>
+          E.sync(() => Log.error("Store program failed: %O", e)),
+        onSuccess: (id) => E.sync(() => Log.info(`Stored program: ${id}`)),
+      }),
+      E.runPromise,
+    );
+  }
 
-    const promises = nodes.map((node) => {
-      const client = createClient(Programs, node.transport);
-      return client.storeProgram(
-        create(StoreProgramRequestSchema, {
+  prepareRequestPerNode(
+    signedReceipt: SignedReceipt,
+  ): E.Effect<NodeRequestOptions, UnknownException>[] {
+    return this.config.vm.nodes.map((node) =>
+      E.succeed({
+        nodeId: node.id,
+        client: createClient(Programs, node.transport),
+        request: create(StoreProgramRequestSchema, {
           signedReceipt,
-          program,
+          program: this.config.program,
         }),
-      );
-    });
+      }),
+    );
+  }
 
-    const results = (await Promise.all(promises)).map((e) => e.programId);
-    const value = collapse(results);
-    return ProgramId.parse(value);
+  invokeNodeRequest(
+    options: NodeRequestOptions,
+  ): E.Effect<ProgramId, UnknownException> {
+    const { nodeId, client, request } = options;
+    return pipe(
+      E.tryPromise(() => client.storeProgram(request)),
+      E.map((response) => ProgramId.parse(response.programId)),
+      E.tap((id) =>
+        Log.debug(`Stored program: node=${nodeId.toBase64()} values=${id} `),
+      ),
+    );
   }
 
   private pay(): Promise<SignedReceipt> {
@@ -91,13 +136,13 @@ export class StoreProgram implements Operation<ProgramId> {
 }
 
 export class StoreProgramBuilder {
-  private _name?: string;
+  private _name?: ProgramName;
   private _program?: Uint8Array;
 
   private constructor(private readonly vm: VmClient) {}
 
-  name(value: string): this {
-    this._name = value;
+  name(value: ProgramName | string): this {
+    this._name = ProgramName.parse(value);
     return this;
   }
 

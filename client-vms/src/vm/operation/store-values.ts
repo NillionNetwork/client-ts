@@ -1,17 +1,23 @@
 import { create } from "@bufbuild/protobuf";
-import { createClient } from "@connectrpc/connect";
+import { type Client, createClient } from "@connectrpc/connect";
 import {
   type NadaValue,
   NadaValues,
   compute_values_size,
   encode_values,
 } from "@nillion/client-wasm";
-import { stringify as stringifyUuid } from "uuid";
+import { Effect as E, pipe } from "effect";
+import { UnknownException } from "effect/Cause";
+import { stringify } from "uuid";
 import { z } from "zod";
 import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
 import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
 import { Values } from "#/gen-proto/nillion/values/v1/service_pb";
-import { StoreValuesRequestSchema } from "#/gen-proto/nillion/values/v1/store_pb";
+import {
+  type StoreValuesRequest,
+  StoreValuesRequestSchema,
+} from "#/gen-proto/nillion/values/v1/store_pb";
+import { Log } from "#/logger";
 import { PartyId, TtlDays, Uuid } from "#/types/types";
 import {
   type ValuesPermissions,
@@ -20,6 +26,7 @@ import {
 import { collapse } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const StoreValuesConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
@@ -31,54 +38,94 @@ export const StoreValuesConfig = z.object({
 });
 export type StoreValuesConfig = z.infer<typeof StoreValuesConfig>;
 
+type NodeRequestOptions = {
+  nodeId: PartyId;
+  client: Client<typeof Values>;
+  request: StoreValuesRequest;
+};
+
 export class StoreValues implements Operation<Uuid> {
   private constructor(private readonly config: StoreValuesConfig) {}
 
-  async invoke(): Promise<Uuid> {
-    const signedReceipt = await this.pay();
+  get isUpdate(): boolean {
+    return Boolean(this.config.id);
+  }
 
+  invoke(): Promise<Uuid> {
+    return pipe(
+      E.tryPromise(() => this.pay()),
+      E.map((receipt) => this.prepareRequestPerNode(receipt)),
+      E.flatMap(E.all),
+      E.map((requests) =>
+        requests.map((request) =>
+          retryGrpcRequestIfRecoverable<Uuid>(
+            "StoreValues",
+            this.invokeNodeRequest(request),
+          ),
+        ),
+      ),
+      E.flatMap((effects) =>
+        E.all(effects, { concurrency: this.config.vm.nodes.length }),
+      ),
+      E.flatMap(collapse),
+      E.tapBoth({
+        onFailure: (e) => E.sync(() => Log.error("Values store failed: %O", e)),
+        onSuccess: (id) => E.sync(() => Log.info(`Values stored: ${id}`)),
+      }),
+      E.runPromise,
+    );
+  }
+
+  prepareRequestPerNode(
+    signedReceipt: SignedReceipt,
+  ): E.Effect<NodeRequestOptions, UnknownException>[] {
     const {
       values,
-      vm: { masker, nodes },
+      vm: { nodes, masker },
     } = this.config;
 
-    const shares = masker.mask(values).map((share) => ({
-      node: PartyId.from(share.party.to_byte_array()),
-      bincodeValues: encode_values(share.shares),
-    }));
-
+    const permissions = this.config.permissions.toProto();
+    const shares = masker.mask(values);
     const updateIdentifier = this.isUpdate
       ? new TextEncoder().encode(this.config.id ?? undefined)
       : undefined;
 
-    const permissions = this.config.permissions.toProto();
+    return shares.map((share) => {
+      const nodeId = PartyId.from(share.party.to_byte_array());
+      const node = nodes.find((n) => n.id.toBase64() === nodeId.toBase64());
 
-    const promises = nodes.map((node) => {
-      const client = createClient(Values, node.transport);
-      const share = shares.find(
-        (share) => share.node.toBase64() === node.id.toBase64(),
-      );
-
-      if (!share) {
-        throw new Error("Failed to match share.party with a known node.id");
+      if (!node) {
+        return E.fail(
+          new UnknownException(
+            `Failed to match configured nodes with share's party id:${nodeId}`,
+          ),
+        );
       }
 
-      return client.storeValues(
-        create(StoreValuesRequestSchema, {
+      return E.succeed({
+        nodeId,
+        client: createClient(Values, node.transport),
+        request: create(StoreValuesRequestSchema, {
           signedReceipt,
-          bincodeValues: share.bincodeValues,
+          bincodeValues: encode_values(share.shares),
           permissions,
           updateIdentifier,
         }),
-      );
+      });
     });
-
-    const results = (await Promise.all(promises)).map((e) => e.valuesId);
-    return stringifyUuid(collapse(results));
   }
 
-  get isUpdate(): boolean {
-    return Boolean(this.config.id);
+  invokeNodeRequest(
+    options: NodeRequestOptions,
+  ): E.Effect<Uuid, UnknownException> {
+    const { nodeId, client, request } = options;
+    return pipe(
+      E.tryPromise(() => client.storeValues(request)),
+      E.map((response) => stringify(response.valuesId)),
+      E.tap((id) =>
+        Log.debug(`Values stored: node=${nodeId.toBase64()} values=${id}`),
+      ),
+    );
   }
 
   private pay(): Promise<SignedReceipt> {

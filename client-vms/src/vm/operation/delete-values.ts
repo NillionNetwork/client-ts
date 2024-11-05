@@ -1,12 +1,20 @@
 import { create } from "@bufbuild/protobuf";
-import { createClient } from "@connectrpc/connect";
-import { parse as parseUuid } from "uuid";
+import { type Client, createClient } from "@connectrpc/connect";
+import { Effect as E, pipe } from "effect";
+import type { UnknownException } from "effect/Cause";
+import { parse } from "uuid";
 import { z } from "zod";
-import { DeleteValuesRequestSchema } from "#/gen-proto/nillion/values/v1/delete_pb";
+import {
+  type DeleteValuesRequest,
+  DeleteValuesRequestSchema,
+} from "#/gen-proto/nillion/values/v1/delete_pb";
 import { Values } from "#/gen-proto/nillion/values/v1/service_pb";
-import { Uuid } from "#/types/types";
+import { Log } from "#/logger";
+import { type PartyId, Uuid } from "#/types/types";
+import { collapse } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const DeleteValuesConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
@@ -15,32 +23,65 @@ export const DeleteValuesConfig = z.object({
 });
 export type DeleteValuesConfig = z.infer<typeof DeleteValuesConfig>;
 
+type NodeRequestOptions = {
+  nodeId: PartyId;
+  client: Client<typeof Values>;
+  request: DeleteValuesRequest;
+};
+
 export class DeleteValues implements Operation<Uuid> {
   private constructor(private readonly config: DeleteValuesConfig) {}
 
-  async invoke(): Promise<Uuid> {
-    const {
-      vm: { nodes },
-      id,
-    } = this.config;
+  invoke(): Promise<Uuid> {
+    return pipe(
+      this.prepareRequestPerNode(),
+      E.all,
+      E.map((requests) =>
+        requests.map((request) =>
+          retryGrpcRequestIfRecoverable<Uuid>(
+            "DeleteValues",
+            this.invokeNodeRequest(request),
+          ),
+        ),
+      ),
+      E.flatMap((effects) =>
+        E.all(effects, { concurrency: this.config.vm.nodes.length }),
+      ),
+      E.flatMap(collapse),
+      E.tapBoth({
+        onFailure: (e) =>
+          E.sync(() => Log.error("Values delete failed: %O", e)),
+        onSuccess: (id) => E.sync(() => Log.info(`Values deleted: ${id}`)),
+      }),
+      E.runPromise,
+    );
+  }
 
-    const valuesId = parseUuid(id);
+  prepareRequestPerNode(): E.Effect<NodeRequestOptions, UnknownException>[] {
+    const valuesId = parse(this.config.id);
 
-    const promises = nodes.map((node) => {
-      const client = createClient(Values, node.transport);
-      return client.deleteValues(
-        create(DeleteValuesRequestSchema, {
+    return this.config.vm.nodes.map((node) =>
+      E.succeed({
+        nodeId: node.id,
+        client: createClient(Values, node.transport),
+        request: create(DeleteValuesRequestSchema, {
           valuesId,
         }),
-      );
-    });
+      }),
+    );
+  }
 
-    const results = await Promise.all(promises);
-    if (results.length !== nodes.length) {
-      throw new Error("Results length does not match nodes length");
-    }
-
-    return id;
+  invokeNodeRequest(
+    options: NodeRequestOptions,
+  ): E.Effect<Uuid, UnknownException> {
+    const { nodeId, client, request } = options;
+    return pipe(
+      E.tryPromise(() => client.deleteValues(request)),
+      E.map((_response) => this.config.id),
+      E.tap((id) =>
+        Log.debug(`Values deleted: node=${nodeId.toBase64()} values=${id} `),
+      ),
+    );
   }
 
   static new(config: DeleteValuesConfig): DeleteValues {

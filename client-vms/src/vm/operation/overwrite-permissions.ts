@@ -1,16 +1,23 @@
 import { create } from "@bufbuild/protobuf";
-import { createClient } from "@connectrpc/connect";
+import { type Client, createClient } from "@connectrpc/connect";
+import { Effect as E, pipe } from "effect";
+import type { UnknownException } from "effect/Cause";
 import { parse as parseUuid } from "uuid";
 import { z } from "zod";
 import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
 import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
-import { OverwritePermissionsRequestSchema } from "#/gen-proto/nillion/permissions/v1/overwrite_pb";
+import {
+  type OverwritePermissionsRequest,
+  OverwritePermissionsRequestSchema,
+} from "#/gen-proto/nillion/permissions/v1/overwrite_pb";
 import { Permissions as PermissionsService } from "#/gen-proto/nillion/permissions/v1/service_pb";
-import { Uuid } from "#/types/types";
+import { Log } from "#/logger";
+import { type PartyId, Uuid } from "#/types/types";
 import type { ValuesPermissions } from "#/types/values-permissions";
 import { collapse } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const OverwritePermissionsConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
@@ -22,29 +29,70 @@ export type OverwritePermissionsConfig = z.infer<
   typeof OverwritePermissionsConfig
 >;
 
+type NodeRequestOptions = {
+  nodeId: PartyId;
+  client: Client<typeof PermissionsService>;
+  request: OverwritePermissionsRequest;
+};
+
 export class OverwritePermissions implements Operation<ValuesPermissions> {
   private constructor(private readonly config: OverwritePermissionsConfig) {}
 
   async invoke(): Promise<ValuesPermissions> {
-    const {
-      permissions,
-      vm: { nodes },
-    } = this.config;
+    return pipe(
+      E.tryPromise(() => this.pay()),
+      E.map((receipt) => this.prepareRequestPerNode(receipt)),
+      E.flatMap(E.all),
+      E.map((requests) =>
+        requests.map((request) =>
+          retryGrpcRequestIfRecoverable<ValuesPermissions>(
+            "OverwritePermissions",
+            this.invokeNodeRequest(request),
+          ),
+        ),
+      ),
+      E.flatMap((effects) =>
+        E.all(effects, { concurrency: this.config.vm.nodes.length }),
+      ),
+      E.flatMap(collapse),
+      E.tapBoth({
+        onFailure: (e) =>
+          E.sync(() => Log.error("Overwrite permissions failed: %O", e)),
+        onSuccess: (id) =>
+          E.sync(() => Log.info(`Overwrote permissions: ${id}`)),
+      }),
+      E.runPromise,
+    );
+  }
 
-    const signedReceipt = await this.pay();
-
-    const promises = nodes.map((node) => {
-      const client = createClient(PermissionsService, node.transport);
-      return client.overwritePermissions(
-        create(OverwritePermissionsRequestSchema, {
+  prepareRequestPerNode(
+    signedReceipt: SignedReceipt,
+  ): E.Effect<NodeRequestOptions, UnknownException>[] {
+    return this.config.vm.nodes.map((node) =>
+      E.succeed({
+        nodeId: node.id,
+        client: createClient(PermissionsService, node.transport),
+        request: create(OverwritePermissionsRequestSchema, {
           signedReceipt,
-          permissions: permissions.toProto(),
+          permissions: this.config.permissions.toProto(),
         }),
-      );
-    });
+      }),
+    );
+  }
 
-    collapse(await Promise.all(promises));
-    return permissions;
+  invokeNodeRequest(
+    options: NodeRequestOptions,
+  ): E.Effect<ValuesPermissions, UnknownException> {
+    const { nodeId, client, request } = options;
+    return pipe(
+      E.tryPromise(() => client.overwritePermissions(request)),
+      E.map((_response) => this.config.permissions),
+      E.tap((_permissions) =>
+        Log.debug(
+          `Overwrote permissions: node=${nodeId.toBase64()} values=${this.config.id} `,
+        ),
+      ),
+    );
   }
 
   private pay(): Promise<SignedReceipt> {

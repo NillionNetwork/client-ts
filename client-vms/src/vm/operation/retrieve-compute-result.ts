@@ -1,12 +1,20 @@
-import { createClient } from "@connectrpc/connect";
+import { create } from "@bufbuild/protobuf";
+import { type Client, createClient } from "@connectrpc/connect";
 import { PartyShares, decode_values } from "@nillion/client-wasm";
-import { parse as parseUuid } from "uuid";
+import { Effect as E, pipe } from "effect";
+import type { UnknownException } from "effect/Cause";
+import { parse } from "uuid";
 import { z } from "zod";
+import {
+  type RetrieveResultsRequest,
+  RetrieveResultsRequestSchema,
+} from "#/gen-proto/nillion/compute/v1/retrieve_pb";
 import { Compute } from "#/gen-proto/nillion/compute/v1/service_pb";
 import { Log } from "#/logger";
-import { NadaValuesRecord, Uuid } from "#/types/types";
+import { NadaValuesRecord, type PartyId, Uuid } from "#/types/types";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const RetrieveComputeResultConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
@@ -17,45 +25,92 @@ export type RetrieveComputeResultConfig = z.infer<
   typeof RetrieveComputeResultConfig
 >;
 
+type NodeRequestOptions = {
+  nodeId: PartyId;
+  client: Client<typeof Compute>;
+  request: RetrieveResultsRequest;
+};
+
 export class RetrieveComputeResult implements Operation<NadaValuesRecord> {
   private constructor(private readonly config: RetrieveComputeResultConfig) {}
 
   async invoke(): Promise<NadaValuesRecord> {
-    const { nodes, masker } = this.config.vm;
-    const computeId = parseUuid(this.config.id);
+    return pipe(
+      this.prepareRequestPerNode(),
+      E.all,
+      E.map((requests) =>
+        requests.map((request) =>
+          retryGrpcRequestIfRecoverable<PartyShares>(
+            "RetrieveComputeResults",
+            this.invokeNodeRequest(request),
+          ),
+        ),
+      ),
+      E.flatMap((effects) =>
+        E.all(effects, { concurrency: this.config.vm.nodes.length }),
+      ),
+      E.map((results) => {
+        const shares = results.map((values) => values);
+        const values = this.config.vm.masker.unmask(shares);
+        const record = values.to_record() as unknown;
+        return NadaValuesRecord.parse(record);
+      }),
+      E.tapBoth({
+        onFailure: (e) =>
+          E.sync(() => Log.error("Retrieve compute results failed: %O", e)),
+        onSuccess: (data) =>
+          E.sync(() => Log.info("Retrieved compute results: %O", data)),
+      }),
+      E.runPromise,
+    );
+  }
 
-    const promises = nodes.map(async (node) => {
-      const client = createClient(Compute, node.transport);
-      const asyncIterable = client.retrieveResults({
-        computeId,
-      });
+  prepareRequestPerNode(): E.Effect<NodeRequestOptions, UnknownException>[] {
+    const computeId = parse(this.config.id);
 
-      for await (const response of asyncIterable) {
-        const state = response.state.case;
+    return this.config.vm.nodes.map((node) =>
+      E.succeed({
+        nodeId: node.id,
+        client: createClient(Compute, node.transport),
+        request: create(RetrieveResultsRequestSchema, {
+          computeId,
+        }),
+      }),
+    );
+  }
 
-        if (state !== "success" && state !== "waitingComputation") {
-          throw new Error("Compute result failure from node", {
-            cause: response,
-          });
+  invokeNodeRequest(
+    options: NodeRequestOptions,
+  ): E.Effect<PartyShares, UnknownException> {
+    const { nodeId, client, request } = options;
+    return pipe(
+      E.tryPromise(async () => {
+        const asyncIterable = client.retrieveResults(request);
+
+        for await (const response of asyncIterable) {
+          const state = response.state.case;
+
+          if (state !== "success" && state !== "waitingComputation") {
+            throw new Error("Compute result failure from node", {
+              cause: response,
+            });
+          }
+
+          if (response.state.case === "success") {
+            return new PartyShares(
+              nodeId.toWasm(),
+              decode_values(response.state.value.bincodeValues),
+            );
+          }
+
+          Log.debug(`Compute result waiting on: node=${nodeId.toBase64()}`);
         }
-
-        if (response.state.case === "success") {
-          return new PartyShares(
-            node.id.toWasm(),
-            decode_values(response.state.value.bincodeValues),
-          );
-        }
-
-        Log("Waiting for compute result from: %s", node.id.toBase64());
-      }
-    });
-
-    const results = (await Promise.all(promises)) as PartyShares[];
-    const shares = results.map((values) => values);
-    const values = masker.unmask(shares);
-
-    const record = values.to_record() as unknown;
-    return NadaValuesRecord.parse(record);
+      }),
+      E.map((shares) => shares as PartyShares),
+      E.tap(() =>
+        Log.debug(`Compute result shares retrieved: node=${nodeId.toBase64()}`),
+      ),
+    );
   }
 
   static new(config: RetrieveComputeResultConfig): RetrieveComputeResult {
