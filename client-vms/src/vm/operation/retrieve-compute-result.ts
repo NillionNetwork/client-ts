@@ -46,7 +46,7 @@ export class RetrieveComputeResult implements Operation<NadaValuesRecord> {
           );
         }
 
-        Log("Waiting for compute result from: %s", node.id.toBase64());
+        Log.info("Waiting for compute result from: %s", node.id.toBase64());
       }
     });
 

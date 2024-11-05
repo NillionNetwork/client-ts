@@ -57,7 +57,7 @@ export class PaymentClient {
       { ...quotePb, request, signed },
       { path: ["client.quote"] },
     );
-    Log("Got quote for %s: %O", request.operation.case, quote.fees);
+    Log.info("Got quote for %s: %O", request.operation.case, quote.fees);
     return quote;
   }
 
@@ -76,7 +76,7 @@ export class PaymentClient {
       "auto",
     );
     const hash = TxHash.parse(result.transactionHash);
-    Log("Paid %d unil hash: %s", amount, hash);
+    Log.info("Paid %d unil hash: %s", amount, hash);
     return hash;
   }
 
@@ -86,7 +86,7 @@ export class PaymentClient {
       txHash,
     });
     const receipt = await this.leader.paymentReceipt(request);
-    Log("Validated payment with cluster");
+    Log.info("Validated payment with cluster");
     return receipt;
   }
 }
