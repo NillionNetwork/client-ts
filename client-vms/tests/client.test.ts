@@ -1,6 +1,8 @@
 import { NadaValue } from "@nillion/client-wasm";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ZodError } from "zod";
+import { Log } from "#/logger";
+import { createSignerFromKey } from "#/payment/wallet";
 import type { ProgramId, Uuid } from "#/types/types";
 import {
   type ValuesPermissions,
@@ -8,12 +10,26 @@ import {
 } from "#/types/values-permissions";
 import { VmClientBuilder } from "#/vm/builder";
 import type { VmClient } from "#/vm/client";
-
-import { createSignerFromKey } from "#/payment/wallet";
 import { Env, PrivateKeyPerSuite, loadProgram } from "./helpers";
 
-describe("VmClient", () => {
+describe("Client", () => {
   let client: VmClient;
+
+  beforeAll(async () => {
+    const signer = await createSignerFromKey(PrivateKeyPerSuite.VmClient);
+
+    client = await new VmClientBuilder()
+      .authTokenTtl(1)
+      .seed("tests")
+      .bootnodeUrl(Env.bootnodeUrl)
+      .chainUrl(Env.nilChainUrl)
+      .signer(signer)
+      .build();
+  });
+
+  afterAll(async () => {
+    await new Promise((resolve) => Log.flush(resolve));
+  });
 
   it("builder rejects if missing values", async () => {
     try {
@@ -24,20 +40,6 @@ describe("VmClient", () => {
       expect((e as ZodError).issues).toHaveLength(5);
     }
     expect.assertions(2);
-  });
-
-  it("builder can create client", async () => {
-    const signer = await createSignerFromKey(PrivateKeyPerSuite.VmClient);
-
-    client = await new VmClientBuilder()
-      .authTokenTtl(1)
-      .seed("tests")
-      .bootnodeUrl(Env.bootnodeUrl)
-      .chainUrl(Env.nilChainUrl)
-      .signer(signer)
-      .build();
-
-    expect(client).toBeDefined();
   });
 
   it("can query pool status", async () => {

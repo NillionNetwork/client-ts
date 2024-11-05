@@ -1,11 +1,17 @@
 import { create } from "@bufbuild/protobuf";
-import { createClient } from "@connectrpc/connect";
+import { type Client, createClient } from "@connectrpc/connect";
+import { Effect as E, pipe } from "effect";
+import type { UnknownException } from "effect/Cause";
 import { parse as parseUuid } from "uuid";
 import { z } from "zod";
 import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
 import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
 import { Permissions as PermissionsService } from "#/gen-proto/nillion/permissions/v1/service_pb";
-import { UpdatePermissionsRequestSchema } from "#/gen-proto/nillion/permissions/v1/update_pb";
+import {
+  type UpdatePermissionsRequest,
+  UpdatePermissionsRequestSchema,
+} from "#/gen-proto/nillion/permissions/v1/update_pb";
+import { Log } from "#/logger";
 import {
   ComputePermissionCommand,
   ComputePermissionCommandBuilder,
@@ -14,11 +20,12 @@ import {
   PermissionCommand,
   PermissionCommandBuilder,
 } from "#/types/permission-command";
-import { type ProgramId, Uuid } from "#/types/types";
+import { type PartyId, type ProgramId, Uuid } from "#/types/types";
 import type { UserId } from "#/types/user-id";
 import { collapse } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const UpdatePermissionsConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
@@ -31,32 +38,77 @@ export const UpdatePermissionsConfig = z.object({
 });
 export type UpdatePermissionsConfig = z.infer<typeof UpdatePermissionsConfig>;
 
-export class UpdatePermissions implements Operation<void> {
+type NodeRequestOptions = {
+  nodeId: PartyId;
+  client: Client<typeof PermissionsService>;
+  request: UpdatePermissionsRequest;
+};
+
+export class UpdatePermissions implements Operation<Uuid> {
   private constructor(private readonly config: UpdatePermissionsConfig) {}
 
-  async invoke(): Promise<void> {
-    const signedReceipt = await this.pay();
+  invoke(): Promise<Uuid> {
+    return pipe(
+      E.tryPromise(() => this.pay()),
+      E.map((receipt) => this.prepareRequestPerNode(receipt)),
+      E.flatMap(E.all),
+      E.map((requests) =>
+        requests.map((request) =>
+          retryGrpcRequestIfRecoverable<Uuid>(
+            "UpdatePermissions",
+            this.invokeNodeRequest(request),
+          ),
+        ),
+      ),
+      E.flatMap((effects) =>
+        E.all(effects, { concurrency: this.config.vm.nodes.length }),
+      ),
+      E.flatMap(collapse),
+      E.tapBoth({
+        onFailure: (e) =>
+          E.sync(() => Log.error("Update permissions failed: %O", e)),
+        onSuccess: (id) => E.sync(() => Log.info(`Updated permissions: ${id}`)),
+      }),
+      E.runPromise,
+    );
+  }
 
-    const { nodes } = this.config.vm;
+  prepareRequestPerNode(
+    signedReceipt: SignedReceipt,
+  ): E.Effect<NodeRequestOptions, UnknownException>[] {
     const retrieve = this.config.retrieve.toProto();
     const update = this.config.update.toProto();
     const _delete = this.config._delete.toProto();
     const compute = this.config.compute.toProto();
 
-    const promises = nodes.map((node) => {
-      const client = createClient(PermissionsService, node.transport);
-      return client.updatePermissions(
-        create(UpdatePermissionsRequestSchema, {
+    return this.config.vm.nodes.map((node) =>
+      E.succeed({
+        nodeId: node.id,
+        client: createClient(PermissionsService, node.transport),
+        request: create(UpdatePermissionsRequestSchema, {
           signedReceipt,
           retrieve,
           update,
           delete: _delete,
           compute,
         }),
-      );
-    });
+      }),
+    );
+  }
 
-    collapse(await Promise.all(promises));
+  invokeNodeRequest(
+    options: NodeRequestOptions,
+  ): E.Effect<Uuid, UnknownException> {
+    const { nodeId, client, request } = options;
+    return pipe(
+      E.tryPromise(() => client.updatePermissions(request)),
+      E.map((_response) => this.config.id),
+      E.tap((id) =>
+        Log.debug(
+          `Updated permissions: node=${nodeId.toBase64()} values=${id} `,
+        ),
+      ),
+    );
   }
 
   private pay(): Promise<SignedReceipt> {
