@@ -18,18 +18,9 @@ export class ValuesPermissions {
   toProto(): PermissionsProtobuf {
     return create(PermissionsSchema, {
       owner: this.owner.toProto(),
-      retrieve: this.retrieve
-        .values()
-        .map((e) => e.toProto())
-        .toArray(),
-      update: this.update
-        .values()
-        .map((e) => e.toProto())
-        .toArray(),
-      delete: this._delete
-        .values()
-        .map((e) => e.toProto())
-        .toArray(),
+      retrieve: Array.from(this.retrieve.values()).map((e) => e.toProto()),
+      update: Array.from(this.update.values()).map((e) => e.toProto()),
+      delete: Array.from(this._delete.values()).map((e) => e.toProto()),
     });
   }
 
