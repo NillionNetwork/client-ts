@@ -1,0 +1,6 @@
+asttokens==2.4.1
+nada-dsl==0.6.3
+parsial==0.1.0
+richreports==0.2.0
+six==1.16.0
+sortedcontainers==2.4.0

@@ -1,18 +1,15 @@
 .DS_Store
 .idea
 .vscode
+.husky
 
-packages/client-payments/src/proto/nilchain.ts # generated protobuf codec
-!packages/client-wasm/dist
-docs
-logs
+**/gen-proto
+!client-wasm/dist
 
-# npm related artefacts
 node_modules
 dist
-dist-test
+**/coverage
 .next
 
-# python related artefacts
 __pycache__
 venv

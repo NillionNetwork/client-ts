@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package nillion.preprocessing.v1;
+
+import "google/protobuf/empty.proto";
+import "nillion/preprocessing/v1/generate.proto";
+import "nillion/preprocessing/v1/stream.proto";
+import "nillion/preprocessing/v1/cleanup.proto";
+
+// A service to run preprocessing related actions.
+service Preprocessing {
+  // Trigger the generation of preprocessing material.
+  rpc GeneratePreprocessing(generate.GeneratePreprocessingRequest) returns (stream generate.GeneratePreprocessingResponse);
+
+  // Open a stream to generate a preprocessing element.
+  rpc StreamPreprocessing(stream stream.PreprocessingStreamMessage) returns (google.protobuf.Empty);
+
+  // Cleanup used preprocessing chunks.
+  rpc CleanupUsedElements(cleanup.CleanupUsedElementsRequest) returns (google.protobuf.Empty);
+}
+
+

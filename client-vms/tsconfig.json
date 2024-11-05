@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "target": "esnext",
+    "baseUrl": ".",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "paths": {
+      "#/*": ["src/*"],
+      "@nillion/client-wasm": ["../client-wasm/dist"]
+    }
+  }
+}
