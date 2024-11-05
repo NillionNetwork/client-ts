@@ -12,7 +12,7 @@ import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
 import { Programs } from "#/gen-proto/nillion/programs/v1/service_pb";
 import { StoreProgramRequestSchema } from "#/gen-proto/nillion/programs/v1/store_pb";
 import type { PaymentClient } from "#/payment/client";
-import { ProgramId } from "#/types/types";
+import { ProgramId, ProgramName } from "#/types/types";
 import { collapse } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "./operation";
@@ -91,13 +91,13 @@ export class StoreProgram implements Operation<ProgramId> {
 }
 
 export class StoreProgramBuilder {
-  private _name?: string;
+  private _name?: ProgramName;
   private _program?: Uint8Array;
 
   private constructor(private readonly vm: VmClient) {}
 
-  name(value: string): this {
-    this._name = value;
+  name(value: ProgramName | string): this {
+    this._name = ProgramName.parse(value);
     return this;
   }
 
