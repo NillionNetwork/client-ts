@@ -1,22 +1,22 @@
 import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import { timestampDate, timestampFromDate } from "@bufbuild/protobuf/wkt";
 import type { Interceptor } from "@connectrpc/connect";
-import { secp256k1 } from "@noble/curves/secp256k1";
-import { sha256 } from "@noble/hashes/sha2";
-import { randomBytes } from "@noble/hashes/utils";
 import {
   type PublicKey,
   PublicKeySchema,
   PublicKeyType,
-} from "#/gen-proto/nillion/auth/v1/public_key_pb";
+} from "@nillion/client-vms/gen-proto/nillion/auth/v1/public_key_pb";
 import {
   type SignedToken,
   SignedTokenSchema,
   type Token,
   TokenSchema,
-} from "#/gen-proto/nillion/auth/v1/token_pb";
-import { NodeIdSchema } from "#/gen-proto/nillion/membership/v1/cluster_pb";
-import type { PartyId } from "#/types/types";
+} from "@nillion/client-vms/gen-proto/nillion/auth/v1/token_pb";
+import { NodeIdSchema } from "@nillion/client-vms/gen-proto/nillion/membership/v1/cluster_pb";
+import type { PartyId } from "@nillion/client-vms/types/types";
+import { secp256k1 } from "@noble/curves/secp256k1";
+import { sha256 } from "@noble/hashes/sha2";
+import { randomBytes } from "@noble/hashes/utils";
 
 const HEADER_NAME_BASE64_AUTH = "x-nillion-token";
 const NONCE_LENGTH = 32;

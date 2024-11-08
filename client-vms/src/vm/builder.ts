@@ -1,24 +1,30 @@
 import { createClient } from "@connectrpc/connect";
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import type { OfflineSigner } from "@cosmjs/proto-signing";
+import {
+  TokenAuthManager,
+  createAuthInterceptor,
+} from "@nillion/client-vms/auth";
+import { Prime } from "@nillion/client-vms/gen-proto/nillion/membership/v1/cluster_pb";
+import { Membership } from "@nillion/client-vms/gen-proto/nillion/membership/v1/service_pb";
+import { Log } from "@nillion/client-vms/logger";
+import { PaymentClientBuilder } from "@nillion/client-vms/payment/builder";
+import { OfflineSignerSchema } from "@nillion/client-vms/types/grpc";
+import { PartyId } from "@nillion/client-vms/types/types";
+import { UserId } from "@nillion/client-vms/types/user-id";
+import { VmClient, VmClientConfig } from "@nillion/client-vms/vm/client";
 import { SecretMasker } from "@nillion/client-wasm";
 import { z } from "zod";
-import { TokenAuthManager, createAuthInterceptor } from "#/auth";
-import { Prime } from "#/gen-proto/nillion/membership/v1/cluster_pb";
-import { Membership } from "#/gen-proto/nillion/membership/v1/service_pb";
-import { PaymentClientBuilder } from "#/payment/builder";
-import { OfflineSignerSchema } from "#/types/grpc";
-import { PartyId } from "#/types/types";
-import { UserId } from "#/types/user-id";
-import { VmClient, VmClientConfig } from "#/vm/client";
 
-const VmClientBuilderConfig = z.object({
+export const VmClientBuilderConfig = z.object({
   bootnodeUrl: z.string().url("Invalid bootnode url"),
   chainUrl: z.string().url("Invalid chain url"),
   signer: OfflineSignerSchema,
   seed: z.string().min(1),
   authTokenTtl: z.number(),
 });
+
+export type VmClientBuilderConfig = z.infer<typeof VmClientBuilderConfig>;
 
 export class VmClientBuilder {
   private _bootnodeUrl?: string;
@@ -72,11 +78,19 @@ export class VmClientBuilder {
     const tokenAuthManager = TokenAuthManager.fromSeed(seed);
     const cluster = await fetchClusterDetails(bootnodeUrl);
 
-    const id = PartyId.from(cluster.leader?.identity!?.contents);
+    const leaderClusterInfo = cluster.leader;
+    if (
+      !leaderClusterInfo ||
+      !leaderClusterInfo.identity ||
+      !leaderClusterInfo.grpcEndpoint
+    )
+      throw new Error("Leader id not in cluster details");
+
+    const id = PartyId.from(leaderClusterInfo.identity.contents);
     const leader = {
       id,
       transport: createGrpcWebTransport({
-        baseUrl: cluster.leader?.grpcEndpoint!,
+        baseUrl: leaderClusterInfo.grpcEndpoint,
         useBinaryFormat: true,
         interceptors: [createAuthInterceptor(tokenAuthManager, id)],
       }),
@@ -134,6 +148,9 @@ export class VmClientBuilder {
       leader,
       nodes,
     });
+
+    Log.info("Client connected");
+
     return new VmClient(config);
   }
 }

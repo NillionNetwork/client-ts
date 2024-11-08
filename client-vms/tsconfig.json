@@ -6,13 +6,12 @@
     "moduleResolution": "bundler",
     "noEmit": true,
     "strict": true,
-    "noUncheckedIndexedAccess": true,
     "target": "esnext",
-    "baseUrl": ".",
     "allowJs": true,
     "skipLibCheck": true,
+    "baseUrl": ".",
     "paths": {
-      "#/*": ["src/*"]
+      "@nillion/client-vms/*": ["src/*"]
     }
   }
 }

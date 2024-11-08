@@ -2,9 +2,9 @@ import { create } from "@bufbuild/protobuf";
 import {
   type Permissions as PermissionsProtobuf,
   PermissionsSchema,
-} from "#/gen-proto/nillion/permissions/v1/permissions_pb";
-import type { ProgramId } from "#/types/types";
-import { UserId } from "#/types/user-id";
+} from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
+import type { ProgramId } from "@nillion/client-vms/types/types";
+import { UserId } from "@nillion/client-vms/types/user-id";
 
 type ValuesPermissionsAsJson = {
   owner: string;

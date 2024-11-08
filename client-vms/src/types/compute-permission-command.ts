@@ -1,11 +1,11 @@
 import { create } from "@bufbuild/protobuf";
-import { ComputePermissionsSchema } from "#/gen-proto/nillion/permissions/v1/permissions_pb";
+import { ComputePermissionsSchema } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
 import {
   type ComputePermissionCommand as ComputePermissionCommandProtobuf,
   ComputePermissionCommandSchema,
-} from "#/gen-proto/nillion/permissions/v1/update_pb";
-import type { ProgramId } from "#/types/types";
-import type { UserId } from "#/types/user-id";
+} from "@nillion/client-vms/gen-proto/nillion/permissions/v1/update_pb";
+import type { ProgramId } from "@nillion/client-vms/types/types";
+import type { UserId } from "@nillion/client-vms/types/user-id";
 
 export class ComputePermissionCommand {
   constructor(

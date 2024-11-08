@@ -1,31 +1,35 @@
 import { create } from "@bufbuild/protobuf";
 import { type Client, createClient } from "@connectrpc/connect";
+import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
+import type { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
+import { Permissions as PermissionsService } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/service_pb";
+import {
+  type UpdatePermissionsRequest,
+  UpdatePermissionsRequestSchema,
+} from "@nillion/client-vms/gen-proto/nillion/permissions/v1/update_pb";
+import { Log } from "@nillion/client-vms/logger";
+import {
+  ComputePermissionCommand,
+  ComputePermissionCommandBuilder,
+} from "@nillion/client-vms/types/compute-permission-command";
+import {
+  PermissionCommand,
+  PermissionCommandBuilder,
+} from "@nillion/client-vms/types/permission-command";
+import {
+  type PartyId,
+  type ProgramId,
+  Uuid,
+} from "@nillion/client-vms/types/types";
+import type { UserId } from "@nillion/client-vms/types/user-id";
+import { collapse } from "@nillion/client-vms/util";
+import type { VmClient } from "@nillion/client-vms/vm/client";
+import type { Operation } from "@nillion/client-vms/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "@nillion/client-vms/vm/operation/retry-client";
 import { Effect as E, pipe } from "effect";
 import type { UnknownException } from "effect/Cause";
 import { parse as parseUuid } from "uuid";
 import { z } from "zod";
-import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
-import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
-import { Permissions as PermissionsService } from "#/gen-proto/nillion/permissions/v1/service_pb";
-import {
-  type UpdatePermissionsRequest,
-  UpdatePermissionsRequestSchema,
-} from "#/gen-proto/nillion/permissions/v1/update_pb";
-import { Log } from "#/logger";
-import {
-  ComputePermissionCommand,
-  ComputePermissionCommandBuilder,
-} from "#/types/compute-permission-command";
-import {
-  PermissionCommand,
-  PermissionCommandBuilder,
-} from "#/types/permission-command";
-import { type PartyId, type ProgramId, Uuid } from "#/types/types";
-import type { UserId } from "#/types/user-id";
-import { collapse } from "#/util";
-import type { VmClient } from "#/vm/client";
-import type { Operation } from "#/vm/operation/operation";
-import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const UpdatePermissionsConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
@@ -136,10 +140,10 @@ export class UpdatePermissions implements Operation<Uuid> {
 
 export class UpdatePermissionsBuilder {
   private _valuesId?: Uuid;
-  private retrieve = PermissionCommandBuilder.init();
-  private update = PermissionCommandBuilder.init();
+  private _retrieve = PermissionCommandBuilder.init();
+  private _update = PermissionCommandBuilder.init();
   private _delete = PermissionCommandBuilder.init();
-  private compute = ComputePermissionCommandBuilder.init();
+  private _compute = ComputePermissionCommandBuilder.init();
 
   private constructor(private readonly vm: VmClient) {}
 
@@ -148,23 +152,43 @@ export class UpdatePermissionsBuilder {
     return this;
   }
 
+  retrieve(value: PermissionCommandBuilder): this {
+    this._retrieve = value;
+    return this;
+  }
+
+  update(value: PermissionCommandBuilder): this {
+    this._update = value;
+    return this;
+  }
+
+  delete(value: PermissionCommandBuilder): this {
+    this._delete = value;
+    return this;
+  }
+
+  compute(value: ComputePermissionCommandBuilder): this {
+    this._compute = value;
+    return this;
+  }
+
   grantRetrieve(id: UserId): this {
-    this.retrieve.grant(id);
+    this._retrieve.grant(id);
     return this;
   }
 
   revokeRetrieve(id: UserId): this {
-    this.retrieve.revoke(id);
+    this._retrieve.revoke(id);
     return this;
   }
 
   grantUpdate(id: UserId): this {
-    this.update.grant(id);
+    this._update.grant(id);
     return this;
   }
 
   revokeUpdate(id: UserId): this {
-    this.update.revoke(id);
+    this._update.revoke(id);
     return this;
   }
 
@@ -179,12 +203,12 @@ export class UpdatePermissionsBuilder {
   }
 
   grantCompute(id: UserId, programs: ProgramId[]): this {
-    this.compute.grant(id, programs);
+    this._compute.grant(id, programs);
     return this;
   }
 
   revokeCompute(id: UserId, programs: ProgramId[]): this {
-    this.compute.revoke(id, programs);
+    this._compute.revoke(id, programs);
     return this;
   }
 
@@ -192,10 +216,10 @@ export class UpdatePermissionsBuilder {
     const config = UpdatePermissionsConfig.parse({
       vm: this.vm,
       id: this._valuesId,
-      retrieve: this.retrieve.build(),
-      update: this.update.build(),
+      retrieve: this._retrieve.build(),
+      update: this._update.build(),
       _delete: this._delete.build(),
-      compute: this.compute.build(),
+      compute: this._compute.build(),
     });
     return UpdatePermissions.new(config);
   }

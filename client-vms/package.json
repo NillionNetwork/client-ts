@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "clean": "rm -rf dist dist-test",
+    "typecheck": "tsc",
     "build": "node esbuild.config.mjs",
     "build:watch": "node esbuild.config.mjs --watch",
     "build:proto": "npx buf generate",
