@@ -55,7 +55,6 @@ jobs:
           cd client-vms
           pnpm vitest --coverage
           killall -9 nillion-devnet
-      - run: cat client-vms/coverage/coverage-summary.json
       - uses: davelosert/vitest-coverage-report-action@v2
         if: always()
         with:
