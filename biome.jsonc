@@ -7,8 +7,13 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "include": ["client-vms/**/*.ts", "client-vms/*.mjs", "**/*.json"],
-    "ignore": ["client-vms/src/gen-proto"]
+    "include": ["**/*.ts", "**/*.mjs", "**/*.json", "**/*.tsx"],
+    "ignore": [
+      "client-vms/src/gen-proto",
+      "client-react-hooks/src-old",
+      "next/types",
+      "examples"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -20,24 +25,27 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "all": true,
+      "recommended": true,
       "correctness": {
-        "all": true,
-        "noUndeclaredDependencies": "off",
-        "useImportExtensions": "off",
-        "noNodejsModules": "off"
+        "useExhaustiveDependencies": "off"
       },
       "style": {
-        "all": true,
-        "noNonNullAssertion": "off",
-        "useNamingConvention": "off",
-        "noParameterProperties": "off"
-      },
-      "suspicious": {
-        "all": false
+        "noNonNullAssertion": "warn"
       }
     }
   },
+  "overrides": [
+    {
+      "include": ["**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noNonNullAssertion": "off"
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "double",

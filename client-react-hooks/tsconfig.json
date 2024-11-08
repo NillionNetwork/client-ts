@@ -1,5 +1,11 @@
 {
+  "extends": "@tsconfig/vite-react/tsconfig.json",
   "compilerOptions": {
-    "jsx": "react"
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "noUnusedLocals": false,
+    "baseUrl": ".",
+    "paths": {
+      "@nillion/client-vms/*": ["../client-vms/src/*"]
+    }
   }
 }

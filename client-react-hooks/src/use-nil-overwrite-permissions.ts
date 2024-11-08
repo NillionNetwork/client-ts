@@ -1,26 +1,28 @@
 import { useMutation } from "@tanstack/react-query";
 
-import { ActionId, StoreAcl, StoreId } from "@nillion/client-core";
-
+import type { Uuid, ValuesPermissions } from "@nillion/client-vms/types";
 import { nilHookBaseResult } from "./nil-hook-base";
-import { UseNilHook } from "./nil-hook-base";
+import type { UseNilHook } from "./nil-hook-base";
 import { useNillion } from "./use-nillion";
 
 interface ExecuteArgs {
-  id: StoreId | string;
-  acl: StoreAcl;
+  id: Uuid;
+  permissions: ValuesPermissions;
 }
-type ExecuteResult = ActionId;
+type ExecuteResult = ValuesPermissions;
 
-type UseNilSetStoreAcl = UseNilHook<ExecuteArgs, ExecuteResult>;
+type UseNilOverwritePermissions = UseNilHook<ExecuteArgs, ExecuteResult>;
 
-export const useNilSetStoreAcl = (): UseNilSetStoreAcl => {
+export const useNilOverwritePermissions = (): UseNilOverwritePermissions => {
   const { client } = useNillion();
 
   const mutationFn = async (args: ExecuteArgs): Promise<ExecuteResult> => {
-    const response = await client.setStoreAcl(args);
-    if (response.err) throw response.err as Error;
-    return response.ok;
+    return await client
+      .overwritePermissions()
+      .id(args.id)
+      .permissions(args.permissions)
+      .build()
+      .invoke();
   };
 
   const mutate = useMutation({

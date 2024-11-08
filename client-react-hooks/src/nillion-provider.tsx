@@ -1,96 +1,47 @@
-import * as React from "react";
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import type { VmClient } from "@nillion/client-vms";
 import {
   QueryClient,
   QueryClientContext,
   QueryClientProvider,
 } from "@tanstack/react-query";
-
+// biome-ignore lint/style/useImportType: NillionContext.Provider requires the React value in scope but biome thinks only the type is needed
+import React from "react";
 import {
-  ChainId,
-  ClusterId,
-  Multiaddr,
-  NamedNetwork,
-  NamedNetworkConfig,
-  Url,
-} from "@nillion/client-core";
-import { NetworkConfig, NillionClient } from "@nillion/client-vms";
-
+  type ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { Log } from "./logging";
 
-interface WithConfigProps {
-  config?: ProviderNetworkConfig;
-  network?: NamedNetwork;
-  client?: never;
-}
-
-interface ProviderNetworkConfig {
-  bootnodes?: (Multiaddr | string)[];
-  clusterId?: ClusterId | string;
-  nilChainId?: ChainId | string;
-  nilChainEndpoint?: Url | string;
-}
-
-interface WithClientProps {
-  client: NillionClient;
-  config?: never;
-  network?: never;
-}
-
-export type NillionProviderProps = WithConfigProps | WithClientProps;
-
 export interface NillionContext {
-  client: NillionClient;
-  logout: () => Promise<void>;
+  client: VmClient;
 }
+
+export type NillionProviderProps = {
+  client: VmClient;
+  children: ReactNode;
+};
 
 export const NillionContext = createContext<NillionContext | undefined>(
   undefined,
 );
 
-// Moving this into the hook means the client doesn't persist when strict mode is enabled
-const client = NillionClient.create();
-
-export const NillionProvider: React.FC<
-  NillionProviderProps & { children: ReactNode }
-> = (props): ReactNode => {
+export const NillionProvider: React.FC<NillionProviderProps> = (
+  props,
+): ReactNode => {
   const existingQueryClient = useContext(QueryClientContext);
   const [queryClient] = useState<QueryClient>(new QueryClient());
-  const [nillionClient] = useState<NillionClient>(client);
-
-  const { children, network, config } = props;
+  const { children } = props;
 
   useEffect(() => {
-    if (existingQueryClient) Log("Reusing detected react query context.");
-    else Log("No react query context detected; creating one.");
-
-    // default to photon
-    let combined: ProviderNetworkConfig = NamedNetworkConfig.photon;
-
-    if (network && NamedNetwork.parse(network)) {
-      combined = NamedNetworkConfig[network];
-    }
-    if (config) {
-      combined = {
-        ...combined,
-        ...config,
-      };
-    }
-    nillionClient.setNetworkConfig(combined as NetworkConfig);
+    if (existingQueryClient) Log.debug("Reusing react query context");
+    else Log.debug("Creating react query context");
   }, []);
 
   const context: NillionContext = {
-  // @ts-ignore
-    chainClient: nillionClient,
-    logout: async () => {
-      await nillionClient.disconnect();
-    },
+    client: props.client,
   };
 
   if (existingQueryClient) {

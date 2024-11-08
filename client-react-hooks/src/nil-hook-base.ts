@@ -1,4 +1,4 @@
-import { UseMutationResult } from "@tanstack/react-query";
+import type { UseMutationResult } from "@tanstack/react-query";
 
 export const NilHookState = {
   Idle: {
@@ -43,8 +43,12 @@ export type UseNilHook<ExecuteArgs, ExecuteResult> = NilHookBaseResult<
   );
 
 export interface NilHookBaseResult<ExecuteArgs, ExecuteResult> {
-  execute: (args: ExecuteArgs) => void;
-  executeAsync: (args: ExecuteArgs) => Promise<ExecuteResult>;
+  execute: ExecuteArgs extends undefined
+    ? () => void
+    : (args: ExecuteArgs) => void;
+  executeAsync: ExecuteArgs extends undefined
+    ? () => Promise<ExecuteResult>
+    : (args: ExecuteArgs) => Promise<ExecuteResult>;
 }
 
 export interface NilHookIdleResult {

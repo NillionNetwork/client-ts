@@ -1,13 +1,17 @@
-export * from "./nillion-provider";
-export * from "./use-nil-compute";
-export * from "./use-nil-compute-output";
-export * from "./use-nil-delete-value";
-export * from "./use-nil-fetch-store-acl";
-export * from "./use-nil-fetch-value";
-export * from "./use-nil-set-store-acl";
-export * from "./use-nil-store-program";
-export * from "./use-nil-store-value";
-export * from "./use-nil-store-values";
-export * from "./use-nil-update-value";
-export * from "./use-nillion";
-export * from "./use-nillion-auth";
+export { Log } from "./logging";
+
+export { NillionProvider } from "./nillion-provider";
+
+export { createClient } from "./create-client";
+
+export { useNillion } from "./use-nillion";
+export { useNilPoolStatus } from "./use-nil-pool-status";
+export { useNilStoreValues } from "./use-nil-store-values";
+export { useNilRetrieveValues } from "./use-nil-retrieve-values";
+export { useNilDeleteValues } from "./use-nil-delete-values";
+export { useNilRetrievePermissions } from "./use-nil-retrieve-permissions";
+export { useNilUpdatePermissions } from "./use-nil-update-permissions";
+export { useNilOverwritePermissions } from "./use-nil-overwrite-permissions";
+export { useNilStoreProgram } from "./use-nil-store-program";
+export { useNilInvokeCompute } from "./use-nil-invoke-compute";
+export { useNilRetrieveComputeResults } from "./use-nil-retrieve-compute-results";
