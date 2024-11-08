@@ -165,7 +165,9 @@ export class StoreValuesBuilder {
   private _permissions?: ValuesPermissions;
   private readonly _values = new NadaValues();
 
-  private constructor(private readonly vm: VmClient) {}
+  private constructor(private readonly vm: VmClient) {
+    this._permissions = ValuesPermissionsBuilder.default(this.vm.id);
+  }
 
   value(name: string, value: NadaValue): this {
     this._values.insert(name, value);
@@ -179,11 +181,6 @@ export class StoreValuesBuilder {
 
   update(value: Uuid): this {
     this._id = value;
-    return this;
-  }
-
-  defaultPermissions(): this {
-    this._permissions = ValuesPermissionsBuilder.default(this.vm.id);
     return this;
   }
 
