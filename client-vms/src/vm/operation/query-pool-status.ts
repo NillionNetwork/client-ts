@@ -26,10 +26,23 @@ type NodeRequestOptions = {
   request: PoolStatusRequest;
 };
 
-export class QueryPoolStatus implements Operation<PoolStatusResponse> {
+export const PreprocessingOffsets = z.object({
+  element: z.number(),
+  start: z.bigint(),
+  end: z.bigint(),
+});
+export type PreprocessingOffsets = z.infer<typeof PreprocessingOffsets>;
+
+export const PoolStatus = z.object({
+  offsets: z.array(PreprocessingOffsets),
+  preprocessingActive: z.boolean(),
+});
+export type PoolStatus = z.infer<typeof PoolStatus>;
+
+export class QueryPoolStatus implements Operation<PoolStatus> {
   private constructor(private readonly config: QueryPoolStatusConfig) {}
 
-  async invoke(): Promise<PoolStatusResponse> {
+  async invoke(): Promise<PoolStatus> {
     return pipe(
       E.tryPromise(() => this.pay()),
       E.flatMap((receipt) => this.prepareLeaderRequest(receipt)),
@@ -39,11 +52,12 @@ export class QueryPoolStatus implements Operation<PoolStatusResponse> {
           this.invokeNodeRequest(request),
         ),
       ),
+      E.flatMap((response) => E.try(() => PoolStatus.parse(response))),
       E.tapBoth({
         onFailure: (e) =>
           E.sync(() => Log.error("Query pool status failed: %O", e)),
-        onSuccess: (data) =>
-          E.sync(() => Log.info("Got pool status: %O", data)),
+        onSuccess: (status) =>
+          E.sync(() => Log.info("Pool status: %O", status)),
       }),
       E.runPromise,
     );
