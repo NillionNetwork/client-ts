@@ -8,7 +8,7 @@ import {
 } from "@nillion/client-wasm";
 import { Effect as E, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
-import { stringify } from "uuid";
+import { parse, stringify } from "uuid";
 import { z } from "zod";
 import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
 import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
@@ -47,10 +47,6 @@ type NodeRequestOptions = {
 export class StoreValues implements Operation<Uuid> {
   private constructor(private readonly config: StoreValuesConfig) {}
 
-  get isUpdate(): boolean {
-    return Boolean(this.config.id);
-  }
-
   invoke(): Promise<Uuid> {
     return pipe(
       E.tryPromise(() => this.pay()),
@@ -85,11 +81,9 @@ export class StoreValues implements Operation<Uuid> {
     } = this.config;
 
     const permissions = this.config.permissions.toProto();
-    const shares = masker.mask(values);
-    const updateIdentifier = this.isUpdate
-      ? new TextEncoder().encode(this.config.id ?? undefined)
-      : undefined;
+    const updateIdentifier = this.config.id ? parse(this.config.id) : undefined;
 
+    const shares = masker.mask(values);
     return shares.map((share) => {
       const nodeId = PartyId.from(share.party.to_byte_array());
       const node = nodes.find((n) => n.id.toBase64() === nodeId.toBase64());
