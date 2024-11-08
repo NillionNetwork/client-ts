@@ -175,7 +175,7 @@ importers:
 
   client-wasm: {}
 
-  next:
+  examples-nextjs:
     dependencies:
       '@nillion/client-react-hooks':
         specifier: workspace:*
