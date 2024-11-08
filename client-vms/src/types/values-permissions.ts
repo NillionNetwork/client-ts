@@ -6,6 +6,17 @@ import {
 import type { ProgramId } from "#/types/types";
 import { UserId } from "#/types/user-id";
 
+type ValuesPermissionsAsJson = {
+  owner: string;
+  retrieve: string[];
+  update: string[];
+  delete: string[];
+  compute: {
+    user: string;
+    programIds: string[];
+  }[];
+};
+
 export class ValuesPermissions {
   constructor(
     public owner: UserId,
@@ -22,6 +33,19 @@ export class ValuesPermissions {
       update: Array.from(this.update.values()).map((e) => e.toProto()),
       delete: Array.from(this._delete.values()).map((e) => e.toProto()),
     });
+  }
+
+  toJson(): ValuesPermissionsAsJson {
+    return {
+      owner: this.owner.toHex(),
+      retrieve: Array.from(this.retrieve.values()).map((u) => u.toHex()),
+      update: Array.from(this.update.values()).map((u) => u.toHex()),
+      delete: Array.from(this._delete.values()).map((u) => u.toHex()),
+      compute: Array.from(this.compute.entries()).map(([user, programIds]) => ({
+        user: user.toHex(),
+        programIds,
+      })),
+    };
   }
 
   static from(value: PermissionsProtobuf): ValuesPermissions {
