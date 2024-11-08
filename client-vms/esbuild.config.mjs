@@ -1,4 +1,6 @@
-import { main } from "../esbuild.base.config.mjs";
+import browserslist from "browserslist";
+import esbuild from "esbuild";
+import { resolveToEsbuildTarget } from "esbuild-plugin-browserslist";
 
 const config = {
   bundle: true,
@@ -7,6 +9,14 @@ const config = {
   logLevel: "info",
   outfile: "dist/index.mjs",
   packages: "external",
+  target: resolveToEsbuildTarget(browserslist("defaults"), {
+    printUnknownTargets: false,
+  }),
 };
 
-await main(config);
+if (process.argv.includes("--watch")) {
+  const ctx = await esbuild.context(config);
+  await ctx.watch();
+} else {
+  await esbuild.build(config);
+}
