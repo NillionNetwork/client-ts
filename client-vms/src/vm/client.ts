@@ -1,6 +1,5 @@
 import { SecretMasker } from "@nillion/client-wasm";
 import { z } from "zod";
-import type { PoolStatusResponse } from "#/gen-proto/nillion/leader_queries/v1/pool_status_pb";
 import { PaymentClient } from "#/payment/client";
 import { GrpcTransport } from "#/types/grpc";
 import { PartyId } from "#/types/types";
@@ -54,8 +53,8 @@ export class VmClient {
     return this.config.masker;
   }
 
-  queryPoolStatus(): Promise<PoolStatusResponse> {
-    return QueryPoolStatusBuilder.init(this).build().invoke();
+  queryPoolStatus(): QueryPoolStatusBuilder {
+    return QueryPoolStatusBuilder.init(this);
   }
 
   storeValues(): StoreValuesBuilder {
