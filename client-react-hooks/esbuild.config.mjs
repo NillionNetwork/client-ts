@@ -1,7 +1,10 @@
+// @ts-check
+
 import browserslist from "browserslist";
 import esbuild from "esbuild";
 import { resolveToEsbuildTarget } from "esbuild-plugin-browserslist";
 
+/** @type {esbuild.BuildOptions} */
 const config = {
   bundle: true,
   entryPoints: ["src/index.ts"],
