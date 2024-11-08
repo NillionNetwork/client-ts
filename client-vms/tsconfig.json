@@ -12,8 +12,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "paths": {
-      "#/*": ["src/*"],
-      "@nillion/client-wasm": ["../client-wasm/dist"]
+      "#/*": ["src/*"]
     }
   }
 }
