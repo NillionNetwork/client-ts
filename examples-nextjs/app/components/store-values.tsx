@@ -7,17 +7,17 @@ import type { FC } from "react";
 export const StoreValues: FC = () => {
   const mutation = useNilStoreValues();
 
-  const options = {
-    values: [{ name: "foo", value: NadaValue.new_secret_integer("42") }],
-    ttl: 1,
-  };
-
   let id = "";
   if (mutation.isSuccess) {
     id = mutation.data;
   } else if (mutation.isError) {
     id = mutation.error.message;
   }
+
+  const options = {
+    values: [{ name: "foo", value: NadaValue.new_secret_integer("42") }],
+    ttl: 1,
+  };
 
   const stringifiedOptions = JSON.stringify({
     ...options,
@@ -27,6 +27,10 @@ export const StoreValues: FC = () => {
     })),
   });
 
+  function handleClick(): void {
+    mutation.execute(options);
+  }
+
   return (
     <div>
       <h2>Store Values</h2>
@@ -35,7 +39,7 @@ export const StoreValues: FC = () => {
         <li>Options: {stringifiedOptions}</li>
         <li>Store Id: {id}</li>
       </ol>
-      <button type="button" onClick={(): void => mutation.execute(options)}>
+      <button type="button" onClick={handleClick}>
         Execute
       </button>
     </div>

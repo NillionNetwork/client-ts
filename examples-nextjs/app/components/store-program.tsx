@@ -7,9 +7,18 @@ export const StoreProgram: FC = () => {
   const mutation = useNilStoreProgram();
   const [name, setName] = useState("");
   const [program, setProgram] = useState<Uint8Array | null>(null);
+  const programDefined = name && program;
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  let id = "";
+  if (mutation.isSuccess) {
+    id = mutation.data;
+  } else if (mutation.isError) {
+    id = mutation.error.message;
+  }
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>): void {
     const file = event.target.files?.[0];
     if (file) {
       setName(file.name);
@@ -22,16 +31,12 @@ export const StoreProgram: FC = () => {
       };
       reader.readAsArrayBuffer(file);
     }
-  };
-
-  let id = "";
-  if (mutation.isSuccess) {
-    id = mutation.data;
-  } else if (mutation.isError) {
-    id = mutation.error.message;
   }
 
-  const programDefined = name && program;
+  function handleClick(): void {
+    if (!program) throw new Error("Expected `program` to be undefined");
+    mutation.execute({ name, program });
+  }
 
   return (
     <div>
@@ -39,20 +44,13 @@ export const StoreProgram: FC = () => {
       <ol>
         <li>Status: {mutation.status}</li>
         <li>Name: {name}</li>
+        <li>
+          Program:{" "}
+          <input type="file" ref={fileInputRef} onChange={handleFileChange} />
+        </li>
         <li>Program Id: {id}</li>
       </ol>
-      <input type="file" ref={fileInputRef} onChange={handleFileChange} />
-
-      <button
-        type="button"
-        disabled={!programDefined}
-        onClick={(): void =>
-          mutation.execute({
-            name,
-            program: program!,
-          })
-        }
-      >
+      <button type="button" disabled={!programDefined} onClick={handleClick}>
         Execute
       </button>
     </div>

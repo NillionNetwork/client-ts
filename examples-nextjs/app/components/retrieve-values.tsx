@@ -9,6 +9,7 @@ export const RetrieveValues: FC = () => {
     staleAfterSeconds: 30,
   });
   const [id, setId] = useState("");
+  const isValidUuid = Uuid.safeParse(id).success;
 
   let data = "";
   if (mutation.isSuccess) {
@@ -24,21 +25,22 @@ export const RetrieveValues: FC = () => {
     setId(event.target.value);
   }
 
-  const isValidUuid = Uuid.safeParse(id).success;
+  function handleClick(): void {
+    const options = { id };
+    mutation.execute(options);
+  }
 
   return (
     <div>
       <h2>Retrieve Values</h2>
       <ol>
         <li>Status: {mutation.status}</li>
+        <li>
+          Id: <input type="text" value={id} onChange={handleChange} />
+        </li>
         <li>Data: {data}</li>
       </ol>
-      <input type="text" value={id} onChange={handleChange} />
-      <button
-        type="button"
-        disabled={!isValidUuid}
-        onClick={(): void => mutation.execute({ id })}
-      >
+      <button type="button" disabled={!isValidUuid} onClick={handleClick}>
         Execute
       </button>
     </div>

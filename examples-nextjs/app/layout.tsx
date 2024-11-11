@@ -4,14 +4,14 @@ export const metadata = {
   title: "Nillion React Hooks",
 };
 
-export default function RootLayout({
-  children,
-}: {
+interface RootLayoutProps {
   children: ReactNode;
-}) {
+}
+
+export default function RootLayout(props: RootLayoutProps) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>{props.children}</body>
     </html>
   );
 }

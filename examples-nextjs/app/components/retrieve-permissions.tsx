@@ -9,10 +9,12 @@ export const RetrievePermissions: FC = () => {
     staleAfterSeconds: 30,
   });
   const [id, setId] = useState("");
+  const options = { id };
+  const isValidUuid = Uuid.safeParse(id).success;
 
   let data = "";
   if (mutation.isSuccess) {
-    data = JSON.stringify(mutation.data.toJson());
+    data = JSON.stringify(mutation.data.toObject());
   } else if (mutation.isError) {
     data = mutation.error.message;
   }
@@ -21,20 +23,20 @@ export const RetrievePermissions: FC = () => {
     setId(event.target.value);
   }
 
-  const isValidUuid = Uuid.safeParse(id).success;
-
   return (
     <div>
       <h2>Retrieve Permissions</h2>
       <ol>
         <li>Status: {mutation.status}</li>
+        <li>
+          Id: <input type="text" value={id} onChange={handleChange} />
+        </li>
         <li>Permissions: {data}</li>
       </ol>
-      <input type="text" value={id} onChange={handleChange} />
       <button
         type="button"
         disabled={!isValidUuid}
-        onClick={(): void => mutation.execute({ id })}
+        onClick={(): void => mutation.execute(options)}
       >
         Execute
       </button>

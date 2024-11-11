@@ -6,13 +6,8 @@ import { type ChangeEvent, type FC, useState } from "react";
 
 export const UpdateValues: FC = () => {
   const mutation = useNilStoreValues();
-  const [updateId, setUpdateId] = useState("");
-
-  const options = {
-    values: [{ name: "foo", value: NadaValue.new_secret_integer("77") }],
-    ttl: 1,
-    update: updateId,
-  };
+  const [id, setId] = useState("");
+  const isValidUuid = Uuid.safeParse(id).success;
 
   let data = "";
   if (mutation.isSuccess) {
@@ -25,24 +20,29 @@ export const UpdateValues: FC = () => {
   }
 
   function handleChange(event: ChangeEvent<HTMLInputElement>): void {
-    setUpdateId(event.target.value.trim());
+    setId(event.target.value.trim());
   }
 
-  const isValidUuid = Uuid.safeParse(updateId).success;
+  function handleClick(): void {
+    const options = {
+      values: [{ name: "foo", value: NadaValue.new_secret_integer("77") }],
+      ttl: 1,
+      update: id,
+    };
+    mutation.execute(options);
+  }
 
   return (
     <div>
       <h2>Update Values</h2>
       <ol>
         <li>Status: {mutation.status}</li>
+        <li>
+          Id: <input type="text" value={id} onChange={handleChange} />
+        </li>
         <li>Data: {data}</li>
       </ol>
-      <input type="text" value={updateId} onChange={handleChange} />
-      <button
-        type="button"
-        disabled={!isValidUuid}
-        onClick={(): void => mutation.execute(options)}
-      >
+      <button type="button" disabled={!isValidUuid} onClick={handleClick}>
         Execute
       </button>
     </div>
