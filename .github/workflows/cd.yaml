@@ -42,7 +42,7 @@ jobs:
       - run: pnpm --filter "@nillion/client-wasm" build
       - env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm --filter "@nillion/client-wasm" publish --tag ${{ github.event.inputs.tag }} --no-git-tag-version
+        run: pnpm --filter "@nillion/client-wasm" publish --tag ${{ github.event.inputs.tag }}
 
   publish-client-vms:
     if: github.event.inputs.client-vms == 'true'
@@ -58,7 +58,7 @@ jobs:
       - run: pnpm --filter "@nillion/client-vms" build
       - env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm --filter "@nillion/client-vms" publish --tag ${{ github.event.inputs.tag }} --no-git-tag-version
+        run: pnpm --filter "@nillion/client-vms" publish --tag ${{ github.event.inputs.tag }}
 
   publish-client-react-hooks:
     if: github.event.inputs.client-react-hooks == 'true'
@@ -74,4 +74,4 @@ jobs:
       - run: pnpm --filter "@nillion/client-react-hooks" build
       - env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm --filter "@nillion/client-react-hooks" publish --tag ${{ github.event.inputs.tag }} --no-git-tag-version
+        run: pnpm --filter "@nillion/client-react-hooks" publish --tag ${{ github.event.inputs.tag }}
