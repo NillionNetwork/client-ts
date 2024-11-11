@@ -222,13 +222,13 @@ export class UpdatePermissionsBuilder {
     return this;
   }
 
-  grantCompute(id: UserId, programs: ProgramId[]): this {
-    this._compute.grant(id, programs);
+  grantCompute(id: UserId, program: ProgramId): this {
+    this._compute.grant(id, program);
     return this;
   }
 
-  revokeCompute(id: UserId, programs: ProgramId[]): this {
-    this._compute.revoke(id, programs);
+  revokeCompute(id: UserId, program: ProgramId): this {
+    this._compute.revoke(id, program);
     return this;
   }
 

@@ -24,7 +24,7 @@ export class ValuesPermissions {
     public readonly retrieve: Set<UserId>,
     public readonly update: Set<UserId>,
     public readonly _delete: Set<UserId>,
-    public readonly compute: Map<UserId, ProgramId[]>,
+    public readonly compute: Map<UserId, Set<ProgramId>>,
   ) {}
 
   toProto(): PermissionsProtobuf {
@@ -57,15 +57,12 @@ export class ValuesPermissions {
     const update = new Set(value.update.map((id) => UserId.fromProto(id)));
     const _delete = new Set(value.delete.map((id) => UserId.fromProto(id)));
 
-    const compute = new Map<UserId, ProgramId[]>();
+    const compute = new Map<UserId, Set<ProgramId>>();
 
     for (const perms of value.compute) {
       assertIsDefined(perms.user, "user");
 
-      compute.set(
-        UserId.fromProto(perms.user),
-        new Set<ProgramId>(perms.programIds),
-      );
+      compute.set(UserId.fromProto(perms.user), new Set(perms.programIds));
     }
 
     return new ValuesPermissions(owner, retrieve, update, _delete, compute);
@@ -75,10 +72,10 @@ export class ValuesPermissions {
 export class ValuesPermissionsBuilder {
   private constructor(
     private _owner?: UserId,
-    private readonly _retrieve: UserId[] = [],
-    private readonly _update: UserId[] = [],
-    private readonly _delete: UserId[] = [],
-    private readonly _compute: [UserId, ProgramId[]][] = [],
+    private _retrieve: Set<UserId> = new Set(),
+    private _update: Set<UserId> = new Set(),
+    private _delete: Set<UserId> = new Set(),
+    private _compute: Map<UserId, Set<ProgramId>> = new Map(),
   ) {}
 
   owner(id: UserId): this {
@@ -87,23 +84,46 @@ export class ValuesPermissionsBuilder {
   }
 
   grantRetrieve(id: UserId): this {
-    this._retrieve.push(id);
+    this._retrieve.add(id);
     return this;
   }
 
   grantUpdate(id: UserId): this {
-    this._update.push(id);
+    this._update.add(id);
     return this;
   }
 
   grantDelete(id: UserId): this {
-    this._delete.push(id);
+    this._delete.add(id);
     return this;
   }
 
-  grantCompute(id: UserId, programs: ProgramId[]): this {
-    this._compute.push([id, programs]);
+  grantCompute(id: UserId, program: ProgramId): this {
+    const entry = this._compute.get(id) ?? new Set<ProgramId>();
+    entry.add(program);
+    this._compute.set(id, entry);
     return this;
+  }
+
+  permissions(permissions: ValuesPermissions): this {
+    this._owner = permissions.owner;
+    this._retrieve = permissions.retrieve;
+    this._update = permissions.update;
+    this._delete = permissions.update;
+    this._compute = permissions.compute;
+    return this;
+  }
+
+  build(): ValuesPermissions {
+    assertIsDefined(this._owner, "_owner");
+
+    return new ValuesPermissions(
+      this._owner,
+      this._retrieve,
+      this._update,
+      this._delete,
+      this._compute,
+    );
   }
 
   static default(owner: UserId): ValuesPermissions {
@@ -114,5 +134,9 @@ export class ValuesPermissionsBuilder {
       new Set([owner]),
       new Map(),
     );
+  }
+
+  static init(): ValuesPermissionsBuilder {
+    return new ValuesPermissionsBuilder();
   }
 }

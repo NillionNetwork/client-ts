@@ -58,8 +58,10 @@ export class OverwritePermissions implements Operation<ValuesPermissions> {
       E.tapBoth({
         onFailure: (e) =>
           E.sync(() => Log.error("Overwrite permissions failed: %O", e)),
-        onSuccess: (id) =>
-          E.sync(() => Log.info(`Overwrote permissions: ${id}`)),
+        onSuccess: (permissions) =>
+          E.sync(() =>
+            Log.info("Overwrote permissions: %O", permissions.toObject()),
+          ),
       }),
       E.runPromise,
     );
