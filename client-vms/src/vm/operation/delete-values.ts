@@ -1,20 +1,20 @@
 import { create } from "@bufbuild/protobuf";
 import { type Client, createClient } from "@connectrpc/connect";
+import {
+  type DeleteValuesRequest,
+  DeleteValuesRequestSchema,
+} from "@nillion/client-vms/gen-proto/nillion/values/v1/delete_pb";
+import { Values } from "@nillion/client-vms/gen-proto/nillion/values/v1/service_pb";
+import { Log } from "@nillion/client-vms/logger";
+import { type PartyId, Uuid } from "@nillion/client-vms/types/types";
+import { collapse } from "@nillion/client-vms/util";
+import type { VmClient } from "@nillion/client-vms/vm/client";
+import type { Operation } from "@nillion/client-vms/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "@nillion/client-vms/vm/operation/retry-client";
 import { Effect as E, pipe } from "effect";
 import type { UnknownException } from "effect/Cause";
 import { parse } from "uuid";
 import { z } from "zod";
-import {
-  type DeleteValuesRequest,
-  DeleteValuesRequestSchema,
-} from "#/gen-proto/nillion/values/v1/delete_pb";
-import { Values } from "#/gen-proto/nillion/values/v1/service_pb";
-import { Log } from "#/logger";
-import { type PartyId, Uuid } from "#/types/types";
-import { collapse } from "#/util";
-import type { VmClient } from "#/vm/client";
-import type { Operation } from "#/vm/operation/operation";
-import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const DeleteValuesConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first

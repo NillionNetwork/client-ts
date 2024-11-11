@@ -1,6 +1,28 @@
 import { create } from "@bufbuild/protobuf";
 import { type Client, createClient } from "@connectrpc/connect";
 import {
+  InputPartyBindingSchema,
+  type InvokeComputeRequest,
+  InvokeComputeRequestSchema,
+  OutputPartyBindingSchema,
+} from "@nillion/client-vms/gen-proto/nillion/compute/v1/invoke_pb";
+import { Compute } from "@nillion/client-vms/gen-proto/nillion/compute/v1/service_pb";
+import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
+import type { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
+import { Log } from "@nillion/client-vms/logger";
+import {
+  InputBindings,
+  OutputBindings,
+  PartyId,
+  ProgramId,
+  Uuid,
+} from "@nillion/client-vms/types/types";
+import type { UserId } from "@nillion/client-vms/types/user-id";
+import { collapse } from "@nillion/client-vms/util";
+import type { VmClient } from "@nillion/client-vms/vm/client";
+import type { Operation } from "@nillion/client-vms/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "@nillion/client-vms/vm/operation/retry-client";
+import {
   type NadaValue,
   NadaValues,
   compute_values_size,
@@ -10,28 +32,6 @@ import { Effect as E, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
 import { parse, stringify } from "uuid";
 import { z } from "zod";
-import {
-  InputPartyBindingSchema,
-  type InvokeComputeRequest,
-  InvokeComputeRequestSchema,
-  OutputPartyBindingSchema,
-} from "#/gen-proto/nillion/compute/v1/invoke_pb";
-import { Compute } from "#/gen-proto/nillion/compute/v1/service_pb";
-import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
-import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
-import { Log } from "#/logger";
-import {
-  InputBindings,
-  OutputBindings,
-  PartyId,
-  ProgramId,
-  Uuid,
-} from "#/types/types";
-import type { UserId } from "#/types/user-id";
-import { collapse } from "#/util";
-import type { VmClient } from "#/vm/client";
-import type { Operation } from "#/vm/operation/operation";
-import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const InvokeComputeConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first

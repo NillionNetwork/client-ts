@@ -4,12 +4,11 @@
 .husky
 
 **/gen-proto
-!client-wasm/dist
-
 node_modules
 dist
 **/coverage
 .next
+!client-wasm/dist
 
 __pycache__
 venv

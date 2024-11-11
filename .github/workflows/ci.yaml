@@ -37,7 +37,7 @@ jobs:
           aws-region: "eu-west-1"
       - uses: NillionNetwork/nillion-setup-action@main
         with:
-          version: "v0.7.0-rc.38"
+          version: "v0.7.0-rc.42"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -55,7 +55,6 @@ jobs:
           cd client-vms
           pnpm vitest --coverage
           killall -9 nillion-devnet
-      - run: cat client-vms/coverage/coverage-summary.json
       - uses: davelosert/vitest-coverage-report-action@v2
         if: always()
         with:

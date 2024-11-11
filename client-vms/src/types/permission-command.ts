@@ -2,8 +2,8 @@ import { create } from "@bufbuild/protobuf";
 import {
   type PermissionCommand as PermissionCommandProtobuf,
   PermissionCommandSchema,
-} from "#/gen-proto/nillion/permissions/v1/update_pb";
-import { UserId } from "#/types/user-id";
+} from "@nillion/client-vms/gen-proto/nillion/permissions/v1/update_pb";
+import { UserId } from "@nillion/client-vms/types/user-id";
 
 export class PermissionCommand {
   constructor(
@@ -25,6 +25,11 @@ export class PermissionCommand {
     return new PermissionCommand(grant, revoke);
   }
 }
+
+type PermissionCommandAsObject = {
+  grant: string[];
+  revoke: string[];
+};
 
 export class PermissionCommandBuilder {
   private constructor(
@@ -50,6 +55,13 @@ export class PermissionCommandBuilder {
     }
     this._revoke.add(value);
     return this;
+  }
+
+  toObject(): PermissionCommandAsObject {
+    return {
+      grant: Array.from(this._grant).map((u) => u.toHex()),
+      revoke: Array.from(this._revoke).map((u) => u.toHex()),
+    };
   }
 
   build(): PermissionCommand {

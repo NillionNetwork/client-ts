@@ -2,7 +2,6 @@ import { defineConfig, loadEnv } from "vite";
 import wasm from "vite-plugin-wasm";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-// biome-ignore lint: lib requires default export
 export default defineConfig(({ mode }) => ({
   plugins: [tsconfigPaths(), wasm()],
   test: {

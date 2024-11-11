@@ -1,5 +1,22 @@
 import { create } from "@bufbuild/protobuf";
 import { type Client, createClient } from "@connectrpc/connect";
+import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
+import type { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
+import { Values } from "@nillion/client-vms/gen-proto/nillion/values/v1/service_pb";
+import {
+  type StoreValuesRequest,
+  StoreValuesRequestSchema,
+} from "@nillion/client-vms/gen-proto/nillion/values/v1/store_pb";
+import { Log } from "@nillion/client-vms/logger";
+import { PartyId, TtlDays, Uuid } from "@nillion/client-vms/types/types";
+import {
+  type ValuesPermissions,
+  ValuesPermissionsBuilder,
+} from "@nillion/client-vms/types/values-permissions";
+import { collapse } from "@nillion/client-vms/util";
+import type { VmClient } from "@nillion/client-vms/vm/client";
+import type { Operation } from "@nillion/client-vms/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "@nillion/client-vms/vm/operation/retry-client";
 import {
   type NadaValue,
   NadaValues,
@@ -8,25 +25,8 @@ import {
 } from "@nillion/client-wasm";
 import { Effect as E, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
-import { stringify } from "uuid";
+import { parse, stringify } from "uuid";
 import { z } from "zod";
-import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
-import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
-import { Values } from "#/gen-proto/nillion/values/v1/service_pb";
-import {
-  type StoreValuesRequest,
-  StoreValuesRequestSchema,
-} from "#/gen-proto/nillion/values/v1/store_pb";
-import { Log } from "#/logger";
-import { PartyId, TtlDays, Uuid } from "#/types/types";
-import {
-  type ValuesPermissions,
-  ValuesPermissionsBuilder,
-} from "#/types/values-permissions";
-import { collapse } from "#/util";
-import type { VmClient } from "#/vm/client";
-import type { Operation } from "#/vm/operation/operation";
-import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const StoreValuesConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
@@ -46,10 +46,6 @@ type NodeRequestOptions = {
 
 export class StoreValues implements Operation<Uuid> {
   private constructor(private readonly config: StoreValuesConfig) {}
-
-  get isUpdate(): boolean {
-    return Boolean(this.config.id);
-  }
 
   invoke(): Promise<Uuid> {
     return pipe(
@@ -85,11 +81,9 @@ export class StoreValues implements Operation<Uuid> {
     } = this.config;
 
     const permissions = this.config.permissions.toProto();
-    const shares = masker.mask(values);
-    const updateIdentifier = this.isUpdate
-      ? new TextEncoder().encode(this.config.id ?? undefined)
-      : undefined;
+    const updateIdentifier = this.config.id ? parse(this.config.id) : undefined;
 
+    const shares = masker.mask(values);
     return shares.map((share) => {
       const nodeId = PartyId.from(share.party.to_byte_array());
       const node = nodes.find((n) => n.id.toBase64() === nodeId.toBase64());
@@ -163,9 +157,11 @@ export class StoreValuesBuilder {
   private _id?: Uuid;
   private _ttl?: TtlDays;
   private _permissions?: ValuesPermissions;
-  private readonly _values = new NadaValues();
+  readonly _values = new NadaValues();
 
-  private constructor(private readonly vm: VmClient) {}
+  private constructor(private readonly vm: VmClient) {
+    this._permissions = ValuesPermissionsBuilder.default(this.vm.id);
+  }
 
   value(name: string, value: NadaValue): this {
     this._values.insert(name, value);
@@ -179,11 +175,6 @@ export class StoreValuesBuilder {
 
   update(value: Uuid): this {
     this._id = value;
-    return this;
-  }
-
-  defaultPermissions(): this {
-    this._permissions = ValuesPermissionsBuilder.default(this.vm.id);
     return this;
   }
 

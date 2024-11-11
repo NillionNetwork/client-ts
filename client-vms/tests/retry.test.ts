@@ -1,7 +1,7 @@
 import { Code, ConnectError } from "@connectrpc/connect";
+import { retryGrpcRequestIfRecoverable } from "@nillion/client-vms/vm/operation/retry-client";
 import { Effect as E, pipe } from "effect";
 import { describe, expect, it } from "vitest";
-import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 describe("Client retry", () => {
   it("should retry recoverable errors", async () => {

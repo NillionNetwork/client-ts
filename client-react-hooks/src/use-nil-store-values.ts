@@ -1,37 +1,56 @@
+import type {
+  NadaValue,
+  TtlDays,
+  Uuid,
+  ValuesPermissions,
+} from "@nillion/client-vms";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
-import { Days, NadaValues, StoreAcl, StoreId } from "@nillion/client-core";
-
-import { createStoreCacheKey } from "./cache-key";
-import { nilHookBaseResult, UseNilHook } from "./nil-hook-base";
+import { Log } from "./logging";
+import { type UseNilHook, nilHookBaseResult } from "./nil-hook-base";
+import { createStoreCacheKey } from "./query-cache";
 import { useNillion } from "./use-nillion";
 
-interface ExecuteArgs {
-  values: NadaValues;
-  ttl: Days;
-  acl?: StoreAcl;
-}
+type ExecuteArgs = {
+  values: { name: string; value: NadaValue }[];
+  ttl: TtlDays;
+  update?: Uuid;
+  permissions?: ValuesPermissions;
+};
 
-type ExecuteResult = StoreId;
+type ExecuteResult = Uuid;
 
 type UseNilStoreValues = UseNilHook<ExecuteArgs, ExecuteResult>;
 
 export const useNilStoreValues = (): UseNilStoreValues => {
-  const { client: nilClient } = useNillion();
+  const { client } = useNillion();
   const queryClient = useQueryClient();
 
   const mutationFn = async (args: ExecuteArgs): Promise<ExecuteResult> => {
-    const { values, ttl, acl } = args;
-    const response = await nilClient.storeValues({
-      values,
-      ttl,
-      acl,
-    });
-    if (response.err) throw response.err as Error;
+    const { values, ttl, update, permissions } = args;
 
-    const id = response.ok;
+    if (!values.length) {
+      throw new Error("Values cannot be empty");
+    }
+
+    const builder = client.storeValues().ttl(ttl);
+
+    if (permissions) {
+      builder.permissions(permissions);
+    }
+
+    if (update) {
+      Log.info("Updating value: %O", update);
+      builder.update(update);
+    }
+
+    for (const { name, value } of values) {
+      builder.value(name, value);
+    }
+
+    const jsSerializable = builder._values.to_record();
+    const id = await builder.build().invoke();
     const key = createStoreCacheKey(id);
-    queryClient.setQueryData(key, id);
+    queryClient.setQueryData(key, jsSerializable);
     return id;
   };
 
@@ -40,10 +59,11 @@ export const useNilStoreValues = (): UseNilStoreValues => {
   });
 
   return {
-    execute: (args: ExecuteArgs) => {
+    execute: (args: ExecuteArgs): void => {
       mutate.mutate(args);
     },
-    executeAsync: async (args: ExecuteArgs) => mutate.mutateAsync(args),
+    executeAsync: async (args: ExecuteArgs): Promise<Uuid> =>
+      mutate.mutateAsync(args),
     ...nilHookBaseResult(mutate),
   };
 };

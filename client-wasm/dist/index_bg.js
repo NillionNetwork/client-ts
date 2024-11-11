@@ -804,6 +804,21 @@ export class NadaValuesClassification {
     set ecdsa_private_key_shares(arg0) {
         wasm.__wbg_set_nadavaluesclassification_ecdsa_private_key_shares(this.__wbg_ptr, arg0);
     }
+    /**
+    * The number of ecdsa signatures shares
+    * @returns {bigint}
+    */
+    get ecdsa_signature_shares() {
+        const ret = wasm.__wbg_get_nadavaluesclassification_ecdsa_signature_shares(this.__wbg_ptr);
+        return BigInt.asUintN(64, ret);
+    }
+    /**
+    * The number of ecdsa signatures shares
+    * @param {bigint} arg0
+    */
+    set ecdsa_signature_shares(arg0) {
+        wasm.__wbg_set_nadavaluesclassification_ecdsa_signature_shares(this.__wbg_ptr, arg0);
+    }
 }
 
 const PartyIdFinalization = (typeof FinalizationRegistry === 'undefined')
@@ -861,7 +876,7 @@ export class PartyId {
         return this;
     }
     /**
-    * Convert party id to JS Uint8Array
+    * Access party id's underlying bytes.
     * @returns {Uint8Array}
     */
     to_byte_array() {

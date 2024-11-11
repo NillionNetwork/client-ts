@@ -1,15 +1,14 @@
-import { NadaValue } from "@nillion/client-wasm";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { ZodError } from "zod";
-import { Log } from "#/logger";
-import { createSignerFromKey } from "#/payment/wallet";
-import type { ProgramId, Uuid } from "#/types/types";
+import { Log } from "@nillion/client-vms/logger";
+import { createSignerFromKey } from "@nillion/client-vms/payment";
+import type { ProgramId, Uuid } from "@nillion/client-vms/types";
 import {
   type ValuesPermissions,
   ValuesPermissionsBuilder,
-} from "#/types/values-permissions";
-import { VmClientBuilder } from "#/vm/builder";
-import type { VmClient } from "#/vm/client";
+} from "@nillion/client-vms/types";
+import { type VmClient, VmClientBuilder } from "@nillion/client-vms/vm";
+import { NadaValue } from "@nillion/client-wasm";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { ZodError } from "zod";
 import { Env, PrivateKeyPerSuite, loadProgram } from "./helpers";
 
 describe("Client", () => {
@@ -43,13 +42,14 @@ describe("Client", () => {
   });
 
   it("can query pool status", async () => {
-    const status = await client.queryPoolStatus();
+    const status = await client.queryPoolStatus().build().invoke();
     expect(status.offsets.length).toBeGreaterThan(0);
   });
 
-  describe("values", () => {
+  describe.sequential("values", () => {
     const expectedName = "foo";
-    const expectedValue = 42;
+    const expectedValue = "42";
+    const expectedUpdatedValue = "39";
     let expectedPermissions: ValuesPermissions;
     let expectedId: string;
 
@@ -57,26 +57,43 @@ describe("Client", () => {
       expectedId = await client
         .storeValues()
         .ttl(1)
-        .defaultPermissions()
-        .value(
-          expectedName,
-          NadaValue.new_secret_integer(expectedValue.toString()),
-        )
+        .value(expectedName, NadaValue.new_secret_integer(expectedValue))
         .build()
         .invoke();
       expect(expectedId).toHaveLength(36);
     });
 
     it("can retrieve", async () => {
-      const nada = await client
+      const data = await client
         .retrieveValues()
         .id(expectedId)
         .build()
         .invoke();
-      const values = nada[expectedName]!;
+
+      const values = data[expectedName]!;
       expect(values).toBeDefined();
       expect(values.type).toBe("SecretInteger");
-      expect(values.value).toBe("42");
+      expect(values.value).toBe(expectedValue);
+    });
+
+    it("can update", async () => {
+      await client
+        .storeValues()
+        .ttl(1)
+        .update(expectedId)
+        .value(expectedName, NadaValue.new_secret_integer(expectedUpdatedValue))
+        .build()
+        .invoke();
+
+      const data = await client
+        .retrieveValues()
+        .id(expectedId)
+        .build()
+        .invoke();
+
+      const values = data[expectedName]!;
+      expect(values.type).toBe("SecretInteger");
+      expect(values.value).toBe(expectedUpdatedValue);
     });
 
     it("can retrieve permissions", async () => {
@@ -141,7 +158,7 @@ describe("Client", () => {
     });
   });
 
-  describe("compute", () => {
+  describe.sequential("compute", () => {
     const name = "addition_division.nada.bin";
     let programId: ProgramId;
     let computeResultId: Uuid;

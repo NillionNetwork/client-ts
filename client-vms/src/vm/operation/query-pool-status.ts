@@ -1,20 +1,20 @@
 import { create } from "@bufbuild/protobuf";
 import { type Client, createClient } from "@connectrpc/connect";
-import { Effect as E, pipe } from "effect";
-import type { UnknownException } from "effect/Cause";
-import { z } from "zod";
 import {
   type PoolStatusRequest,
   PoolStatusRequestSchema,
   type PoolStatusResponse,
-} from "#/gen-proto/nillion/leader_queries/v1/pool_status_pb";
-import { LeaderQueries } from "#/gen-proto/nillion/leader_queries/v1/service_pb";
-import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
-import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
-import { Log } from "#/logger";
-import type { VmClient } from "#/vm/client";
-import type { Operation } from "#/vm/operation/operation";
-import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
+} from "@nillion/client-vms/gen-proto/nillion/leader_queries/v1/pool_status_pb";
+import { LeaderQueries } from "@nillion/client-vms/gen-proto/nillion/leader_queries/v1/service_pb";
+import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
+import type { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
+import { Log } from "@nillion/client-vms/logger";
+import type { VmClient } from "@nillion/client-vms/vm/client";
+import type { Operation } from "@nillion/client-vms/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "@nillion/client-vms/vm/operation/retry-client";
+import { Effect as E, pipe } from "effect";
+import type { UnknownException } from "effect/Cause";
+import { z } from "zod";
 
 export const QueryPoolStatusConfig = z.object({
   vm: z.custom<VmClient>(),
@@ -26,10 +26,23 @@ type NodeRequestOptions = {
   request: PoolStatusRequest;
 };
 
-export class QueryPoolStatus implements Operation<PoolStatusResponse> {
+export const PreprocessingOffsets = z.object({
+  element: z.number(),
+  start: z.bigint(),
+  end: z.bigint(),
+});
+export type PreprocessingOffsets = z.infer<typeof PreprocessingOffsets>;
+
+export const PoolStatus = z.object({
+  offsets: z.array(PreprocessingOffsets),
+  preprocessingActive: z.boolean(),
+});
+export type PoolStatus = z.infer<typeof PoolStatus>;
+
+export class QueryPoolStatus implements Operation<PoolStatus> {
   private constructor(private readonly config: QueryPoolStatusConfig) {}
 
-  async invoke(): Promise<PoolStatusResponse> {
+  async invoke(): Promise<PoolStatus> {
     return pipe(
       E.tryPromise(() => this.pay()),
       E.flatMap((receipt) => this.prepareLeaderRequest(receipt)),
@@ -39,11 +52,12 @@ export class QueryPoolStatus implements Operation<PoolStatusResponse> {
           this.invokeNodeRequest(request),
         ),
       ),
+      E.flatMap((response) => E.try(() => PoolStatus.parse(response))),
       E.tapBoth({
         onFailure: (e) =>
           E.sync(() => Log.error("Query pool status failed: %O", e)),
-        onSuccess: (data) =>
-          E.sync(() => Log.info("Got pool status: %O", data)),
+        onSuccess: (status) =>
+          E.sync(() => Log.info("Pool status: %O", status)),
       }),
       E.runPromise,
     );

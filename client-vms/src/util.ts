@@ -19,3 +19,12 @@ export const collapse = <T>(list: T[]): E.Effect<T, UnknownException> => {
     E.map(() => list[0] as T),
   );
 };
+
+export function assertIsDefined<T>(
+  value: T | null | undefined,
+  name?: string,
+): asserts value is T {
+  if (value === null || value === undefined) {
+    throw new Error(`Expected ${name} to be defined but got ${value}`);
+  }
+}

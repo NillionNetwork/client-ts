@@ -1,12 +1,12 @@
 import { type Timestamp, timestampDate } from "@bufbuild/protobuf/wkt";
-import { PartyId as WasmPartyId } from "@nillion/client-wasm";
-import { z } from "zod";
 import type {
   PriceQuoteRequest,
   QuoteFees,
   SignedQuote,
-} from "#/gen-proto/nillion/payments/v1/quote_pb";
-import { UserId } from "#/types/user-id";
+} from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
+import { UserId } from "@nillion/client-vms/types/user-id";
+import { PartyId as WasmPartyId } from "@nillion/client-wasm";
+import { z } from "zod";
 
 export const TimestampToDateSchema = z
   .custom<Timestamp>(
