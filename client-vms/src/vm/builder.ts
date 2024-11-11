@@ -12,6 +12,7 @@ import { PaymentClientBuilder } from "@nillion/client-vms/payment/builder";
 import { OfflineSignerSchema } from "@nillion/client-vms/types/grpc";
 import { PartyId } from "@nillion/client-vms/types/types";
 import { UserId } from "@nillion/client-vms/types/user-id";
+import { assertIsDefined } from "@nillion/client-vms/util";
 import { VmClient, VmClientConfig } from "@nillion/client-vms/vm/client";
 import { SecretMasker } from "@nillion/client-wasm";
 import { z } from "zod";
@@ -97,7 +98,8 @@ export class VmClientBuilder {
     };
 
     const nodes = cluster.members.map((node) => {
-      const id = PartyId.from(node.identity?.contents!);
+      assertIsDefined(node.identity?.contents, "node.identity.contents");
+      const id = PartyId.from(node.identity?.contents);
       return {
         id,
         transport: createGrpcWebTransport({

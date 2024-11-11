@@ -5,6 +5,7 @@ import {
 } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
 import type { ProgramId } from "@nillion/client-vms/types/types";
 import { UserId } from "@nillion/client-vms/types/user-id";
+import { assertIsDefined } from "@nillion/client-vms/util";
 
 type ValuesPermissionsAsJson = {
   owner: string;
@@ -49,7 +50,9 @@ export class ValuesPermissions {
   }
 
   static from(value: PermissionsProtobuf): ValuesPermissions {
-    const owner = UserId.fromProto(value.owner!);
+    assertIsDefined(value.owner, "owner");
+
+    const owner = UserId.fromProto(value.owner);
     const retrieve = new Set(value.retrieve.map((id) => UserId.fromProto(id)));
     const update = new Set(value.update.map((id) => UserId.fromProto(id)));
     const _delete = new Set(value.delete.map((id) => UserId.fromProto(id)));
@@ -57,7 +60,12 @@ export class ValuesPermissions {
     const compute = new Map<UserId, ProgramId[]>();
 
     for (const perms of value.compute) {
-      compute.set(UserId.fromProto(perms.user!), perms.programIds);
+      assertIsDefined(perms.user, "user");
+
+      compute.set(
+        UserId.fromProto(perms.user),
+        new Set<ProgramId>(perms.programIds),
+      );
     }
 
     return new ValuesPermissions(owner, retrieve, update, _delete, compute);
