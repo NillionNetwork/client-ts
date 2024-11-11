@@ -1,4 +1,4 @@
-import { type NadaValuesRecord, PartyId } from "@nillion/client-vms";
+import { type NadaValuesRecord, PartyId } from "@nillion/client-vms/types";
 import { NadaValue, NadaValues } from "@nillion/client-wasm";
 import { describe, expect, it } from "vitest";
 
