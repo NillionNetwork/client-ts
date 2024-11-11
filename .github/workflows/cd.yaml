@@ -1,0 +1,77 @@
+name: CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'NPM tag to use'
+        type: choice
+        required: true
+        options:
+          - next
+          - latest
+      client-wasm:
+        description: 'Publish @nillion/client-wasm'
+        type: boolean
+        default: false
+      client-vms:
+        description: 'Publish @nillion/client-vms'
+        type: boolean
+        default: false
+      client-react-hooks:
+        description: 'Publish @nillion/client-react-hooks'
+        type: boolean
+        default: false
+
+concurrency:
+  group: "publish"
+  cancel-in-progress: true
+
+jobs:
+  publish-client-wasm:
+    if: github.event.inputs.client-wasm == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "23"
+          registry-url: "https://registry.npmjs.org"
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install
+      - run: pnpm --filter "@nillion/client-wasm" build
+      - env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm --filter "@nillion/client-wasm" publish --tag ${{ github.event.inputs.tag }} --no-git-tag-version
+
+  publish-client-vms:
+    if: github.event.inputs.client-vms == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "23"
+          registry-url: "https://registry.npmjs.org"
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install
+      - run: pnpm --filter "@nillion/client-vms" build
+      - env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm --filter "@nillion/client-vms" publish --tag ${{ github.event.inputs.tag }} --no-git-tag-version
+
+  publish-client-react-hooks:
+    if: github.event.inputs.client-react-hooks == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "23"
+          registry-url: "https://registry.npmjs.org"
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install
+      - run: pnpm --filter "@nillion/client-react-hooks" build
+      - env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm --filter "@nillion/client-react-hooks" publish --tag ${{ github.event.inputs.tag }} --no-git-tag-version

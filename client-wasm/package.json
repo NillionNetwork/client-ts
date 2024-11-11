@@ -8,5 +8,8 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "scripts": {
+    "build": "echo 'no op'; exit 0"
+  },
   "files": ["dist", "commit-sha.txt", "package.json"]
 }
