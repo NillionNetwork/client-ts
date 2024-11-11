@@ -46,7 +46,7 @@ describe("Client", () => {
     expect(status.offsets.length).toBeGreaterThan(0);
   });
 
-  describe("values", () => {
+  describe.sequential("values", () => {
     const expectedName = "foo";
     const expectedValue = "42";
     const expectedUpdatedValue = "39";
@@ -80,14 +80,14 @@ describe("Client", () => {
       await client
         .storeValues()
         .ttl(1)
-        .update("ad138eb3-1af2-4e05-ab99-cddb66e923f5")
+        .update(expectedId)
         .value(expectedName, NadaValue.new_secret_integer(expectedUpdatedValue))
         .build()
         .invoke();
 
       const data = await client
         .retrieveValues()
-        .id("ad138eb3-1af2-4e05-ab99-cddb66e923f5")
+        .id(expectedId)
         .build()
         .invoke();
 
@@ -158,7 +158,7 @@ describe("Client", () => {
     });
   });
 
-  describe("compute", () => {
+  describe.sequential("compute", () => {
     const name = "addition_division.nada.bin";
     let programId: ProgramId;
     let computeResultId: Uuid;
