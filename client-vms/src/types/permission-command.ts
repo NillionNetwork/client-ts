@@ -26,6 +26,11 @@ export class PermissionCommand {
   }
 }
 
+type PermissionCommandAsObject = {
+  grant: string[];
+  revoke: string[];
+};
+
 export class PermissionCommandBuilder {
   private constructor(
     private readonly _grant: Set<UserId> = new Set(),
@@ -50,6 +55,13 @@ export class PermissionCommandBuilder {
     }
     this._revoke.add(value);
     return this;
+  }
+
+  toObject(): PermissionCommandAsObject {
+    return {
+      grant: Array.from(this._grant).map((u) => u.toHex()),
+      revoke: Array.from(this._revoke).map((u) => u.toHex()),
+    };
   }
 
   build(): PermissionCommand {

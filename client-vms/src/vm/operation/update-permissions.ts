@@ -138,6 +138,26 @@ export class UpdatePermissions implements Operation<Uuid> {
   }
 }
 
+type UpdatePermissionsAsObject = {
+  valuesId?: string;
+  retrieve: {
+    grant: string[];
+    revoke: string[];
+  };
+  update: {
+    grant: string[];
+    revoke: string[];
+  };
+  delete: {
+    grant: string[];
+    revoke: string[];
+  };
+  compute: {
+    grant: Map<string, string[]>;
+    revoke: Map<string, string[]>;
+  };
+};
+
 export class UpdatePermissionsBuilder {
   private _valuesId?: Uuid;
   private _retrieve = PermissionCommandBuilder.init();
@@ -210,6 +230,16 @@ export class UpdatePermissionsBuilder {
   revokeCompute(id: UserId, programs: ProgramId[]): this {
     this._compute.revoke(id, programs);
     return this;
+  }
+
+  toObject(): UpdatePermissionsAsObject {
+    return {
+      valuesId: this._valuesId,
+      retrieve: this._retrieve.toObject(),
+      update: this._update.toObject(),
+      delete: this._delete.toObject(),
+      compute: this._compute.toObject(),
+    };
   }
 
   build(): UpdatePermissions {

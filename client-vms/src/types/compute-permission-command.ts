@@ -31,6 +31,11 @@ export class ComputePermissionCommand {
   }
 }
 
+type ComputePermissionCommandAsObject = {
+  grant: Map<string, string[]>;
+  revoke: Map<string, string[]>;
+};
+
 export class ComputePermissionCommandBuilder {
   private constructor(
     private readonly _grant: Map<UserId, ProgramId[]> = new Map(),
@@ -57,6 +62,13 @@ export class ComputePermissionCommandBuilder {
     return this;
   }
 
+  toObject(): ComputePermissionCommandAsObject {
+    return {
+      grant: convertMapSetToMapArray(this._grant),
+      revoke: convertMapSetToMapArray(this._revoke),
+    };
+  }
+
   build(): ComputePermissionCommand {
     return new ComputePermissionCommand(this._grant, this._revoke);
   }
@@ -65,3 +77,14 @@ export class ComputePermissionCommandBuilder {
     return new ComputePermissionCommandBuilder();
   }
 }
+
+const convertMapSetToMapArray = (
+  map: Map<UserId, Set<ProgramId>>,
+): Map<string, string[]> => {
+  return new Map(
+    Array.from(map.entries()).map(([userId, programSet]) => [
+      userId.toString(),
+      Array.from(programSet).map((program) => program.toString()),
+    ]),
+  );
+};

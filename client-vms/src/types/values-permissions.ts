@@ -7,7 +7,7 @@ import type { ProgramId } from "@nillion/client-vms/types/types";
 import { UserId } from "@nillion/client-vms/types/user-id";
 import { assertIsDefined } from "@nillion/client-vms/util";
 
-type ValuesPermissionsAsJson = {
+type ValuesPermissionsAsObject = {
   owner: string;
   retrieve: string[];
   update: string[];
@@ -36,7 +36,7 @@ export class ValuesPermissions {
     });
   }
 
-  toJson(): ValuesPermissionsAsJson {
+  toObject(): ValuesPermissionsAsObject {
     return {
       owner: this.owner.toHex(),
       retrieve: Array.from(this.retrieve.values()).map((u) => u.toHex()),
@@ -44,7 +44,7 @@ export class ValuesPermissions {
       delete: Array.from(this._delete.values()).map((u) => u.toHex()),
       compute: Array.from(this.compute.entries()).map(([user, programIds]) => ({
         user: user.toHex(),
-        programIds,
+        programIds: Array.from(programIds),
       })),
     };
   }
