@@ -11,5 +11,4 @@ const config: UserConfig = {
   },
 };
 
-// biome-ignore lint/style/noDefaultExport: commitlint requires default export
 export default config;
