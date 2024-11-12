@@ -31,14 +31,15 @@ yarn add @nillion/client-wasm @nillion/client-vms @nillion/client-react-hooks
 
 - 📚 [Official Documentation](https://docs.nillion.com/) - Learn about blind computation and our tooling.
 - 💻 [Code examples](./client-vms/tests/) - See the TypeScript client in action
-- ⚛️ [React Hooks](./client-react-hooks/)- Learn how to use our React hooks
+- ⚛️ [React Hooks](./client-react-hooks/) - Learn how to use our React hooks
 
 ## Packages
 
 - `@nillion/client-react-hooks` - React hooks built on `@nillion/client-vms` and `@tanstack/react-query`
-- `@nillion/client-vms` - Primary gRPC client combining payments and network operations into a simple API (supports web and Node.js)
+- `@nillion/client-vms` - Primary gRPC client combining payments and network operations into a simple API (supports web
+  and Node.js)
 - `@nillion/client-wasm` - Utility functions exported from Rust to WebAssembly
-  
+
 ## Contributing
 
 We welcome contributions! Here's how you can help:
