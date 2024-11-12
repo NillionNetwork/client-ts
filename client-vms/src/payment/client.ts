@@ -57,7 +57,11 @@ export class PaymentClient {
       { ...quotePb, request, signed },
       { path: ["client.quote"] },
     );
-    Log.info("Got quote for %s: %O", request.operation.case, quote.fees);
+    Log.info(
+      "Quoted %s unil for %s",
+      quote.fees.total.toString(),
+      request.operation.case,
+    );
     return quote;
   }
 

@@ -85,7 +85,7 @@ export type OutputBindings = z.infer<typeof OutputBindings>;
 export const NadaValuesRecord = z.record(
   z.object({
     type: z.string(),
-    value: z.string(),
+    value: z.union([z.string(), z.instanceof(Uint8Array)]),
   }),
 );
 export type NadaValuesRecord = z.infer<typeof NadaValuesRecord>;

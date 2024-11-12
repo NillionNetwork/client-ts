@@ -173,7 +173,7 @@ export class StoreValuesBuilder {
     return this;
   }
 
-  update(value: Uuid): this {
+  id(value: Uuid): this {
     this._id = value;
     return this;
   }
