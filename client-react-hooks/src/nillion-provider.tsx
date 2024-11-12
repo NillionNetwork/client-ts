@@ -4,16 +4,7 @@ import {
   QueryClientContext,
   QueryClientProvider,
 } from "@tanstack/react-query";
-// biome-ignore lint/style/useImportType: NillionContext.Provider requires the React value in scope but biome thinks only the type is needed
-import React from "react";
-import {
-  type ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { Log } from "./logging";
+import { type ReactNode, createContext, useContext, useState } from "react";
 
 export interface NillionContext {
   client: VmClient;
@@ -34,11 +25,6 @@ export const NillionProvider: React.FC<NillionProviderProps> = (
   const existingQueryClient = useContext(QueryClientContext);
   const [queryClient] = useState<QueryClient>(new QueryClient());
   const { children } = props;
-
-  useEffect(() => {
-    if (existingQueryClient) Log.debug("Reusing react query context");
-    else Log.debug("Creating react query context");
-  }, []);
 
   const context: NillionContext = {
     client: props.client,

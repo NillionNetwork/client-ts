@@ -5,7 +5,6 @@ import type {
   ValuesPermissions,
 } from "@nillion/client-vms";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Log } from "./logging";
 import { type UseNilHook, nilHookBaseResult } from "./nil-hook-base";
 import { createStoreCacheKey } from "./query-cache";
 import { useNillion } from "./use-nillion";
@@ -39,7 +38,6 @@ export const useNilStoreValues = (): UseNilStoreValues => {
     }
 
     if (updateId) {
-      Log.info("Updating value: %O", updateId);
       builder.id(updateId);
     }
 
