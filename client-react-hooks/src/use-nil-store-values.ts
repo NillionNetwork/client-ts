@@ -13,7 +13,7 @@ import { useNillion } from "./use-nillion";
 type ExecuteArgs = {
   values: { name: string; value: NadaValue }[];
   ttl: TtlDays;
-  update?: Uuid;
+  id?: Uuid;
   permissions?: ValuesPermissions;
 };
 
@@ -26,7 +26,7 @@ export const useNilStoreValues = (): UseNilStoreValues => {
   const queryClient = useQueryClient();
 
   const mutationFn = async (args: ExecuteArgs): Promise<ExecuteResult> => {
-    const { values, ttl, update, permissions } = args;
+    const { values, ttl, id: updateId, permissions } = args;
 
     if (!values.length) {
       throw new Error("Values cannot be empty");
@@ -38,9 +38,9 @@ export const useNilStoreValues = (): UseNilStoreValues => {
       builder.permissions(permissions);
     }
 
-    if (update) {
-      Log.info("Updating value: %O", update);
-      builder.update(update);
+    if (updateId) {
+      Log.info("Updating value: %O", updateId);
+      builder.id(updateId);
     }
 
     for (const { name, value } of values) {
