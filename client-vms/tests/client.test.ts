@@ -18,7 +18,6 @@ describe("Client", () => {
     const signer = await createSignerFromKey(PrivateKeyPerSuite.VmClient);
 
     client = await new VmClientBuilder()
-      .authTokenTtl(1)
       .seed("tests")
       .bootnodeUrl(Env.bootnodeUrl)
       .chainUrl(Env.nilChainUrl)
@@ -36,7 +35,7 @@ describe("Client", () => {
       await builder.build();
     } catch (e) {
       expect(e).toBeInstanceOf(ZodError);
-      expect((e as ZodError).issues).toHaveLength(5);
+      expect((e as ZodError).issues).toHaveLength(4);
     }
     expect.assertions(2);
   });

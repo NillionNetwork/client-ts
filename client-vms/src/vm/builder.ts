@@ -24,7 +24,6 @@ export const VmClientBuilderConfig = z.object({
   chainUrl: z.string().url("Invalid chain url"),
   signer: OfflineSignerSchema,
   seed: z.string().min(1),
-  authTokenTtl: z.number(),
 });
 
 export type VmClientBuilderConfig = z.infer<typeof VmClientBuilderConfig>;
@@ -102,17 +101,6 @@ export class VmClientBuilder {
   }
 
   /**
-   * Sets the time-to-live for gRPC authentication tokens.
-   *
-   * @param {number} ttl - The token TTL in seconds.
-   * @returns {this} The current builder instance.
-   */
-  authTokenTtl(ttl: number): this {
-    this._authTokenTtl = ttl;
-    return this;
-  }
-
-  /**
    * Builds and returns a configured {VmClient} instance.
    *
    * This method initializes the client with the specified configuration
@@ -129,7 +117,6 @@ export class VmClientBuilder {
         chainUrl: this._chainUrl,
         signer: this._signer,
         seed: this._seed,
-        authTokenTtl: this._authTokenTtl,
       },
     );
 

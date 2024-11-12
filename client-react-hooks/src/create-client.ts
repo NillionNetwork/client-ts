@@ -13,7 +13,6 @@ export async function createClient(
         "9a975f567428d054f2bf3092812e6c42f901ce07d9711bc77ee2cd81101f42c5",
       );
       return await new VmClientBuilder()
-        .authTokenTtl(1)
         .seed("tests")
         .bootnodeUrl("http://127.0.0.1:43207")
         .chainUrl("http://127.0.0.1:48102")
