@@ -9,6 +9,8 @@
     }
   },
   "scripts": {
+    "typecheck": "echo 'no op'; exit 0",
+    "build:watch": "echo 'no op'; exit 0",
     "build": "echo 'no op'; exit 0"
   },
   "files": ["dist", "commit-sha.txt", "package.json"]
