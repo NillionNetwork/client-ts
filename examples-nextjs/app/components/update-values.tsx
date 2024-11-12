@@ -19,16 +19,31 @@ export const UpdateValues: FC = () => {
     data = mutation.error.message;
   }
 
+  const options = {
+    values: [{ name: "bob", value: NadaValue.new_secret_integer("77") }],
+    ttl: 1,
+    id,
+  };
+
+  const stringifiedOptions = JSON.stringify({
+    ...options,
+    values: options.values.map(({ name, value }) => ({
+      name,
+      value: {
+        type: value.type_name(),
+        value:
+          value.type_name() === "SecretBlob"
+            ? value.to_byte_array()
+            : value.to_integer(),
+      },
+    })),
+  });
+
   function handleChange(event: ChangeEvent<HTMLInputElement>): void {
     setId(event.target.value.trim());
   }
 
   function handleClick(): void {
-    const options = {
-      values: [{ name: "foo", value: NadaValue.new_secret_integer("77") }],
-      ttl: 1,
-      update: id,
-    };
     mutation.execute(options);
   }
 
@@ -37,6 +52,7 @@ export const UpdateValues: FC = () => {
       <h2>Update Values</h2>
       <ol>
         <li>Status: {mutation.status}</li>
+        <li>Options: {stringifiedOptions}</li>
         <li>
           Id: <input type="text" value={id} onChange={handleChange} />
         </li>
