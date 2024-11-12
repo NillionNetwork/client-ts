@@ -80,7 +80,7 @@ describe("Client", () => {
       await client
         .storeValues()
         .ttl(1)
-        .update(expectedId)
+        .id(expectedId)
         .value(expectedName, NadaValue.new_secret_integer(expectedUpdatedValue))
         .build()
         .invoke();
