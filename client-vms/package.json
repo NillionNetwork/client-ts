@@ -2,7 +2,7 @@
   "name": "@nillion/client-vms",
   "license": "MIT",
   "author": "devsupport@nillion.com",
-  "version": "0.2.0-rc.2",
+  "version": "0.2.0-rc.3",
   "repository": "https://github.com/NillionNetwork/client-ts",
   "type": "module",
   "exports": {
