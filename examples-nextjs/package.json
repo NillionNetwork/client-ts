@@ -1,12 +1,13 @@
 {
-  "name": "@nillion/examples-react",
+  "name": "@nillion/examples-nextjs",
   "version": "0.2.0-rc.2",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@nillion/client-react-hooks": "workspace:*",

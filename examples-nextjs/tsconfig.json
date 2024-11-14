@@ -19,7 +19,11 @@
       }
     ],
     "paths": {
-      "#/*": ["./app/*"]
+      "#/*": ["./app/*"],
+      "@nillion/client-vms/*": ["../client-vms/src/*"],
+      "@nillion/client-vms": ["../client-vms"],
+      "@nillion/client-react-hooks/*": ["../client-react-hooks/src/*"],
+      "@nillion/client-react-hooks": ["../client-react-hooks"]
     }
   },
   "include": [
