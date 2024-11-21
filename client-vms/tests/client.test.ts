@@ -1,4 +1,3 @@
-import { Log } from "@nillion/client-vms/logger";
 import { createSignerFromKey } from "@nillion/client-vms/payment";
 import type { ProgramId, Uuid } from "@nillion/client-vms/types";
 import {
@@ -7,7 +6,7 @@ import {
 } from "@nillion/client-vms/types";
 import { type VmClient, VmClientBuilder } from "@nillion/client-vms/vm";
 import { NadaValue } from "@nillion/client-wasm";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 import { Env, PrivateKeyPerSuite, loadProgram } from "./helpers";
 
@@ -23,10 +22,6 @@ describe("Client", () => {
       .chainUrl(Env.nilChainUrl)
       .signer(signer)
       .build();
-  });
-
-  afterAll(async () => {
-    await new Promise((resolve) => Log.flush(resolve));
   });
 
   it("builder rejects if missing values", async () => {

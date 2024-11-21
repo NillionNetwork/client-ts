@@ -195,7 +195,7 @@ export class VmClientBuilder {
       nodes,
     });
 
-    Log.info("Client connected");
+    Log("Client connected");
 
     return new VmClient(config);
   }

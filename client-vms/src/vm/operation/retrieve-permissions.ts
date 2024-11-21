@@ -56,9 +56,9 @@ export class RetrievePermissions implements Operation<ValuesPermissions> {
       E.flatMap(collapse),
       E.tapBoth({
         onFailure: (e) =>
-          E.sync(() => Log.error("Retrieve permissions failed: %O", e)),
+          E.sync(() => Log("Retrieve permissions failed: %O", e)),
         onSuccess: (data) =>
-          E.sync(() => Log.info("Retrieved permissions: %O", data)),
+          E.sync(() => Log("Retrieved permissions: %O", data)),
       }),
       E.runPromise,
     );
@@ -86,7 +86,7 @@ export class RetrievePermissions implements Operation<ValuesPermissions> {
       E.tryPromise(() => client.retrievePermissions(request)),
       E.map((response) => ValuesPermissions.from(response)),
       E.tap((_permissions) =>
-        Log.debug(
+        Log(
           `Retrieved permissions: node=${nodeId.toBase64()} values=${this.config.id} `,
         ),
       ),

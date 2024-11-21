@@ -1,3 +1,3 @@
-import { createLogger } from "@nillion/client-vms/logger";
+import debug from "debug";
 
-export const Log = createLogger("@nillion/client-react-hooks");
+export const Log = debug("@nillion/client-react-hooks");

@@ -2,7 +2,7 @@
   "name": "@nillion/client-vms",
   "license": "MIT",
   "author": "devsupport@nillion.com",
-  "version": "0.2.0-rc.3",
+  "version": "0.2.0",
   "repository": "https://github.com/NillionNetwork/client-ts",
   "type": "module",
   "exports": {
@@ -20,8 +20,8 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.2",
-    "@connectrpc/connect": "2.0.0-rc.3",
-    "@connectrpc/connect-web": "2.0.0-rc.3",
+    "@connectrpc/connect": "^2.0.0",
+    "@connectrpc/connect-web": "^2.0.0",
     "@cosmjs/proto-signing": "^0.32.4",
     "@cosmjs/stargate": "^0.32.4",
     "@nillion/client-wasm": "workspace:^",
@@ -29,9 +29,8 @@
     "@noble/hashes": "^1.5.0",
     "@noble/secp256k1": "^2.1.0",
     "bs58": "^6.0.0",
+    "debug": "^4.3.7",
     "effect": "^3.10.14",
-    "pino": "^9.5.0",
-    "pino-pretty": "^13.0.0",
     "uuid": "^11.0.3",
     "zod": "^3.23.8"
   },
@@ -39,6 +38,7 @@
     "@bufbuild/buf": "^1.46.0",
     "@bufbuild/protoc-gen-es": "^2.2.2",
     "@keplr-wallet/types": "^0.12.154",
+    "@types/debug": "^4.1.12",
     "@types/node": "^22.9.0",
     "@types/uuid": "^10.0.0",
     "@vitest/coverage-v8": "^2.1.4",

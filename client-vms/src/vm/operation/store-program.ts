@@ -67,9 +67,8 @@ export class StoreProgram implements Operation<ProgramId> {
       ),
       E.flatMap(collapse),
       E.tapBoth({
-        onFailure: (e) =>
-          E.sync(() => Log.error("Store program failed: %O", e)),
-        onSuccess: (id) => E.sync(() => Log.info(`Stored program: ${id}`)),
+        onFailure: (e) => E.sync(() => Log("Store program failed: %O", e)),
+        onSuccess: (id) => E.sync(() => Log(`Stored program: ${id}`)),
       }),
       E.runPromise,
     );
@@ -98,7 +97,7 @@ export class StoreProgram implements Operation<ProgramId> {
       E.tryPromise(() => client.storeProgram(request)),
       E.map((response) => ProgramId.parse(response.programId)),
       E.tap((id) =>
-        Log.debug(`Stored program: node=${nodeId.toBase64()} values=${id} `),
+        Log(`Stored program: node=${nodeId.toBase64()} values=${id} `),
       ),
     );
   }
