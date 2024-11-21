@@ -1,6 +1,6 @@
 {
   "name": "@nillion/examples-nextjs",
-  "version": "0.2.0-rc.3",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
