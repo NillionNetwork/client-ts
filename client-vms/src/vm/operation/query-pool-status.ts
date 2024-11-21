@@ -54,10 +54,8 @@ export class QueryPoolStatus implements Operation<PoolStatus> {
       ),
       E.flatMap((response) => E.try(() => PoolStatus.parse(response))),
       E.tapBoth({
-        onFailure: (e) =>
-          E.sync(() => Log.error("Query pool status failed: %O", e)),
-        onSuccess: (status) =>
-          E.sync(() => Log.info("Pool status: %O", status)),
+        onFailure: (e) => E.sync(() => Log("Query pool status failed: %O", e)),
+        onSuccess: (status) => E.sync(() => Log("Pool status: %O", status)),
       }),
       E.runPromise,
     );

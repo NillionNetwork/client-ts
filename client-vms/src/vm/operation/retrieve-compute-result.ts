@@ -61,9 +61,9 @@ export class RetrieveComputeResult implements Operation<NadaValuesRecord> {
       }),
       E.tapBoth({
         onFailure: (e) =>
-          E.sync(() => Log.error("Retrieve compute results failed: %O", e)),
+          E.sync(() => Log("Retrieve compute results failed: %O", e)),
         onSuccess: (data) =>
-          E.sync(() => Log.info("Retrieved compute results: %O", data)),
+          E.sync(() => Log("Retrieved compute results: %O", data)),
       }),
       E.runPromise,
     );
@@ -107,12 +107,12 @@ export class RetrieveComputeResult implements Operation<NadaValuesRecord> {
             );
           }
 
-          Log.debug(`Compute result waiting on: node=${nodeId.toBase64()}`);
+          Log(`Compute result waiting on: node=${nodeId.toBase64()}`);
         }
       }),
       E.map((shares) => shares as PartyShares),
       E.tap(() =>
-        Log.debug(`Compute result shares retrieved: node=${nodeId.toBase64()}`),
+        Log(`Compute result shares retrieved: node=${nodeId.toBase64()}`),
       ),
     );
   }

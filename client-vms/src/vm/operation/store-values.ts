@@ -65,8 +65,8 @@ export class StoreValues implements Operation<Uuid> {
       ),
       E.flatMap(collapse),
       E.tapBoth({
-        onFailure: (e) => E.sync(() => Log.error("Values store failed: %O", e)),
-        onSuccess: (id) => E.sync(() => Log.info(`Values stored: ${id}`)),
+        onFailure: (e) => E.sync(() => Log("Values store failed: %O", e)),
+        onSuccess: (id) => E.sync(() => Log(`Values stored: ${id}`)),
       }),
       E.runPromise,
     );
@@ -117,7 +117,7 @@ export class StoreValues implements Operation<Uuid> {
       E.tryPromise(() => client.storeValues(request)),
       E.map((response) => stringify(response.valuesId)),
       E.tap((id) =>
-        Log.debug(`Values stored: node=${nodeId.toBase64()} values=${id}`),
+        Log(`Values stored: node=${nodeId.toBase64()} values=${id}`),
       ),
     );
   }

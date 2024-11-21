@@ -69,9 +69,8 @@ export class UpdatePermissions implements Operation<Uuid> {
       ),
       E.flatMap(collapse),
       E.tapBoth({
-        onFailure: (e) =>
-          E.sync(() => Log.error("Update permissions failed: %O", e)),
-        onSuccess: (id) => E.sync(() => Log.info(`Updated permissions: ${id}`)),
+        onFailure: (e) => E.sync(() => Log("Update permissions failed: %O", e)),
+        onSuccess: (id) => E.sync(() => Log(`Updated permissions: ${id}`)),
       }),
       E.runPromise,
     );
@@ -108,9 +107,7 @@ export class UpdatePermissions implements Operation<Uuid> {
       E.tryPromise(() => client.updatePermissions(request)),
       E.map((_response) => this.config.id),
       E.tap((id) =>
-        Log.debug(
-          `Updated permissions: node=${nodeId.toBase64()} values=${id} `,
-        ),
+        Log(`Updated permissions: node=${nodeId.toBase64()} values=${id} `),
       ),
     );
   }

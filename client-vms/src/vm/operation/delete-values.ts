@@ -49,9 +49,8 @@ export class DeleteValues implements Operation<Uuid> {
       ),
       E.flatMap(collapse),
       E.tapBoth({
-        onFailure: (e) =>
-          E.sync(() => Log.error("Values delete failed: %O", e)),
-        onSuccess: (id) => E.sync(() => Log.info(`Values deleted: ${id}`)),
+        onFailure: (e) => E.sync(() => Log("Values delete failed: %O", e)),
+        onSuccess: (id) => E.sync(() => Log(`Values deleted: ${id}`)),
       }),
       E.runPromise,
     );
@@ -79,7 +78,7 @@ export class DeleteValues implements Operation<Uuid> {
       E.tryPromise(() => client.deleteValues(request)),
       E.map((_response) => this.config.id),
       E.tap((id) =>
-        Log.debug(`Values deleted: node=${nodeId.toBase64()} values=${id} `),
+        Log(`Values deleted: node=${nodeId.toBase64()} values=${id} `),
       ),
     );
   }

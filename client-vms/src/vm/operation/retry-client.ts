@@ -43,12 +43,9 @@ function createRetryStrategy<E>(context: string) {
       attempt += 1;
 
       if (recoverable) {
-        Log.warn(
-          `${context} failed (attempt ${attempt}/${maxRetries}): %O`,
-          error,
-        );
+        Log(`${context} failed (attempt ${attempt}/${maxRetries}): %O`, error);
       } else {
-        Log.error(`${context} irrecoverable failure: %O`, error);
+        Log(`${context} irrecoverable failure: %O`, error);
       }
 
       return recoverable;
@@ -66,7 +63,7 @@ export function retryGrpcRequestIfRecoverable<R>(
     request,
     createRetryStrategy(context),
     E.tapError((error) =>
-      E.sync(() => Log.error("Retries exhausted. Final error:", error)),
+      E.sync(() => Log("Retries exhausted. Final error:", error)),
     ),
   );
 }

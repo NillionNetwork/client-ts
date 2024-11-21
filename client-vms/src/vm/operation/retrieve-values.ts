@@ -60,10 +60,8 @@ export class RetrieveValues implements Operation<NadaValuesRecord> {
         return NadaValuesRecord.parse(record);
       }),
       E.tapBoth({
-        onFailure: (e) =>
-          E.sync(() => Log.error("Retrieve values failed: %O", e)),
-        onSuccess: (data) =>
-          E.sync(() => Log.info("Retrieved values: %O", data)),
+        onFailure: (e) => E.sync(() => Log("Retrieve values failed: %O", e)),
+        onSuccess: (data) => E.sync(() => Log("Retrieved values: %O", data)),
       }),
       E.runPromise,
     );
@@ -97,9 +95,7 @@ export class RetrieveValues implements Operation<NadaValuesRecord> {
           ),
       ),
       E.tap((id) =>
-        Log.debug(
-          `Retrieved values shares: node=${nodeId.toBase64()} values=${id}`,
-        ),
+        Log(`Retrieved values shares: node=${nodeId.toBase64()} values=${id}`),
       ),
     );
   }

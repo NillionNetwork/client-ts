@@ -57,10 +57,10 @@ export class OverwritePermissions implements Operation<ValuesPermissions> {
       E.flatMap(collapse),
       E.tapBoth({
         onFailure: (e) =>
-          E.sync(() => Log.error("Overwrite permissions failed: %O", e)),
+          E.sync(() => Log("Overwrite permissions failed: %O", e)),
         onSuccess: (permissions) =>
           E.sync(() =>
-            Log.info("Overwrote permissions: %O", permissions.toObject()),
+            Log("Overwrote permissions: %O", permissions.toObject()),
           ),
       }),
       E.runPromise,
@@ -90,7 +90,7 @@ export class OverwritePermissions implements Operation<ValuesPermissions> {
       E.tryPromise(() => client.overwritePermissions(request)),
       E.map((_response) => this.config.permissions),
       E.tap((_permissions) =>
-        Log.debug(
+        Log(
           `Overwrote permissions: node=${nodeId.toBase64()} values=${this.config.id} `,
         ),
       ),

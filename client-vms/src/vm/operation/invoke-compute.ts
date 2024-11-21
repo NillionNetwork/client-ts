@@ -71,9 +71,8 @@ export class InvokeCompute implements Operation<Uuid> {
       ),
       E.flatMap(collapse),
       E.tapBoth({
-        onFailure: (e) =>
-          E.sync(() => Log.error("Invoke compute failed: %O", e)),
-        onSuccess: (id) => E.sync(() => Log.info(`Invoke compute: ${id}`)),
+        onFailure: (e) => E.sync(() => Log("Invoke compute failed: %O", e)),
+        onSuccess: (id) => E.sync(() => Log(`Invoke compute: ${id}`)),
       }),
       E.runPromise,
     );
@@ -134,9 +133,7 @@ export class InvokeCompute implements Operation<Uuid> {
     return pipe(
       E.tryPromise(() => client.invokeCompute(request)),
       E.map((response) => stringify(response.computeId)),
-      E.tap((id) =>
-        Log.debug(`Invoked compute: node=${nodeId.toBase64()} id=${id}`),
-      ),
+      E.tap((id) => Log(`Invoked compute: node=${nodeId.toBase64()} id=${id}`)),
     );
   }
 
