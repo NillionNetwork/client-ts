@@ -1,13 +1,10 @@
-import { createSignerFromKey } from "@nillion/client-vms/payment";
-import type { ProgramId, Uuid } from "@nillion/client-vms/types";
-import {
-  type ValuesPermissions,
-  ValuesPermissionsBuilder,
-} from "@nillion/client-vms/types";
-import { type VmClient, VmClientBuilder } from "@nillion/client-vms/vm";
 import { NadaValue } from "@nillion/client-wasm";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ZodError } from "zod";
+import { createSignerFromKey } from "#/payment";
+import type { ProgramId, Uuid } from "#/types";
+import { type ValuesPermissions, ValuesPermissionsBuilder } from "#/types";
+import { type VmClient, VmClientBuilder } from "#/vm";
 import { Env, PrivateKeyPerSuite, loadProgram } from "./helpers";
 
 describe("Client", () => {

@@ -1,21 +1,21 @@
 import { create, fromBinary } from "@bufbuild/protobuf";
 import type { Client } from "@connectrpc/connect";
 import { SigningStargateClient } from "@cosmjs/stargate";
-import { MsgPayForSchema } from "@nillion/client-vms/gen-proto/nillion/meta/v1/tx_pb";
+import { z } from "zod";
+import { MsgPayForSchema } from "#/gen-proto/nillion/meta/v1/tx_pb";
 import {
   type PriceQuoteRequest,
   PriceQuoteSchema,
-} from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
+} from "#/gen-proto/nillion/payments/v1/quote_pb";
 import {
   PaymentReceiptRequestSchema,
   type SignedReceipt,
-} from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import type { Payments } from "@nillion/client-vms/gen-proto/nillion/payments/v1/service_pb";
-import { Log } from "@nillion/client-vms/logger";
-import { GrpcClient } from "@nillion/client-vms/types/grpc";
-import { z } from "zod";
+} from "#/gen-proto/nillion/payments/v1/receipt_pb";
+import type { Payments } from "#/gen-proto/nillion/payments/v1/service_pb";
+import { Log } from "#/logger";
+import { GrpcClient } from "#/types/grpc";
 
-import { Quote } from "@nillion/client-vms/types/types";
+import { Quote } from "#/types/types";
 import {
   NilChainAddress,
   NilChainProtobufTypeUrl,

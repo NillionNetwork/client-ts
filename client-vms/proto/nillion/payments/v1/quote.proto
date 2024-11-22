@@ -182,6 +182,9 @@ message StoreValues {
 
   // The size of the payload to be stored.
   uint64 ecdsa_private_key_shares_count = 6;
+
+  // The size of the payload to be stored.
+  uint64 ecdsa_signature_shares_count = 7;
 }
 
 // An invoke compute operation.

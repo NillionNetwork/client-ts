@@ -1,4 +1,4 @@
-import type { Uuid, ValuesPermissions } from "@nillion/client-vms/types";
+import type { Uuid, ValuesPermissions } from "@nillion/client-vms";
 import { useMutation } from "@tanstack/react-query";
 import { nilHookBaseResult } from "./nil-hook-base";
 import type { UseNilHook } from "./nil-hook-base";

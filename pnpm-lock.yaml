@@ -56,13 +56,13 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
-      zod:
-        specifier: ^3.23.8
-        version: 3.23.8
     devDependencies:
-      '@tsconfig/vite-react':
-        specifier: ^3.0.2
-        version: 3.0.2
+      '@cosmjs/proto-signing':
+        specifier: ^0.32.4
+        version: 0.32.4
+      '@keplr-wallet/types':
+        specifier: ^0.12.154
+        version: 0.12.156(starknet@6.11.0)
       '@types/debug':
         specifier: ^4.1.12
         version: 4.1.12
@@ -130,9 +130,6 @@ importers:
       '@bufbuild/protoc-gen-es':
         specifier: ^2.2.2
         version: 2.2.2(@bufbuild/protobuf@2.2.2)
-      '@keplr-wallet/types':
-        specifier: ^0.12.154
-        version: 0.12.156(starknet@6.11.0)
       '@types/debug':
         specifier: ^4.1.12
         version: 4.1.12
@@ -1105,9 +1102,6 @@ packages:
     resolution: {integrity: sha512-SBzV27XAeCRBOQ8QcC94w2H1Md0+LI0gTWwc3qRJoaGuewKn5FNW4LSqwPFJZVEItfhMfGT7RpZuSFXjTi12pQ==}
     peerDependencies:
       react: ^18 || ^19
-
-  '@tsconfig/vite-react@3.0.2':
-    resolution: {integrity: sha512-AFynAtE1Un3Rko20Ghe2mVC/QWD4rStJ2PnyIZU2kzC4UyWpf1YhAEY87GojH/XPZCY8Mdt27gsYyy+6l6HV+w==}
 
   '@types/conventional-commits-parser@5.0.0':
     resolution: {integrity: sha512-loB369iXNmAZglwWATL+WRe+CRMmmBPtpolYzIebFaX4YA3x+BEfLqhUAV9WanycKI3TG1IMr5bMJDajDKLlUQ==}
@@ -3187,8 +3181,6 @@ snapshots:
     dependencies:
       '@tanstack/query-core': 5.60.6
       react: 18.3.1
-
-  '@tsconfig/vite-react@3.0.2': {}
 
   '@types/conventional-commits-parser@5.0.0':
     dependencies:

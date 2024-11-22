@@ -19,9 +19,13 @@ jobs:
           node-version: "23"
       - uses: pnpm/action-setup@v4
       - run: pnpm install
+      - run: pnpm --filter "@nillion/client-vms" build:proto
+      - run: pnpm --filter "@nillion/client-vms" build
+      - run: pnpm --filter "@nillion/client-react-hooks" build
       - run: pnpm exec biome format
       - run: pnpm exec biome lint
       - run: pnpm exec tsc -p client-vms/tsconfig.json
+      - run: pnpm exec tsc -p client-react-hooks/tsconfig.json
 
   test-client-vms:
     needs: check
@@ -36,7 +40,7 @@ jobs:
           aws-region: "eu-west-1"
       - uses: NillionNetwork/nillion-setup-action@main
         with:
-          version: "v0.7.0-rc.55"
+          version: "v0.7.0"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

@@ -1,6 +1,10 @@
 "use client";
 
-import { NillionProvider, createClient } from "@nillion/client-react-hooks";
+import {
+  NillionProvider,
+  createClient,
+  getKeplr,
+} from "@nillion/client-react-hooks";
 import type { VmClient } from "@nillion/client-vms";
 import { useEffect, useState } from "react";
 import { DeleteValues } from "#/components/delete-values";
@@ -20,7 +24,11 @@ export default function Home() {
 
   useEffect(() => {
     const init = async () => {
-      const client = await createClient("devnet");
+      const client = await createClient({
+        network: "testnet",
+        seed: "foobarbaz",
+        keplr: await getKeplr(),
+      });
       setClient(client);
     };
     void init();

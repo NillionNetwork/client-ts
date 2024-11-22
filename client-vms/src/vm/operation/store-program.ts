@@ -1,31 +1,27 @@
 import { create } from "@bufbuild/protobuf";
 import { type Client, createClient } from "@connectrpc/connect";
-import {
-  type PreprocessingRequirement,
-  PriceQuoteRequestSchema,
-  ProgramMetadataSchema,
-} from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
-import type { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import { Programs } from "@nillion/client-vms/gen-proto/nillion/programs/v1/service_pb";
-import {
-  type StoreProgramRequest,
-  StoreProgramRequestSchema,
-} from "@nillion/client-vms/gen-proto/nillion/programs/v1/store_pb";
-import { Log } from "@nillion/client-vms/logger";
-import type { PaymentClient } from "@nillion/client-vms/payment/client";
-import {
-  type PartyId,
-  ProgramId,
-  ProgramName,
-} from "@nillion/client-vms/types/types";
-import { collapse } from "@nillion/client-vms/util";
-import type { VmClient } from "@nillion/client-vms/vm/client";
-import { retryGrpcRequestIfRecoverable } from "@nillion/client-vms/vm/operation/retry-client";
 import { ProgramMetadata } from "@nillion/client-wasm";
 import { sha256 } from "@noble/hashes/sha2";
 import { Effect as E, pipe } from "effect";
 import type { UnknownException } from "effect/Cause";
 import { z } from "zod";
+import {
+  type PreprocessingRequirement,
+  PriceQuoteRequestSchema,
+  ProgramMetadataSchema,
+} from "#/gen-proto/nillion/payments/v1/quote_pb";
+import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
+import { Programs } from "#/gen-proto/nillion/programs/v1/service_pb";
+import {
+  type StoreProgramRequest,
+  StoreProgramRequestSchema,
+} from "#/gen-proto/nillion/programs/v1/store_pb";
+import { Log } from "#/logger";
+import type { PaymentClient } from "#/payment/client";
+import { type PartyId, ProgramId, ProgramName } from "#/types/types";
+import { collapse } from "#/util";
+import type { VmClient } from "#/vm/client";
+import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 import type { Operation } from "./operation";
 
 export const StoreProgramConfig = z.object({

@@ -2,21 +2,24 @@
   "name": "@nillion/client-vms",
   "license": "MIT",
   "author": "devsupport@nillion.com",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "repository": "https://github.com/NillionNetwork/client-ts",
   "type": "module",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs"
     }
   },
   "scripts": {
     "typecheck": "tsc",
-    "build": "node esbuild.config.mjs",
-    "build:watch": "node esbuild.config.mjs --watch",
-    "build:proto": "npx buf generate",
-    "test": "vitest test"
+    "test": "vitest test",
+    "clean": "rm -rf dist",
+    "watch:esbuild": "node esbuild.config.mjs --watch",
+    "watch:types": "tsc -p tsconfig.build.json --watch",
+    "build": "pnpm clean && node esbuild.config.mjs && tsc -p tsconfig.build.json",
+    "build:watch": "pnpm clean && pnpm watch:esbuild & pnpm watch:types",
+    "build:proto": "npx buf generate"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.2",
@@ -37,7 +40,6 @@
   "devDependencies": {
     "@bufbuild/buf": "^1.46.0",
     "@bufbuild/protoc-gen-es": "^2.2.2",
-    "@keplr-wallet/types": "^0.12.154",
     "@types/debug": "^4.1.12",
     "@types/node": "^22.9.0",
     "@types/uuid": "^10.0.0",
@@ -50,5 +52,5 @@
     "vite-tsconfig-paths": "^5.1.2",
     "vitest": "^2.1.4"
   },
-  "files": ["dist", "src"]
+  "files": ["dist"]
 }

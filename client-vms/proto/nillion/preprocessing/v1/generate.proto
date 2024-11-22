@@ -3,6 +3,7 @@ syntax = "proto3";
 package nillion.preprocessing.v1.generate;
 
 import "nillion/preprocessing/v1/element.proto";
+import "nillion/preprocessing/v1/material.proto";
 
 // A request to generate preprocessing material.
 message GeneratePreprocessingRequest {
@@ -37,4 +38,19 @@ enum PreprocessingProtocolStatus {
 
   // The protocol finished with an error.
   FINISHED_FAILURE = 2;
+}
+
+/// A request to generate auxiliary material.
+message GenerateAuxiliaryMaterialRequest {
+  /// An identifier for this generation instance.
+  bytes generation_id = 1;
+
+  // The material we want to generate.
+  material.AuxiliaryMaterial material = 2;
+}
+
+/// A response to a request to generate auxiliary material.
+message GenerateAuxiliaryMaterialResponse {
+  // The status of the generation protocol.
+  PreprocessingProtocolStatus status = 1;
 }

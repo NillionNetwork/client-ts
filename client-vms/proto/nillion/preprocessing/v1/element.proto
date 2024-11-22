@@ -14,5 +14,6 @@ enum PreprocessingElement {
   MODULO = 7;
   TRUNC = 8;
   TRUNC_PR = 9;
+  RANDOM_INTEGER = 10;
+  RANDOM_BOOLEAN = 11;
 }
-

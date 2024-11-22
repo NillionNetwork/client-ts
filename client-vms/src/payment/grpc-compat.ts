@@ -4,7 +4,7 @@ import type { TsProtoGeneratedType } from "@cosmjs/proto-signing/build/registry"
 import {
   type MsgPayFor,
   MsgPayForSchema,
-} from "@nillion/client-vms/gen-proto/nillion/meta/v1/tx_pb";
+} from "#/gen-proto/nillion/meta/v1/tx_pb";
 
 /**
  * This wrapper maintains API compatibility with the cosmjs library while using `@bufbuild/protobuf`.

@@ -1,20 +1,20 @@
 import { create } from "@bufbuild/protobuf";
 import { type Client, createClient } from "@connectrpc/connect";
+import { Effect as E, pipe } from "effect";
+import type { UnknownException } from "effect/Cause";
+import { z } from "zod";
 import {
   type PoolStatusRequest,
   PoolStatusRequestSchema,
   type PoolStatusResponse,
-} from "@nillion/client-vms/gen-proto/nillion/leader_queries/v1/pool_status_pb";
-import { LeaderQueries } from "@nillion/client-vms/gen-proto/nillion/leader_queries/v1/service_pb";
-import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
-import type { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import { Log } from "@nillion/client-vms/logger";
-import type { VmClient } from "@nillion/client-vms/vm/client";
-import type { Operation } from "@nillion/client-vms/vm/operation/operation";
-import { retryGrpcRequestIfRecoverable } from "@nillion/client-vms/vm/operation/retry-client";
-import { Effect as E, pipe } from "effect";
-import type { UnknownException } from "effect/Cause";
-import { z } from "zod";
+} from "#/gen-proto/nillion/leader_queries/v1/pool_status_pb";
+import { LeaderQueries } from "#/gen-proto/nillion/leader_queries/v1/service_pb";
+import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
+import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
+import { Log } from "#/logger";
+import type { VmClient } from "#/vm/client";
+import type { Operation } from "#/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const QueryPoolStatusConfig = z.object({
   vm: z.custom<VmClient>(),

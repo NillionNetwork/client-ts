@@ -1,11 +1,23 @@
 {
-  "extends": "@tsconfig/vite-react/tsconfig.json",
   "compilerOptions": {
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "noUnusedLocals": false,
-    "baseUrl": ".",
+    "target": "es2022",
+    "lib": ["es2022", "dom", "DOM.Iterable"],
+    "module": "esnext",
+
+    "noEmit": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+
+    "skipLibCheck": true,
+    "strict": true,
+
+    "baseUrl": "./src",
     "paths": {
-      "@nillion/client-vms/*": ["../client-vms/src/*"]
+      "#/*": ["/*"]
     }
   }
 }

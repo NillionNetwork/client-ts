@@ -1,23 +1,23 @@
 import { create } from "@bufbuild/protobuf";
 import { type Client, createClient } from "@connectrpc/connect";
-import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
-import type { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import {
-  type OverwritePermissionsRequest,
-  OverwritePermissionsRequestSchema,
-} from "@nillion/client-vms/gen-proto/nillion/permissions/v1/overwrite_pb";
-import { Permissions as PermissionsService } from "@nillion/client-vms/gen-proto/nillion/permissions/v1/service_pb";
-import { Log } from "@nillion/client-vms/logger";
-import { type PartyId, Uuid } from "@nillion/client-vms/types/types";
-import type { ValuesPermissions } from "@nillion/client-vms/types/values-permissions";
-import { collapse } from "@nillion/client-vms/util";
-import type { VmClient } from "@nillion/client-vms/vm/client";
-import type { Operation } from "@nillion/client-vms/vm/operation/operation";
-import { retryGrpcRequestIfRecoverable } from "@nillion/client-vms/vm/operation/retry-client";
 import { Effect as E, pipe } from "effect";
 import type { UnknownException } from "effect/Cause";
 import { parse as parseUuid } from "uuid";
 import { z } from "zod";
+import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
+import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
+import {
+  type OverwritePermissionsRequest,
+  OverwritePermissionsRequestSchema,
+} from "#/gen-proto/nillion/permissions/v1/overwrite_pb";
+import { Permissions as PermissionsService } from "#/gen-proto/nillion/permissions/v1/service_pb";
+import { Log } from "#/logger";
+import { type PartyId, Uuid } from "#/types/types";
+import type { ValuesPermissions } from "#/types/values-permissions";
+import { collapse } from "#/util";
+import type { VmClient } from "#/vm/client";
+import type { Operation } from "#/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const OverwritePermissionsConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
