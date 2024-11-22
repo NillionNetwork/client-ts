@@ -8,6 +8,7 @@ dist
 **/coverage
 .next
 !client-wasm/dist
+tsconfig.tsbuildinfo
 
 __pycache__
 venv
