@@ -72,6 +72,8 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - uses: pnpm/action-setup@v4
       - run: pnpm install
+      - run: pnpm --filter "@nillion/client-vms" build:proto
+      - run: pnpm --filter "@nillion/client-vms" build
       - run: pnpm --filter "@nillion/client-react-hooks" build
       - env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
