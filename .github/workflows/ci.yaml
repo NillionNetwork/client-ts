@@ -19,6 +19,9 @@ jobs:
           node-version: "23"
       - uses: pnpm/action-setup@v4
       - run: pnpm install
+      - run: pnpm --filter "@nillion/client-vms" build:proto
+      - run: pnpm --filter "@nillion/client-vms" build
+      - run: pnpm --filter "@nillion/client-react-hooks" build
       - run: pnpm exec biome format
       - run: pnpm exec biome lint
       - run: pnpm exec tsc -p client-vms/tsconfig.json
