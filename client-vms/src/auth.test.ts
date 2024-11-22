@@ -1,13 +1,13 @@
 import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import { timestampFromDate } from "@bufbuild/protobuf/wkt";
-import { TokenAuthManager } from "@nillion/client-vms/auth";
+import { describe, expect, it } from "vitest";
+import { TokenAuthManager } from "#/auth";
 import {
   type SignedToken,
   TokenSchema,
-} from "@nillion/client-vms/gen-proto/nillion/auth/v1/token_pb";
-import { NodeIdSchema } from "@nillion/client-vms/gen-proto/nillion/membership/v1/cluster_pb";
-import { PartyId } from "@nillion/client-vms/types/types";
-import { describe, expect, it } from "vitest";
+} from "#/gen-proto/nillion/auth/v1/token_pb";
+import { NodeIdSchema } from "#/gen-proto/nillion/membership/v1/cluster_pb";
+import { PartyId } from "#/types/types";
 
 describe("TokenManager", () => {
   const manager = TokenAuthManager.fromSeed("test");

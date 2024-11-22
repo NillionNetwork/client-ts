@@ -1,22 +1,5 @@
 import { create } from "@bufbuild/protobuf";
 import { type Client, createClient } from "@connectrpc/connect";
-import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
-import type { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import { Values } from "@nillion/client-vms/gen-proto/nillion/values/v1/service_pb";
-import {
-  type StoreValuesRequest,
-  StoreValuesRequestSchema,
-} from "@nillion/client-vms/gen-proto/nillion/values/v1/store_pb";
-import { Log } from "@nillion/client-vms/logger";
-import { PartyId, TtlDays, Uuid } from "@nillion/client-vms/types/types";
-import {
-  type ValuesPermissions,
-  ValuesPermissionsBuilder,
-} from "@nillion/client-vms/types/values-permissions";
-import { collapse } from "@nillion/client-vms/util";
-import type { VmClient } from "@nillion/client-vms/vm/client";
-import type { Operation } from "@nillion/client-vms/vm/operation/operation";
-import { retryGrpcRequestIfRecoverable } from "@nillion/client-vms/vm/operation/retry-client";
 import {
   type NadaValue,
   NadaValues,
@@ -27,6 +10,23 @@ import { Effect as E, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
 import { parse, stringify } from "uuid";
 import { z } from "zod";
+import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
+import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
+import { Values } from "#/gen-proto/nillion/values/v1/service_pb";
+import {
+  type StoreValuesRequest,
+  StoreValuesRequestSchema,
+} from "#/gen-proto/nillion/values/v1/store_pb";
+import { Log } from "#/logger";
+import { PartyId, TtlDays, Uuid } from "#/types/types";
+import {
+  type ValuesPermissions,
+  ValuesPermissionsBuilder,
+} from "#/types/values-permissions";
+import { collapse } from "#/util";
+import type { VmClient } from "#/vm/client";
+import type { Operation } from "#/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const StoreValuesConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first

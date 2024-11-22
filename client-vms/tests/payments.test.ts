@@ -1,15 +1,15 @@
 import { create, fromBinary } from "@bufbuild/protobuf";
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
-import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
-import { ReceiptSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
+import { describe, expect, it } from "vitest";
+import { ZodError } from "zod";
+import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
+import { ReceiptSchema } from "#/gen-proto/nillion/payments/v1/receipt_pb";
 import {
   type PaymentClient,
   PaymentClientBuilder,
   createSignerFromKey,
-} from "@nillion/client-vms/payment";
-import { fetchClusterDetails } from "@nillion/client-vms/vm";
-import { describe, expect, it } from "vitest";
-import { ZodError } from "zod";
+} from "#/payment";
+import { fetchClusterDetails } from "#/vm";
 import { Env, PrivateKeyPerSuite } from "./helpers";
 
 describe("PaymentClient", () => {

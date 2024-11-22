@@ -2,10 +2,10 @@ import { create } from "@bufbuild/protobuf";
 import {
   type Permissions as PermissionsProtobuf,
   PermissionsSchema,
-} from "@nillion/client-vms/gen-proto/nillion/permissions/v1/permissions_pb";
-import type { ProgramId } from "@nillion/client-vms/types/types";
-import { UserId } from "@nillion/client-vms/types/user-id";
-import { assertIsDefined } from "@nillion/client-vms/util";
+} from "#/gen-proto/nillion/permissions/v1/permissions_pb";
+import type { ProgramId } from "#/types/types";
+import { UserId } from "#/types/user-id";
+import { assertIsDefined } from "#/util";
 
 type ValuesPermissionsAsObject = {
   owner: string;

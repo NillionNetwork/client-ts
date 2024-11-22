@@ -1,7 +1,7 @@
 import { Code, ConnectError } from "@connectrpc/connect";
-import { Log } from "@nillion/client-vms/logger";
 import { Duration, Effect as E, Schedule, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
+import { Log } from "#/logger";
 
 function isRetryableError(error: unknown): boolean {
   let cause = error;

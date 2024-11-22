@@ -11,14 +11,18 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs"
     }
   },
   "scripts": {
     "typecheck": "tsc",
-    "build": "node esbuild.config.mjs",
-    "build:watch": "node esbuild.config.mjs --watch"
+    "test": "echo \"@nillion/client-react-hooks has no tests\"",
+    "clean": "rm -rf dist",
+    "build": "pnpm clean && node esbuild.config.mjs && tsc -p tsconfig.build.json",
+    "watch:esbuild": "node esbuild.config.mjs --watch",
+    "watch:types": "tsc -p tsconfig.build.json --watch",
+    "build:watch": "pnpm clean && pnpm watch:esbuild & pnpm watch:types"
   },
   "dependencies": {
     "@nillion/client-vms": "workspace:^",
@@ -29,12 +33,11 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@tsconfig/vite-react": "^3.0.2",
     "@types/debug": "^4.1.12",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "browserslist": "^4.24.2",
     "esbuild-plugin-browserslist": "^0.15.0"
   },
-  "files": ["dist", "src"]
+  "files": ["dist"]
 }

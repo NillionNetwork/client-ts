@@ -1,7 +1,7 @@
-import { PaymentClient } from "@nillion/client-vms/payment";
-import { GrpcTransport, PartyId, UserId } from "@nillion/client-vms/types";
 import { SecretMasker } from "@nillion/client-wasm";
 import { z } from "zod";
+import { PaymentClient } from "#/payment";
+import { GrpcTransport, PartyId, UserId } from "#/types";
 import {
   DeleteValuesBuilder,
   InvokeComputeBuilder,

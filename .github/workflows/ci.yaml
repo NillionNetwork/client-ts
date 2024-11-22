@@ -22,6 +22,7 @@ jobs:
       - run: pnpm exec biome format
       - run: pnpm exec biome lint
       - run: pnpm exec tsc -p client-vms/tsconfig.json
+      - run: pnpm exec tsc -p client-react-hooks/tsconfig.json
 
   test-client-vms:
     needs: check

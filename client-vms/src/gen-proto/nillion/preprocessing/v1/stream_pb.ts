@@ -6,13 +6,15 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import type { PreprocessingElement } from "./element_pb";
 import { file_nillion_preprocessing_v1_element } from "./element_pb";
+import type { AuxiliaryMaterial } from "./material_pb";
+import { file_nillion_preprocessing_v1_material } from "./material_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file nillion/preprocessing/v1/stream.proto.
  */
 export const file_nillion_preprocessing_v1_stream: GenFile = /*@__PURE__*/
-  fileDesc("CiVuaWxsaW9uL3ByZXByb2Nlc3NpbmcvdjEvc3RyZWFtLnByb3RvEh9uaWxsaW9uLnByZXByb2Nlc3NpbmcudjEuc3RyZWFtIpUBChpQcmVwcm9jZXNzaW5nU3RyZWFtTWVzc2FnZRIVCg1nZW5lcmF0aW9uX2lkGAEgASgMEkcKB2VsZW1lbnQYAiABKA4yNi5uaWxsaW9uLnByZXByb2Nlc3NpbmcudjEuZWxlbWVudC5QcmVwcm9jZXNzaW5nRWxlbWVudBIXCg9iaW5jb2RlX21lc3NhZ2UYAyABKAxC0gEKI2NvbS5uaWxsaW9uLnByZXByb2Nlc3NpbmcudjEuc3RyZWFtQgtTdHJlYW1Qcm90b1ABogIETlBWU6oCH05pbGxpb24uUHJlcHJvY2Vzc2luZy5WMS5TdHJlYW3KAh9OaWxsaW9uXFByZXByb2Nlc3NpbmdcVjFcU3RyZWFt4gIrTmlsbGlvblxQcmVwcm9jZXNzaW5nXFYxXFN0cmVhbVxHUEJNZXRhZGF0YeoCIk5pbGxpb246OlByZXByb2Nlc3Npbmc6OlYxOjpTdHJlYW1iBnByb3RvMw", [file_nillion_preprocessing_v1_element]);
+  fileDesc("CiVuaWxsaW9uL3ByZXByb2Nlc3NpbmcvdjEvc3RyZWFtLnByb3RvEh9uaWxsaW9uLnByZXByb2Nlc3NpbmcudjEuc3RyZWFtIpUBChpQcmVwcm9jZXNzaW5nU3RyZWFtTWVzc2FnZRIVCg1nZW5lcmF0aW9uX2lkGAEgASgMEkcKB2VsZW1lbnQYAiABKA4yNi5uaWxsaW9uLnByZXByb2Nlc3NpbmcudjEuZWxlbWVudC5QcmVwcm9jZXNzaW5nRWxlbWVudBIXCg9iaW5jb2RlX21lc3NhZ2UYAyABKAwimAEKHkF1eGlsaWFyeU1hdGVyaWFsU3RyZWFtTWVzc2FnZRIVCg1nZW5lcmF0aW9uX2lkGAEgASgMEkYKCG1hdGVyaWFsGAIgASgOMjQubmlsbGlvbi5wcmVwcm9jZXNzaW5nLnYxLm1hdGVyaWFsLkF1eGlsaWFyeU1hdGVyaWFsEhcKD2JpbmNvZGVfbWVzc2FnZRgDIAEoDELSAQojY29tLm5pbGxpb24ucHJlcHJvY2Vzc2luZy52MS5zdHJlYW1CC1N0cmVhbVByb3RvUAGiAgROUFZTqgIfTmlsbGlvbi5QcmVwcm9jZXNzaW5nLlYxLlN0cmVhbcoCH05pbGxpb25cUHJlcHJvY2Vzc2luZ1xWMVxTdHJlYW3iAitOaWxsaW9uXFByZXByb2Nlc3NpbmdcVjFcU3RyZWFtXEdQQk1ldGFkYXRh6gIiTmlsbGlvbjo6UHJlcHJvY2Vzc2luZzo6VjE6OlN0cmVhbWIGcHJvdG8z", [file_nillion_preprocessing_v1_element, file_nillion_preprocessing_v1_material]);
 
 /**
  * A message sent between nodes during the execution of a preprocessing protocol.
@@ -54,4 +56,45 @@ export type PreprocessingStreamMessage = Message<"nillion.preprocessing.v1.strea
  */
 export const PreprocessingStreamMessageSchema: GenMessage<PreprocessingStreamMessage> = /*@__PURE__*/
   messageDesc(file_nillion_preprocessing_v1_stream, 0);
+
+/**
+ * A message sent between nodes during the execution of a material generation protocol.
+ *
+ * @generated from message nillion.preprocessing.v1.stream.AuxiliaryMaterialStreamMessage
+ */
+export type AuxiliaryMaterialStreamMessage = Message<"nillion.preprocessing.v1.stream.AuxiliaryMaterialStreamMessage"> & {
+  /**
+   * An identifier for the instance of the generation being ran.
+   *
+   * Only the first ever message on the stream requires having this attribute set. Any subsequent message will
+   * have this field ignored.
+   *
+   * @generated from field: bytes generation_id = 1;
+   */
+  generationId: Uint8Array;
+
+  /**
+   * The auxiliary material being generated.
+   *
+   * Only the first ever message on the stream requires having this attribute set. Any subsequent message will
+   * have this field ignored.
+   *
+   * @generated from field: nillion.preprocessing.v1.material.AuxiliaryMaterial material = 2;
+   */
+  material: AuxiliaryMaterial;
+
+  /**
+   * The message in bincode format.
+   *
+   * @generated from field: bytes bincode_message = 3;
+   */
+  bincodeMessage: Uint8Array;
+};
+
+/**
+ * Describes the message nillion.preprocessing.v1.stream.AuxiliaryMaterialStreamMessage.
+ * Use `create(AuxiliaryMaterialStreamMessageSchema)` to create a new message.
+ */
+export const AuxiliaryMaterialStreamMessageSchema: GenMessage<AuxiliaryMaterialStreamMessage> = /*@__PURE__*/
+  messageDesc(file_nillion_preprocessing_v1_stream, 1);
 

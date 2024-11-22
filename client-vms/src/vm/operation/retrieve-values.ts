@@ -1,26 +1,22 @@
 import { create } from "@bufbuild/protobuf";
 import { type Client, createClient } from "@connectrpc/connect";
-import { PriceQuoteRequestSchema } from "@nillion/client-vms/gen-proto/nillion/payments/v1/quote_pb";
-import type { SignedReceipt } from "@nillion/client-vms/gen-proto/nillion/payments/v1/receipt_pb";
-import {
-  type RetrieveValuesRequest,
-  RetrieveValuesRequestSchema,
-} from "@nillion/client-vms/gen-proto/nillion/values/v1/retrieve_pb";
-import { Values } from "@nillion/client-vms/gen-proto/nillion/values/v1/service_pb";
-import { Log } from "@nillion/client-vms/logger";
-import {
-  NadaValuesRecord,
-  type PartyId,
-  Uuid,
-} from "@nillion/client-vms/types/types";
-import type { VmClient } from "@nillion/client-vms/vm/client";
-import type { Operation } from "@nillion/client-vms/vm/operation/operation";
-import { retryGrpcRequestIfRecoverable } from "@nillion/client-vms/vm/operation/retry-client";
 import { PartyShares, decode_values } from "@nillion/client-wasm";
 import { Effect as E, pipe } from "effect";
 import type { UnknownException } from "effect/Cause";
 import { parse as parseUuid } from "uuid";
 import { z } from "zod";
+import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
+import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
+import {
+  type RetrieveValuesRequest,
+  RetrieveValuesRequestSchema,
+} from "#/gen-proto/nillion/values/v1/retrieve_pb";
+import { Values } from "#/gen-proto/nillion/values/v1/service_pb";
+import { Log } from "#/logger";
+import { NadaValuesRecord, type PartyId, Uuid } from "#/types/types";
+import type { VmClient } from "#/vm/client";
+import type { Operation } from "#/vm/operation/operation";
+import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
 
 export const RetrieveValuesConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
