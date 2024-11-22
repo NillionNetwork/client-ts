@@ -40,7 +40,6 @@
   "devDependencies": {
     "@bufbuild/buf": "^1.46.0",
     "@bufbuild/protoc-gen-es": "^2.2.2",
-    "@keplr-wallet/types": "^0.12.154",
     "@types/debug": "^4.1.12",
     "@types/node": "^22.9.0",
     "@types/uuid": "^10.0.0",
