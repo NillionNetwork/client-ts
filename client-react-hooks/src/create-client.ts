@@ -1,65 +1,79 @@
-import {
-  PrivateKeyBase16,
-  VmClientBuilder,
-  createSignerFromKey,
-} from "@nillion/client-vms";
-import { z } from "zod";
+import type { OfflineSigner } from "@cosmjs/proto-signing";
+import type { Keplr } from "@keplr-wallet/types";
+import { VmClientBuilder } from "@nillion/client-vms";
+import { createSignerFromKey } from "@nillion/client-vms";
 
-export type Network = "testnet" | "devnet" | "custom";
-
-export const ClientConfig = z.object({
-  bootnodeUrl: z.string().url(),
-  chainUrl: z.string().url(),
-  seed: z.string().min(1),
-  nilchainPrivateKey0: PrivateKeyBase16,
-});
-export type ClientConfig = z.infer<typeof ClientConfig>;
-
-const NamedConfig = {
-  // use with `$ nillion-devnet` default seed
-  devnet: {
-    bootnodeUrl: "http://127.0.0.1:37939",
-    chainUrl: "http://127.0.0.1:48102",
-    seed: "user-devnet-seed",
-    nilchainPrivateKey0:
-      "9a975f567428d054f2bf3092812e6c42f901ce07d9711bc77ee2cd81101f42c5",
-  },
+export type TestnetOptions = {
+  network: "testnet";
+  seed: string;
+  keplr: Keplr;
 };
 
-export async function createClient(
-  network: Network,
-  overrides?: Partial<ClientConfig>,
-) {
-  const builder = new VmClientBuilder();
-  switch (network.toLowerCase()) {
-    case "devnet": {
-      const config = { ...NamedConfig.devnet };
-      const singer = await createSignerFromKey(config.nilchainPrivateKey0);
-      builder
-        .seed(config.seed)
-        .bootnodeUrl(config.bootnodeUrl)
-        .chainUrl(config.chainUrl)
-        .signer(singer);
-      break;
-    }
-    case "custom": {
-      const { nilchainPrivateKey0, seed, bootnodeUrl, chainUrl } =
-        ClientConfig.parse(overrides);
+export type DevnetOptions = {
+  network: "devnet";
+  seed?: string;
+  signer?: Keplr | OfflineSigner;
+};
 
-      if (!nilchainPrivateKey0 || !seed || !bootnodeUrl || !chainUrl) {
-        throw new Error("Missing required config");
+type Options = DevnetOptions | TestnetOptions;
+
+const DevnetConfig = {
+  bootnodeUrl: "http://127.0.0.1:37939",
+  chainUrl: "http://127.0.0.1:48102",
+  chainId: "nillion-chain-devnet",
+  seed: "user-devnet-seed",
+  nilchainPrivateKey0:
+    "9a975f567428d054f2bf3092812e6c42f901ce07d9711bc77ee2cd81101f42c5",
+};
+
+const TestnetConfig = {
+  bootnodeUrl: "https://node-1.photon2.nillion-network.nilogy.xyz:14311/",
+  chainUrl: "http://rpc.testnet.nilchain-rpc-proxy.nilogy.xyz",
+  chainId: "nillion-chain-testnet-1",
+};
+
+export async function createClient(options: Options) {
+  const builder = new VmClientBuilder();
+  switch (options.network.toLowerCase()) {
+    case "devnet": {
+      const config = options as DevnetOptions;
+
+      let signer: OfflineSigner;
+
+      if (config.signer) {
+        if ("getOfflineSigner" in config.signer) {
+          signer = config.signer.getOfflineSigner(DevnetConfig.chainId);
+        } else {
+          signer = config.signer;
+        }
+      } else {
+        signer = await createSignerFromKey(DevnetConfig.nilchainPrivateKey0);
       }
 
-      const singer = await createSignerFromKey(nilchainPrivateKey0);
+      const seed = config.seed ? config.seed : DevnetConfig.seed;
+
       builder
         .seed(seed)
-        .bootnodeUrl(bootnodeUrl)
-        .chainUrl(chainUrl)
-        .signer(singer);
+        .bootnodeUrl(DevnetConfig.bootnodeUrl)
+        .chainUrl(DevnetConfig.chainUrl)
+        .signer(signer);
+
+      break;
+    }
+    case "testnet": {
+      const config = options as TestnetOptions;
+      const signer = config.keplr.getOfflineSigner(TestnetConfig.chainId);
+
+      builder
+        .seed(config.seed)
+        .bootnodeUrl(TestnetConfig.bootnodeUrl)
+        .chainUrl(TestnetConfig.chainUrl)
+        .signer(signer);
+
       break;
     }
     default: {
-      throw new Error(`Unsupported network: ${network}`);
+      throw new Error(`Unknown network: ${options.network}`);
     }
   }
 
