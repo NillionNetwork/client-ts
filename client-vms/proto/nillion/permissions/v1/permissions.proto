@@ -19,7 +19,7 @@ message Permissions {
   repeated nillion.auth.v1.user.UserId delete = 4;
 
   // The list of compute permissions.
-  repeated ComputePermissions compute = 5;
+  repeated ComputePermissions compute = 5; 
 }
 
 // The permissions to execute a program.
@@ -30,3 +30,5 @@ message ComputePermissions {
   // The program ids this user is allowed to use the stored values in.
   repeated string program_ids = 2;
 }
+
+

@@ -3,7 +3,6 @@
 .vscode
 .husky
 
-**/gen-proto
 node_modules
 dist
 **/coverage
