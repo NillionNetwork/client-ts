@@ -101,7 +101,7 @@ export class VmClientBuilder {
    * Builds and returns a configured {VmClient} instance.
    *
    * This method initializes the client with the specified configuration
-   * options, connects to a bootnode to retrieve Nillion network configuration,
+   * options, connect to a bootnode to retrieve Nillion network configuration,
    * and instantiates a VmClient.
    *
    * @returns {Promise<VmClient>} A promise that resolves to a configured `VmClient` instance.
