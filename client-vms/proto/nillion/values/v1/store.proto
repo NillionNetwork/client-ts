@@ -12,7 +12,7 @@ message StoreValuesRequest {
   // The receipt must be for a `StoreValues` operation.
   nillion.payments.v1.receipt.SignedReceipt signed_receipt = 1; 
 
-  // The values encoded in bincode format.
+  // The values are encoded in bincode format.
   bytes bincode_values = 2;
 
   // The permissions to set for these values.
