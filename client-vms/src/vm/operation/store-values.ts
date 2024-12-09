@@ -137,7 +137,6 @@ export class StoreValues implements Operation<Uuid> {
         operation: {
           case: "storeValues",
           value: {
-            particlesCount: classify.particles,
             secretSharedCount: classify.shares,
             publicValuesCount: classify.public,
             ttlDays,
