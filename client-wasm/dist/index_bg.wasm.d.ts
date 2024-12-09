@@ -26,8 +26,6 @@ export function secretmasker_mask(a: number, b: number, c: number): void;
 export function secretmasker_unmask(a: number, b: number, c: number, d: number): void;
 export function secretmasker_classify_values(a: number, b: number): number;
 export function __wbg_nadavaluesclassification_free(a: number): void;
-export function __wbg_get_nadavaluesclassification_particles(a: number): number;
-export function __wbg_set_nadavaluesclassification_particles(a: number, b: number): void;
 export function __wbg_get_nadavaluesclassification_shares(a: number): number;
 export function __wbg_set_nadavaluesclassification_shares(a: number, b: number): void;
 export function __wbg_get_nadavaluesclassification_public(a: number): number;

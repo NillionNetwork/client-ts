@@ -745,21 +745,6 @@ export class NadaValuesClassification {
         wasm.__wbg_nadavaluesclassification_free(ptr);
     }
     /**
-    * The number of particles
-    * @returns {bigint}
-    */
-    get particles() {
-        const ret = wasm.__wbg_get_nadavaluesclassification_particles(this.__wbg_ptr);
-        return BigInt.asUintN(64, ret);
-    }
-    /**
-    * The number of particles
-    * @param {bigint} arg0
-    */
-    set particles(arg0) {
-        wasm.__wbg_set_nadavaluesclassification_particles(this.__wbg_ptr, arg0);
-    }
-    /**
     * The number of shares
     * @returns {bigint}
     */
