@@ -4,6 +4,12 @@
 
 import type { GenFile, GenService } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, serviceDesc } from "@bufbuild/protobuf/codegenv1";
+import type { EmptySchema } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
+import type { AccountBalanceResponseSchema, AddFundsRequestSchema } from "./balance_pb";
+import { file_nillion_payments_v1_balance } from "./balance_pb";
+import type { PaymentsConfigResponseSchema } from "./config_pb";
+import { file_nillion_payments_v1_config } from "./config_pb";
 import type { PriceQuoteRequestSchema, SignedQuoteSchema } from "./quote_pb";
 import { file_nillion_payments_v1_quote } from "./quote_pb";
 import type { PaymentReceiptRequestSchema, SignedReceiptSchema } from "./receipt_pb";
@@ -13,7 +19,7 @@ import { file_nillion_payments_v1_receipt } from "./receipt_pb";
  * Describes the file nillion/payments/v1/service.proto.
  */
 export const file_nillion_payments_v1_service: GenFile = /*@__PURE__*/
-  fileDesc("CiFuaWxsaW9uL3BheW1lbnRzL3YxL3NlcnZpY2UucHJvdG8SE25pbGxpb24ucGF5bWVudHMudjEy4AEKCFBheW1lbnRzEmIKClByaWNlUXVvdGUSLC5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlByaWNlUXVvdGVSZXF1ZXN0GiYubmlsbGlvbi5wYXltZW50cy52MS5xdW90ZS5TaWduZWRRdW90ZRJwCg5QYXltZW50UmVjZWlwdBIyLm5pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdC5QYXltZW50UmVjZWlwdFJlcXVlc3QaKi5uaWxsaW9uLnBheW1lbnRzLnYxLnJlY2VpcHQuU2lnbmVkUmVjZWlwdEKVAQoXY29tLm5pbGxpb24ucGF5bWVudHMudjFCDFNlcnZpY2VQcm90b1ABogIDTlBYqgITTmlsbGlvbi5QYXltZW50cy5WMcoCE05pbGxpb25cUGF5bWVudHNcVjHiAh9OaWxsaW9uXFBheW1lbnRzXFYxXEdQQk1ldGFkYXRh6gIVTmlsbGlvbjo6UGF5bWVudHM6OlYxYgZwcm90bzM", [file_nillion_payments_v1_quote, file_nillion_payments_v1_receipt]);
+  fileDesc("CiFuaWxsaW9uL3BheW1lbnRzL3YxL3NlcnZpY2UucHJvdG8SE25pbGxpb24ucGF5bWVudHMudjEy7wMKCFBheW1lbnRzEmIKClByaWNlUXVvdGUSLC5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlByaWNlUXVvdGVSZXF1ZXN0GiYubmlsbGlvbi5wYXltZW50cy52MS5xdW90ZS5TaWduZWRRdW90ZRJwCg5QYXltZW50UmVjZWlwdBIyLm5pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdC5QYXltZW50UmVjZWlwdFJlcXVlc3QaKi5uaWxsaW9uLnBheW1lbnRzLnYxLnJlY2VpcHQuU2lnbmVkUmVjZWlwdBJcCg5QYXltZW50c0NvbmZpZxIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eRoyLm5pbGxpb24ucGF5bWVudHMudjEuY29uZmlnLlBheW1lbnRzQ29uZmlnUmVzcG9uc2USXQoOQWNjb3VudEJhbGFuY2USFi5nb29nbGUucHJvdG9idWYuRW1wdHkaMy5uaWxsaW9uLnBheW1lbnRzLnYxLmJhbGFuY2UuQWNjb3VudEJhbGFuY2VSZXNwb25zZRJQCghBZGRGdW5kcxIsLm5pbGxpb24ucGF5bWVudHMudjEuYmFsYW5jZS5BZGRGdW5kc1JlcXVlc3QaFi5nb29nbGUucHJvdG9idWYuRW1wdHlClQEKF2NvbS5uaWxsaW9uLnBheW1lbnRzLnYxQgxTZXJ2aWNlUHJvdG9QAaICA05QWKoCE05pbGxpb24uUGF5bWVudHMuVjHKAhNOaWxsaW9uXFBheW1lbnRzXFYx4gIfTmlsbGlvblxQYXltZW50c1xWMVxHUEJNZXRhZGF0YeoCFU5pbGxpb246OlBheW1lbnRzOjpWMWIGcHJvdG8z", [file_google_protobuf_empty, file_nillion_payments_v1_balance, file_nillion_payments_v1_config, file_nillion_payments_v1_quote, file_nillion_payments_v1_receipt]);
 
 /**
  * Payments API.
@@ -40,6 +46,36 @@ export const Payments: GenService<{
     methodKind: "unary";
     input: typeof PaymentReceiptRequestSchema;
     output: typeof SignedReceiptSchema;
+  },
+  /**
+   * Get the payments configuration for this network.
+   *
+   * @generated from rpc nillion.payments.v1.Payments.PaymentsConfig
+   */
+  paymentsConfig: {
+    methodKind: "unary";
+    input: typeof EmptySchema;
+    output: typeof PaymentsConfigResponseSchema;
+  },
+  /**
+   * Get the user account's balance.
+   *
+   * @generated from rpc nillion.payments.v1.Payments.AccountBalance
+   */
+  accountBalance: {
+    methodKind: "unary";
+    input: typeof EmptySchema;
+    output: typeof AccountBalanceResponseSchema;
+  },
+  /**
+   * Add funds to a user account's balance.
+   *
+   * @generated from rpc nillion.payments.v1.Payments.AddFunds
+   */
+  addFunds: {
+    methodKind: "unary";
+    input: typeof AddFundsRequestSchema;
+    output: typeof EmptySchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_nillion_payments_v1_service, 0);

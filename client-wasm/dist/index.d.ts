@@ -188,10 +188,6 @@ export class NadaValuesClassification {
 */
   ecdsa_signature_shares: bigint;
 /**
-* The number of particles
-*/
-  particles: bigint;
-/**
 * The number of public values
 */
   public: bigint;

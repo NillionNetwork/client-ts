@@ -9,7 +9,7 @@ import { enumDesc, fileDesc } from "@bufbuild/protobuf/codegenv1";
  * Describes the file nillion/preprocessing/v1/element.proto.
  */
 export const file_nillion_preprocessing_v1_element: GenFile = /*@__PURE__*/
-  fileDesc("CiZuaWxsaW9uL3ByZXByb2Nlc3NpbmcvdjEvZWxlbWVudC5wcm90bxIgbmlsbGlvbi5wcmVwcm9jZXNzaW5nLnYxLmVsZW1lbnQq8wEKFFByZXByb2Nlc3NpbmdFbGVtZW50EgkKBUFMUEhBEAASCgoGTEFNQkRBEAESCwoHQ09NUEFSRRACEhsKF0RJVklTSU9OX1NFQ1JFVF9ESVZJU09SEAMSGgoWRVFVQUxJVFlfU0VDUkVUX09VVFBVVBAEEhoKFkVRVUFMSVRZX1BVQkxJQ19PVVRQVVQQBRIVChFTSEFSRV9UT19QQVJUSUNMRRAGEgoKBk1PRFVMTxAHEgkKBVRSVU5DEAgSDAoIVFJVTkNfUFIQCRISCg5SQU5ET01fSU5URUdFUhAKEhIKDlJBTkRPTV9CT09MRUFOEAtC2AEKJGNvbS5uaWxsaW9uLnByZXByb2Nlc3NpbmcudjEuZWxlbWVudEIMRWxlbWVudFByb3RvUAGiAgROUFZFqgIgTmlsbGlvbi5QcmVwcm9jZXNzaW5nLlYxLkVsZW1lbnTKAiBOaWxsaW9uXFByZXByb2Nlc3NpbmdcVjFcRWxlbWVudOICLE5pbGxpb25cUHJlcHJvY2Vzc2luZ1xWMVxFbGVtZW50XEdQQk1ldGFkYXRh6gIjTmlsbGlvbjo6UHJlcHJvY2Vzc2luZzo6VjE6OkVsZW1lbnRiBnByb3RvMw");
+  fileDesc("CiZuaWxsaW9uL3ByZXByb2Nlc3NpbmcvdjEvZWxlbWVudC5wcm90bxIgbmlsbGlvbi5wcmVwcm9jZXNzaW5nLnYxLmVsZW1lbnQq0QEKFFByZXByb2Nlc3NpbmdFbGVtZW50EhIKDlJBTkRPTV9CT09MRUFOEAASCwoHQ09NUEFSRRACEhsKF0RJVklTSU9OX1NFQ1JFVF9ESVZJU09SEAMSGgoWRVFVQUxJVFlfU0VDUkVUX09VVFBVVBAEEhoKFkVRVUFMSVRZX1BVQkxJQ19PVVRQVVQQBRIKCgZNT0RVTE8QBxIJCgVUUlVOQxAIEgwKCFRSVU5DX1BSEAkSEgoOUkFORE9NX0lOVEVHRVIQCiIECAEQASIECAYQBkLYAQokY29tLm5pbGxpb24ucHJlcHJvY2Vzc2luZy52MS5lbGVtZW50QgxFbGVtZW50UHJvdG9QAaICBE5QVkWqAiBOaWxsaW9uLlByZXByb2Nlc3NpbmcuVjEuRWxlbWVudMoCIE5pbGxpb25cUHJlcHJvY2Vzc2luZ1xWMVxFbGVtZW504gIsTmlsbGlvblxQcmVwcm9jZXNzaW5nXFYxXEVsZW1lbnRcR1BCTWV0YWRhdGHqAiNOaWxsaW9uOjpQcmVwcm9jZXNzaW5nOjpWMTo6RWxlbWVudGIGcHJvdG8z");
 
 /**
  * A preprocessing element.
@@ -18,14 +18,9 @@ export const file_nillion_preprocessing_v1_element: GenFile = /*@__PURE__*/
  */
 export enum PreprocessingElement {
   /**
-   * @generated from enum value: ALPHA = 0;
+   * @generated from enum value: RANDOM_BOOLEAN = 0;
    */
-  ALPHA = 0,
-
-  /**
-   * @generated from enum value: LAMBDA = 1;
-   */
-  LAMBDA = 1,
+  RANDOM_BOOLEAN = 0,
 
   /**
    * @generated from enum value: COMPARE = 2;
@@ -48,11 +43,6 @@ export enum PreprocessingElement {
   EQUALITY_PUBLIC_OUTPUT = 5,
 
   /**
-   * @generated from enum value: SHARE_TO_PARTICLE = 6;
-   */
-  SHARE_TO_PARTICLE = 6,
-
-  /**
    * @generated from enum value: MODULO = 7;
    */
   MODULO = 7,
@@ -71,11 +61,6 @@ export enum PreprocessingElement {
    * @generated from enum value: RANDOM_INTEGER = 10;
    */
   RANDOM_INTEGER = 10,
-
-  /**
-   * @generated from enum value: RANDOM_BOOLEAN = 11;
-   */
-  RANDOM_BOOLEAN = 11,
 }
 
 /**
