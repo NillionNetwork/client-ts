@@ -6,6 +6,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "nillion/payments/v1/quote.proto";
 import "nillion/preprocessing/v1/element.proto";
+import "nillion/preprocessing/v1/material.proto";
 
 // A request to get a payment receipt for a paid operation.
 message PaymentReceiptRequest {
@@ -13,6 +14,8 @@ message PaymentReceiptRequest {
   quote.SignedQuote signed_quote = 1;
 
   // The nilchain transaction hash that proves this payment was made.
+  //
+  // Not setting this field indicates the payment should be subtracted from the user's account balance.
   string tx_hash = 2;
 }
 
@@ -76,6 +79,9 @@ message InvokeComputeMetadata {
 
   // The selected preprocessing offsets for this operation.
   repeated SelectedPreprocessingOffsets offsets = 2;
+
+  // The auxiliary material needed for this operation.
+  repeated SelectedAuxiliaryMaterial auxiliary_materials = 3;
 }
 
 // The selected offsets for a preprocessing element.
@@ -93,5 +99,14 @@ message SelectedPreprocessingOffsets {
 
   // The size of all batches involved in the selected range.
   uint64 batch_size = 4;
+}
+
+// The selected auxiliary material.
+message SelectedAuxiliaryMaterial {
+  // The material type.
+  nillion.preprocessing.v1.material.AuxiliaryMaterial material = 1;
+
+  // the material version.
+  uint32 version = 2;
 }
 
