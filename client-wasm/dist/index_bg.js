@@ -319,6 +319,74 @@ function handleError(f, args) {
     }
 }
 
+const EcdsaSignatureFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_ecdsasignature_free(ptr >>> 0));
+/**
+* A ecdsa signature
+*/
+export class EcdsaSignature {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(EcdsaSignature.prototype);
+        obj.__wbg_ptr = ptr;
+        EcdsaSignatureFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
+    toJSON() {
+        return {
+        };
+    }
+
+    toString() {
+        return JSON.stringify(this);
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        EcdsaSignatureFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_ecdsasignature_free(ptr);
+    }
+    /**
+    * Construct a new instance the components.
+    * @param {Uint8Array} r
+    * @param {Uint8Array} s
+    */
+    constructor(r, s) {
+        const ptr0 = passArray8ToWasm0(r, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArray8ToWasm0(s, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.ecdsasignature_new(ptr0, len0, ptr1, len1);
+        this.__wbg_ptr = ret >>> 0;
+        return this;
+    }
+    /**
+    * Access r component of the signature
+    * @returns {Uint8Array}
+    */
+    r() {
+        const ret = wasm.ecdsasignature_r(this.__wbg_ptr);
+        return takeObject(ret);
+    }
+    /**
+    * Access s component of the signature
+    * @returns {Uint8Array}
+    */
+    s() {
+        const ret = wasm.ecdsasignature_s(this.__wbg_ptr);
+        return takeObject(ret);
+    }
+}
+
 const EncryptedNadaValuesFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_encryptednadavalues_free(ptr >>> 0));
@@ -562,6 +630,35 @@ export class NadaValue {
         }
     }
     /**
+    * Create a new ecdsa signature.
+    *
+    * @param {Uint8Array} r - The r component of the signature in binary (byte array) encoded format
+    * @param {Uint8Array} s - The s component of the signature in binary (byte array) encoded format
+    * @return {NadaValue} The encoded secret corresponding to the value provided
+    *
+    * @example
+    * const value = NadaValue::new_ecdsa_signature(EcdsaSignature { r, s });
+    */
+    static new_ecdsa_signature(r, s) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passArray8ToWasm0(r, wasm.__wbindgen_malloc);
+            const len0 = WASM_VECTOR_LEN;
+            const ptr1 = passArray8ToWasm0(s, wasm.__wbindgen_malloc);
+            const len1 = WASM_VECTOR_LEN;
+            wasm.nadavalue_new_ecdsa_signature(retptr, ptr0, len0, ptr1, len1);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return NadaValue.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
     * Convert this value into a byte array.
     *
     * This is only valid for secret blob values.
@@ -570,7 +667,7 @@ export class NadaValue {
     *
     * @example
     * const value = NadaValue.new_secret_blob([1,0,1,222,21]);
-    * const byteArray = value.to_byte_array();
+    * const byteArray = value.into_byte_array();
     */
     into_byte_array() {
         try {
@@ -592,6 +689,33 @@ export class NadaValue {
         }
     }
     /**
+    * Convert this value into a byte array.
+    *
+    * This is only valid for secret blob values.
+    * @return {Uint8Array} the byte array contained in this value.
+    * @throws {Error} if the value is not a secret blob.
+    *
+    * @example
+    * const value = NadaValue.new_secret_blob([1,0,1,222,21]);
+    * const byteArray = value.into_byte_array();
+    */
+    try_into_signature() {
+        try {
+            const ptr = this.__destroy_into_raw();
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.nadavalue_try_into_signature(retptr, ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return EcdsaSignature.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
     * Convert this value into a string representation of the underlying numeric value.
     *
     * This only works for numeric secret values, such as integers and unsigned integers.
@@ -599,14 +723,15 @@ export class NadaValue {
     *
     * @example
     * const value = NadaValue.new_public_integer("23");
-    * const integer_value = value.to_integer();
+    * const integer_value = value.into_integer();
     */
-    to_integer() {
+    into_integer() {
         let deferred2_0;
         let deferred2_1;
         try {
+            const ptr = this.__destroy_into_raw();
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.nadavalue_to_integer(retptr, this.__wbg_ptr);
+            wasm.nadavalue_into_integer(retptr, ptr);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
             var r2 = getInt32Memory0()[retptr / 4 + 2];
@@ -918,7 +1043,7 @@ export class PartyId {
     * @returns {Uint8Array}
     */
     to_byte_array() {
-        const ret = wasm.partyid_to_byte_array(this.__wbg_ptr);
+        const ret = wasm.ecdsasignature_r(this.__wbg_ptr);
         return takeObject(ret);
     }
 }
@@ -1285,6 +1410,11 @@ export function __wbg_newwithlength_e9b4878cebadb3d3(arg0) {
     return addHeapObject(ret);
 };
 
+export function __wbg_ecdsasignature_new(arg0) {
+    const ret = EcdsaSignature.__wrap(arg0);
+    return addHeapObject(ret);
+};
+
 export function __wbg_partyshares_new(arg0) {
     const ret = PartyShares.__wrap(arg0);
     return addHeapObject(ret);
@@ -1428,11 +1558,6 @@ export function __wbg_call_27c0f87801dedf93() { return handleError(function (arg
     return addHeapObject(ret);
 }, arguments) };
 
-export function __wbg_partyid_unwrap(arg0) {
-    const ret = PartyId.__unwrap(takeObject(arg0));
-    return ret;
-};
-
 export function __wbg_new_d9bc3a0147634640() {
     const ret = new Map();
     return addHeapObject(ret);
@@ -1455,6 +1580,11 @@ export function __wbg_set_f975102236d3c502(arg0, arg1, arg2) {
 export function __wbg_set_8417257aaedc936b(arg0, arg1, arg2) {
     const ret = getObject(arg0).set(getObject(arg1), getObject(arg2));
     return addHeapObject(ret);
+};
+
+export function __wbg_partyid_unwrap(arg0) {
+    const ret = PartyId.__unwrap(takeObject(arg0));
+    return ret;
 };
 
 export function __wbg_String_b9412f8799faab3e(arg0, arg1) {
