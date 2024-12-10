@@ -8,12 +8,14 @@ import type { EmptySchema } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
 import type { ClusterSchema } from "./cluster_pb";
 import { file_nillion_membership_v1_cluster } from "./cluster_pb";
+import type { NodeVersionSchema } from "./version_pb";
+import { file_nillion_membership_v1_version } from "./version_pb";
 
 /**
  * Describes the file nillion/membership/v1/service.proto.
  */
 export const file_nillion_membership_v1_service: GenFile = /*@__PURE__*/
-  fileDesc("CiNuaWxsaW9uL21lbWJlcnNoaXAvdjEvc2VydmljZS5wcm90bxIVbmlsbGlvbi5tZW1iZXJzaGlwLnYxMlcKCk1lbWJlcnNoaXASSQoHQ2x1c3RlchIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eRomLm5pbGxpb24ubWVtYmVyc2hpcC52MS5jbHVzdGVyLkNsdXN0ZXJCnwEKGWNvbS5uaWxsaW9uLm1lbWJlcnNoaXAudjFCDFNlcnZpY2VQcm90b1ABogIDTk1YqgIVTmlsbGlvbi5NZW1iZXJzaGlwLlYxygIVTmlsbGlvblxNZW1iZXJzaGlwXFYx4gIhTmlsbGlvblxNZW1iZXJzaGlwXFYxXEdQQk1ldGFkYXRh6gIXTmlsbGlvbjo6TWVtYmVyc2hpcDo6VjFiBnByb3RvMw", [file_google_protobuf_empty, file_nillion_membership_v1_cluster]);
+  fileDesc("CiNuaWxsaW9uL21lbWJlcnNoaXAvdjEvc2VydmljZS5wcm90bxIVbmlsbGlvbi5tZW1iZXJzaGlwLnYxMqoBCgpNZW1iZXJzaGlwEkkKB0NsdXN0ZXISFi5nb29nbGUucHJvdG9idWYuRW1wdHkaJi5uaWxsaW9uLm1lbWJlcnNoaXAudjEuY2x1c3Rlci5DbHVzdGVyElEKC05vZGVWZXJzaW9uEhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5GioubmlsbGlvbi5tZW1iZXJzaGlwLnYxLnZlcnNpb24uTm9kZVZlcnNpb25CnwEKGWNvbS5uaWxsaW9uLm1lbWJlcnNoaXAudjFCDFNlcnZpY2VQcm90b1ABogIDTk1YqgIVTmlsbGlvbi5NZW1iZXJzaGlwLlYxygIVTmlsbGlvblxNZW1iZXJzaGlwXFYx4gIhTmlsbGlvblxNZW1iZXJzaGlwXFYxXEdQQk1ldGFkYXRh6gIXTmlsbGlvbjo6TWVtYmVyc2hpcDo6VjFiBnByb3RvMw", [file_google_protobuf_empty, file_nillion_membership_v1_cluster, file_nillion_membership_v1_version]);
 
 /**
  * Exposes information about a node's membership.
@@ -30,6 +32,16 @@ export const Membership: GenService<{
     methodKind: "unary";
     input: typeof EmptySchema;
     output: typeof ClusterSchema;
+  },
+  /**
+   * Get the node's version.
+   *
+   * @generated from rpc nillion.membership.v1.Membership.NodeVersion
+   */
+  nodeVersion: {
+    methodKind: "unary";
+    input: typeof EmptySchema;
+    output: typeof NodeVersionSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_nillion_membership_v1_service, 0);
