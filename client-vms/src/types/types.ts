@@ -1,5 +1,5 @@
 import { type Timestamp, timestampDate } from "@bufbuild/protobuf/wkt";
-import { PartyId as WasmPartyId } from "@nillion/client-wasm";
+import { EcdsaSignature, PartyId as WasmPartyId } from "@nillion/client-wasm";
 import { z } from "zod";
 import type {
   PriceQuoteRequest,
@@ -85,7 +85,11 @@ export type OutputBindings = z.infer<typeof OutputBindings>;
 export const NadaValuesRecord = z.record(
   z.object({
     type: z.string(),
-    value: z.union([z.string(), z.instanceof(Uint8Array)]),
+    value: z.union([
+      z.string(),
+      z.instanceof(Uint8Array),
+      z.instanceof(EcdsaSignature),
+    ]),
   }),
 );
 export type NadaValuesRecord = z.infer<typeof NadaValuesRecord>;
