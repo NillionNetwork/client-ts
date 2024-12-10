@@ -7,7 +7,9 @@ export function nadavalue_new_secret_unsigned_integer(a: number, b: number, c: n
 export function nadavalue_new_secret_blob(a: number, b: number): number;
 export function nadavalue_new_public_integer(a: number, b: number, c: number): void;
 export function nadavalue_new_public_unsigned_integer(a: number, b: number, c: number): void;
-export function nadavalue_to_byte_array(a: number, b: number): void;
+export function nadavalue_new_ecdsa_private_key(a: number, b: number, c: number): void;
+export function nadavalue_new_ecdsa_digest_message(a: number, b: number, c: number): void;
+export function nadavalue_into_byte_array(a: number, b: number): void;
 export function nadavalue_to_integer(a: number, b: number): void;
 export function nadavalue_type_name(a: number, b: number): void;
 export function __wbg_nadavalues_free(a: number): void;

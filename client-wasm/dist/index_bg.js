@@ -510,6 +510,58 @@ export class NadaValue {
         }
     }
     /**
+    * Create a new ecdsa private key
+    *
+    * @param {Uint8Array} value - The ecdsa private key in binary (byte array) encoded format
+    * @return {NadaValue} The encoded secret corresponding to the value provided
+    *
+    * @example
+    * const value = NadaValue.new_ecdsa_private_key([1,0,1,222,21,...]);
+    */
+    static new_ecdsa_private_key(value) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passArray8ToWasm0(value, wasm.__wbindgen_malloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.nadavalue_new_ecdsa_private_key(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return NadaValue.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+    * Create a new ecdsa digest message.
+    *
+    * @param {Uint8Array} value - The ecdsa digest message in binary (byte array) encoded format
+    * @return {NadaValue} The encoded secret corresponding to the value provided
+    *
+    * @example
+    * const value = NadaValue.new_ecdsa_digest_message([1,0,1,222,21,...]);
+    */
+    static new_ecdsa_digest_message(value) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passArray8ToWasm0(value, wasm.__wbindgen_malloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.nadavalue_new_ecdsa_digest_message(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return NadaValue.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
     * Convert this value into a byte array.
     *
     * This is only valid for secret blob values.
@@ -520,10 +572,11 @@ export class NadaValue {
     * const value = NadaValue.new_secret_blob([1,0,1,222,21]);
     * const byteArray = value.to_byte_array();
     */
-    to_byte_array() {
+    into_byte_array() {
         try {
+            const ptr = this.__destroy_into_raw();
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.nadavalue_to_byte_array(retptr, this.__wbg_ptr);
+            wasm.nadavalue_into_byte_array(retptr, ptr);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
             var r2 = getInt32Memory0()[retptr / 4 + 2];
