@@ -39,3 +39,9 @@ export const loadProgram = (name: string): Uint8Array => {
   const absolute = path.join(__dirname, "../tests-nada-programs/dist/", name);
   return new Uint8Array(fs.readFileSync(absolute));
 };
+
+export async function hash(message: string): Promise<Uint8Array> {
+  const encoded_message = new TextEncoder().encode(message);
+  const hash_buffer = await crypto.subtle.digest("SHA-256", encoded_message);
+  return new Uint8Array(hash_buffer);
+}

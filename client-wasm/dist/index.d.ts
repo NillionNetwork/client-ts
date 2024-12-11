@@ -19,6 +19,36 @@ export function decode_values(bincode_bytes: Uint8Array): EncryptedNadaValues;
 */
 export function compute_values_size(values: NadaValues): bigint;
 /**
+* A ecdsa signature
+*/
+export class EcdsaSignature {
+/**
+** Return copy of self without private attributes.
+*/
+  toJSON(): Object;
+/**
+* Return stringified version of self.
+*/
+  toString(): string;
+  free(): void;
+/**
+* Construct a new instance the components.
+* @param {Uint8Array} r
+* @param {Uint8Array} s
+*/
+  constructor(r: Uint8Array, s: Uint8Array);
+/**
+* Access r component of the signature
+* @returns {Uint8Array}
+*/
+  r(): Uint8Array;
+/**
+* Access s component of the signature
+* @returns {Uint8Array}
+*/
+  s(): Uint8Array;
+}
+/**
 * A set of encrypted nada values.
 */
 export class EncryptedNadaValues {
@@ -94,6 +124,37 @@ export class NadaValue {
 */
   static new_public_unsigned_integer(value: string): NadaValue;
 /**
+* Create a new ecdsa private key
+*
+* @param {Uint8Array} value - The ecdsa private key in binary (byte array) encoded format
+* @return {NadaValue} The encoded secret corresponding to the value provided
+*
+* @example
+* const value = NadaValue.new_ecdsa_private_key([1,0,1,222,21,...]);
+*/
+  static new_ecdsa_private_key(value: Uint8Array): NadaValue;
+/**
+* Create a new ecdsa digest message.
+*
+* @param {Uint8Array} value - The ecdsa digest message in binary (byte array) encoded format
+* @return {NadaValue} The encoded secret corresponding to the value provided
+*
+* @example
+* const value = NadaValue.new_ecdsa_digest_message([1,0,1,222,21,...]);
+*/
+  static new_ecdsa_digest_message(value: Uint8Array): NadaValue;
+/**
+* Create a new ecdsa signature.
+*
+* @param {Uint8Array} r - The r component of the signature in binary (byte array) encoded format
+* @param {Uint8Array} s - The s component of the signature in binary (byte array) encoded format
+* @return {NadaValue} The encoded secret corresponding to the value provided
+*
+* @example
+* const value = NadaValue::new_ecdsa_signature(EcdsaSignature { r, s });
+*/
+  static new_ecdsa_signature(r: Uint8Array, s: Uint8Array): NadaValue;
+/**
 * Convert this value into a byte array.
 *
 * This is only valid for secret blob values.
@@ -102,9 +163,21 @@ export class NadaValue {
 *
 * @example
 * const value = NadaValue.new_secret_blob([1,0,1,222,21]);
-* const byteArray = value.to_byte_array();
+* const byteArray = value.into_byte_array();
 */
-  to_byte_array(): Uint8Array;
+  into_byte_array(): Uint8Array;
+/**
+* Convert this value into a byte array.
+*
+* This is only valid for secret blob values.
+* @return {Uint8Array} the byte array contained in this value.
+* @throws {Error} if the value is not a secret blob.
+*
+* @example
+* const value = NadaValue.new_secret_blob([1,0,1,222,21]);
+* const byteArray = value.into_byte_array();
+*/
+  try_into_signature(): EcdsaSignature;
 /**
 * Convert this value into a string representation of the underlying numeric value.
 *
@@ -113,9 +186,9 @@ export class NadaValue {
 *
 * @example
 * const value = NadaValue.new_public_integer("23");
-* const integer_value = value.to_integer();
+* const integer_value = value.into_integer();
 */
-  to_integer(): string;
+  into_integer(): string;
 /**
 * Return the Nada type represented by this instance.
 *
