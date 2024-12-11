@@ -3,6 +3,7 @@ import {
   NadaValue,
   NadaValues,
 } from "@nillion/client-wasm";
+import { sha256 } from "@noble/hashes/sha2";
 import { describe, expect, it } from "vitest";
 import { type NadaValuesRecord, PartyId } from "#/types";
 
@@ -19,12 +20,6 @@ const byte_array = Uint8Array.from([
 ]);
 
 const digest_message = "A deep message with a deep number: 42";
-
-async function hash(message: string): Promise<Uint8Array> {
-  const encoded_message = new TextEncoder().encode(message);
-  const hash_buffer = await crypto.subtle.digest("SHA-256", encoded_message);
-  return new Uint8Array(hash_buffer);
-}
 
 const data = [
   {
@@ -66,8 +61,8 @@ const data = [
   {
     type: "EcdsaDigestMessage",
     name: "g",
-    value: await hash(digest_message),
-    nadaValue: NadaValue.new_ecdsa_digest_message(await hash(digest_message)),
+    value: sha256(digest_message),
+    nadaValue: NadaValue.new_ecdsa_digest_message(sha256(digest_message)),
   },
   {
     type: "EcdsaSignature",
