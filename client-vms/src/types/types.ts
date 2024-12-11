@@ -63,7 +63,7 @@ export const PartyName = z.string().min(1);
 export type PartyName = z.infer<typeof PartyName>;
 
 // userid-as-hex/{program-name}/sha256/{sha-of-program}
-export const ProgramId = z.string().min(100);
+export const ProgramId = z.string().min(10);
 export type ProgramId = z.infer<typeof ProgramId>;
 
 export const ProgramName = z.string().regex(/[a-zA-Z0-9+.:_-]{1,128}/);
