@@ -5,6 +5,7 @@ import {
 } from "@nillion/client-wasm";
 import { describe, expect, it } from "vitest";
 import { type NadaValuesRecord, PartyId } from "#/types";
+import { hash } from "./helpers";
 
 const numeric_types = [
   "SecretInteger",
@@ -19,12 +20,6 @@ const byte_array = Uint8Array.from([
 ]);
 
 const digest_message = "A deep message with a deep number: 42";
-
-async function hash(message: string): Promise<Uint8Array> {
-  const encoded_message = new TextEncoder().encode(message);
-  const hash_buffer = await crypto.subtle.digest("SHA-256", encoded_message);
-  return new Uint8Array(hash_buffer);
-}
 
 const data = [
   {
