@@ -9,8 +9,9 @@ import {
   Prime,
 } from "#/gen-proto/nillion/membership/v1/cluster_pb";
 import { Membership } from "#/gen-proto/nillion/membership/v1/service_pb";
+import type { NodeVersion } from "#/gen-proto/nillion/membership/v1/version_pb";
 import { Log } from "#/logger";
-import { PaymentClientBuilder } from "#/payment";
+import { PaymentClientBuilder, PaymentMode } from "#/payment";
 import { PartyId, UserId } from "#/types";
 import { OfflineSignerSchema } from "#/types/grpc";
 import { assertIsDefined } from "#/util";
@@ -21,6 +22,7 @@ export const VmClientBuilderConfig = z.object({
   chainUrl: z.string().url("Invalid chain url"),
   signer: OfflineSignerSchema,
   seed: z.string().min(1),
+  paymentMode: z.nativeEnum(PaymentMode),
 });
 
 export type VmClientBuilderConfig = z.infer<typeof VmClientBuilderConfig>;
@@ -51,7 +53,11 @@ export class VmClientBuilder {
   private _chainUrl?: string;
   private _signer?: OfflineSigner;
   private _seed?: string;
-  private _authTokenTtl?: number;
+  private _paymentMode?: PaymentMode;
+
+  constructor(paymentMode: PaymentMode = PaymentMode.FromBalance) {
+    this._paymentMode = paymentMode;
+  }
 
   /**
    * Set the Nillion network bootnode Url. This can be any node in the network.
@@ -108,17 +114,31 @@ export class VmClientBuilder {
    * @throws {Error} If builder configuration is incomplete or invalid.
    */
   async build(): Promise<VmClient> {
-    const { bootnodeUrl, chainUrl, signer, seed } = VmClientBuilderConfig.parse(
-      {
+    const { bootnodeUrl, chainUrl, signer, seed, paymentMode } =
+      VmClientBuilderConfig.parse({
         bootnodeUrl: this._bootnodeUrl,
         chainUrl: this._chainUrl,
         signer: this._signer,
         seed: this._seed,
-      },
-    );
+        paymentMode: this._paymentMode,
+      });
 
     const tokenAuthManager = TokenAuthManager.fromSeed(seed);
     const cluster = await fetchClusterDetails(bootnodeUrl);
+
+    let supportedPaymentMode = paymentMode;
+    if (paymentMode === PaymentMode.FromBalance) {
+      const version = await fetchNodeVersion(bootnodeUrl);
+      const semver = version.version;
+      const supportBalances =
+        semver === undefined || semver.major > 0 || semver.minor >= 8;
+      if (!supportBalances) {
+        Log(
+          "Falling back to paying per operation as network does not support this",
+        );
+        supportedPaymentMode = PaymentMode.PayPerOperation;
+      }
+    }
 
     const leaderClusterInfo = cluster.leader;
     if (
@@ -178,14 +198,17 @@ export class VmClientBuilder {
       }
     }
 
+    const user_id = UserId.from(tokenAuthManager.publicKey);
     const payer = await new PaymentClientBuilder()
       .chainUrl(chainUrl)
+      .paymentMode(supportedPaymentMode)
+      .id(user_id)
       .signer(signer)
       .leader(leader.transport)
       .build();
 
     const config = VmClientConfig.parse({
-      id: UserId.from(tokenAuthManager.publicKey),
+      id: user_id,
       payer,
       masker,
       leader,
@@ -212,4 +235,20 @@ export const fetchClusterDetails = (bootnodeUrl: string): Promise<Cluster> => {
       useBinaryFormat: true,
     }),
   ).cluster({});
+};
+
+/**
+ * Fetches node version details from the specified bootnode Url.
+ *
+ * @param {string} bootnodeUrl - The Url of the bootnode to query.
+ * @returns {Promise<Cluster>} A promise that resolves with the node version.
+ */
+export const fetchNodeVersion = (bootnodeUrl: string): Promise<NodeVersion> => {
+  return createClient(
+    Membership,
+    createGrpcWebTransport({
+      baseUrl: bootnodeUrl,
+      useBinaryFormat: true,
+    }),
+  ).nodeVersion({});
 };

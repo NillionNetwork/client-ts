@@ -3,8 +3,9 @@ import { type OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import { GasPrice, SigningStargateClient } from "@cosmjs/stargate";
 import { z } from "zod";
 import { Payments } from "#/gen-proto/nillion/payments/v1/service_pb";
+import { UserId } from "#/types";
 import { GrpcTransport, OfflineSignerSchema } from "#/types/grpc";
-import { PaymentClient, PaymentClientConfig } from "./client";
+import { PaymentClient, PaymentClientConfig, PaymentMode } from "./client";
 import { MsgPayForCompatWrapper } from "./grpc-compat";
 import { NilChainProtobufTypeUrl, NilToken } from "./types";
 
@@ -12,20 +13,34 @@ const PaymentClientBuilderConfig = z.object({
   signer: OfflineSignerSchema,
   chainUrl: z.string().url("Invalid chain url"),
   transport: GrpcTransport,
+  id: z.instanceof(UserId),
+  paymentMode: z.nativeEnum(PaymentMode),
 });
 
 export class PaymentClientBuilder {
   private _signer?: OfflineSigner;
   private _chainUrl?: string;
   private _transport?: GrpcTransport;
+  private _id?: UserId;
+  private _paymentMode?: PaymentMode;
 
   chainUrl(url: string): this {
     this._chainUrl = url;
     return this;
   }
 
+  paymentMode(paymentMode: PaymentMode): this {
+    this._paymentMode = paymentMode;
+    return this;
+  }
+
   signer(signer: OfflineSigner): this {
     this._signer = signer;
+    return this;
+  }
+
+  id(id: UserId): this {
+    this._id = id;
     return this;
   }
 
@@ -35,11 +50,14 @@ export class PaymentClientBuilder {
   }
 
   async build(): Promise<PaymentClient> {
-    const { signer, chainUrl, transport } = PaymentClientBuilderConfig.parse({
-      signer: this._signer,
-      chainUrl: this._chainUrl,
-      transport: this._transport,
-    });
+    const { signer, chainUrl, transport, id, paymentMode } =
+      PaymentClientBuilderConfig.parse({
+        signer: this._signer,
+        chainUrl: this._chainUrl,
+        transport: this._transport,
+        id: this._id,
+        paymentMode: this._paymentMode,
+      });
 
     const registry = new Registry();
     registry.register(NilChainProtobufTypeUrl, MsgPayForCompatWrapper);
@@ -60,10 +78,13 @@ export class PaymentClientBuilder {
     );
 
     const leader = createClient(Payments, transport);
+
     const config = PaymentClientConfig.parse({
+      id,
       address,
       chain,
       leader,
+      paymentMode,
     });
 
     return new PaymentClient(config);
