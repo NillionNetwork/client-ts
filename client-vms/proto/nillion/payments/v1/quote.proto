@@ -5,6 +5,7 @@ package nillion.payments.v1.quote;
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "nillion/preprocessing/v1/element.proto";
+import "nillion/preprocessing/v1/material.proto";
 
 // A price quote request.
 message PriceQuoteRequest {
@@ -60,41 +61,18 @@ message PriceQuote {
 
   // The preprocessing requirements for this operation.
   repeated PreprocessingRequirement preprocessing_requirements = 5;
+
+  // The auxiliary material requirements for this operation.
+  repeated AuxiliaryMaterialRequirement auxiliary_material_requirements = 6;
 }
 
 // The fees associated with a quote.
 // 
 // All fees are in "unil" units.
 message QuoteFees {
-  // The sum of all the fees.
+  reserved 2 to 6;
+  // The total fee for this quote.
   uint64 total = 1;
-
-  // The base fee.
-  //
-  // This is a flat fee based on the operation being ran.
-  uint64 base = 2;
-
-  // The congestion fee.
-  //
-  // This depends on how congested the network is.
-  uint64 congestion = 3;
-
-  // The storage fee.
-  //
-  // This depends on how much data is being stored, in case the operation being quoted stores data.
-  uint64 storage = 4;
-
-  // The preprocessing fee.
-  //
-  // This is only valid for compute operations and accounts for any preprocessing material needed
-  // to execute the program being invoked.
-  uint64 preprocessing = 5;
-
-  // The compute fee.
-  //
-  // This fee is only valid for compute operations and depends on the complexity of the program
-  // being invoked.
-  uint64 compute = 6;
 }
 
 // A store program operation.
@@ -125,15 +103,29 @@ message ProgramMetadata {
  
   // The preprocessing requirements.
   repeated PreprocessingRequirement preprocessing_requirements = 5;
+
+  // The auxiliary material requirements.
+  repeated AuxiliaryMaterialRequirement auxiliary_material_requirements = 6;
 }
 
-// A number of preprocessing elements required for a program.
+// The number of preprocessing elements required for a program.
 message PreprocessingRequirement {
   // The preprocessing element.
   nillion.preprocessing.v1.element.PreprocessingElement element = 1;
 
   // The total number of elements of this type needed.
   uint64 count = 2;
+}
+
+// The auxiliary material required for a program.
+message AuxiliaryMaterialRequirement {
+  // The preprocessing element.
+  nillion.preprocessing.v1.material.AuxiliaryMaterial material = 1;
+
+  // The version needed.
+  //
+  // This field is used internally and should be ignored by the client.
+  uint32 version = 2;
 }
 
 // A retrieve values operation.
@@ -162,8 +154,7 @@ message UpdatePermissions {
 
 // A store values operation.
 message StoreValues {
-  // The number of particles being stored.
-  uint64 particles_count = 1;
+  reserved 1;
 
   // The number of secret shared secrets being stored.
   //

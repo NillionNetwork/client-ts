@@ -10,13 +10,15 @@ import type { InvokeCompute, OverwritePermissions, RetrievePermissions, Retrieve
 import { file_nillion_payments_v1_quote } from "./quote_pb";
 import type { PreprocessingElement } from "../../preprocessing/v1/element_pb";
 import { file_nillion_preprocessing_v1_element } from "../../preprocessing/v1/element_pb";
+import type { AuxiliaryMaterial } from "../../preprocessing/v1/material_pb";
+import { file_nillion_preprocessing_v1_material } from "../../preprocessing/v1/material_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file nillion/payments/v1/receipt.proto.
  */
 export const file_nillion_payments_v1_receipt: GenFile = /*@__PURE__*/
-  fileDesc("CiFuaWxsaW9uL3BheW1lbnRzL3YxL3JlY2VpcHQucHJvdG8SG25pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdCJmChVQYXltZW50UmVjZWlwdFJlcXVlc3QSPAoMc2lnbmVkX3F1b3RlGAEgASgLMiYubmlsbGlvbi5wYXltZW50cy52MS5xdW90ZS5TaWduZWRRdW90ZRIPCgd0eF9oYXNoGAIgASgJIjMKDVNpZ25lZFJlY2VpcHQSDwoHcmVjZWlwdBgBIAEoDBIRCglzaWduYXR1cmUYAiABKAwijwEKB1JlY2VpcHQSEgoKaWRlbnRpZmllchgBIAEoDBJACghtZXRhZGF0YRgCIAEoCzIuLm5pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdC5PcGVyYXRpb25NZXRhZGF0YRIuCgpleHBpcmVzX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLTBAoRT3BlcmF0aW9uTWV0YWRhdGESLQoLcG9vbF9zdGF0dXMYASABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABJACg1zdG9yZV9wcm9ncmFtGAIgASgLMicubmlsbGlvbi5wYXltZW50cy52MS5xdW90ZS5TdG9yZVByb2dyYW1IABJECg9yZXRyaWV2ZV92YWx1ZXMYAyABKAsyKS5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlJldHJpZXZlVmFsdWVzSAASTgoUcmV0cmlldmVfcGVybWlzc2lvbnMYBCABKAsyLi5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlJldHJpZXZlUGVybWlzc2lvbnNIABI+CgxzdG9yZV92YWx1ZXMYBSABKAsyJi5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlN0b3JlVmFsdWVzSAASTAoOaW52b2tlX2NvbXB1dGUYBiABKAsyMi5uaWxsaW9uLnBheW1lbnRzLnYxLnJlY2VpcHQuSW52b2tlQ29tcHV0ZU1ldGFkYXRhSAASUAoVb3ZlcndyaXRlX3Blcm1pc3Npb25zGAcgASgLMi8ubmlsbGlvbi5wYXltZW50cy52MS5xdW90ZS5PdmVyd3JpdGVQZXJtaXNzaW9uc0gAEkoKEnVwZGF0ZV9wZXJtaXNzaW9ucxgIIAEoCzIsLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuVXBkYXRlUGVybWlzc2lvbnNIAEILCglvcGVyYXRpb24inAEKFUludm9rZUNvbXB1dGVNZXRhZGF0YRI3CgVxdW90ZRgBIAEoCzIoLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuSW52b2tlQ29tcHV0ZRJKCgdvZmZzZXRzGAIgAygLMjkubmlsbGlvbi5wYXltZW50cy52MS5yZWNlaXB0LlNlbGVjdGVkUHJlcHJvY2Vzc2luZ09mZnNldHMilwEKHFNlbGVjdGVkUHJlcHJvY2Vzc2luZ09mZnNldHMSRwoHZWxlbWVudBgBIAEoDjI2Lm5pbGxpb24ucHJlcHJvY2Vzc2luZy52MS5lbGVtZW50LlByZXByb2Nlc3NpbmdFbGVtZW50Eg0KBXN0YXJ0GAIgASgEEgsKA2VuZBgDIAEoBBISCgpiYXRjaF9zaXplGAQgASgEQr8BCh9jb20ubmlsbGlvbi5wYXltZW50cy52MS5yZWNlaXB0QgxSZWNlaXB0UHJvdG9QAaICBE5QVlKqAhtOaWxsaW9uLlBheW1lbnRzLlYxLlJlY2VpcHTKAhtOaWxsaW9uXFBheW1lbnRzXFYxXFJlY2VpcHTiAidOaWxsaW9uXFBheW1lbnRzXFYxXFJlY2VpcHRcR1BCTWV0YWRhdGHqAh5OaWxsaW9uOjpQYXltZW50czo6VjE6OlJlY2VpcHRiBnByb3RvMw", [file_google_protobuf_timestamp, file_google_protobuf_empty, file_nillion_payments_v1_quote, file_nillion_preprocessing_v1_element]);
+  fileDesc("CiFuaWxsaW9uL3BheW1lbnRzL3YxL3JlY2VpcHQucHJvdG8SG25pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdCJmChVQYXltZW50UmVjZWlwdFJlcXVlc3QSPAoMc2lnbmVkX3F1b3RlGAEgASgLMiYubmlsbGlvbi5wYXltZW50cy52MS5xdW90ZS5TaWduZWRRdW90ZRIPCgd0eF9oYXNoGAIgASgJIjMKDVNpZ25lZFJlY2VpcHQSDwoHcmVjZWlwdBgBIAEoDBIRCglzaWduYXR1cmUYAiABKAwijwEKB1JlY2VpcHQSEgoKaWRlbnRpZmllchgBIAEoDBJACghtZXRhZGF0YRgCIAEoCzIuLm5pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdC5PcGVyYXRpb25NZXRhZGF0YRIuCgpleHBpcmVzX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLTBAoRT3BlcmF0aW9uTWV0YWRhdGESLQoLcG9vbF9zdGF0dXMYASABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABJACg1zdG9yZV9wcm9ncmFtGAIgASgLMicubmlsbGlvbi5wYXltZW50cy52MS5xdW90ZS5TdG9yZVByb2dyYW1IABJECg9yZXRyaWV2ZV92YWx1ZXMYAyABKAsyKS5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlJldHJpZXZlVmFsdWVzSAASTgoUcmV0cmlldmVfcGVybWlzc2lvbnMYBCABKAsyLi5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlJldHJpZXZlUGVybWlzc2lvbnNIABI+CgxzdG9yZV92YWx1ZXMYBSABKAsyJi5uaWxsaW9uLnBheW1lbnRzLnYxLnF1b3RlLlN0b3JlVmFsdWVzSAASTAoOaW52b2tlX2NvbXB1dGUYBiABKAsyMi5uaWxsaW9uLnBheW1lbnRzLnYxLnJlY2VpcHQuSW52b2tlQ29tcHV0ZU1ldGFkYXRhSAASUAoVb3ZlcndyaXRlX3Blcm1pc3Npb25zGAcgASgLMi8ubmlsbGlvbi5wYXltZW50cy52MS5xdW90ZS5PdmVyd3JpdGVQZXJtaXNzaW9uc0gAEkoKEnVwZGF0ZV9wZXJtaXNzaW9ucxgIIAEoCzIsLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuVXBkYXRlUGVybWlzc2lvbnNIAEILCglvcGVyYXRpb24i8QEKFUludm9rZUNvbXB1dGVNZXRhZGF0YRI3CgVxdW90ZRgBIAEoCzIoLm5pbGxpb24ucGF5bWVudHMudjEucXVvdGUuSW52b2tlQ29tcHV0ZRJKCgdvZmZzZXRzGAIgAygLMjkubmlsbGlvbi5wYXltZW50cy52MS5yZWNlaXB0LlNlbGVjdGVkUHJlcHJvY2Vzc2luZ09mZnNldHMSUwoTYXV4aWxpYXJ5X21hdGVyaWFscxgDIAMoCzI2Lm5pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdC5TZWxlY3RlZEF1eGlsaWFyeU1hdGVyaWFsIpcBChxTZWxlY3RlZFByZXByb2Nlc3NpbmdPZmZzZXRzEkcKB2VsZW1lbnQYASABKA4yNi5uaWxsaW9uLnByZXByb2Nlc3NpbmcudjEuZWxlbWVudC5QcmVwcm9jZXNzaW5nRWxlbWVudBINCgVzdGFydBgCIAEoBBILCgNlbmQYAyABKAQSEgoKYmF0Y2hfc2l6ZRgEIAEoBCJ0ChlTZWxlY3RlZEF1eGlsaWFyeU1hdGVyaWFsEkYKCG1hdGVyaWFsGAEgASgOMjQubmlsbGlvbi5wcmVwcm9jZXNzaW5nLnYxLm1hdGVyaWFsLkF1eGlsaWFyeU1hdGVyaWFsEg8KB3ZlcnNpb24YAiABKA1CvwEKH2NvbS5uaWxsaW9uLnBheW1lbnRzLnYxLnJlY2VpcHRCDFJlY2VpcHRQcm90b1ABogIETlBWUqoCG05pbGxpb24uUGF5bWVudHMuVjEuUmVjZWlwdMoCG05pbGxpb25cUGF5bWVudHNcVjFcUmVjZWlwdOICJ05pbGxpb25cUGF5bWVudHNcVjFcUmVjZWlwdFxHUEJNZXRhZGF0YeoCHk5pbGxpb246OlBheW1lbnRzOjpWMTo6UmVjZWlwdGIGcHJvdG8z", [file_google_protobuf_timestamp, file_google_protobuf_empty, file_nillion_payments_v1_quote, file_nillion_preprocessing_v1_element, file_nillion_preprocessing_v1_material]);
 
 /**
  * A request to get a payment receipt for a paid operation.
@@ -33,6 +35,8 @@ export type PaymentReceiptRequest = Message<"nillion.payments.v1.receipt.Payment
 
   /**
    * The nilchain transaction hash that proves this payment was made.
+   *
+   * Not setting this field indicates the payment should be subtracted from the user's account balance.
    *
    * @generated from field: string tx_hash = 2;
    */
@@ -214,6 +218,13 @@ export type InvokeComputeMetadata = Message<"nillion.payments.v1.receipt.InvokeC
    * @generated from field: repeated nillion.payments.v1.receipt.SelectedPreprocessingOffsets offsets = 2;
    */
   offsets: SelectedPreprocessingOffsets[];
+
+  /**
+   * The auxiliary material needed for this operation.
+   *
+   * @generated from field: repeated nillion.payments.v1.receipt.SelectedAuxiliaryMaterial auxiliary_materials = 3;
+   */
+  auxiliaryMaterials: SelectedAuxiliaryMaterial[];
 };
 
 /**
@@ -266,4 +277,32 @@ export type SelectedPreprocessingOffsets = Message<"nillion.payments.v1.receipt.
  */
 export const SelectedPreprocessingOffsetsSchema: GenMessage<SelectedPreprocessingOffsets> = /*@__PURE__*/
   messageDesc(file_nillion_payments_v1_receipt, 5);
+
+/**
+ * The selected auxiliary material.
+ *
+ * @generated from message nillion.payments.v1.receipt.SelectedAuxiliaryMaterial
+ */
+export type SelectedAuxiliaryMaterial = Message<"nillion.payments.v1.receipt.SelectedAuxiliaryMaterial"> & {
+  /**
+   * The material type.
+   *
+   * @generated from field: nillion.preprocessing.v1.material.AuxiliaryMaterial material = 1;
+   */
+  material: AuxiliaryMaterial;
+
+  /**
+   * the material version.
+   *
+   * @generated from field: uint32 version = 2;
+   */
+  version: number;
+};
+
+/**
+ * Describes the message nillion.payments.v1.receipt.SelectedAuxiliaryMaterial.
+ * Use `create(SelectedAuxiliaryMaterialSchema)` to create a new message.
+ */
+export const SelectedAuxiliaryMaterialSchema: GenMessage<SelectedAuxiliaryMaterial> = /*@__PURE__*/
+  messageDesc(file_nillion_payments_v1_receipt, 6);
 
