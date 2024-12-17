@@ -1,5 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 import {
+  ComputePermissionsSchema,
   type Permissions as PermissionsProtobuf,
   PermissionsSchema,
 } from "#/gen-proto/nillion/permissions/v1/permissions_pb";
@@ -33,6 +34,12 @@ export class ValuesPermissions {
       retrieve: Array.from(this.retrieve.values()).map((e) => e.toProto()),
       update: Array.from(this.update.values()).map((e) => e.toProto()),
       delete: Array.from(this._delete.values()).map((e) => e.toProto()),
+      compute: Array.from(this.compute.entries()).map(([user, programIds]) =>
+        create(ComputePermissionsSchema, {
+          user: user.toProto(),
+          programIds: Array.from(programIds),
+        }),
+      ),
     });
   }
 
@@ -134,6 +141,14 @@ export class ValuesPermissionsBuilder {
       new Set([owner]),
       new Map(),
     );
+  }
+
+  static defaultOwner(owner: UserId): ValuesPermissionsBuilder {
+    return new ValuesPermissionsBuilder()
+      .owner(owner)
+      .grantRetrieve(owner)
+      .grantUpdate(owner)
+      .grantDelete(owner);
   }
 
   static init(): ValuesPermissionsBuilder {

@@ -1,5 +1,5 @@
 import { type Timestamp, timestampDate } from "@bufbuild/protobuf/wkt";
-import { PartyId as WasmPartyId } from "@nillion/client-wasm";
+import { EcdsaSignature, PartyId as WasmPartyId } from "@nillion/client-wasm";
 import { z } from "zod";
 import type {
   PriceQuoteRequest,
@@ -63,7 +63,7 @@ export const PartyName = z.string().min(1);
 export type PartyName = z.infer<typeof PartyName>;
 
 // userid-as-hex/{program-name}/sha256/{sha-of-program}
-export const ProgramId = z.string().min(100);
+export const ProgramId = z.string().min(10);
 export type ProgramId = z.infer<typeof ProgramId>;
 
 export const ProgramName = z.string().regex(/[a-zA-Z0-9+.:_-]{1,128}/);
@@ -85,7 +85,11 @@ export type OutputBindings = z.infer<typeof OutputBindings>;
 export const NadaValuesRecord = z.record(
   z.object({
     type: z.string(),
-    value: z.union([z.string(), z.instanceof(Uint8Array)]),
+    value: z.union([
+      z.string(),
+      z.instanceof(Uint8Array),
+      z.instanceof(EcdsaSignature),
+    ]),
   }),
 );
 export type NadaValuesRecord = z.infer<typeof NadaValuesRecord>;
