@@ -143,7 +143,7 @@ export class ValuesPermissionsBuilder {
     );
   }
 
-  static default_owner(owner: UserId): ValuesPermissionsBuilder {
+  static defaultOwner(owner: UserId): ValuesPermissionsBuilder {
     return new ValuesPermissionsBuilder()
       .owner(owner)
       .grantRetrieve(owner)
