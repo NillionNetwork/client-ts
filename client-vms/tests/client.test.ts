@@ -194,6 +194,7 @@ describe("Client", () => {
     });
 
     it("can invoke compute with storeId", async () => {
+
       storeId = await client
         .storeValues()
         .ttl(1)
