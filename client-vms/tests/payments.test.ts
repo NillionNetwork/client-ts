@@ -11,7 +11,7 @@ describe("PaymentClient", () => {
   let client: VmClient;
 
   beforeAll(async () => {
-    const signer = await createSignerFromKey(PrivateKeyPerSuite.VmClient);
+    const signer = await createSignerFromKey(PrivateKeyPerSuite.Payments);
 
     client = await new VmClientBuilder()
       // Random seed is required to avoid failures when the tests are run multiple times consecutively
