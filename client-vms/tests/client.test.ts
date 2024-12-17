@@ -5,7 +5,7 @@ import { createSignerFromKey } from "#/payment";
 import type { ProgramId, Uuid } from "#/types";
 import { type ValuesPermissions, ValuesPermissionsBuilder } from "#/types";
 import { type VmClient, VmClientBuilder } from "#/vm";
-import { Env, PrivateKeyPerSuite, loadProgram } from "./helpers";
+import { Env, loadProgram, PrivateKeyPerSuite } from "./helpers";
 
 describe("Client", () => {
   let client: VmClient;
@@ -153,6 +153,7 @@ describe("Client", () => {
     const name = "addition_division.nada.bin";
     let programId: ProgramId;
     let computeResultId: Uuid;
+    let storeId: Uuid;
 
     it("can upload program", async () => {
       const program = loadProgram(name);
@@ -182,6 +183,38 @@ describe("Client", () => {
     });
 
     it("can retrieve compute result", async () => {
+      const result = await client
+        .retrieveComputeResult()
+        .id(computeResultId)
+        .build()
+        .invoke();
+
+      expect(result).toBeTruthy();
+      expect(result.my_output?.value).toBe("3");
+    });
+
+    it("can invoke compute with storeId", async () => {
+      storeId = await client
+        .storeValues()
+        .ttl(1)
+        .value("B", NadaValue.new_secret_integer("4"))
+        .build()
+        .invoke();
+
+      computeResultId = await client
+        .invokeCompute()
+        .program(programId)
+        .inputParty("Party1", client.id)
+        .outputParty("Party1", [client.id])
+        .computeTimeValues("A", NadaValue.new_secret_integer("1"))
+        .valueIds(storeId)
+        .build()
+        .invoke();
+
+      expect(computeResultId).toBeTruthy();
+    });
+
+    it("can retrieve compute result with storeId", async () => {
       const result = await client
         .retrieveComputeResult()
         .id(computeResultId)
