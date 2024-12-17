@@ -24,7 +24,7 @@ export const PrivateKeyPerSuite = {
   Payments: Env.nilChainPrivateKey0,
   LeaderQuery: Env.nilChainPrivateKey1,
   VmClient: Env.nilChainPrivateKey2,
-  // Env.nilChainPrivateKey3,
+  Signatures: Env.nilChainPrivateKey3,
   // Env.nilChainPrivateKey4,
   // Env.nilChainPrivateKey5,
   // Env.nilChainPrivateKey6,

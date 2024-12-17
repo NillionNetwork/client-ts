@@ -31,7 +31,7 @@ describe("Signature", () => {
   let client: VmClient;
 
   beforeAll(async () => {
-    const signer = await createSignerFromKey(PrivateKeyPerSuite.VmClient);
+    const signer = await createSignerFromKey(PrivateKeyPerSuite.Signatures);
     digestMessage = sha256("A deep message with a deep number: 42");
 
     client = await new VmClientBuilder()
