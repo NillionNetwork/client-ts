@@ -44,7 +44,7 @@ describe("Signature", () => {
 
   let privateKeyStoreId: Uuid;
   it("store private key", async () => {
-    const permissions = ValuesPermissionsBuilder.default_owner(client.id)
+    const permissions = ValuesPermissionsBuilder.defaultOwner(client.id)
       .grantCompute(client.id, tecdsaProgramId)
       .build();
     privateKeyStoreId = await client
@@ -72,7 +72,7 @@ describe("Signature", () => {
 
   let digestMessageStoreId: Uuid;
   it("store digest message", async () => {
-    const permissions = ValuesPermissionsBuilder.default_owner(client.id)
+    const permissions = ValuesPermissionsBuilder.defaultOwner(client.id)
       .grantCompute(client.id, tecdsaProgramId)
       .build();
     digestMessageStoreId = await client
