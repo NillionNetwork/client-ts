@@ -12,6 +12,7 @@ import { LeaderQueries } from "#/gen-proto/nillion/leader_queries/v1/service_pb"
 import { PriceQuoteRequestSchema } from "#/gen-proto/nillion/payments/v1/quote_pb";
 import type { SignedReceipt } from "#/gen-proto/nillion/payments/v1/receipt_pb";
 import { Log } from "#/logger";
+import { unwrapExceptionCause } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
 import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
@@ -53,6 +54,7 @@ export class QueryPoolStatus implements Operation<PoolStatus> {
         ),
       ),
       E.flatMap((response) => E.try(() => PoolStatus.parse(response))),
+      E.catchAll(unwrapExceptionCause),
       E.tapBoth({
         onFailure: (e) => E.sync(() => Log("Query pool status failed: %O", e)),
         onSuccess: (status) => E.sync(() => Log("Pool status: %O", status)),

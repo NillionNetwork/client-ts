@@ -17,12 +17,11 @@ import {
   StoreProgramRequestSchema,
 } from "#/gen-proto/nillion/programs/v1/store_pb";
 import { Log } from "#/logger";
-import type { PaymentClient } from "#/payment/client";
 import { type PartyId, ProgramId, ProgramName } from "#/types/types";
-import { collapse } from "#/util";
+import { collapse, unwrapExceptionCause } from "#/util";
 import type { VmClient } from "#/vm/client";
+import type { Operation } from "#/vm/operation/operation";
 import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
-import type { Operation } from "./operation";
 
 export const StoreProgramConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
@@ -41,10 +40,6 @@ type NodeRequestOptions = {
 export class StoreProgram implements Operation<ProgramId> {
   private constructor(private readonly config: StoreProgramConfig) {}
 
-  private get payer(): PaymentClient {
-    return this.config.vm.config.payer;
-  }
-
   async invoke(): Promise<ProgramId> {
     return pipe(
       E.tryPromise(() => this.pay()),
@@ -62,6 +57,7 @@ export class StoreProgram implements Operation<ProgramId> {
         E.all(effects, { concurrency: this.config.vm.nodes.length }),
       ),
       E.flatMap(collapse),
+      E.catchAll(unwrapExceptionCause),
       E.tapBoth({
         onFailure: (e) => E.sync(() => Log("Store program failed: %O", e)),
         onSuccess: (id) => E.sync(() => Log(`Stored program: ${id}`)),

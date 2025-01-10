@@ -12,6 +12,7 @@ import {
 import { Compute } from "#/gen-proto/nillion/compute/v1/service_pb";
 import { Log } from "#/logger";
 import { NadaValuesRecord, type PartyId, Uuid } from "#/types/types";
+import { unwrapExceptionCause } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
 import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
@@ -55,6 +56,7 @@ export class RetrieveComputeResult implements Operation<NadaValuesRecord> {
         const record = values.to_record() as unknown;
         return NadaValuesRecord.parse(record);
       }),
+      E.catchAll(unwrapExceptionCause),
       E.tapBoth({
         onFailure: (e) =>
           E.sync(() => Log("Retrieve compute results failed: %O", e)),
