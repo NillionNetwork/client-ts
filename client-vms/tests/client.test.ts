@@ -191,5 +191,28 @@ describe("Client", () => {
       expect(result).toBeTruthy();
       expect(result.my_output?.value).toBe("3");
     });
+
+    it("missing compute permissions", async () => {
+      const storeId = await client
+        .storeValues()
+        .ttl(1)
+        .value("B", NadaValue.new_secret_integer("4"))
+        .build()
+        .invoke();
+
+      await expect(() =>
+        client
+          .invokeCompute()
+          .program(programId)
+          .inputParty("Party1", client.id)
+          .outputParty("Party1", [client.id])
+          .computeTimeValues("A", NadaValue.new_secret_integer("1"))
+          .valueIds(storeId)
+          .build()
+          .invoke(),
+      ).rejects.toThrowError(
+        "[permission_denied] user does not have permissions for action",
+      );
+    });
   });
 });
