@@ -1,7 +1,8 @@
-import { createClient } from "@connectrpc/connect";
+import { type Client, createClient } from "@connectrpc/connect";
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import type { OfflineSigner } from "@cosmjs/proto-signing";
 import { SecretMasker } from "@nillion/client-wasm";
+import { Effect as E, pipe } from "effect";
 import { z } from "zod";
 import { TokenAuthManager, createAuthInterceptor } from "#/auth";
 import {
@@ -14,7 +15,7 @@ import { Log } from "#/logger";
 import { PaymentClientBuilder, PaymentMode } from "#/payment";
 import { PartyId, UserId } from "#/types";
 import { OfflineSignerSchema } from "#/types/grpc";
-import { assertIsDefined } from "#/util";
+import { assertIsDefined, unwrapExceptionCause } from "#/util";
 import { VmClient, VmClientConfig } from "#/vm/client";
 
 export const VmClientBuilderConfig = z.object({
@@ -221,6 +222,18 @@ export class VmClientBuilder {
   }
 }
 
+function createMembershipClient(
+  bootnodeUrl: string,
+): Client<typeof Membership> {
+  return createClient(
+    Membership,
+    createGrpcWebTransport({
+      baseUrl: bootnodeUrl,
+      useBinaryFormat: true,
+    }),
+  );
+}
+
 /**
  * Fetches cluster details from the specified bootnode Url.
  *
@@ -228,13 +241,11 @@ export class VmClientBuilder {
  * @returns {Promise<Cluster>} A promise that resolves with the cluster details.
  */
 export const fetchClusterDetails = (bootnodeUrl: string): Promise<Cluster> => {
-  return createClient(
-    Membership,
-    createGrpcWebTransport({
-      baseUrl: bootnodeUrl,
-      useBinaryFormat: true,
-    }),
-  ).cluster({});
+  return pipe(
+    E.tryPromise(() => createMembershipClient(bootnodeUrl).cluster({})),
+    E.catchAll(unwrapExceptionCause),
+    E.runPromise,
+  );
 };
 
 /**
@@ -244,11 +255,9 @@ export const fetchClusterDetails = (bootnodeUrl: string): Promise<Cluster> => {
  * @returns {Promise<Cluster>} A promise that resolves with the node version.
  */
 export const fetchNodeVersion = (bootnodeUrl: string): Promise<NodeVersion> => {
-  return createClient(
-    Membership,
-    createGrpcWebTransport({
-      baseUrl: bootnodeUrl,
-      useBinaryFormat: true,
-    }),
-  ).nodeVersion({});
+  return pipe(
+    E.tryPromise(() => createMembershipClient(bootnodeUrl).nodeVersion({})),
+    E.catchAll(unwrapExceptionCause),
+    E.runPromise,
+  );
 };

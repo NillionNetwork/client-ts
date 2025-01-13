@@ -22,7 +22,7 @@ import {
 } from "#/types/permission-command";
 import { type PartyId, type ProgramId, Uuid } from "#/types/types";
 import type { UserId } from "#/types/user-id";
-import { collapse } from "#/util";
+import { collapse, unwrapExceptionCause } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
 import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
@@ -64,6 +64,7 @@ export class UpdatePermissions implements Operation<Uuid> {
         E.all(effects, { concurrency: this.config.vm.nodes.length }),
       ),
       E.flatMap(collapse),
+      E.catchAll(unwrapExceptionCause),
       E.tapBoth({
         onFailure: (e) => E.sync(() => Log("Update permissions failed: %O", e)),
         onSuccess: (id) => E.sync(() => Log(`Updated permissions: ${id}`)),

@@ -23,7 +23,7 @@ import {
   type ValuesPermissions,
   ValuesPermissionsBuilder,
 } from "#/types/values-permissions";
-import { collapse } from "#/util";
+import { collapse, unwrapExceptionCause } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
 import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
@@ -64,6 +64,7 @@ export class StoreValues implements Operation<Uuid> {
         E.all(effects, { concurrency: this.config.vm.nodes.length }),
       ),
       E.flatMap(collapse),
+      E.catchAll(unwrapExceptionCause),
       E.tapBoth({
         onFailure: (e) => E.sync(() => Log("Values store failed: %O", e)),
         onSuccess: (id) => E.sync(() => Log(`Values stored: ${id}`)),

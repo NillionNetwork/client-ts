@@ -11,7 +11,7 @@ import {
 import { Values } from "#/gen-proto/nillion/values/v1/service_pb";
 import { Log } from "#/logger";
 import { type PartyId, Uuid } from "#/types/types";
-import { collapse } from "#/util";
+import { collapse, unwrapExceptionCause } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
 import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
@@ -48,6 +48,7 @@ export class DeleteValues implements Operation<Uuid> {
         E.all(effects, { concurrency: this.config.vm.nodes.length }),
       ),
       E.flatMap(collapse),
+      E.catchAll(unwrapExceptionCause),
       E.tapBoth({
         onFailure: (e) => E.sync(() => Log("Values delete failed: %O", e)),
         onSuccess: (id) => E.sync(() => Log(`Values deleted: ${id}`)),

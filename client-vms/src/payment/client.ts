@@ -5,6 +5,7 @@ import { SigningStargateClient } from "@cosmjs/stargate";
 import { sha256 } from "@noble/hashes/sha2";
 import { randomBytes } from "@noble/hashes/utils";
 import { Effect as E, pipe } from "effect";
+import { UnknownException } from "effect/Cause";
 import { z } from "zod";
 import {
   type MsgPayFor,
@@ -29,6 +30,7 @@ import { Log } from "#/logger";
 import { UserId } from "#/types";
 import { GrpcClient } from "#/types/grpc";
 import { Quote } from "#/types/types";
+import { unwrapExceptionCause } from "#/util";
 import {
   NilChainAddress,
   NilChainProtobufTypeUrl,
@@ -77,18 +79,29 @@ export class PaymentClient {
   }
 
   async quote(request: PriceQuoteRequest): Promise<Quote> {
-    const signed = await this.leader.priceQuote(request);
-    const quotePb = fromBinary(PriceQuoteSchema, signed.quote);
-    const quote = Quote.parse(
-      { ...quotePb, request, signed },
-      { path: ["client.quote"] },
+    return pipe(
+      E.tryPromise(() => this.leader.priceQuote(request)),
+      E.map((signed) => {
+        const quotePb = fromBinary(PriceQuoteSchema, signed.quote);
+        return Quote.parse(
+          { ...quotePb, request, signed },
+          { path: ["client.quote"] },
+        );
+      }),
+      E.catchAll(unwrapExceptionCause),
+      E.tapBoth({
+        onFailure: (e) => E.sync(() => Log("Quote request failed: %O", e)),
+        onSuccess: (quote) =>
+          E.sync(() =>
+            Log(
+              "Quoted %s unil for %s",
+              quote.fees.total.toString(),
+              request.operation.case,
+            ),
+          ),
+      }),
+      E.runPromise,
     );
-    Log(
-      "Quoted %s unil for %s",
-      quote.fees.total.toString(),
-      request.operation.case,
-    );
-    return quote;
   }
 
   async payOnChain(
@@ -104,14 +117,23 @@ export class PaymentClient {
       resource: quote.nonce,
       amount: [{ denom: NilToken.Unil, amount }],
     });
-    const result = await this.chain.signAndBroadcast(
-      this.address,
-      [{ typeUrl: NilChainProtobufTypeUrl, value }],
-      "auto",
+    return pipe(
+      E.tryPromise(() =>
+        this.chain.signAndBroadcast(
+          this.address,
+          [{ typeUrl: NilChainProtobufTypeUrl, value }],
+          "auto",
+        ),
+      ),
+      E.map((result) => TxHash.parse(result.transactionHash)),
+      E.catchAll(unwrapExceptionCause),
+      E.tapBoth({
+        onSuccess: (hash) =>
+          E.sync(() => Log("Paid %d unil hash: %s", amount, hash)),
+        onFailure: (e) => E.sync(() => Log("Pay failed: %O", e)),
+      }),
+      E.runPromise,
     );
-    const hash = TxHash.parse(result.transactionHash);
-    Log("Paid %d unil hash: %s", amount, hash);
-    return hash;
   }
 
   async validate(
@@ -127,6 +149,9 @@ export class PaymentClient {
       Log("Validated payment with cluster");
       return receipt;
     } catch (error) {
+      if (error instanceof UnknownException) {
+        throw unwrapExceptionCause(error);
+      }
       if (
         error instanceof ConnectError &&
         error.code === Code.FailedPrecondition &&
@@ -143,18 +168,35 @@ export class PaymentClient {
   }
 
   async accountBalance(): Promise<AccountBalanceResponse> {
-    const accountBalance = await this.leader.accountBalance({});
-    Log("Account balance: %d unil", accountBalance.balance);
-    return accountBalance;
+    return pipe(
+      E.tryPromise(() => this.leader.accountBalance({})),
+      E.catchAll(unwrapExceptionCause),
+      E.tapBoth({
+        onSuccess: (accountBalance) =>
+          E.sync(() => Log("Account balance: %d unil", accountBalance.balance)),
+        onFailure: (e) => E.sync(() => Log("Pay failed: %O", e)),
+      }),
+      E.runPromise,
+    );
   }
 
   async paymentsConfig(): Promise<PaymentsConfigResponse> {
-    const paymentsConfig = await this.leader.paymentsConfig({});
-    Log(
-      "Minimum add unil amount: %d unil",
-      paymentsConfig.minimumAddFundsPayment,
+    return pipe(
+      E.tryPromise(() => this.leader.paymentsConfig({})),
+      E.catchAll(unwrapExceptionCause),
+      E.tapBoth({
+        onSuccess: (paymentsConfig) =>
+          E.sync(() =>
+            Log(
+              "Minimum add unil amount: %d unil",
+              paymentsConfig.minimumAddFundsPayment,
+            ),
+          ),
+        onFailure: (e) =>
+          E.sync(() => Log("Payment config request failed: %O", e)),
+      }),
+      E.runPromise,
     );
-    return paymentsConfig;
   }
 
   async addFunds(unilAmount: bigint): Promise<Empty> {
@@ -191,6 +233,7 @@ export class PaymentClient {
         }),
       ),
       E.andThen(this.leader.addFunds),
+      E.catchAll(unwrapExceptionCause),
       E.runPromise,
     );
   }

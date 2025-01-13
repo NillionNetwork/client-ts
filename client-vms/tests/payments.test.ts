@@ -30,7 +30,6 @@ describe("PaymentClient", () => {
       expect(e).toBeInstanceOf(ZodError);
       expect((e as ZodError).issues).toHaveLength(5);
     }
-
     expect.assertions(2);
   });
 
