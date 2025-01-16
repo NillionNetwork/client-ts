@@ -8,6 +8,7 @@ import {
 import type { VmClient } from "@nillion/client-vms";
 import { useEffect, useState } from "react";
 import { AccountBalance } from "#/components/account-balance";
+import { AddFunds } from "#/components/add-funds";
 import { DeleteValues } from "#/components/delete-values";
 import { InvokeCompute } from "#/components/invoke-compute";
 import { OverwritePermissions } from "#/components/overwrite-permissions";
@@ -43,6 +44,7 @@ export default function Home() {
     <NillionProvider client={client}>
       <PoolStatus />
       <AccountBalance />
+      <AddFunds />
       <StoreValues />
       <RetrieveValues />
       <UpdateValues />
