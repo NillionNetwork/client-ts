@@ -2,23 +2,26 @@ import type { OfflineSigner } from "@cosmjs/proto-signing";
 import type { Keplr } from "@keplr-wallet/types";
 import { VmClientBuilder } from "@nillion/client-vms";
 import { createSignerFromKey } from "@nillion/client-vms";
+import type { PaymentMode } from "@nillion/client-vms";
 
 export type TestnetOptions = {
   network: "testnet";
   seed: string;
   keplr: Keplr;
+  paymentMode?: PaymentMode;
 };
 
 export type DevnetOptions = {
   network: "devnet";
   seed?: string;
   signer?: Keplr | OfflineSigner;
+  paymentMode?: PaymentMode;
 };
 
 type Options = DevnetOptions | TestnetOptions;
 
 const DevnetConfig = {
-  bootnodeUrl: "http://127.0.0.1:37939",
+  bootnodeUrl: "http://127.0.0.1:43207",
   chainUrl: "http://127.0.0.1:48102",
   chainId: "nillion-chain-devnet",
   seed: "user-devnet-seed",
@@ -33,7 +36,7 @@ const TestnetConfig = {
 };
 
 export async function createClient(options: Options) {
-  const builder = new VmClientBuilder();
+  const builder = new VmClientBuilder(options.paymentMode);
   switch (options.network.toLowerCase()) {
     case "devnet": {
       const config = options as DevnetOptions;
