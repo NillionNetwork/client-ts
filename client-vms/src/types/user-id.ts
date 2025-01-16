@@ -15,10 +15,17 @@ export class UserId {
     }
   }
 
+  static fromHex(id: string): UserId {
+    if (id.length !== 40) {
+      throw new Error(
+        `Expected hex string length to be 40 but it was ${id.length}`,
+      );
+    }
+    return new UserId(new Uint8Array(Buffer.from(id, "hex")));
+  }
+
   toHex(): string {
-    return Array.from(this.inner)
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
+    return Buffer.from(this.inner).toString("hex");
   }
 
   toProto(): UserIdProto {
