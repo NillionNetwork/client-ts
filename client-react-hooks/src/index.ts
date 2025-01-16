@@ -1,6 +1,7 @@
 export { NillionProvider } from "./nillion-provider";
 export { createClient } from "./create-client";
 export { getKeplr } from "./keplr";
+export { useNilAccountBalance } from "./use-nil-account-balance";
 export { useNilDeleteValues } from "./use-nil-delete-values";
 export { useNilInvokeCompute } from "./use-nil-invoke-compute";
 export { useNilOverwritePermissions } from "./use-nil-overwrite-permissions";
