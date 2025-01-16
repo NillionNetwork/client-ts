@@ -72,7 +72,7 @@ const data = [
   },
 ];
 
-describe("Wasm compatability", () => {
+describe("Wasm compatibility", () => {
   describe("NadaValues", () => {
     const values = new NadaValues();
 
