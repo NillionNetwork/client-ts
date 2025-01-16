@@ -163,21 +163,21 @@ export class NadaValue {
 *
 * @example
 * const value = NadaValue.new_secret_blob([1,0,1,222,21]);
-* const byteArray = value.into_byte_array();
+* const byteArray = value.to_byte_array();
 */
-  into_byte_array(): Uint8Array;
+  to_byte_array(): Uint8Array;
 /**
-* Convert this value into a byte array.
+* Convert this NadaValue into an EcdsaSignature.
 *
-* This is only valid for secret blob values.
+* This is only valid for EcdsaSignature.
 * @return {Uint8Array} the byte array contained in this value.
 * @throws {Error} if the value is not a secret blob.
 *
 * @example
-* const value = NadaValue.new_secret_blob([1,0,1,222,21]);
-* const byteArray = value.into_byte_array();
+* const value = NadaValue.new_ecdsa_signature([1,0,1,222,21], [1,0,1,222,21]);
+* const signature = value.to_ecdsa_signature();
 */
-  try_into_signature(): EcdsaSignature;
+  to_ecdsa_signature(): EcdsaSignature;
 /**
 * Convert this value into a string representation of the underlying numeric value.
 *
@@ -186,9 +186,9 @@ export class NadaValue {
 *
 * @example
 * const value = NadaValue.new_public_integer("23");
-* const integer_value = value.into_integer();
+* const integer_value = value.to_integer();
 */
-  into_integer(): string;
+  to_integer(): string;
 /**
 * Return the Nada type represented by this instance.
 *
