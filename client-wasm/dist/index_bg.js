@@ -667,13 +667,12 @@ export class NadaValue {
     *
     * @example
     * const value = NadaValue.new_secret_blob([1,0,1,222,21]);
-    * const byteArray = value.into_byte_array();
+    * const byteArray = value.to_byte_array();
     */
-    into_byte_array() {
+    to_byte_array() {
         try {
-            const ptr = this.__destroy_into_raw();
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.nadavalue_into_byte_array(retptr, ptr);
+            wasm.nadavalue_to_byte_array(retptr, this.__wbg_ptr);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
             var r2 = getInt32Memory0()[retptr / 4 + 2];
@@ -689,21 +688,20 @@ export class NadaValue {
         }
     }
     /**
-    * Convert this value into a byte array.
+    * Convert this NadaValue into an EcdsaSignature.
     *
-    * This is only valid for secret blob values.
+    * This is only valid for EcdsaSignature.
     * @return {Uint8Array} the byte array contained in this value.
     * @throws {Error} if the value is not a secret blob.
     *
     * @example
-    * const value = NadaValue.new_secret_blob([1,0,1,222,21]);
-    * const byteArray = value.into_byte_array();
+    * const value = NadaValue.new_ecdsa_signature([1,0,1,222,21], [1,0,1,222,21]);
+    * const signature = value.to_ecdsa_signature();
     */
-    try_into_signature() {
+    to_ecdsa_signature() {
         try {
-            const ptr = this.__destroy_into_raw();
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.nadavalue_try_into_signature(retptr, ptr);
+            wasm.nadavalue_to_ecdsa_signature(retptr, this.__wbg_ptr);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
             var r2 = getInt32Memory0()[retptr / 4 + 2];
@@ -723,15 +721,14 @@ export class NadaValue {
     *
     * @example
     * const value = NadaValue.new_public_integer("23");
-    * const integer_value = value.into_integer();
+    * const integer_value = value.to_integer();
     */
-    into_integer() {
+    to_integer() {
         let deferred2_0;
         let deferred2_1;
         try {
-            const ptr = this.__destroy_into_raw();
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.nadavalue_into_integer(retptr, ptr);
+            wasm.nadavalue_to_integer(retptr, this.__wbg_ptr);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
             var r2 = getInt32Memory0()[retptr / 4 + 2];

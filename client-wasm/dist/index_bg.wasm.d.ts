@@ -10,9 +10,9 @@ export function nadavalue_new_public_unsigned_integer(a: number, b: number, c: n
 export function nadavalue_new_ecdsa_private_key(a: number, b: number, c: number): void;
 export function nadavalue_new_ecdsa_digest_message(a: number, b: number, c: number): void;
 export function nadavalue_new_ecdsa_signature(a: number, b: number, c: number, d: number, e: number): void;
-export function nadavalue_into_byte_array(a: number, b: number): void;
-export function nadavalue_try_into_signature(a: number, b: number): void;
-export function nadavalue_into_integer(a: number, b: number): void;
+export function nadavalue_to_byte_array(a: number, b: number): void;
+export function nadavalue_to_ecdsa_signature(a: number, b: number): void;
+export function nadavalue_to_integer(a: number, b: number): void;
 export function nadavalue_type_name(a: number, b: number): void;
 export function __wbg_nadavalues_free(a: number): void;
 export function nadavalues_new(a: number): void;
