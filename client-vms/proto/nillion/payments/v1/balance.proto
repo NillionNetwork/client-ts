@@ -12,6 +12,9 @@ message AccountBalanceResponse {
 
   // The timestamp at which this balance was last updated.
   google.protobuf.Timestamp last_updated = 2; 
+
+  // The timestamp at which this balance will expire.
+  google.protobuf.Timestamp expires_at = 3; 
 }
 
 // A request to add funds to a user's account.

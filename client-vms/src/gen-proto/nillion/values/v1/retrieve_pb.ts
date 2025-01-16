@@ -6,13 +6,15 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import type { SignedReceipt } from "../../payments/v1/receipt_pb";
 import { file_nillion_payments_v1_receipt } from "../../payments/v1/receipt_pb";
+import type { NamedValue } from "./value_pb";
+import { file_nillion_values_v1_value } from "./value_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file nillion/values/v1/retrieve.proto.
  */
 export const file_nillion_values_v1_retrieve: GenFile = /*@__PURE__*/
-  fileDesc("CiBuaWxsaW9uL3ZhbHVlcy92MS9yZXRyaWV2ZS5wcm90bxIabmlsbGlvbi52YWx1ZXMudjEucmV0cmlldmUiWwoVUmV0cmlldmVWYWx1ZXNSZXF1ZXN0EkIKDnNpZ25lZF9yZWNlaXB0GAEgASgLMioubmlsbGlvbi5wYXltZW50cy52MS5yZWNlaXB0LlNpZ25lZFJlY2VpcHQiMAoWUmV0cmlldmVWYWx1ZXNSZXNwb25zZRIWCg5iaW5jb2RlX3ZhbHVlcxgBIAEoDEK7AQoeY29tLm5pbGxpb24udmFsdWVzLnYxLnJldHJpZXZlQg1SZXRyaWV2ZVByb3RvUAGiAgROVlZSqgIaTmlsbGlvbi5WYWx1ZXMuVjEuUmV0cmlldmXKAhpOaWxsaW9uXFZhbHVlc1xWMVxSZXRyaWV2ZeICJk5pbGxpb25cVmFsdWVzXFYxXFJldHJpZXZlXEdQQk1ldGFkYXRh6gIdTmlsbGlvbjo6VmFsdWVzOjpWMTo6UmV0cmlldmViBnByb3RvMw", [file_nillion_payments_v1_receipt]);
+  fileDesc("CiBuaWxsaW9uL3ZhbHVlcy92MS9yZXRyaWV2ZS5wcm90bxIabmlsbGlvbi52YWx1ZXMudjEucmV0cmlldmUiWwoVUmV0cmlldmVWYWx1ZXNSZXF1ZXN0EkIKDnNpZ25lZF9yZWNlaXB0GAEgASgLMioubmlsbGlvbi5wYXltZW50cy52MS5yZWNlaXB0LlNpZ25lZFJlY2VpcHQiZQoWUmV0cmlldmVWYWx1ZXNSZXNwb25zZRIWCg5iaW5jb2RlX3ZhbHVlcxgBIAEoDBIzCgZ2YWx1ZXMYAiADKAsyIy5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5OYW1lZFZhbHVlQrsBCh5jb20ubmlsbGlvbi52YWx1ZXMudjEucmV0cmlldmVCDVJldHJpZXZlUHJvdG9QAaICBE5WVlKqAhpOaWxsaW9uLlZhbHVlcy5WMS5SZXRyaWV2ZcoCGk5pbGxpb25cVmFsdWVzXFYxXFJldHJpZXZl4gImTmlsbGlvblxWYWx1ZXNcVjFcUmV0cmlldmVcR1BCTWV0YWRhdGHqAh1OaWxsaW9uOjpWYWx1ZXM6OlYxOjpSZXRyaWV2ZWIGcHJvdG8z", [file_nillion_payments_v1_receipt, file_nillion_values_v1_value]);
 
 /**
  * A request to retrieve a set of stored values.
@@ -49,6 +51,13 @@ export type RetrieveValuesResponse = Message<"nillion.values.v1.retrieve.Retriev
    * @generated from field: bytes bincode_values = 1;
    */
   bincodeValues: Uint8Array;
+
+  /**
+   * The values.
+   *
+   * @generated from field: repeated nillion.values.v1.value.NamedValue values = 2;
+   */
+  values: NamedValue[];
 };
 
 /**

@@ -6,13 +6,15 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import type { Empty } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
+import type { NamedValue } from "../../values/v1/value_pb";
+import { file_nillion_values_v1_value } from "../../values/v1/value_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file nillion/compute/v1/retrieve.proto.
  */
 export const file_nillion_compute_v1_retrieve: GenFile = /*@__PURE__*/
-  fileDesc("CiFuaWxsaW9uL2NvbXB1dGUvdjEvcmV0cmlldmUucHJvdG8SG25pbGxpb24uY29tcHV0ZS52MS5yZXRyaWV2ZSIsChZSZXRyaWV2ZVJlc3VsdHNSZXF1ZXN0EhIKCmNvbXB1dGVfaWQYASABKAwirQEKF1JldHJpZXZlUmVzdWx0c1Jlc3BvbnNlEjUKE3dhaXRpbmdfY29tcHV0YXRpb24YASABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABJBCgdzdWNjZXNzGAIgASgLMi4ubmlsbGlvbi5jb21wdXRlLnYxLnJldHJpZXZlLkNvbXB1dGF0aW9uUmVzdWx0SAASDwoFZXJyb3IYAyABKAlIAEIHCgVzdGF0ZSIrChFDb21wdXRhdGlvblJlc3VsdBIWCg5iaW5jb2RlX3ZhbHVlcxgBIAEoDELAAQofY29tLm5pbGxpb24uY29tcHV0ZS52MS5yZXRyaWV2ZUINUmV0cmlldmVQcm90b1ABogIETkNWUqoCG05pbGxpb24uQ29tcHV0ZS5WMS5SZXRyaWV2ZcoCG05pbGxpb25cQ29tcHV0ZVxWMVxSZXRyaWV2ZeICJ05pbGxpb25cQ29tcHV0ZVxWMVxSZXRyaWV2ZVxHUEJNZXRhZGF0YeoCHk5pbGxpb246OkNvbXB1dGU6OlYxOjpSZXRyaWV2ZWIGcHJvdG8z", [file_google_protobuf_empty]);
+  fileDesc("CiFuaWxsaW9uL2NvbXB1dGUvdjEvcmV0cmlldmUucHJvdG8SG25pbGxpb24uY29tcHV0ZS52MS5yZXRyaWV2ZSIsChZSZXRyaWV2ZVJlc3VsdHNSZXF1ZXN0EhIKCmNvbXB1dGVfaWQYASABKAwirQEKF1JldHJpZXZlUmVzdWx0c1Jlc3BvbnNlEjUKE3dhaXRpbmdfY29tcHV0YXRpb24YASABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABJBCgdzdWNjZXNzGAIgASgLMi4ubmlsbGlvbi5jb21wdXRlLnYxLnJldHJpZXZlLkNvbXB1dGF0aW9uUmVzdWx0SAASDwoFZXJyb3IYAyABKAlIAEIHCgVzdGF0ZSJgChFDb21wdXRhdGlvblJlc3VsdBIWCg5iaW5jb2RlX3ZhbHVlcxgBIAEoDBIzCgZ2YWx1ZXMYAiADKAsyIy5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5OYW1lZFZhbHVlQsABCh9jb20ubmlsbGlvbi5jb21wdXRlLnYxLnJldHJpZXZlQg1SZXRyaWV2ZVByb3RvUAGiAgROQ1ZSqgIbTmlsbGlvbi5Db21wdXRlLlYxLlJldHJpZXZlygIbTmlsbGlvblxDb21wdXRlXFYxXFJldHJpZXZl4gInTmlsbGlvblxDb21wdXRlXFYxXFJldHJpZXZlXEdQQk1ldGFkYXRh6gIeTmlsbGlvbjo6Q29tcHV0ZTo6VjE6OlJldHJpZXZlYgZwcm90bzM", [file_google_protobuf_empty, file_nillion_values_v1_value]);
 
 /**
  * A request to retrieve the results of a computation.
@@ -92,6 +94,13 @@ export type ComputationResult = Message<"nillion.compute.v1.retrieve.Computation
    * @generated from field: bytes bincode_values = 1;
    */
   bincodeValues: Uint8Array;
+
+  /**
+   * The computation results.
+   *
+   * @generated from field: repeated nillion.values.v1.value.NamedValue values = 2;
+   */
+  values: NamedValue[];
 };
 
 /**

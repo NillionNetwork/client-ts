@@ -20,6 +20,9 @@ message PoolStatusResponse {
 
   // Whether preprocessing is active (at least one element type is being generated).
   bool preprocessing_active = 2;
+
+  // Whether auxiliary material has been generated.
+  bool auxiliary_material_available = 3;
 }
 
 // The offsets for a preprocessing element.

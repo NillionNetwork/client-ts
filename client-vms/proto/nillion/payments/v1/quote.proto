@@ -57,7 +57,7 @@ message PriceQuote {
   PriceQuoteRequest request = 3;
 
   // The point in time at which this quote is no longer valid.
-  google.protobuf.Timestamp expires_at = 4; 
+  google.protobuf.Timestamp expires_at = 4;
 
   // The preprocessing requirements for this operation.
   repeated PreprocessingRequirement preprocessing_requirements = 5;
@@ -79,7 +79,7 @@ message QuoteFees {
 message StoreProgram {
   // The program's metadata.
   ProgramMetadata metadata = 1;
- 
+
   // A sha256 hash of the compiled program.
   bytes contents_sha256 = 2;
 
@@ -100,7 +100,7 @@ message ProgramMetadata {
 
   // The number of instructions per type.
   map<string, uint64> instructions = 4;
- 
+
   // The preprocessing requirements.
   repeated PreprocessingRequirement preprocessing_requirements = 5;
 
@@ -131,13 +131,13 @@ message AuxiliaryMaterialRequirement {
 // A retrieve values operation.
 message RetrieveValues {
   // The identifier to be retrieved.
-  bytes values_id = 1;   
+  bytes values_id = 1;
 }
 
 // A retrieve permissions operation.
 message RetrievePermissions {
   // The identifier of the values entity to be retrieved.
-  bytes values_id = 1;   
+  bytes values_id = 1;
 }
 
 // An overwrite permissions operation.
@@ -166,7 +166,7 @@ message StoreValues {
   uint64 public_values_count = 3;
 
   // The number of days to persist these secrets for.
-  uint32 ttl_days = 4;
+  optional uint32 ttl_days = 4;
 
   // The size of the payload to be stored.
   uint64 payload_size = 5;
@@ -184,5 +184,5 @@ message InvokeCompute {
   string program_id = 1;
 
   // The size of the compute time values being sent as part of this operation.
-  uint64 values_payload_size = 2; 
+  uint64 values_payload_size = 2;
 }
