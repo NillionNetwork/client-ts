@@ -4,7 +4,6 @@ import {
   type NadaValue,
   NadaValues,
   compute_values_size,
-  encode_values,
 } from "@nillion/client-wasm";
 import { Effect as E, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
@@ -32,6 +31,7 @@ import { collapse, unwrapExceptionCause } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
 import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
+import { nadaValuesToProto } from "#/vm/values";
 
 export const InvokeComputeConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
@@ -119,9 +119,9 @@ export class InvokeCompute implements Operation<Uuid> {
         request: create(InvokeComputeRequestSchema, {
           signedReceipt,
           valueIds,
-          bincodeValues: encode_values(share.shares),
           inputBindings,
           outputBindings,
+          values: nadaValuesToProto(share.shares.to_js_object()),
         }),
       });
     });

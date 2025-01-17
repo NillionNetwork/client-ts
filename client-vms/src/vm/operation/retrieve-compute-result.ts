@@ -1,6 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 import { type Client, createClient } from "@connectrpc/connect";
-import { PartyShares, decode_values } from "@nillion/client-wasm";
+import { EncryptedNadaValues, PartyShares } from "@nillion/client-wasm";
 import { Effect as E, pipe } from "effect";
 import type { UnknownException } from "effect/Cause";
 import { parse } from "uuid";
@@ -16,6 +16,7 @@ import { unwrapExceptionCause } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
 import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
+import { nadaValuesFromProto } from "#/vm/values";
 
 export const RetrieveComputeResultConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
@@ -101,7 +102,10 @@ export class RetrieveComputeResult implements Operation<NadaValuesRecord> {
           if (response.state.case === "success") {
             return new PartyShares(
               nodeId.toWasm(),
-              decode_values(response.state.value.bincodeValues),
+              EncryptedNadaValues.from_js_object(
+                nadaValuesFromProto(response.state.value.values),
+                this.config.vm.masker.modulo(),
+              ),
             );
           }
 

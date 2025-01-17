@@ -38,9 +38,11 @@ describe("Client", () => {
   });
 
   describe.sequential("values", () => {
-    const expectedName = "foo";
-    const expectedValue = "42";
-    const expectedUpdatedValue = "39";
+    const fooExpectedName = "foo";
+    const fooExpectedValue = "42";
+    const fooExpectedUpdatedValue = "39";
+    const barExpectedName = "bar";
+    const barExpectedValue = Uint8Array.from([45, 18, 122]);
     let expectedPermissions: ValuesPermissions;
     let expectedId: string;
 
@@ -48,7 +50,8 @@ describe("Client", () => {
       expectedId = await client
         .storeValues()
         .ttl(1)
-        .value(expectedName, NadaValue.new_secret_integer(expectedValue))
+        .value(fooExpectedName, NadaValue.new_secret_integer(fooExpectedValue))
+        .value(barExpectedName, NadaValue.new_secret_blob(barExpectedValue))
         .build()
         .invoke();
       expect(expectedId).toHaveLength(36);
@@ -61,10 +64,15 @@ describe("Client", () => {
         .build()
         .invoke();
 
-      const values = data[expectedName]!;
-      expect(values).toBeDefined();
-      expect(values.type).toBe("SecretInteger");
-      expect(values.value).toBe(expectedValue);
+      const foo = data[fooExpectedName]!;
+      expect(foo).toBeDefined();
+      expect(foo.type).toBe("SecretInteger");
+      expect(foo.value).toBe(fooExpectedValue);
+
+      const bar = data[barExpectedName]!;
+      expect(bar).toBeDefined();
+      expect(bar.type).toBe("SecretBlob");
+      expect(bar.value).toStrictEqual(barExpectedValue);
     });
 
     it("can update", async () => {
@@ -72,7 +80,10 @@ describe("Client", () => {
         .storeValues()
         .ttl(1)
         .id(expectedId)
-        .value(expectedName, NadaValue.new_secret_integer(expectedUpdatedValue))
+        .value(
+          fooExpectedName,
+          NadaValue.new_secret_integer(fooExpectedUpdatedValue),
+        )
         .build()
         .invoke();
 
@@ -82,9 +93,9 @@ describe("Client", () => {
         .build()
         .invoke();
 
-      const values = data[expectedName]!;
+      const values = data[fooExpectedName]!;
       expect(values.type).toBe("SecretInteger");
-      expect(values.value).toBe(expectedUpdatedValue);
+      expect(values.value).toBe(fooExpectedUpdatedValue);
     });
 
     it("can retrieve permissions", async () => {
