@@ -53,6 +53,11 @@ export class EcdsaSignature {
 */
 export class EncryptedNadaValues {
   free(): void;
+/**
+* Convert EncryptedNadaValues into a JS object
+* @returns {any}
+*/
+  to_js_object(): any;
 }
 /**
 * NadaValue

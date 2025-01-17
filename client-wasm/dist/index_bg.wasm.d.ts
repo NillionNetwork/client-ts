@@ -49,6 +49,7 @@ export function encode_values(a: number, b: number): void;
 export function decode_values(a: number, b: number, c: number): void;
 export function compute_values_size(a: number, b: number): void;
 export function __wbg_encryptednadavalues_free(a: number): void;
+export function encryptednadavalues_to_js_object(a: number, b: number): void;
 export function __wbg_programmetadata_free(a: number): void;
 export function programmetadata_new(a: number, b: number, c: number): void;
 export function programmetadata_memory_size(a: number): number;

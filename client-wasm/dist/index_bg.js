@@ -414,6 +414,25 @@ export class EncryptedNadaValues {
         const ptr = this.__destroy_into_raw();
         wasm.__wbg_encryptednadavalues_free(ptr);
     }
+    /**
+    * Convert EncryptedNadaValues into a JS object
+    * @returns {any}
+    */
+    to_js_object() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.encryptednadavalues_to_js_object(retptr, this.__wbg_ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
 }
 
 const NadaValueFinalization = (typeof FinalizationRegistry === 'undefined')
@@ -1422,6 +1441,26 @@ export function __wbg_partyshares_unwrap(arg0) {
     return ret;
 };
 
+export function __wbg_new_16b304a2cfa7ff4a() {
+    const ret = new Array();
+    return addHeapObject(ret);
+};
+
+export function __wbg_push_a5b05aedc7234f9f(arg0, arg1) {
+    const ret = getObject(arg0).push(getObject(arg1));
+    return ret;
+};
+
+export function __wbindgen_bigint_from_u64(arg0) {
+    const ret = BigInt.asUintN(64, arg0);
+    return addHeapObject(ret);
+};
+
+export function __wbindgen_number_new(arg0) {
+    const ret = arg0;
+    return addHeapObject(ret);
+};
+
 export function __wbindgen_memory() {
     const ret = wasm.memory;
     return addHeapObject(ret);
@@ -1557,16 +1596,6 @@ export function __wbg_call_27c0f87801dedf93() { return handleError(function (arg
 
 export function __wbg_new_d9bc3a0147634640() {
     const ret = new Map();
-    return addHeapObject(ret);
-};
-
-export function __wbindgen_number_new(arg0) {
-    const ret = arg0;
-    return addHeapObject(ret);
-};
-
-export function __wbindgen_bigint_from_u64(arg0) {
-    const ret = BigInt.asUintN(64, arg0);
     return addHeapObject(ret);
 };
 
