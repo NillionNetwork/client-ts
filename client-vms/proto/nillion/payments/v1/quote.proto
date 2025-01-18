@@ -71,8 +71,10 @@ message PriceQuote {
 // All fees are in "unil" units.
 message QuoteFees {
   reserved 2 to 6;
-  // The total fee for this quote.
-  uint64 total = 1;
+  // The fee in tokens
+  uint64 tokens = 1;
+  // The fee in credits
+  uint64 credits = 7;
 }
 
 // A store program operation.
