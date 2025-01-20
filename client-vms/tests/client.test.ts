@@ -43,6 +43,8 @@ describe("Client", () => {
     const fooExpectedUpdatedValue = "39";
     const barExpectedName = "bar";
     const barExpectedValue = Uint8Array.from([45, 18, 122]);
+    const bazExpectedName = "baz";
+    const bazExpectedValue = "true";
     let expectedPermissions: ValuesPermissions;
     let expectedId: string;
 
@@ -52,6 +54,7 @@ describe("Client", () => {
         .ttl(1)
         .value(fooExpectedName, NadaValue.new_secret_integer(fooExpectedValue))
         .value(barExpectedName, NadaValue.new_secret_blob(barExpectedValue))
+        .value(bazExpectedName, NadaValue.new_secret_boolean(bazExpectedValue))
         .build()
         .invoke();
       expect(expectedId).toHaveLength(36);

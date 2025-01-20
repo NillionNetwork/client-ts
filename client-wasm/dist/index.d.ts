@@ -99,6 +99,16 @@ export class NadaValue {
 */
   static new_secret_unsigned_integer(value: string): NadaValue;
 /**
+* Create a new secret boolean value.
+*
+* @param {string} value - The value must be a valid string representation of boolean.
+* @return {NadaValue} The encoded secret corresponding to the value provided
+*
+* @example
+* const value = NadaValue.new_secret_boolean("true");
+*/
+  static new_secret_boolean(value: string): NadaValue;
+/**
 * Create a new secret blob.
 *
 * @param {Uint8Array} value - The blob in binary (byte array) encoded format
@@ -128,6 +138,16 @@ export class NadaValue {
 * const value = NadaValue.new_public_unsigned_integer("23");
 */
   static new_public_unsigned_integer(value: string): NadaValue;
+/**
+* Create a new public boolean value.
+*
+* @param {string} value - The value must be a valid string representation of boolean.
+* @return {NadaValue} The encoded secret corresponding to the value provided
+*
+* @example
+* const value = NadaValue.new_public_boolean("true");
+*/
+  static new_public_boolean(value: string): NadaValue;
 /**
 * Create a new ecdsa private key
 *
