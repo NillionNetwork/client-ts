@@ -4,7 +4,6 @@ import {
   type NadaValue,
   NadaValues,
   compute_values_size,
-  encode_values,
 } from "@nillion/client-wasm";
 import { Effect as E, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
@@ -27,6 +26,7 @@ import { collapse, unwrapExceptionCause } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
 import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
+import { nadaValuesToProto } from "#/vm/values";
 
 export const StoreValuesConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
@@ -96,15 +96,14 @@ export class StoreValues implements Operation<Uuid> {
           ),
         );
       }
-
       return E.succeed({
         nodeId,
         client: createClient(Values, node.transport),
         request: create(StoreValuesRequestSchema, {
           signedReceipt,
-          bincodeValues: encode_values(share.shares),
           permissions,
           updateIdentifier,
+          values: nadaValuesToProto(share.shares.to_js_object()),
         }),
       });
     });

@@ -93,3 +93,53 @@ export const NadaValuesRecord = z.record(
   }),
 );
 export type NadaValuesRecord = z.infer<typeof NadaValuesRecord>;
+
+export const EncryptedNadaValueRecord = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("Integer"), value: z.instanceof(Uint8Array) }),
+  z.object({
+    type: z.literal("UnsignedInteger"),
+    value: z.instanceof(Uint8Array),
+  }),
+  z.object({ type: z.literal("Boolean"), value: z.instanceof(Uint8Array) }),
+  z.object({
+    type: z.literal("SecretBlob"),
+    shares: z.array(z.instanceof(Uint8Array)),
+    originalSize: z.string(),
+  }),
+  z.object({
+    type: z.literal("ShamirShareInteger"),
+    value: z.instanceof(Uint8Array),
+  }),
+  z.object({
+    type: z.literal("ShamirShareUnsignedInteger"),
+    value: z.instanceof(Uint8Array),
+  }),
+  z.object({
+    type: z.literal("ShamirShareBoolean"),
+    value: z.instanceof(Uint8Array),
+  }),
+  z.object({
+    type: z.literal("EcdsaDigestMessage"),
+    digest: z.instanceof(Uint8Array),
+  }),
+  z.object({
+    type: z.literal("EcdsaPrivateKey"),
+    i: z.string(),
+    x: z.instanceof(Uint8Array),
+    sharedPublicKey: z.instanceof(Uint8Array),
+    publicShares: z.array(z.instanceof(Uint8Array)),
+  }),
+  z.object({
+    type: z.literal("EcdsaSignature"),
+    r: z.instanceof(Uint8Array),
+    sigma: z.instanceof(Uint8Array),
+  }),
+]);
+export type EncryptedNadaValueRecord = z.infer<typeof EncryptedNadaValueRecord>;
+export const EncryptedNadaValuesRecord = z.record(
+  z.string(),
+  EncryptedNadaValueRecord,
+);
+export type EncryptedNadaValuesRecord = z.infer<
+  typeof EncryptedNadaValuesRecord
+>;

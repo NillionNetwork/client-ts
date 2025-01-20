@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file nillion/payments/v1/balance.proto.
  */
 export const file_nillion_payments_v1_balance: GenFile = /*@__PURE__*/
-  fileDesc("CiFuaWxsaW9uL3BheW1lbnRzL3YxL2JhbGFuY2UucHJvdG8SG25pbGxpb24ucGF5bWVudHMudjEuYmFsYW5jZSJbChZBY2NvdW50QmFsYW5jZVJlc3BvbnNlEg8KB2JhbGFuY2UYASABKAQSMAoMbGFzdF91cGRhdGVkGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIzCg9BZGRGdW5kc1JlcXVlc3QSDwoHcGF5bG9hZBgBIAEoDBIPCgd0eF9oYXNoGAIgASgJIlEKD0FkZEZ1bmRzUGF5bG9hZBIvCglyZWNpcGllbnQYASABKAsyHC5uaWxsaW9uLmF1dGgudjEudXNlci5Vc2VySWQSDQoFbm9uY2UYAiABKAxCvwEKH2NvbS5uaWxsaW9uLnBheW1lbnRzLnYxLmJhbGFuY2VCDEJhbGFuY2VQcm90b1ABogIETlBWQqoCG05pbGxpb24uUGF5bWVudHMuVjEuQmFsYW5jZcoCG05pbGxpb25cUGF5bWVudHNcVjFcQmFsYW5jZeICJ05pbGxpb25cUGF5bWVudHNcVjFcQmFsYW5jZVxHUEJNZXRhZGF0YeoCHk5pbGxpb246OlBheW1lbnRzOjpWMTo6QmFsYW5jZWIGcHJvdG8z", [file_google_protobuf_timestamp, file_nillion_auth_v1_user]);
+  fileDesc("CiFuaWxsaW9uL3BheW1lbnRzL3YxL2JhbGFuY2UucHJvdG8SG25pbGxpb24ucGF5bWVudHMudjEuYmFsYW5jZSKLAQoWQWNjb3VudEJhbGFuY2VSZXNwb25zZRIPCgdiYWxhbmNlGAEgASgEEjAKDGxhc3RfdXBkYXRlZBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZXhwaXJlc19hdBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiMwoPQWRkRnVuZHNSZXF1ZXN0Eg8KB3BheWxvYWQYASABKAwSDwoHdHhfaGFzaBgCIAEoCSJRCg9BZGRGdW5kc1BheWxvYWQSLwoJcmVjaXBpZW50GAEgASgLMhwubmlsbGlvbi5hdXRoLnYxLnVzZXIuVXNlcklkEg0KBW5vbmNlGAIgASgMQr8BCh9jb20ubmlsbGlvbi5wYXltZW50cy52MS5iYWxhbmNlQgxCYWxhbmNlUHJvdG9QAaICBE5QVkKqAhtOaWxsaW9uLlBheW1lbnRzLlYxLkJhbGFuY2XKAhtOaWxsaW9uXFBheW1lbnRzXFYxXEJhbGFuY2XiAidOaWxsaW9uXFBheW1lbnRzXFYxXEJhbGFuY2VcR1BCTWV0YWRhdGHqAh5OaWxsaW9uOjpQYXltZW50czo6VjE6OkJhbGFuY2ViBnByb3RvMw", [file_google_protobuf_timestamp, file_nillion_auth_v1_user]);
 
 /**
  * A response to a request to get the user account's balance.
@@ -35,6 +35,13 @@ export type AccountBalanceResponse = Message<"nillion.payments.v1.balance.Accoun
    * @generated from field: google.protobuf.Timestamp last_updated = 2;
    */
   lastUpdated?: Timestamp;
+
+  /**
+   * The timestamp at which this balance will expire.
+   *
+   * @generated from field: google.protobuf.Timestamp expires_at = 3;
+   */
+  expiresAt?: Timestamp;
 };
 
 /**

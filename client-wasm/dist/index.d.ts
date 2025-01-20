@@ -1,18 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* Encode a set of values.
-* @param {EncryptedNadaValues} values
-* @returns {Uint8Array}
-*/
-export function encode_values(values: EncryptedNadaValues): Uint8Array;
-/**
-* Decode a set of values.
-* @param {Uint8Array} bincode_bytes
-* @returns {EncryptedNadaValues}
-*/
-export function decode_values(bincode_bytes: Uint8Array): EncryptedNadaValues;
-/**
 * Compute the size of the given values.
 * @param {NadaValues} values
 * @returns {bigint}
@@ -49,10 +37,27 @@ export class EcdsaSignature {
   s(): Uint8Array;
 }
 /**
+*/
+export class EncodedModulo {
+  free(): void;
+}
+/**
 * A set of encrypted nada values.
 */
 export class EncryptedNadaValues {
   free(): void;
+/**
+* Convert EncryptedNadaValues into a JS object
+* @returns {any}
+*/
+  to_js_object(): any;
+/**
+* Convert a JS object into a EncryptedNadaValues
+* @param {any} js_object
+* @param {EncodedModulo} modulo
+* @returns {EncryptedNadaValues}
+*/
+  static from_js_object(js_object: any, modulo: EncodedModulo): EncryptedNadaValues;
 }
 /**
 * NadaValue
@@ -392,4 +397,8 @@ export class SecretMasker {
 * @returns {NadaValuesClassification}
 */
   classify_values(values: NadaValues): NadaValuesClassification;
+/**
+* @returns {EncodedModulo}
+*/
+  modulo(): EncodedModulo;
 }

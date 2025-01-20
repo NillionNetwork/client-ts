@@ -8,13 +8,15 @@ import type { SignedReceipt } from "../../payments/v1/receipt_pb";
 import { file_nillion_payments_v1_receipt } from "../../payments/v1/receipt_pb";
 import type { UserId } from "../../auth/v1/user_pb";
 import { file_nillion_auth_v1_user } from "../../auth/v1/user_pb";
+import type { NamedValue } from "../../values/v1/value_pb";
+import { file_nillion_values_v1_value } from "../../values/v1/value_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file nillion/compute/v1/invoke.proto.
  */
 export const file_nillion_compute_v1_invoke: GenFile = /*@__PURE__*/
-  fileDesc("Ch9uaWxsaW9uL2NvbXB1dGUvdjEvaW52b2tlLnByb3RvEhluaWxsaW9uLmNvbXB1dGUudjEuaW52b2tlIpMCChRJbnZva2VDb21wdXRlUmVxdWVzdBJCCg5zaWduZWRfcmVjZWlwdBgBIAEoCzIqLm5pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdC5TaWduZWRSZWNlaXB0EhEKCXZhbHVlX2lkcxgCIAMoDBIWCg5iaW5jb2RlX3ZhbHVlcxgDIAEoDBJECg5pbnB1dF9iaW5kaW5ncxgEIAMoCzIsLm5pbGxpb24uY29tcHV0ZS52MS5pbnZva2UuSW5wdXRQYXJ0eUJpbmRpbmcSRgoPb3V0cHV0X2JpbmRpbmdzGAUgAygLMi0ubmlsbGlvbi5jb21wdXRlLnYxLmludm9rZS5PdXRwdXRQYXJ0eUJpbmRpbmciKwoVSW52b2tlQ29tcHV0ZVJlc3BvbnNlEhIKCmNvbXB1dGVfaWQYASABKAwiUwoRSW5wdXRQYXJ0eUJpbmRpbmcSEgoKcGFydHlfbmFtZRgBIAEoCRIqCgR1c2VyGAIgASgLMhwubmlsbGlvbi5hdXRoLnYxLnVzZXIuVXNlcklkIlUKEk91dHB1dFBhcnR5QmluZGluZxISCgpwYXJ0eV9uYW1lGAEgASgJEisKBXVzZXJzGAIgAygLMhwubmlsbGlvbi5hdXRoLnYxLnVzZXIuVXNlcklkQrQBCh1jb20ubmlsbGlvbi5jb21wdXRlLnYxLmludm9rZUILSW52b2tlUHJvdG9QAaICBE5DVkmqAhlOaWxsaW9uLkNvbXB1dGUuVjEuSW52b2tlygIZTmlsbGlvblxDb21wdXRlXFYxXEludm9rZeICJU5pbGxpb25cQ29tcHV0ZVxWMVxJbnZva2VcR1BCTWV0YWRhdGHqAhxOaWxsaW9uOjpDb21wdXRlOjpWMTo6SW52b2tlYgZwcm90bzM", [file_nillion_payments_v1_receipt, file_nillion_auth_v1_user]);
+  fileDesc("Ch9uaWxsaW9uL2NvbXB1dGUvdjEvaW52b2tlLnByb3RvEhluaWxsaW9uLmNvbXB1dGUudjEuaW52b2tlIsgCChRJbnZva2VDb21wdXRlUmVxdWVzdBJCCg5zaWduZWRfcmVjZWlwdBgBIAEoCzIqLm5pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdC5TaWduZWRSZWNlaXB0EhEKCXZhbHVlX2lkcxgCIAMoDBIWCg5iaW5jb2RlX3ZhbHVlcxgDIAEoDBJECg5pbnB1dF9iaW5kaW5ncxgEIAMoCzIsLm5pbGxpb24uY29tcHV0ZS52MS5pbnZva2UuSW5wdXRQYXJ0eUJpbmRpbmcSRgoPb3V0cHV0X2JpbmRpbmdzGAUgAygLMi0ubmlsbGlvbi5jb21wdXRlLnYxLmludm9rZS5PdXRwdXRQYXJ0eUJpbmRpbmcSMwoGdmFsdWVzGAYgAygLMiMubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuTmFtZWRWYWx1ZSIrChVJbnZva2VDb21wdXRlUmVzcG9uc2USEgoKY29tcHV0ZV9pZBgBIAEoDCJTChFJbnB1dFBhcnR5QmluZGluZxISCgpwYXJ0eV9uYW1lGAEgASgJEioKBHVzZXIYAiABKAsyHC5uaWxsaW9uLmF1dGgudjEudXNlci5Vc2VySWQiVQoST3V0cHV0UGFydHlCaW5kaW5nEhIKCnBhcnR5X25hbWUYASABKAkSKwoFdXNlcnMYAiADKAsyHC5uaWxsaW9uLmF1dGgudjEudXNlci5Vc2VySWRCtAEKHWNvbS5uaWxsaW9uLmNvbXB1dGUudjEuaW52b2tlQgtJbnZva2VQcm90b1ABogIETkNWSaoCGU5pbGxpb24uQ29tcHV0ZS5WMS5JbnZva2XKAhlOaWxsaW9uXENvbXB1dGVcVjFcSW52b2tl4gIlTmlsbGlvblxDb21wdXRlXFYxXEludm9rZVxHUEJNZXRhZGF0YeoCHE5pbGxpb246OkNvbXB1dGU6OlYxOjpJbnZva2ViBnByb3RvMw", [file_nillion_payments_v1_receipt, file_nillion_auth_v1_user, file_nillion_values_v1_value]);
 
 /**
  * A request to invoke a computation.
@@ -41,6 +43,8 @@ export type InvokeComputeRequest = Message<"nillion.compute.v1.invoke.InvokeComp
   /**
    * The values being used as compute-time parameters, encoded in bincode format.
    *
+   * Only one of `bincode_values` and `values` can be set.
+   *
    * @generated from field: bytes bincode_values = 3;
    */
   bincodeValues: Uint8Array;
@@ -58,6 +62,15 @@ export type InvokeComputeRequest = Message<"nillion.compute.v1.invoke.InvokeComp
    * @generated from field: repeated nillion.compute.v1.invoke.OutputPartyBinding output_bindings = 5;
    */
   outputBindings: OutputPartyBinding[];
+
+  /**
+   * The values being used as compute-time parameters
+   *
+   * Only one of `bincode_values` and `values` can be set.
+   *
+   * @generated from field: repeated nillion.values.v1.value.NamedValue values = 6;
+   */
+  values: NamedValue[];
 };
 
 /**
