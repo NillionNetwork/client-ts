@@ -2,6 +2,7 @@
 
 import { useNilRetrieveValues } from "@nillion/client-react-hooks";
 import { Uuid } from "@nillion/client-vms";
+import { bytesToHex } from "@noble/hashes/utils";
 import { type ChangeEvent, type FC, useState } from "react";
 
 export const RetrieveValues: FC = () => {
@@ -15,7 +16,11 @@ export const RetrieveValues: FC = () => {
   if (mutation.isSuccess) {
     // stringify cannot handle BigInts
     data = data = JSON.stringify(mutation.data, (_, v) =>
-      typeof v === "bigint" ? v.toString() : v,
+      typeof v === "bigint"
+        ? v.toString()
+        : v instanceof Uint8Array
+          ? bytesToHex(v)
+          : v,
     );
   } else if (mutation.isError) {
     data = mutation.error.message;
