@@ -40,7 +40,7 @@ const data = [
     type: "PublicBoolean",
     name: "c",
     value: true,
-    nadaValue: NadaValue.new_public_boolean("true"),
+    nadaValue: NadaValue.new_public_boolean(true),
   },
   {
     type: "SecretInteger",
@@ -58,7 +58,7 @@ const data = [
     type: "SecretBoolean",
     name: "f",
     value: true,
-    nadaValue: NadaValue.new_secret_boolean("true"),
+    nadaValue: NadaValue.new_secret_boolean(true),
   },
   {
     type: "SecretBlob",
