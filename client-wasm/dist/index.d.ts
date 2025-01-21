@@ -1,12 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* Compute the size of the given values.
-* @param {NadaValues} values
-* @returns {bigint}
-*/
-export function compute_values_size(values: NadaValues): bigint;
-/**
 * A ecdsa signature
 */
 export class EcdsaSignature {
@@ -105,7 +99,7 @@ export class NadaValue {
 * @return {NadaValue} The encoded secret corresponding to the value provided
 *
 * @example
-* const value = NadaValue.new_secret_boolean("true");
+* const value = NadaValue.new_secret_boolean(true);
 */
   static new_secret_boolean(value: boolean): NadaValue;
 /**
@@ -145,7 +139,7 @@ export class NadaValue {
 * @return {NadaValue} The encoded secret corresponding to the value provided
 *
 * @example
-* const value = NadaValue.new_public_boolean("true");
+* const value = NadaValue.new_public_boolean(true);
 */
   static new_public_boolean(value: boolean): NadaValue;
 /**
