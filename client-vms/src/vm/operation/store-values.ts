@@ -3,7 +3,8 @@ import { type Client, createClient } from "@connectrpc/connect";
 import {
   type NadaValue,
   NadaValues,
-  compute_values_size,
+  NadaValuesClassification,
+  PartyShares,
 } from "@nillion/client-wasm";
 import { Effect as E, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
@@ -26,13 +27,14 @@ import { collapse, unwrapExceptionCause } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
 import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
-import { nadaValuesToProto } from "#/vm/values";
+import { computeValuesSize, nadaValuesToProto } from "#/vm/values";
 
 export const StoreValuesConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
   vm: z.custom<VmClient>(),
   id: Uuid.nullish(),
-  values: z.instanceof(NadaValues),
+  partyShares: z.array(z.instanceof(PartyShares)),
+  classify: z.instanceof(NadaValuesClassification),
   ttl: TtlDays,
   permissions: z.custom<ValuesPermissions>(),
 });
@@ -77,16 +79,15 @@ export class StoreValues implements Operation<Uuid> {
     signedReceipt: SignedReceipt,
   ): E.Effect<NodeRequestOptions, UnknownException>[] {
     const {
-      values,
-      vm: { nodes, masker },
+      partyShares,
+      vm: { nodes },
     } = this.config;
 
     const permissions = this.config.permissions.toProto();
     const updateIdentifier = this.config.id ? parse(this.config.id) : undefined;
 
-    const shares = masker.mask(values);
-    return shares.map((share) => {
-      const nodeId = PartyId.from(share.party.to_byte_array());
+    return partyShares.map((shares) => {
+      const nodeId = PartyId.from(shares.party.to_byte_array());
       const node = nodes.find((n) => n.id.toBase64() === nodeId.toBase64());
 
       if (!node) {
@@ -103,7 +104,7 @@ export class StoreValues implements Operation<Uuid> {
           signedReceipt,
           permissions,
           updateIdentifier,
-          values: nadaValuesToProto(share.shares.to_js_object()),
+          values: nadaValuesToProto(shares.shares.to_js_object()),
         }),
       });
     });
@@ -125,12 +126,12 @@ export class StoreValues implements Operation<Uuid> {
   private pay(): Promise<SignedReceipt> {
     const {
       ttl: ttlDays,
-      values,
-      vm: { payer, masker },
+      partyShares,
+      classify,
+      vm: { payer },
     } = this.config;
 
-    const payloadSize = compute_values_size(values);
-    const classify = masker.classify_values(values);
+    const payloadSize = computeValuesSize(partyShares);
 
     return payer.payForOperation(
       create(PriceQuoteRequestSchema, {
@@ -186,7 +187,8 @@ export class StoreValuesBuilder {
     const config = StoreValuesConfig.parse({
       vm: this.vm,
       id: this._id,
-      values: this._values,
+      classify: this.vm.masker.classify_values(this._values),
+      partyShares: this.vm.masker.mask(this._values),
       ttl: this._ttl,
       permissions: this._permissions,
     });

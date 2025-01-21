@@ -1,4 +1,5 @@
-import { create } from "@bufbuild/protobuf";
+import { create, toBinary } from "@bufbuild/protobuf";
+import type { PartyShares } from "@nillion/client-wasm";
 import {
   EcdsaMessageDigestSchema,
   EcdsaPrivateKeyShareSchema,
@@ -170,4 +171,20 @@ function nadaValueFromProto(
         sigma: value.value.value.sigma,
       };
   }
+}
+
+export function computeValuesSize(partyShares: PartyShares[]): bigint {
+  if (partyShares.length <= 0) {
+    throw new Error("Failed to build operation: no nodes");
+  }
+  const proto_values = nadaValuesToProto(partyShares[0].shares.to_js_object());
+  const size = Array.from(proto_values.values())
+    .map((value: NamedValue) => {
+      return (
+        value.name.length +
+        (value.value ? toBinary(ValueSchema, value.value).length : 0)
+      );
+    })
+    .reduce((sum, value) => sum + value, 0);
+  return BigInt(size);
 }
