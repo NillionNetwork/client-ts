@@ -8,7 +8,7 @@ import {
   type Uuid,
   ValuesPermissionsBuilder,
 } from "#/types";
-import { type VmClient, VmClientBuilder } from "#/vm";
+import { UpdatePermissionsBuilder, type VmClient, VmClientBuilder } from "#/vm";
 import { Env, PrivateKeyPerSuite } from "./helpers";
 
 describe("Signature", () => {
@@ -44,17 +44,21 @@ describe("Signature", () => {
 
   let privateKeyStoreId: Uuid;
   it("store private key", async () => {
-    const permissions = ValuesPermissionsBuilder.defaultOwner(client.id)
-      .grantCompute(client.id, tecdsaProgramId)
-      .build();
     privateKeyStoreId = await client
       .storeValues()
       .ttl(1)
       .value(tecdsaKeyName, NadaValue.new_ecdsa_private_key(privateKey))
-      .permissions(permissions)
       .build()
       .invoke();
     expect(privateKeyStoreId).toHaveLength(36);
+  });
+
+  it("update private key permissions", async () => {
+    const permissions = UpdatePermissionsBuilder.init(client)
+      .valuesId(privateKeyStoreId)
+      .grantCompute(client.id, tecdsaProgramId)
+      .build();
+    await permissions.invoke();
   });
 
   it("retrieve private key", async () => {
