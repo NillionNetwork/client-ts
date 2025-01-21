@@ -44,7 +44,7 @@ describe("Client", () => {
     const barExpectedName = "bar";
     const barExpectedValue = Uint8Array.from([45, 18, 122]);
     const bazExpectedName = "baz";
-    const bazExpectedValue = "true";
+    const bazExpectedValue = true;
     let expectedPermissions: ValuesPermissions;
     let expectedId: string;
 

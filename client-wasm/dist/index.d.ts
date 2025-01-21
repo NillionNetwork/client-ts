@@ -107,7 +107,7 @@ export class NadaValue {
 * @example
 * const value = NadaValue.new_secret_boolean("true");
 */
-  static new_secret_boolean(value: string): NadaValue;
+  static new_secret_boolean(value: boolean): NadaValue;
 /**
 * Create a new secret blob.
 *
@@ -147,7 +147,7 @@ export class NadaValue {
 * @example
 * const value = NadaValue.new_public_boolean("true");
 */
-  static new_public_boolean(value: string): NadaValue;
+  static new_public_boolean(value: boolean): NadaValue;
 /**
 * Create a new ecdsa private key
 *
