@@ -69,7 +69,7 @@ describe("PaymentClient", () => {
 
   it("account is funded", async () => {
     const account = await client.payer.accountBalance();
-    expect(account.balance).toBe(BigInt(10));
+    expect(account.balance).toBe(BigInt(1000));
   });
 
   it("can pay from balance", async () => {
@@ -81,6 +81,6 @@ describe("PaymentClient", () => {
     });
     await client.payer.payForOperation(request);
     const account = await client.payer.accountBalance();
-    expect(account.balance).toBeLessThan(BigInt(10));
+    expect(account.balance).toBeLessThan(BigInt(1000));
   });
 });
