@@ -1,10 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 import { type Client, createClient } from "@connectrpc/connect";
-import {
-  type NadaValue,
-  NadaValues,
-  compute_values_size,
-} from "@nillion/client-wasm";
+import { type NadaValue, NadaValues, PartyShares } from "@nillion/client-wasm";
 import { Effect as E, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
 import { parse, stringify } from "uuid";
@@ -31,13 +27,13 @@ import { collapse, unwrapExceptionCause } from "#/util";
 import type { VmClient } from "#/vm/client";
 import type { Operation } from "#/vm/operation/operation";
 import { retryGrpcRequestIfRecoverable } from "#/vm/operation/retry-client";
-import { nadaValuesToProto } from "#/vm/values";
+import { computeValuesSize, nadaValuesToProto } from "#/vm/values";
 
 export const InvokeComputeConfig = z.object({
   // due to import resolution order we cannot use instanceof because VmClient isn't defined first
   vm: z.custom<VmClient>(),
   programId: ProgramId,
-  computeTimeValues: z.instanceof(NadaValues),
+  partyShares: z.array(z.instanceof(PartyShares)),
   valueIds: z.array(Uuid),
   inputBindings: z.array(InputBindings),
   outputBindings: z.array(OutputBindings),
@@ -82,7 +78,7 @@ export class InvokeCompute implements Operation<Uuid> {
   prepareRequestPerNode(
     signedReceipt: SignedReceipt,
   ): E.Effect<NodeRequestOptions, UnknownException>[] {
-    const shares = this.config.vm.masker.mask(this.config.computeTimeValues);
+    const shares = this.config.partyShares;
     const valueIds = this.config.valueIds.map(parse);
 
     const inputBindings = this.config.inputBindings.map((bindings) =>
@@ -141,7 +137,7 @@ export class InvokeCompute implements Operation<Uuid> {
   private async pay(): Promise<SignedReceipt> {
     const {
       programId,
-      computeTimeValues,
+      partyShares,
       vm: { payer },
     } = this.config;
 
@@ -151,7 +147,7 @@ export class InvokeCompute implements Operation<Uuid> {
           case: "invokeCompute",
           value: {
             programId,
-            valuesPayloadSize: compute_values_size(computeTimeValues),
+            valuesPayloadSize: computeValuesSize(partyShares),
           },
         },
       }),
@@ -200,7 +196,7 @@ export class InvokeComputeBuilder {
     const config = InvokeComputeConfig.parse({
       vm: this.vm,
       programId: this._programId,
-      computeTimeValues: this._computeTimeValues,
+      partyShares: this.vm.masker.mask(this._computeTimeValues),
       valueIds: this._valueIds,
       inputBindings: this._inputBindings,
       outputBindings: this._outputBindings,

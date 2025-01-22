@@ -238,36 +238,6 @@ function getArrayJsValueFromWasm0(ptr, len) {
     return result;
 }
 
-let cachedBigInt64Memory0 = null;
-
-function getBigInt64Memory0() {
-    if (cachedBigInt64Memory0 === null || cachedBigInt64Memory0.byteLength === 0) {
-        cachedBigInt64Memory0 = new BigInt64Array(wasm.memory.buffer);
-    }
-    return cachedBigInt64Memory0;
-}
-/**
-* Compute the size of the given values.
-* @param {NadaValues} values
-* @returns {bigint}
-*/
-export function compute_values_size(values) {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        _assertClass(values, NadaValues);
-        wasm.compute_values_size(retptr, values.__wbg_ptr);
-        var r0 = getBigInt64Memory0()[retptr / 8 + 0];
-        var r2 = getInt32Memory0()[retptr / 4 + 2];
-        var r3 = getInt32Memory0()[retptr / 4 + 3];
-        if (r3) {
-            throw takeObject(r2);
-        }
-        return BigInt.asUintN(64, r0);
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-    }
-}
-
 let stack_pointer = 128;
 
 function addBorrowedObject(obj) {
@@ -553,7 +523,7 @@ export class NadaValue {
     * @return {NadaValue} The encoded secret corresponding to the value provided
     *
     * @example
-    * const value = NadaValue.new_secret_boolean("true");
+    * const value = NadaValue.new_secret_boolean(true);
     */
     static new_secret_boolean(value) {
         try {
@@ -644,7 +614,7 @@ export class NadaValue {
     * @return {NadaValue} The encoded secret corresponding to the value provided
     *
     * @example
-    * const value = NadaValue.new_public_boolean("true");
+    * const value = NadaValue.new_public_boolean(true);
     */
     static new_public_boolean(value) {
         try {

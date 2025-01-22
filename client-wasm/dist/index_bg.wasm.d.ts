@@ -49,7 +49,6 @@ export function __wbg_partyshares_free(a: number): void;
 export function partyshares_new(a: number, b: number, c: number): void;
 export function partyshares_party(a: number): number;
 export function partyshares_shares(a: number): number;
-export function compute_values_size(a: number, b: number): void;
 export function __wbg_encryptednadavalues_free(a: number): void;
 export function encryptednadavalues_to_js_object(a: number, b: number): void;
 export function encryptednadavalues_from_js_object(a: number, b: number, c: number): void;
