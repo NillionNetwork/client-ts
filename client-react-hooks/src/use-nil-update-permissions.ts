@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { type UseNilHook, nilHookBaseResult } from "./nil-hook-base";
 
 interface ExecuteArgs {
+  id?: Uuid;
   permissions: UpdatePermissionsBuilder;
 }
 type ExecuteResult = Uuid;
@@ -11,7 +12,7 @@ type useNilUpdatePermissions = UseNilHook<ExecuteArgs, ExecuteResult>;
 
 export const useNilUpdatePermissions = (): useNilUpdatePermissions => {
   const mutationFn = async (args: ExecuteArgs): Promise<ExecuteResult> => {
-    return args.permissions.build().invoke();
+    return args.permissions.valuesId(args.id).build().invoke();
   };
 
   const mutate = useMutation({
