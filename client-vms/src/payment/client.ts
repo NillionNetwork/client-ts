@@ -95,7 +95,7 @@ export class PaymentClient {
           E.sync(() =>
             Log(
               "Quoted %s unil for %s",
-              quote.fees.total.toString(),
+              quote.fees.tokens.toString(),
               request.operation.case,
             ),
           ),
@@ -111,7 +111,7 @@ export class PaymentClient {
     if (paymentMode === PaymentMode.FromBalance) {
       return;
     }
-    const amount = String(quote.fees.total);
+    const amount = String(quote.fees.tokens);
     const value = create(MsgPayForSchema, {
       fromAddress: this.address,
       resource: quote.nonce,
