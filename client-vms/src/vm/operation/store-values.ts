@@ -34,7 +34,9 @@ export const StoreValuesConfig = z.object({
   vm: z.custom<VmClient>(),
   id: Uuid.nullish(),
   partyShares: z.array(z.instanceof(PartyShares)),
-  classify: z.instanceof(NadaValuesClassification),
+  classify: z.custom<NadaValuesClassification>(
+    (arg) => arg instanceof NadaValuesClassification,
+  ),
   ttl: TtlDays,
   permissions: z.custom<ValuesPermissions>(),
 });

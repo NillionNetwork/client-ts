@@ -39,7 +39,7 @@ export type NodeConfig = z.infer<typeof NodeConfig>;
 export const VmClientConfig = z.object({
   id: z.instanceof(UserId),
   payer: z.instanceof(PaymentClient),
-  masker: z.instanceof(SecretMasker),
+  masker: z.custom<SecretMasker>((arg) => arg instanceof SecretMasker),
   leader: NodeConfig,
   nodes: z.array(NodeConfig),
 });
