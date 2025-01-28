@@ -7,7 +7,10 @@ use nillion_client_core::{
     privatekey::{EcdsaPrivateKey, EcdsaPrivateKeyShare},
     signature,
     signature::EcdsaSignatureShare,
-    values::{BigInt, BigUint, BlobPrimitiveType, Clear, Encoded, EncodedModularNumber, Encrypted, PartyJar},
+    values::{
+        BigInt, BigUint, BlobPrimitiveType, Clear, Encoded, EncodedModularNumber, Encrypted,
+        PartyJar,
+    },
 };
 use std::{collections::HashMap, str::FromStr};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
@@ -34,7 +37,9 @@ impl NadaValue {
     /// const value = NadaValue.new_secret_integer("-23");
     #[wasm_bindgen(skip_jsdoc)]
     pub fn new_secret_integer(value: &str) -> JsResult<NadaValue> {
-        let value: BigInt = value.parse().map_err(|e| ValueError::new_err(&format!("Invalid integer value: {e}")))?;
+        let value: BigInt = value
+            .parse()
+            .map_err(|e| ValueError::new_err(&format!("Invalid integer value: {e}")))?;
         let value = nillion_client_core::values::NadaValue::new_secret_integer(value);
         Ok(Self(value))
     }
@@ -48,8 +53,9 @@ impl NadaValue {
     /// const value = NadaValue.new_secret_unsigned_integer("23");
     #[wasm_bindgen(skip_jsdoc)]
     pub fn new_secret_unsigned_integer(value: &str) -> JsResult<NadaValue> {
-        let value: BigUint =
-            value.parse().map_err(|e| ValueError::new_err(&format!("Invalid unsigned integer value: {e}")))?;
+        let value: BigUint = value
+            .parse()
+            .map_err(|e| ValueError::new_err(&format!("Invalid unsigned integer value: {e}")))?;
         let value = nillion_client_core::values::NadaValue::new_secret_unsigned_integer(value);
         Ok(Self(value))
     }
@@ -89,7 +95,9 @@ impl NadaValue {
     /// const value = NadaValue.new_public_integer("-23");
     #[wasm_bindgen(skip_jsdoc)]
     pub fn new_public_integer(value: &str) -> JsResult<NadaValue> {
-        let value: BigInt = value.parse().map_err(|e| ValueError::new_err(&format!("Invalid integer value: {e}")))?;
+        let value: BigInt = value
+            .parse()
+            .map_err(|e| ValueError::new_err(&format!("Invalid integer value: {e}")))?;
         let value = nillion_client_core::values::NadaValue::new_integer(value);
         Ok(Self(value))
     }
@@ -103,8 +111,9 @@ impl NadaValue {
     /// const value = NadaValue.new_public_unsigned_integer("23");
     #[wasm_bindgen(skip_jsdoc)]
     pub fn new_public_unsigned_integer(value: &str) -> JsResult<NadaValue> {
-        let value: BigUint =
-            value.parse().map_err(|e| ValueError::new_err(&format!("Invalid unsigned integer value: {e}")))?;
+        let value: BigUint = value
+            .parse()
+            .map_err(|e| ValueError::new_err(&format!("Invalid unsigned integer value: {e}")))?;
         let value = nillion_client_core::values::NadaValue::new_unsigned_integer(value);
         Ok(Self(value))
     }
@@ -146,8 +155,9 @@ impl NadaValue {
     /// const value = NadaValue.new_ecdsa_digest_message([1,0,1,222,21,...]);
     #[wasm_bindgen(skip_jsdoc)]
     pub fn new_ecdsa_digest_message(value: Vec<u8>) -> JsResult<NadaValue> {
-        let array: [u8; 32] =
-            value.try_into().map_err(|_| ValueError::new_err("Message digest must be exactly 32 bytes long"))?;
+        let array: [u8; 32] = value
+            .try_into()
+            .map_err(|_| ValueError::new_err("Message digest must be exactly 32 bytes long"))?;
         let secret = nillion_client_core::values::NadaValue::new_ecdsa_digest_message(array);
         Ok(Self(secret))
     }
@@ -164,7 +174,11 @@ impl NadaValue {
     pub fn new_ecdsa_signature(r: Vec<u8>, s: Vec<u8>) -> JsResult<NadaValue> {
         let r = try_into_scalar(&r, "r")?;
         let s = try_into_scalar(&s, "s")?;
-        Ok(Self(nillion_client_core::values::NadaValue::new_ecdsa_signature(signature::EcdsaSignature { r, s })))
+        Ok(Self(
+            nillion_client_core::values::NadaValue::new_ecdsa_signature(
+                signature::EcdsaSignature { r, s },
+            ),
+        ))
     }
 
     /// Convert this value into a byte array.
@@ -180,7 +194,9 @@ impl NadaValue {
     pub fn to_byte_array(&self) -> Result<Vec<u8>, JsError> {
         match &self.0 {
             nillion_client_core::values::NadaValue::SecretBlob(value) => Ok(value.to_vec()),
-            nillion_client_core::values::NadaValue::EcdsaPrivateKey(value) => Ok(value.clone().to_bytes()),
+            nillion_client_core::values::NadaValue::EcdsaPrivateKey(value) => {
+                Ok(value.clone().to_bytes())
+            }
             nillion_client_core::values::NadaValue::EcdsaDigestMessage(value) => Ok(value.into()),
             _ => Err(JsError::new("value does not contain a byte array")),
         }
@@ -254,8 +270,11 @@ impl NadaValue {
 
 fn try_into_scalar(bytes: &[u8], parameter: &str) -> JsResult<NonZero<Scalar<Secp256k1>>> {
     let scalar = Scalar::from_be_bytes(bytes).map_err(|_| ValueError::new_err(&format!("Ecdsa signature parameter {parameter}: Format error as the encoded integer is larger than group order. Note that byte representation should be in big-endian format.")))?;
-    NonZero::from_scalar(scalar)
-        .ok_or_else(|| ValueError::new_err(&format!("Ecdsa signature parameter {parameter}: value cannot be 0")))
+    NonZero::from_scalar(scalar).ok_or_else(|| {
+        ValueError::new_err(&format!(
+            "Ecdsa signature parameter {parameter}: value cannot be 0"
+        ))
+    })
 }
 
 /// A collection of named values.
@@ -312,8 +331,12 @@ impl NadaValues {
             let wrapped = NadaValue(value.clone());
             let nada_type = wrapped.type_name()?;
 
-            js_sys::Reflect::set(&inner_obj, &JsValue::from("type"), &JsValue::from(&nada_type))
-                .map_err(|e| JsError::new(&format!("Failed to set type: {:?}", e)))?;
+            js_sys::Reflect::set(
+                &inner_obj,
+                &JsValue::from("type"),
+                &JsValue::from(&nada_type),
+            )
+            .map_err(|e| JsError::new(&format!("Failed to set type: {:?}", e)))?;
 
             let js_value = match value {
                 nillion_client_core::values::NadaValue::SecretBlob(_)
@@ -407,32 +430,71 @@ pub struct SecretMasker(nillion_client_core::values::SecretMasker, EncodedModulo
 #[wasm_bindgen]
 impl SecretMasker {
     /// Construct a new masker that uses a 64 bit safe prime under the hood.
-    pub fn new_64_bit_safe_prime(polynomial_degree: u64, parties: Vec<PartyId>) -> JsResult<SecretMasker> {
-        let parties = parties.into_iter().map(|p| nillion_client_core::values::PartyId::from(p.0)).collect();
-        let masker = nillion_client_core::values::SecretMasker::new_64_bit_safe_prime(polynomial_degree, parties)
-            .map_err(|e| ValueError::new_err(&format!("failed to create secret masker: {e}")))?;
-        Ok(Self(masker, EncodedModulo(nillion_client_core::values::EncodedModulo::U64SafePrime)))
+    pub fn new_64_bit_safe_prime(
+        polynomial_degree: u64,
+        parties: Vec<PartyId>,
+    ) -> JsResult<SecretMasker> {
+        let parties = parties
+            .into_iter()
+            .map(|p| nillion_client_core::values::PartyId::from(p.0))
+            .collect();
+        let masker = nillion_client_core::values::SecretMasker::new_64_bit_safe_prime(
+            polynomial_degree,
+            parties,
+        )
+        .map_err(|e| ValueError::new_err(&format!("failed to create secret masker: {e}")))?;
+        Ok(Self(
+            masker,
+            EncodedModulo(nillion_client_core::values::EncodedModulo::U64SafePrime),
+        ))
     }
 
     /// Construct a new masker that uses a 128 bit safe prime under the hood.
-    pub fn new_128_bit_safe_prime(polynomial_degree: u64, parties: Vec<PartyId>) -> JsResult<SecretMasker> {
-        let parties = parties.into_iter().map(|p| nillion_client_core::values::PartyId::from(p.0)).collect();
-        let masker = nillion_client_core::values::SecretMasker::new_128_bit_safe_prime(polynomial_degree, parties)
-            .map_err(|e| ValueError::new_err(&format!("failed to create secret masker: {e}")))?;
-        Ok(Self(masker, EncodedModulo(nillion_client_core::values::EncodedModulo::U128SafePrime)))
+    pub fn new_128_bit_safe_prime(
+        polynomial_degree: u64,
+        parties: Vec<PartyId>,
+    ) -> JsResult<SecretMasker> {
+        let parties = parties
+            .into_iter()
+            .map(|p| nillion_client_core::values::PartyId::from(p.0))
+            .collect();
+        let masker = nillion_client_core::values::SecretMasker::new_128_bit_safe_prime(
+            polynomial_degree,
+            parties,
+        )
+        .map_err(|e| ValueError::new_err(&format!("failed to create secret masker: {e}")))?;
+        Ok(Self(
+            masker,
+            EncodedModulo(nillion_client_core::values::EncodedModulo::U128SafePrime),
+        ))
     }
 
     /// Construct a new masker that uses a 256 bit safe prime under the hood.
-    pub fn new_256_bit_safe_prime(polynomial_degree: u64, parties: Vec<PartyId>) -> JsResult<SecretMasker> {
-        let parties = parties.into_iter().map(|p| nillion_client_core::values::PartyId::from(p.0)).collect();
-        let masker = nillion_client_core::values::SecretMasker::new_256_bit_safe_prime(polynomial_degree, parties)
-            .map_err(|e| ValueError::new_err(&format!("failed to create secret masker: {e}")))?;
-        Ok(Self(masker, EncodedModulo(nillion_client_core::values::EncodedModulo::U256SafePrime)))
+    pub fn new_256_bit_safe_prime(
+        polynomial_degree: u64,
+        parties: Vec<PartyId>,
+    ) -> JsResult<SecretMasker> {
+        let parties = parties
+            .into_iter()
+            .map(|p| nillion_client_core::values::PartyId::from(p.0))
+            .collect();
+        let masker = nillion_client_core::values::SecretMasker::new_256_bit_safe_prime(
+            polynomial_degree,
+            parties,
+        )
+        .map_err(|e| ValueError::new_err(&format!("failed to create secret masker: {e}")))?;
+        Ok(Self(
+            masker,
+            EncodedModulo(nillion_client_core::values::EncodedModulo::U256SafePrime),
+        ))
     }
 
     /// Mask a set of values.
     pub fn mask(&self, values: NadaValues) -> JsResult<Vec<PartyShares>> {
-        let shares = self.0.mask(values.0).map_err(|e| ValueError::new_err(&format!("failed to mask values: {e}")))?;
+        let shares = self
+            .0
+            .mask(values.0)
+            .map_err(|e| ValueError::new_err(&format!("failed to mask values: {e}")))?;
         let shares = shares
             .into_iter()
             .map(|(party, shares)| PartyShares {
@@ -446,11 +508,17 @@ impl SecretMasker {
     /// Unmask a set of encrypted values.
     pub fn unmask(&self, shares: Vec<PartyShares>) -> JsResult<NadaValues> {
         let shares = shares.into_iter().map(|party_shares| {
-            (nillion_client_core::values::PartyId::from(party_shares.party.0), party_shares.shares.0)
+            (
+                nillion_client_core::values::PartyId::from(party_shares.party.0),
+                party_shares.shares.0,
+            )
         });
         let jar = PartyJar::new_with_elements(shares)
             .map_err(|e| ValueError::new_err(&format!("failed to unmask shares: {e}")))?;
-        let values = self.0.unmask(jar).map_err(|e| ValueError::new_err(&format!("failed to unmask shares: {e}")))?;
+        let values = self
+            .0
+            .unmask(jar)
+            .map_err(|e| ValueError::new_err(&format!("failed to unmask shares: {e}")))?;
         Ok(NadaValues(values))
     }
 
@@ -464,7 +532,12 @@ impl SecretMasker {
             ecdsa_private_key_shares,
             ecdsa_signature_shares,
         } = self.0.classify_values(&values.0);
-        NadaValuesClassification { shares, public, ecdsa_private_key_shares, ecdsa_signature_shares }
+        NadaValuesClassification {
+            shares,
+            public,
+            ecdsa_private_key_shares,
+            ecdsa_signature_shares,
+        }
     }
 
     pub fn modulo(&self) -> EncodedModulo {
@@ -520,7 +593,9 @@ impl PartyShares {
 #[wasm_bindgen]
 #[derive(Clone)]
 #[cfg_attr(test, derive(Debug, PartialEq))]
-pub struct EncryptedNadaValues(HashMap<String, nillion_client_core::values::NadaValue<Encrypted<Encoded>>>);
+pub struct EncryptedNadaValues(
+    HashMap<String, nillion_client_core::values::NadaValue<Encrypted<Encoded>>>,
+);
 
 #[wasm_bindgen]
 impl EncryptedNadaValues {
@@ -532,8 +607,12 @@ impl EncryptedNadaValues {
             let inner_obj = Object::new();
             let nada_type = nada_value.to_type().to_string();
 
-            js_sys::Reflect::set(&inner_obj, &JsValue::from("type"), &JsValue::from(&nada_type))
-                .map_err(|e| JsError::new(&format!("Failed to set type: {:?}", e)))?;
+            js_sys::Reflect::set(
+                &inner_obj,
+                &JsValue::from("type"),
+                &JsValue::from(&nada_type),
+            )
+            .map_err(|e| JsError::new(&format!("Failed to set type: {:?}", e)))?;
 
             use nillion_client_core::values::NadaValue as CoreNadaValue;
             match nada_value {
@@ -563,24 +642,37 @@ impl EncryptedNadaValues {
                         .map_err(|_| JsError::new("Failed to set shares"))?;
 
                     let js_original_size = JsValue::from(value.unencoded_size.to_string());
-                    js_sys::Reflect::set(&inner_obj, &JsValue::from("originalSize"), &js_original_size)
-                        .map_err(|_| JsError::new("Failed to set originalSize"))?;
+                    js_sys::Reflect::set(
+                        &inner_obj,
+                        &JsValue::from("originalSize"),
+                        &js_original_size,
+                    )
+                    .map_err(|_| JsError::new("Failed to set originalSize"))?;
                 }
                 CoreNadaValue::EcdsaPrivateKey(value) => {
                     let value = value.as_inner();
                     // i
-                    js_sys::Reflect::set(&inner_obj, &JsValue::from("i"), &JsValue::from(value.i.to_string()))
-                        .map_err(|_| JsError::new("Failed to set i"))?;
+                    js_sys::Reflect::set(
+                        &inner_obj,
+                        &JsValue::from("i"),
+                        &JsValue::from(value.i.to_string()),
+                    )
+                    .map_err(|_| JsError::new("Failed to set i"))?;
                     // x
                     let x = value.x.clone().into_inner().as_ref().to_le_bytes();
                     let js_x = JsValue::from(to_byte_array(&x));
                     js_sys::Reflect::set(&inner_obj, &JsValue::from("x"), &js_x)
                         .map_err(|_| JsError::new("Failed to set x"))?;
                     // shared_public_key
-                    let shared_public_key = value.key_info.shared_public_key.to_bytes(true).to_vec();
+                    let shared_public_key =
+                        value.key_info.shared_public_key.to_bytes(true).to_vec();
                     let js_shared_public_key = JsValue::from(to_byte_array(&shared_public_key));
-                    js_sys::Reflect::set(&inner_obj, &JsValue::from("sharedPublicKey"), &js_shared_public_key)
-                        .map_err(|_| JsError::new("Failed to set sharedPublicKey"))?;
+                    js_sys::Reflect::set(
+                        &inner_obj,
+                        &JsValue::from("sharedPublicKey"),
+                        &js_shared_public_key,
+                    )
+                    .map_err(|_| JsError::new("Failed to set sharedPublicKey"))?;
                     // public_shares
                     let js_public_shares = value
                         .key_info
@@ -591,8 +683,12 @@ impl EncryptedNadaValues {
                             JsValue::from(to_byte_array(&share))
                         })
                         .collect::<Array>();
-                    js_sys::Reflect::set(&inner_obj, &JsValue::from("publicShares"), &js_public_shares)
-                        .map_err(|_| JsError::new("Failed to set publicShares"))?;
+                    js_sys::Reflect::set(
+                        &inner_obj,
+                        &JsValue::from("publicShares"),
+                        &js_public_shares,
+                    )
+                    .map_err(|_| JsError::new("Failed to set publicShares"))?;
                 }
                 CoreNadaValue::EcdsaDigestMessage(value) => {
                     let js_value = JsValue::from(to_byte_array(value));
@@ -618,7 +714,10 @@ impl EncryptedNadaValues {
                 | CoreNadaValue::Object { .. }
                 | CoreNadaValue::Array { .. }
                 | CoreNadaValue::Tuple { .. } => {
-                    return Err(JsError::new(&format!("Type {} can not be converted to protobuf", nada_type)));
+                    return Err(JsError::new(&format!(
+                        "Type {} can not be converted to protobuf",
+                        nada_type
+                    )));
                 }
             };
 
@@ -630,7 +729,10 @@ impl EncryptedNadaValues {
 
     /// Convert a JS object into a EncryptedNadaValues
     #[wasm_bindgen]
-    pub fn from_js_object(js_object: &JsValue, modulo: EncodedModulo) -> JsResult<EncryptedNadaValues> {
+    pub fn from_js_object(
+        js_object: &JsValue,
+        modulo: EncodedModulo,
+    ) -> JsResult<EncryptedNadaValues> {
         use nillion_client_core::values::NadaValue as CoreNadaValue;
         if !js_object.is_object() {
             return Err(JsError::new(&format!(
@@ -639,8 +741,8 @@ impl EncryptedNadaValues {
             )));
         }
         let mut nada_values = HashMap::new();
-        let object_keys =
-            js_sys::Reflect::own_keys(js_object).map_err(|_| JsError::new("Failed reading object keys"))?;
+        let object_keys = js_sys::Reflect::own_keys(js_object)
+            .map_err(|_| JsError::new("Failed reading object keys"))?;
         for key in object_keys.to_vec() {
             if let Some(name) = key.as_string() {
                 let value = js_sys::Reflect::get(js_object, &key)
@@ -660,10 +762,12 @@ impl EncryptedNadaValues {
                         "UnsignedInteger" => {
                             let js_value = js_sys::Reflect::get(&value, &JsValue::from("value"))
                                 .map_err(|_| JsError::new("Failed value not found"))?;
-                            CoreNadaValue::new_unsigned_integer(EncodedModularNumber::new_unchecked(
-                                Uint8Array::from(js_value).to_vec(),
-                                modulo.0,
-                            ))
+                            CoreNadaValue::new_unsigned_integer(
+                                EncodedModularNumber::new_unchecked(
+                                    Uint8Array::from(js_value).to_vec(),
+                                    modulo.0,
+                                ),
+                            )
                         }
                         "Boolean" => {
                             let js_value = js_sys::Reflect::get(&value, &JsValue::from("value"))
@@ -676,26 +780,32 @@ impl EncryptedNadaValues {
                         "ShamirShareInteger" => {
                             let js_value = js_sys::Reflect::get(&value, &JsValue::from("value"))
                                 .map_err(|_| JsError::new("Failed value not found"))?;
-                            CoreNadaValue::new_shamir_share_integer(EncodedModularNumber::new_unchecked(
-                                Uint8Array::from(js_value).to_vec(),
-                                modulo.0,
-                            ))
+                            CoreNadaValue::new_shamir_share_integer(
+                                EncodedModularNumber::new_unchecked(
+                                    Uint8Array::from(js_value).to_vec(),
+                                    modulo.0,
+                                ),
+                            )
                         }
                         "ShamirShareUnsignedInteger" => {
                             let js_value = js_sys::Reflect::get(&value, &JsValue::from("value"))
                                 .map_err(|_| JsError::new("Failed value not found"))?;
-                            CoreNadaValue::new_shamir_share_unsigned_integer(EncodedModularNumber::new_unchecked(
-                                Uint8Array::from(js_value).to_vec(),
-                                modulo.0,
-                            ))
+                            CoreNadaValue::new_shamir_share_unsigned_integer(
+                                EncodedModularNumber::new_unchecked(
+                                    Uint8Array::from(js_value).to_vec(),
+                                    modulo.0,
+                                ),
+                            )
                         }
                         "ShamirShareBoolean" => {
                             let js_value = js_sys::Reflect::get(&value, &JsValue::from("value"))
                                 .map_err(|_| JsError::new("Failed value not found"))?;
-                            CoreNadaValue::new_shamir_share_boolean(EncodedModularNumber::new_unchecked(
-                                Uint8Array::from(js_value).to_vec(),
-                                modulo.0,
-                            ))
+                            CoreNadaValue::new_shamir_share_boolean(
+                                EncodedModularNumber::new_unchecked(
+                                    Uint8Array::from(js_value).to_vec(),
+                                    modulo.0,
+                                ),
+                            )
                         }
                         "SecretBlob" => {
                             let js_shares = js_sys::Reflect::get(&value, &JsValue::from("shares"))
@@ -704,16 +814,23 @@ impl EncryptedNadaValues {
                                 .to_vec()
                                 .into_iter()
                                 .map(|share| {
-                                    EncodedModularNumber::new_unchecked(Uint8Array::from(share).to_vec(), modulo.0)
+                                    EncodedModularNumber::new_unchecked(
+                                        Uint8Array::from(share).to_vec(),
+                                        modulo.0,
+                                    )
                                 })
                                 .collect::<Vec<_>>();
-                            let js_unencoded_size = js_sys::Reflect::get(&value, &JsValue::from("originalSize"))
-                                .map_err(|_| JsError::new("Failed originalSize not found"))?
-                                .as_string()
-                                .unwrap_or_default();
+                            let js_unencoded_size =
+                                js_sys::Reflect::get(&value, &JsValue::from("originalSize"))
+                                    .map_err(|_| JsError::new("Failed originalSize not found"))?
+                                    .as_string()
+                                    .unwrap_or_default();
                             let unencoded_size = u64::from_str(&js_unencoded_size)
                                 .map_err(|_| JsError::new("Invalid blob original size"))?;
-                            CoreNadaValue::new_secret_blob(BlobPrimitiveType { value: shares, unencoded_size })
+                            CoreNadaValue::new_secret_blob(BlobPrimitiveType {
+                                value: shares,
+                                unencoded_size,
+                            })
                         }
                         "EcdsaPrivateKey" => {
                             // i
@@ -721,19 +838,26 @@ impl EncryptedNadaValues {
                                 .map_err(|_| JsError::new("Failed i not found"))?
                                 .as_string()
                                 .unwrap_or_default();
-                            let i = u16::from_str(&js_i).map_err(|_| JsError::new("Invalid Ecdsa i"))?;
+                            let i = u16::from_str(&js_i)
+                                .map_err(|_| JsError::new("Invalid Ecdsa i"))?;
                             // x
                             let js_x = js_sys::Reflect::get(&value, &JsValue::from("x"))
                                 .map_err(|_| JsError::new("Failed x not found"))?;
                             let x = non_zero_secret_scalar_from_js_value(js_x)?;
                             // key_info
-                            let js_shared_public_key = js_sys::Reflect::get(&value, &JsValue::from("sharedPublicKey"))
-                                .map_err(|_| JsError::new("Failed sharedPublicKey not found"))?;
-                            let js_public_shares = js_sys::Reflect::get(&value, &JsValue::from("publicShares"))
-                                .map_err(|_| JsError::new("Failed publicShares not found"))?;
+                            let js_shared_public_key =
+                                js_sys::Reflect::get(&value, &JsValue::from("sharedPublicKey"))
+                                    .map_err(|_| {
+                                        JsError::new("Failed sharedPublicKey not found")
+                                    })?;
+                            let js_public_shares =
+                                js_sys::Reflect::get(&value, &JsValue::from("publicShares"))
+                                    .map_err(|_| JsError::new("Failed publicShares not found"))?;
                             let key_info = DirtyKeyInfo {
                                 curve: CurveName::new(),
-                                shared_public_key: non_zero_point_from_js_value(js_shared_public_key)?,
+                                shared_public_key: non_zero_point_from_js_value(
+                                    js_shared_public_key,
+                                )?,
                                 public_shares: Array::from(&js_public_shares)
                                     .to_vec()
                                     .into_iter()
@@ -742,9 +866,12 @@ impl EncryptedNadaValues {
                                 vss_setup: None,
                             };
 
-                            let share = DirtyCoreKeyShare { i, key_info, x }
-                                .validate()
-                                .map_err(|e| JsError::new(&format!("invalid ecdsa private key: {e:?}")))?;
+                            let share =
+                                DirtyCoreKeyShare { i, key_info, x }
+                                    .validate()
+                                    .map_err(|e| {
+                                        JsError::new(&format!("invalid ecdsa private key: {e:?}"))
+                                    })?;
                             CoreNadaValue::new_ecdsa_private_key(EcdsaPrivateKeyShare::new(share))
                         }
                         "EcdsaDigestMessage" => {
@@ -753,7 +880,9 @@ impl EncryptedNadaValues {
                             let digest: [u8; 32] = Uint8Array::from(js_digest)
                                 .to_vec()
                                 .try_into()
-                                .map_err(|_| JsError::new("ecdsa message digest must be 32 bytes"))?;
+                                .map_err(|_| {
+                                    JsError::new("ecdsa message digest must be 32 bytes")
+                                })?;
                             CoreNadaValue::new_ecdsa_digest_message(digest)
                         }
                         "EcdsaSignature" => {
@@ -766,19 +895,29 @@ impl EncryptedNadaValues {
                             let sigma = Uint8Array::from(js_sigma).to_vec();
 
                             CoreNadaValue::new_ecdsa_signature(EcdsaSignatureShare {
-                                r: Scalar::from_le_bytes(&r).map_err(|_| JsError::new("ecdsa scalar r is invalid"))?,
+                                r: Scalar::from_le_bytes(&r)
+                                    .map_err(|_| JsError::new("ecdsa scalar r is invalid"))?,
                                 sigma: Scalar::from_le_bytes(&sigma)
                                     .map_err(|_| JsError::new("ecdsa scalar sigma is invalid"))?,
                             })
                         }
-                        _ => Err(JsError::new(&format!("Unsupported type {:?}", nada_type_name)))?,
+                        _ => Err(JsError::new(&format!(
+                            "Unsupported type {:?}",
+                            nada_type_name
+                        )))?,
                     };
                     nada_values.insert(name, nada_value);
                 } else {
-                    return Err(JsError::new(&format!("Unexpected type {:?}, expected a string", nada_type)));
+                    return Err(JsError::new(&format!(
+                        "Unexpected type {:?}, expected a string",
+                        nada_type
+                    )));
                 }
             } else {
-                return Err(JsError::new(&format!("Unexpected key {:?}, expected a string", js_object)));
+                return Err(JsError::new(&format!(
+                    "Unexpected key {:?}, expected a string",
+                    js_object
+                )));
             }
         }
         Ok(EncryptedNadaValues(nada_values))
@@ -787,16 +926,22 @@ impl EncryptedNadaValues {
 
 fn non_zero_point_from_js_value(js_value: JsValue) -> JsResult<NonZero<Point<Secp256k1>>> {
     let bytes = Uint8Array::from(js_value).to_vec();
-    let point =
-        Point::from_bytes(&bytes).map_err(|_| JsError::new("Invalid ecdsa private key point: invalid bytes"))?;
-    NonZero::from_point(point).ok_or(JsError::new("Invalid ecdsa private key point: point is zero"))
+    let point = Point::from_bytes(&bytes)
+        .map_err(|_| JsError::new("Invalid ecdsa private key point: invalid bytes"))?;
+    NonZero::from_point(point).ok_or(JsError::new(
+        "Invalid ecdsa private key point: point is zero",
+    ))
 }
 
-fn non_zero_secret_scalar_from_js_value(js_value: JsValue) -> JsResult<NonZero<SecretScalar<Secp256k1>>> {
+fn non_zero_secret_scalar_from_js_value(
+    js_value: JsValue,
+) -> JsResult<NonZero<SecretScalar<Secp256k1>>> {
     let bytes = Uint8Array::from(js_value).to_vec();
     let scalar = SecretScalar::from_le_bytes(&bytes)
         .map_err(|_| JsError::new("Invalid ecdsa private key secret scalar: invalid bytes"))?;
-    NonZero::from_secret_scalar(scalar).ok_or(JsError::new("Invalid ecdsa private key secret scalar: scalar is zero"))
+    NonZero::from_secret_scalar(scalar).ok_or(JsError::new(
+        "Invalid ecdsa private key secret scalar: scalar is zero",
+    ))
 }
 
 #[cfg(test)]
@@ -806,27 +951,45 @@ mod test {
     use wasm_bindgen_test::*;
 
     fn make_masker() -> SecretMasker {
-        SecretMasker::new_64_bit_safe_prime(1, vec![PartyId(vec![1]), PartyId(vec![2]), PartyId(vec![3])])
-            .map_err(JsValue::from)
-            .expect("failed to build masker")
+        SecretMasker::new_64_bit_safe_prime(
+            1,
+            vec![PartyId(vec![1]), PartyId(vec![2]), PartyId(vec![3])],
+        )
+        .map_err(JsValue::from)
+        .expect("failed to build masker")
     }
 
     #[wasm_bindgen_test]
     fn secret_integer() {
-        let secret = NadaValue::new_secret_integer("-42").map_err(JsValue::from).unwrap();
-        assert_eq!(secret.to_integer().map_err(JsValue::from), Ok("-42".to_string()));
+        let secret = NadaValue::new_secret_integer("-42")
+            .map_err(JsValue::from)
+            .unwrap();
+        assert_eq!(
+            secret.to_integer().map_err(JsValue::from),
+            Ok("-42".to_string())
+        );
     }
 
     #[wasm_bindgen_test]
     fn secret_unsigned_integer() {
-        let secret = NadaValue::new_secret_unsigned_integer("42").map_err(JsValue::from).unwrap();
-        assert_eq!(secret.to_integer().map_err(JsValue::from), Ok("42".to_string()));
+        let secret = NadaValue::new_secret_unsigned_integer("42")
+            .map_err(JsValue::from)
+            .unwrap();
+        assert_eq!(
+            secret.to_integer().map_err(JsValue::from),
+            Ok("42".to_string())
+        );
     }
 
     #[wasm_bindgen_test]
     fn secret_boolean() {
-        let secret = NadaValue::new_secret_boolean(true).map_err(JsValue::from).unwrap();
-        assert_eq!(secret.to_integer().map_err(JsValue::from), Ok("true".to_string()));
+        let secret = NadaValue::new_secret_boolean(true)
+            .map_err(JsValue::from)
+            .unwrap();
+        assert_eq!(
+            secret.to_integer().map_err(JsValue::from),
+            Ok("true".to_string())
+        );
     }
 
     #[wasm_bindgen_test]
@@ -845,27 +1008,44 @@ mod test {
     #[wasm_bindgen_test]
     fn insert_secret() {
         let mut secrets = NadaValues::new().map_err(JsValue::from).unwrap();
-        let secret = NadaValue::new_secret_integer("42").map_err(JsValue::from).unwrap();
+        let secret = NadaValue::new_secret_integer("42")
+            .map_err(JsValue::from)
+            .unwrap();
         secrets.insert("my_secret".to_string(), &secret);
         assert_eq!(secrets.length(), 1);
     }
 
     #[wasm_bindgen_test]
     fn integer() {
-        let variable = NadaValue::new_public_integer("-42").map_err(JsValue::from).unwrap();
-        assert_eq!(variable.to_integer().map_err(JsValue::from), Ok("-42".to_string()));
+        let variable = NadaValue::new_public_integer("-42")
+            .map_err(JsValue::from)
+            .unwrap();
+        assert_eq!(
+            variable.to_integer().map_err(JsValue::from),
+            Ok("-42".to_string())
+        );
     }
 
     #[wasm_bindgen_test]
     fn unsigned_integer() {
-        let variable = NadaValue::new_public_unsigned_integer("42").map_err(JsValue::from).unwrap();
-        assert_eq!(variable.to_integer().map_err(JsValue::from), Ok("42".to_string()));
+        let variable = NadaValue::new_public_unsigned_integer("42")
+            .map_err(JsValue::from)
+            .unwrap();
+        assert_eq!(
+            variable.to_integer().map_err(JsValue::from),
+            Ok("42".to_string())
+        );
     }
 
     #[wasm_bindgen_test]
     fn boolean() {
-        let variable = NadaValue::new_public_boolean(false).map_err(JsValue::from).unwrap();
-        assert_eq!(variable.to_integer().map_err(JsValue::from), Ok("false".to_string()));
+        let variable = NadaValue::new_public_boolean(false)
+            .map_err(JsValue::from)
+            .unwrap();
+        assert_eq!(
+            variable.to_integer().map_err(JsValue::from),
+            Ok("false".to_string())
+        );
     }
 
     #[wasm_bindgen_test]
@@ -892,8 +1072,12 @@ mod test {
         values.insert("d".into(), &NadaValue::new_public_integer("101")?);
 
         let masker = make_masker();
-        let NadaValuesClassification { shares, public, ecdsa_private_key_shares, ecdsa_signature_shares } =
-            masker.classify_values(&values);
+        let NadaValuesClassification {
+            shares,
+            public,
+            ecdsa_private_key_shares,
+            ecdsa_signature_shares,
+        } = masker.classify_values(&values);
         assert_eq!(shares, 3);
         assert_eq!(public, 1);
         assert_eq!(ecdsa_private_key_shares, 0);
@@ -905,15 +1089,35 @@ mod test {
     fn encrypted_nada_values_from_js_object() -> Result<(), JsValue> {
         let mut values = NadaValues::new()?;
         values.insert("integer".into(), &NadaValue::new_public_integer("42")?);
-        values.insert("unsigned_integer".into(), &NadaValue::new_public_unsigned_integer("42")?);
+        values.insert(
+            "unsigned_integer".into(),
+            &NadaValue::new_public_unsigned_integer("42")?,
+        );
         values.insert("boolean".into(), &NadaValue::new_public_boolean(true)?);
-        values.insert("secret_integer".into(), &NadaValue::new_secret_integer("42")?);
-        values.insert("secret_unsigned_integer".into(), &NadaValue::new_secret_unsigned_integer("42")?);
-        values.insert("secret_boolean".into(), &NadaValue::new_secret_boolean(true)?);
-        values.insert("secret_blob".into(), &NadaValue::new_secret_blob(vec![1, 2, 3]));
+        values.insert(
+            "secret_integer".into(),
+            &NadaValue::new_secret_integer("42")?,
+        );
+        values.insert(
+            "secret_unsigned_integer".into(),
+            &NadaValue::new_secret_unsigned_integer("42")?,
+        );
+        values.insert(
+            "secret_boolean".into(),
+            &NadaValue::new_secret_boolean(true)?,
+        );
+        values.insert(
+            "secret_blob".into(),
+            &NadaValue::new_secret_blob(vec![1, 2, 3]),
+        );
 
         let masker = make_masker();
-        let values = masker.mask(values.clone())?.into_iter().next().unwrap().shares;
+        let values = masker
+            .mask(values.clone())?
+            .into_iter()
+            .next()
+            .unwrap()
+            .shares;
         let js_object = values.to_js_object()?;
         let from_values = EncryptedNadaValues::from_js_object(&js_object, masker.modulo())?;
 
