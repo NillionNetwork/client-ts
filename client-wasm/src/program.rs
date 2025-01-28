@@ -17,10 +17,8 @@ impl ProgramMetadata {
     /// Construct a program metadata out of a serialized program.
     #[wasm_bindgen(constructor)]
     pub fn new(program: &[u8]) -> JsResult<ProgramMetadata> {
-        let metadata =
-            nillion_client_core::programs::extract_program_metadata(program).map_err(|e| {
-                ValueError::new_err(&format!("failed to extract program metadata: {e}"))
-            })?;
+        let metadata = nillion_client_core::programs::extract_program_metadata(program)
+            .map_err(|e| ValueError::new_err(&format!("failed to extract program metadata: {e}")))?;
         let mut preprocessing_requirements = HashMap::new();
         for (element, count) in metadata.preprocessing_requirements {
             let key = match element {
@@ -37,18 +35,8 @@ impl ProgramMetadata {
             };
             preprocessing_requirements.insert(key.to_string(), count as u64);
         }
-        let ProgramAuditorRequest {
-            memory_size,
-            total_instructions,
-            instructions,
-            ..
-        } = metadata;
-        Ok(Self {
-            memory_size,
-            total_instructions,
-            instructions,
-            preprocessing_requirements,
-        })
+        let ProgramAuditorRequest { memory_size, total_instructions, instructions, .. } = metadata;
+        Ok(Self { memory_size, total_instructions, instructions, preprocessing_requirements })
     }
 
     /// The program memory size.
@@ -69,10 +57,7 @@ impl ProgramMetadata {
 
     /// The program preprocessing requirements.
     pub fn preprocessing_requirements(&self) -> JsResult<JsValue> {
-        serde_wasm_bindgen::to_value(&self.preprocessing_requirements.clone()).map_err(|e| {
-            ValueError::new_err(&format!(
-                "failed to convert preprocessing_requirements: {e}"
-            ))
-        })
+        serde_wasm_bindgen::to_value(&self.preprocessing_requirements.clone())
+            .map_err(|e| ValueError::new_err(&format!("failed to convert preprocessing_requirements: {e}")))
     }
 }
