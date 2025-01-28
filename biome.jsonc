@@ -8,7 +8,7 @@
   "files": {
     "ignoreUnknown": false,
     "include": ["**/*.ts", "**/*.mjs", "**/*.json", "**/*.tsx"],
-    "ignore": ["client-vms/src/gen-proto", "client-wasm/dist"]
+    "ignore": ["client-vms/src/gen-proto", "client-wasm/dist", "nillion"]
   },
   "formatter": {
     "enabled": true,
