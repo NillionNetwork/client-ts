@@ -9,9 +9,10 @@
     }
   },
   "scripts": {
+    "test": "wasm-pack test --node",
     "typecheck": "echo 'no op'; exit 0",
     "build:watch": "echo 'no op'; exit 0",
-    "build": "cp src/index.js dist/index.js"
+    "build": "wasm-pack build --out-dir dist --out-name index"
   },
   "files": ["dist", "commit-sha.txt", "package.json"]
 }
