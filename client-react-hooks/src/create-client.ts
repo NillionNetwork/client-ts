@@ -13,6 +13,7 @@ export type TestnetOptions = {
 
 export type DevnetOptions = {
   network: "devnet";
+  bootnodeUrl?: string;
   seed?: string;
   signer?: Keplr | OfflineSigner;
   paymentMode?: PaymentMode;
@@ -54,10 +55,10 @@ export async function createClient(options: Options) {
       }
 
       const seed = config.seed ? config.seed : DevnetConfig.seed;
-
+      const bootnodeUrl = config.bootnodeUrl ? config.bootnodeUrl : DevnetConfig.bootnodeUrl;
       builder
         .seed(seed)
-        .bootnodeUrl(DevnetConfig.bootnodeUrl)
+        .bootnodeUrl(bootnodeUrl)
         .chainUrl(DevnetConfig.chainUrl)
         .signer(signer);
 
