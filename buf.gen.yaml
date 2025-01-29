@@ -5,4 +5,4 @@ clean: true
 plugins:
   - local: protoc-gen-es
     opt: target=ts
-    out: src/gen-proto
+    out: client-vms/src/gen-proto

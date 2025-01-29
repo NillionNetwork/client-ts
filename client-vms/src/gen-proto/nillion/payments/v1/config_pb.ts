@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file nillion/payments/v1/config.proto.
  */
 export const file_nillion_payments_v1_config: GenFile = /*@__PURE__*/
-  fileDesc("CiBuaWxsaW9uL3BheW1lbnRzL3YxL2NvbmZpZy5wcm90bxIabmlsbGlvbi5wYXltZW50cy52MS5jb25maWciOwoWUGF5bWVudHNDb25maWdSZXNwb25zZRIhChltaW5pbXVtX2FkZF9mdW5kc19wYXltZW50GAEgASgEQrkBCh5jb20ubmlsbGlvbi5wYXltZW50cy52MS5jb25maWdCC0NvbmZpZ1Byb3RvUAGiAgROUFZDqgIaTmlsbGlvbi5QYXltZW50cy5WMS5Db25maWfKAhpOaWxsaW9uXFBheW1lbnRzXFYxXENvbmZpZ+ICJk5pbGxpb25cUGF5bWVudHNcVjFcQ29uZmlnXEdQQk1ldGFkYXRh6gIdTmlsbGlvbjo6UGF5bWVudHM6OlYxOjpDb25maWdiBnByb3RvMw");
+  fileDesc("CiBuaWxsaW9uL3BheW1lbnRzL3YxL2NvbmZpZy5wcm90bxIabmlsbGlvbi5wYXltZW50cy52MS5jb25maWciVAoWUGF5bWVudHNDb25maWdSZXNwb25zZRIhChltaW5pbXVtX2FkZF9mdW5kc19wYXltZW50GAEgASgEEhcKD2NyZWRpdHNfcGVyX25pbBgCIAEoBEK5AQoeY29tLm5pbGxpb24ucGF5bWVudHMudjEuY29uZmlnQgtDb25maWdQcm90b1ABogIETlBWQ6oCGk5pbGxpb24uUGF5bWVudHMuVjEuQ29uZmlnygIaTmlsbGlvblxQYXltZW50c1xWMVxDb25maWfiAiZOaWxsaW9uXFBheW1lbnRzXFYxXENvbmZpZ1xHUEJNZXRhZGF0YeoCHU5pbGxpb246OlBheW1lbnRzOjpWMTo6Q29uZmlnYgZwcm90bzM");
 
 /**
  * A response to a payments configuration request.
@@ -24,6 +24,13 @@ export type PaymentsConfigResponse = Message<"nillion.payments.v1.config.Payment
    * @generated from field: uint64 minimum_add_funds_payment = 1;
    */
   minimumAddFundsPayment: bigint;
+
+  /**
+   * The number of credits one gets for every nil funded to an account.
+   *
+   * @generated from field: uint64 credits_per_nil = 2;
+   */
+  creditsPerNil: bigint;
 };
 
 /**

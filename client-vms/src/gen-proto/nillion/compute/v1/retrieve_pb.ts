@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file nillion/compute/v1/retrieve.proto.
  */
 export const file_nillion_compute_v1_retrieve: GenFile = /*@__PURE__*/
-  fileDesc("CiFuaWxsaW9uL2NvbXB1dGUvdjEvcmV0cmlldmUucHJvdG8SG25pbGxpb24uY29tcHV0ZS52MS5yZXRyaWV2ZSIsChZSZXRyaWV2ZVJlc3VsdHNSZXF1ZXN0EhIKCmNvbXB1dGVfaWQYASABKAwirQEKF1JldHJpZXZlUmVzdWx0c1Jlc3BvbnNlEjUKE3dhaXRpbmdfY29tcHV0YXRpb24YASABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABJBCgdzdWNjZXNzGAIgASgLMi4ubmlsbGlvbi5jb21wdXRlLnYxLnJldHJpZXZlLkNvbXB1dGF0aW9uUmVzdWx0SAASDwoFZXJyb3IYAyABKAlIAEIHCgVzdGF0ZSJgChFDb21wdXRhdGlvblJlc3VsdBIWCg5iaW5jb2RlX3ZhbHVlcxgBIAEoDBIzCgZ2YWx1ZXMYAiADKAsyIy5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5OYW1lZFZhbHVlQsABCh9jb20ubmlsbGlvbi5jb21wdXRlLnYxLnJldHJpZXZlQg1SZXRyaWV2ZVByb3RvUAGiAgROQ1ZSqgIbTmlsbGlvbi5Db21wdXRlLlYxLlJldHJpZXZlygIbTmlsbGlvblxDb21wdXRlXFYxXFJldHJpZXZl4gInTmlsbGlvblxDb21wdXRlXFYxXFJldHJpZXZlXEdQQk1ldGFkYXRh6gIeTmlsbGlvbjo6Q29tcHV0ZTo6VjE6OlJldHJpZXZlYgZwcm90bzM", [file_google_protobuf_empty, file_nillion_values_v1_value]);
+  fileDesc("CiFuaWxsaW9uL2NvbXB1dGUvdjEvcmV0cmlldmUucHJvdG8SG25pbGxpb24uY29tcHV0ZS52MS5yZXRyaWV2ZSIsChZSZXRyaWV2ZVJlc3VsdHNSZXF1ZXN0EhIKCmNvbXB1dGVfaWQYASABKAwirQEKF1JldHJpZXZlUmVzdWx0c1Jlc3BvbnNlEjUKE3dhaXRpbmdfY29tcHV0YXRpb24YASABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABJBCgdzdWNjZXNzGAIgASgLMi4ubmlsbGlvbi5jb21wdXRlLnYxLnJldHJpZXZlLkNvbXB1dGF0aW9uUmVzdWx0SAASDwoFZXJyb3IYAyABKAlIAEIHCgVzdGF0ZSJOChFDb21wdXRhdGlvblJlc3VsdBIzCgZ2YWx1ZXMYAiADKAsyIy5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5OYW1lZFZhbHVlSgQIARACQsABCh9jb20ubmlsbGlvbi5jb21wdXRlLnYxLnJldHJpZXZlQg1SZXRyaWV2ZVByb3RvUAGiAgROQ1ZSqgIbTmlsbGlvbi5Db21wdXRlLlYxLlJldHJpZXZlygIbTmlsbGlvblxDb21wdXRlXFYxXFJldHJpZXZl4gInTmlsbGlvblxDb21wdXRlXFYxXFJldHJpZXZlXEdQQk1ldGFkYXRh6gIeTmlsbGlvbjo6Q29tcHV0ZTo6VjE6OlJldHJpZXZlYgZwcm90bzM", [file_google_protobuf_empty, file_nillion_values_v1_value]);
 
 /**
  * A request to retrieve the results of a computation.
@@ -88,13 +88,6 @@ export const RetrieveResultsResponseSchema: GenMessage<RetrieveResultsResponse> 
  * @generated from message nillion.compute.v1.retrieve.ComputationResult
  */
 export type ComputationResult = Message<"nillion.compute.v1.retrieve.ComputationResult"> & {
-  /**
-   * The computation results, encoded in bincode.
-   *
-   * @generated from field: bytes bincode_values = 1;
-   */
-  bincodeValues: Uint8Array;
-
   /**
    * The computation results.
    *

@@ -18,8 +18,7 @@
     "watch:esbuild": "node esbuild.config.mjs --watch",
     "watch:types": "tsc -p tsconfig.build.json --watch",
     "build": "pnpm clean && node esbuild.config.mjs && tsc -p tsconfig.build.json",
-    "build:watch": "pnpm clean && pnpm watch:esbuild & pnpm watch:types",
-    "build:proto": "npx buf generate"
+    "build:watch": "pnpm clean && pnpm watch:esbuild & pnpm watch:types"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.2",
@@ -38,8 +37,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@bufbuild/buf": "^1.46.0",
-    "@bufbuild/protoc-gen-es": "^2.2.2",
     "@types/debug": "^4.1.12",
     "@types/node": "^22.9.0",
     "@types/uuid": "^10.0.0",

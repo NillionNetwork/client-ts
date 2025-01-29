@@ -7,9 +7,12 @@
     "node": ">=23"
   },
   "scripts": {
-    "install-hooks": "lefthook install"
+    "install-hooks": "lefthook install",
+    "build:proto": "npx buf generate"
   },
   "devDependencies": {
+    "@bufbuild/buf": "^1.46.0",
+    "@bufbuild/protoc-gen-es": "^2.2.2",
     "@biomejs/biome": "1.9.4",
     "@commitlint/cli": "^19.6.0",
     "@commitlint/config-conventional": "^19.6.0",
