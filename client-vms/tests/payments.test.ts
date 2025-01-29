@@ -9,6 +9,7 @@ import { Env, PrivateKeyPerSuite } from "./helpers";
 
 describe("PaymentClient", () => {
   let client: VmClient;
+  const fundsAmount = BigInt(20000);
 
   beforeAll(async () => {
     const signer = await createSignerFromKey(PrivateKeyPerSuite.Payments);
@@ -63,13 +64,13 @@ describe("PaymentClient", () => {
   });
 
   it("add enough funds", async () => {
-    const result = await client.payer.addFunds(BigInt(10));
+    const result = await client.payer.addFunds(fundsAmount);
     expect(result).toBeNull;
   });
 
   it("account is funded", async () => {
     const account = await client.payer.accountBalance();
-    expect(account.balance).toBe(BigInt(1000));
+    expect(account.balance).toBe(BigInt(2));
   });
 
   it("can pay from balance", async () => {
@@ -81,6 +82,6 @@ describe("PaymentClient", () => {
     });
     await client.payer.payForOperation(request);
     const account = await client.payer.accountBalance();
-    expect(account.balance).toBeLessThan(BigInt(1000));
+    expect(account.balance).toBeLessThan(fundsAmount);
   });
 });
