@@ -8,38 +8,16 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Generate nillion repo app token
-        id: generate-token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.NILLION_GITHUB_ACTIONS_PUBLIC_APP_ID }}
-          owner: NillionNetwork
-          private-key: ${{ secrets.NILLION_GITHUB_ACTIONS_PUBLIC_APP_PRIVATE_KEY }}
-          repositories: nillion
       - uses: actions/checkout@v4
-        with:
-          token: ${{ steps.generate-token.outputs.token }}
-          submodules: 'recursive'
-      - name: Install rustup
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: nightly-2024-07-01
       - uses: actions/setup-node@v4
         with:
           node-version: "23"
       - uses: pnpm/action-setup@v4
       - run: pnpm install
-      - run: pnpm build:proto
-      - run: pnpm --filter "@nillion/client-wasm" rust:check:format
-      - run: pnpm --filter "@nillion/client-wasm" rust:clippy
-      - run: pnpm --filter "@nillion/client-vms" build
-      - run: pnpm --filter "@nillion/client-react-hooks" build
       - run: pnpm exec biome format
       - run: pnpm exec biome lint
-      - run: pnpm exec tsc -p client-vms/tsconfig.json
-      - run: pnpm exec tsc -p client-react-hooks/tsconfig.json
 
-  test-client-wasm:
+  client-wasm:
     needs: check
     runs-on: ubuntu-latest
     steps:
@@ -59,45 +37,84 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly-2024-07-01
+          target: wasm32-unknown-unknown
       - uses: jdx/mise-action@v2
       - uses: pnpm/action-setup@v4
       - run: pnpm install
+      - run: pnpm --filter "@nillion/client-wasm" rust:check:format
+      - run: pnpm --filter "@nillion/client-wasm" rust:build
+      - run: pnpm --filter "@nillion/client-wasm" rust:clippy
+      - run: pnpm --filter "@nillion/client-wasm" build
       - run: pnpm --filter "@nillion/client-wasm" test
 
-  test-client-vms:
+  client-vms:
     needs: check
     runs-on: ubuntu-latest
     steps:
+      - name: Generate nillion repo app token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.NILLION_GITHUB_ACTIONS_PUBLIC_APP_ID }}
+          owner: NillionNetwork
+          private-key: ${{ secrets.NILLION_GITHUB_ACTIONS_PUBLIC_APP_PRIVATE_KEY }}
+          repositories: nillion
       - uses: actions/checkout@v4
-        # Aws credentials are required so that nilup can access rc builds
-      - name: Get SDK Version
-        id: get-sdk-version
-        run: |
-          VERSION=$(cat .nil-sdk.toml | sed -e "s|.*\"\(.*\)\".*|\1|g")
-          echo "version=$VERSION" > $GITHUB_OUTPUT
-      - name: Install nillion SDK
-        uses: NillionNetwork/nillion-setup-action@main
         with:
-          version: ${{ steps.get-sdk-version.outputs.version }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: |
-          cd client-vms/tests-nada-programs
-          ./build.sh
+          token: ${{ steps.generate-token.outputs.token }}
+          submodules: 'recursive'
       - uses: actions/setup-node@v4
         with:
           node-version: "23.0"
       - uses: pnpm/action-setup@v4
       - run: pnpm install
+      - run: pnpm build:proto
+
+      - run: pnpm --filter "@nillion/client-vms" build
+      - run: pnpm exec tsc -p client-vms/tsconfig.json
+
+      - name: Get SDK Version
+        id: get-sdk-version
+        run: |
+          VERSION=$(cat .nil-sdk.toml | sed -e "s|.*\"\(.*\)\".*|\1|g")
+          echo "version=$VERSION" > $GITHUB_OUTPUT
+
+      - name: Install nillion SDK
+        uses: NillionNetwork/nillion-setup-action@main
+        with:
+          version: ${{ steps.get-sdk-version.outputs.version }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: |
+          cd client-vms/tests-nada-programs
+          ./build.sh
+
       - run: |
           nillion-devnet --seed test &
           sleep 10
           cd client-vms
           pnpm vitest --coverage
           killall -9 nillion-devnet
+
       - uses: davelosert/vitest-coverage-report-action@v2
         if: always()
         with:
           working-directory: ./client-vms
           comment-on: "pr"
+
+  client-react-hooks:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "23.0"
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install
+      - run: pnpm --filter "@nillion/client-vms" build
+      - run: pnpm --filter "@nillion/client-react-hooks" build
+      - run: pnpm exec tsc -p client-react-hooks/tsconfig.json
