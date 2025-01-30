@@ -16,7 +16,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file nillion/values/v1/store.proto.
  */
 export const file_nillion_values_v1_store: GenFile = /*@__PURE__*/
-  fileDesc("Ch1uaWxsaW9uL3ZhbHVlcy92MS9zdG9yZS5wcm90bxIXbmlsbGlvbi52YWx1ZXMudjEuc3RvcmUihgIKElN0b3JlVmFsdWVzUmVxdWVzdBJCCg5zaWduZWRfcmVjZWlwdBgBIAEoCzIqLm5pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdC5TaWduZWRSZWNlaXB0EhYKDmJpbmNvZGVfdmFsdWVzGAIgASgMEkQKC3Blcm1pc3Npb25zGAMgASgLMi8ubmlsbGlvbi5wZXJtaXNzaW9ucy52MS5wZXJtaXNzaW9ucy5QZXJtaXNzaW9ucxIZChF1cGRhdGVfaWRlbnRpZmllchgEIAEoDBIzCgZ2YWx1ZXMYBSADKAsyIy5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5OYW1lZFZhbHVlIigKE1N0b3JlVmFsdWVzUmVzcG9uc2USEQoJdmFsdWVzX2lkGAEgASgMQqkBChtjb20ubmlsbGlvbi52YWx1ZXMudjEuc3RvcmVCClN0b3JlUHJvdG9QAaICBE5WVlOqAhdOaWxsaW9uLlZhbHVlcy5WMS5TdG9yZcoCF05pbGxpb25cVmFsdWVzXFYxXFN0b3Jl4gIjTmlsbGlvblxWYWx1ZXNcVjFcU3RvcmVcR1BCTWV0YWRhdGHqAhpOaWxsaW9uOjpWYWx1ZXM6OlYxOjpTdG9yZWIGcHJvdG8z", [file_nillion_payments_v1_receipt, file_nillion_permissions_v1_permissions, file_nillion_values_v1_value]);
+  fileDesc("Ch1uaWxsaW9uL3ZhbHVlcy92MS9zdG9yZS5wcm90bxIXbmlsbGlvbi52YWx1ZXMudjEuc3RvcmUi9AEKElN0b3JlVmFsdWVzUmVxdWVzdBJCCg5zaWduZWRfcmVjZWlwdBgBIAEoCzIqLm5pbGxpb24ucGF5bWVudHMudjEucmVjZWlwdC5TaWduZWRSZWNlaXB0EkQKC3Blcm1pc3Npb25zGAMgASgLMi8ubmlsbGlvbi5wZXJtaXNzaW9ucy52MS5wZXJtaXNzaW9ucy5QZXJtaXNzaW9ucxIZChF1cGRhdGVfaWRlbnRpZmllchgEIAEoDBIzCgZ2YWx1ZXMYBSADKAsyIy5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5OYW1lZFZhbHVlSgQIAhADIigKE1N0b3JlVmFsdWVzUmVzcG9uc2USEQoJdmFsdWVzX2lkGAEgASgMQqkBChtjb20ubmlsbGlvbi52YWx1ZXMudjEuc3RvcmVCClN0b3JlUHJvdG9QAaICBE5WVlOqAhdOaWxsaW9uLlZhbHVlcy5WMS5TdG9yZcoCF05pbGxpb25cVmFsdWVzXFYxXFN0b3Jl4gIjTmlsbGlvblxWYWx1ZXNcVjFcU3RvcmVcR1BCTWV0YWRhdGHqAhpOaWxsaW9uOjpWYWx1ZXM6OlYxOjpTdG9yZWIGcHJvdG8z", [file_nillion_payments_v1_receipt, file_nillion_permissions_v1_permissions, file_nillion_values_v1_value]);
 
 /**
  * A request to store a set of values.
@@ -32,15 +32,6 @@ export type StoreValuesRequest = Message<"nillion.values.v1.store.StoreValuesReq
    * @generated from field: nillion.payments.v1.receipt.SignedReceipt signed_receipt = 1;
    */
   signedReceipt?: SignedReceipt;
-
-  /**
-   * The values encoded in bincode format.
-   *
-   * Only one of `bincode_values` and `values` can be set.
-   *
-   * @generated from field: bytes bincode_values = 2;
-   */
-  bincodeValues: Uint8Array;
 
   /**
    * The permissions to set for these values.
@@ -67,8 +58,6 @@ export type StoreValuesRequest = Message<"nillion.values.v1.store.StoreValuesReq
 
   /**
    * The values to be stored.
-   *
-   * Only one of `bincode_values` and `values` can be set.
    *
    * @generated from field: repeated nillion.values.v1.value.NamedValue values = 5;
    */

@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file nillion/values/v1/retrieve.proto.
  */
 export const file_nillion_values_v1_retrieve: GenFile = /*@__PURE__*/
-  fileDesc("CiBuaWxsaW9uL3ZhbHVlcy92MS9yZXRyaWV2ZS5wcm90bxIabmlsbGlvbi52YWx1ZXMudjEucmV0cmlldmUiWwoVUmV0cmlldmVWYWx1ZXNSZXF1ZXN0EkIKDnNpZ25lZF9yZWNlaXB0GAEgASgLMioubmlsbGlvbi5wYXltZW50cy52MS5yZWNlaXB0LlNpZ25lZFJlY2VpcHQiZQoWUmV0cmlldmVWYWx1ZXNSZXNwb25zZRIWCg5iaW5jb2RlX3ZhbHVlcxgBIAEoDBIzCgZ2YWx1ZXMYAiADKAsyIy5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5OYW1lZFZhbHVlQrsBCh5jb20ubmlsbGlvbi52YWx1ZXMudjEucmV0cmlldmVCDVJldHJpZXZlUHJvdG9QAaICBE5WVlKqAhpOaWxsaW9uLlZhbHVlcy5WMS5SZXRyaWV2ZcoCGk5pbGxpb25cVmFsdWVzXFYxXFJldHJpZXZl4gImTmlsbGlvblxWYWx1ZXNcVjFcUmV0cmlldmVcR1BCTWV0YWRhdGHqAh1OaWxsaW9uOjpWYWx1ZXM6OlYxOjpSZXRyaWV2ZWIGcHJvdG8z", [file_nillion_payments_v1_receipt, file_nillion_values_v1_value]);
+  fileDesc("CiBuaWxsaW9uL3ZhbHVlcy92MS9yZXRyaWV2ZS5wcm90bxIabmlsbGlvbi52YWx1ZXMudjEucmV0cmlldmUiWwoVUmV0cmlldmVWYWx1ZXNSZXF1ZXN0EkIKDnNpZ25lZF9yZWNlaXB0GAEgASgLMioubmlsbGlvbi5wYXltZW50cy52MS5yZWNlaXB0LlNpZ25lZFJlY2VpcHQiUwoWUmV0cmlldmVWYWx1ZXNSZXNwb25zZRIzCgZ2YWx1ZXMYAiADKAsyIy5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5OYW1lZFZhbHVlSgQIARACQrsBCh5jb20ubmlsbGlvbi52YWx1ZXMudjEucmV0cmlldmVCDVJldHJpZXZlUHJvdG9QAaICBE5WVlKqAhpOaWxsaW9uLlZhbHVlcy5WMS5SZXRyaWV2ZcoCGk5pbGxpb25cVmFsdWVzXFYxXFJldHJpZXZl4gImTmlsbGlvblxWYWx1ZXNcVjFcUmV0cmlldmVcR1BCTWV0YWRhdGHqAh1OaWxsaW9uOjpWYWx1ZXM6OlYxOjpSZXRyaWV2ZWIGcHJvdG8z", [file_nillion_payments_v1_receipt, file_nillion_values_v1_value]);
 
 /**
  * A request to retrieve a set of stored values.
@@ -45,13 +45,6 @@ export const RetrieveValuesRequestSchema: GenMessage<RetrieveValuesRequest> = /*
  * @generated from message nillion.values.v1.retrieve.RetrieveValuesResponse
  */
 export type RetrieveValuesResponse = Message<"nillion.values.v1.retrieve.RetrieveValuesResponse"> & {
-  /**
-   * The values encoded in bincode format.
-   *
-   * @generated from field: bytes bincode_values = 1;
-   */
-  bincodeValues: Uint8Array;
-
   /**
    * The values.
    *
