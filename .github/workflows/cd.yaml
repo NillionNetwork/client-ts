@@ -1,80 +1,89 @@
 name: CD
 
 on:
+  push:
+    branches: ["main"]
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'NPM tag to use'
-        type: choice
-        required: true
-        options:
-          - next
-          - latest
-      client-wasm:
-        description: 'Publish @nillion/client-wasm'
-        type: boolean
-        default: false
-      client-vms:
-        description: 'Publish @nillion/client-vms'
-        type: boolean
-        default: false
-      client-react-hooks:
-        description: 'Publish @nillion/client-react-hooks'
-        type: boolean
-        default: false
 
 concurrency:
   group: "publish"
   cancel-in-progress: true
 
 jobs:
-  publish-client-wasm:
-    if: github.event.inputs.client-wasm == 'true'
+  publish:
+    name: Publish
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pkg:
+          - package-name: "client-wasm"
+          - package-name: "client-vms"
+          - package-name: "client-react-hooks"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Generate nillion repo app token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
         with:
-          node-version: "23"
-          registry-url: "https://registry.npmjs.org"
-      - uses: pnpm/action-setup@v4
-      - run: pnpm install
-      - run: pnpm --filter "@nillion/client-wasm" build
-      - env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm --filter "@nillion/client-wasm" publish --tag ${{ github.event.inputs.tag }}
+          app-id: ${{ secrets.NILLION_GITHUB_ACTIONS_PUBLIC_APP_ID }}
+          owner: NillionNetwork
+          private-key: ${{ secrets.NILLION_GITHUB_ACTIONS_PUBLIC_APP_PRIVATE_KEY }}
+          repositories: nillion
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          submodules: 'recursive'
 
-  publish-client-vms:
-    if: github.event.inputs.client-vms == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
         with:
-          node-version: "23"
-          registry-url: "https://registry.npmjs.org"
-      - uses: pnpm/action-setup@v4
-      - run: pnpm install
-      - run: pnpm build:proto
-      - run: pnpm --filter "@nillion/client-vms" build
-      - env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm --filter "@nillion/client-vms" publish --tag ${{ github.event.inputs.tag }}
+          version: "0.4.24"
 
-  publish-client-react-hooks:
-    if: github.event.inputs.client-react-hooks == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Set up Python
+        run: uv python install
+
+      - name: Check version
+        id: check-version
+        run: >-
+          cd scripts/version_checker && uv run ./version_checker.py ../../${{ matrix.pkg.package-name }}
+
+      - name: Install rustup
+        if: matrix.pkg.package-name == 'client-wasm' && steps.check-version.outputs.local_version_is_higher == 'true'
+        uses: dtolnay/rust-toolchain@master
         with:
-          node-version: "23"
-          registry-url: "https://registry.npmjs.org"
+          toolchain: nightly-2024-07-01
+          target: wasm32-unknown-unknown
+      - uses: jdx/mise-action@v2
+        if: matrix.pkg.package-name == 'client-wasm' && steps.check-version.outputs.local_version_is_higher == 'true'
+
+      - uses: actions/setup-node@v4
+        if: matrix.pkg.package-name != 'client-wasm' && steps.check-version.outputs.local_version_is_higher == 'true'
+        with:
+          node-version: "23.0"
+
       - uses: pnpm/action-setup@v4
+        if: steps.check-version.outputs.local_version_is_higher == 'true'
       - run: pnpm install
-      - run: pnpm build:proto
-      - run: pnpm --filter "@nillion/client-vms" build
-      - run: pnpm --filter "@nillion/client-react-hooks" build
+        if: steps.check-version.outputs.local_version_is_higher == 'true'
+
+      - name: Build client-wasm
+        if: matrix.pkg.package-name == 'client-wasm' && steps.check-version.outputs.local_version_is_higher == 'true'
+        run: |
+          pnpm --filter "@nillion/client-wasm" build
+
+      - name: Build client-vms
+        if: matrix.pkg.package-name == 'client-vms' && steps.check-version.outputs.local_version_is_higher == 'true'
+        run: |
+          pnpm build:proto
+          pnpm --filter "@nillion/client-vms" build
+
+      - name: Build client-react-hooks
+        if: matrix.pkg.package-name == 'client-react-hooks' && steps.check-version.outputs.local_version_is_higher == 'true'
+        run: |
+          pnpm build:proto
+          pnpm --filter "@nillion/client-vms" build
+          pnpm --filter "@nillion/client-react-hooks" build
+
       - env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm --filter "@nillion/client-react-hooks" publish --tag ${{ github.event.inputs.tag }}
+        if: steps.check-version.outputs.local_version_is_higher == 'true'
+        run: pnpm --filter "@nillion/${{ matrix.pkg.package-name }}" publish --tag ${{ steps.check-version.outputs.tag }}
