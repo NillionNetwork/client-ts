@@ -9,10 +9,12 @@
     }
   },
   "scripts": {
+    "rust:clean": "cargo clean",
+    "rust:build": "cargo build --target wasm32-unknown-unknown --release",
     "rust:check:format": "cargo fmt --check",
     "rust:format": "cargo fmt",
-    "rust:clippy": "cargo clippy",
-    "test": "wasm-pack test --node",
+    "rust:clippy": "cargo clippy --target wasm32-unknown-unknown --release",
+    "test": "wasm-pack test --node --release",
     "typecheck": "echo 'no op'; exit 0",
     "build:watch": "echo 'no op'; exit 0",
     "build": "wasm-pack build --out-dir dist --out-name index"
