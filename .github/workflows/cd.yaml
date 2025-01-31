@@ -87,3 +87,18 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         if: steps.check-version.outputs.local_version_is_higher == 'true'
         run: pnpm --filter "@nillion/${{ matrix.pkg.package-name }}" publish --tag ${{ steps.check-version.outputs.tag }}
+
+      - name: Create GH Release
+        id: create-release
+        if: steps.check-version.outputs.local_version_is_higher == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          [[ "${{ steps.check-version.outputs.tag }}" == "next" ]] && PRERELEASE="-p" || PRERELEASE=""
+          gh release create '${{ matrix.pkg.package-name }}-v${{ steps.check-version.outputs.local_version }}' --generate-notes $PRERELEASE --title "${{ matrix.pkg.package-name }}-v${{ steps.check-version.outputs.local_version }}"
+
+      - name: Upload artifact to GH Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          gh release upload '${{ matrix.pkg.package-name }}-v${{ steps.check-version.outputs.local_version }}' dist/${{ matrix.pkg.package-name }}/**  
