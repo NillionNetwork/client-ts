@@ -49,7 +49,7 @@ describe("Client", () => {
     const publicKeyExpectedValue = Uint8Array.from([
       186, 236, 247, 198, 7, 225, 204, 147, 116, 47, 207, 45, 149, 49, 212, 168,
       136, 145, 98, 150, 152, 122, 50, 91, 141, 227, 182, 233, 8, 245, 72, 38,
-      56
+      56,
     ]);
     const storeIdName = "storeId";
     const storeIdExpectedValue = Uint8Array.from([
@@ -65,8 +65,14 @@ describe("Client", () => {
         .ttl(1)
         .value(fooExpectedName, NadaValue.new_secret_integer(fooExpectedValue))
         .value(barExpectedName, NadaValue.new_secret_blob(barExpectedValue))
-        .value(bazExpectedName, NadaValue.new_secret_boolean((bazExpectedValue === "true")))
-        .value(publicKeyName, NadaValue.new_ecdsa_public_key(publicKeyExpectedValue))
+        .value(
+          bazExpectedName,
+          NadaValue.new_secret_boolean(bazExpectedValue === "true"),
+        )
+        .value(
+          publicKeyName,
+          NadaValue.new_ecdsa_public_key(publicKeyExpectedValue),
+        )
         .value(storeIdName, NadaValue.new_store_id(storeIdExpectedValue))
         .build()
         .invoke();
