@@ -98,6 +98,7 @@ jobs:
           gh release create '${{ matrix.pkg.package-name }}-v${{ steps.check-version.outputs.local_version }}' --generate-notes $PRERELEASE --title "${{ matrix.pkg.package-name }}-v${{ steps.check-version.outputs.local_version }}"
 
       - name: Upload artifact to GH Release
+        if: steps.check-version.outputs.local_version_is_higher == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >-
