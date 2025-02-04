@@ -44,7 +44,18 @@ describe("Client", () => {
     const barExpectedName = "bar";
     const barExpectedValue = Uint8Array.from([45, 18, 122]);
     const bazExpectedName = "baz";
-    const bazExpectedValue = true;
+    const bazExpectedValue = "true";
+    const publicKeyName = "publicKey";
+    const publicKeyExpectedValue = Uint8Array.from([
+      186, 236, 247, 198, 7, 225, 204, 147, 116, 47, 207, 45, 149, 49, 212, 168,
+      136, 145, 98, 150, 152, 122, 50, 91, 141, 227, 182, 233, 8, 245, 72, 38,
+      56
+    ]);
+    const storeIdName = "storeId";
+    const storeIdExpectedValue = Uint8Array.from([
+      186, 236, 247, 198, 7, 225, 204, 147, 116, 47, 207, 45, 149, 49, 212, 168,
+    ]);
+
     let expectedPermissions: ValuesPermissions;
     let expectedId: string;
 
@@ -54,7 +65,9 @@ describe("Client", () => {
         .ttl(1)
         .value(fooExpectedName, NadaValue.new_secret_integer(fooExpectedValue))
         .value(barExpectedName, NadaValue.new_secret_blob(barExpectedValue))
-        .value(bazExpectedName, NadaValue.new_secret_boolean(bazExpectedValue))
+        .value(bazExpectedName, NadaValue.new_secret_boolean((bazExpectedValue === "true")))
+        .value(publicKeyName, NadaValue.new_ecdsa_public_key(publicKeyExpectedValue))
+        .value(storeIdName, NadaValue.new_store_id(storeIdExpectedValue))
         .build()
         .invoke();
       expect(expectedId).toHaveLength(36);
@@ -76,6 +89,21 @@ describe("Client", () => {
       expect(bar).toBeDefined();
       expect(bar.type).toBe("SecretBlob");
       expect(bar.value).toStrictEqual(barExpectedValue);
+
+      const baz = data[bazExpectedName]!;
+      expect(baz).toBeDefined();
+      expect(baz.type).toBe("SecretBoolean");
+      expect(baz.value).toStrictEqual(bazExpectedValue);
+
+      const publicKey = data[publicKeyName]!;
+      expect(publicKey).toBeDefined();
+      expect(publicKey.type).toBe("EcdsaPublicKey");
+      expect(publicKey.value).toStrictEqual(publicKeyExpectedValue);
+
+      const storeId = data[storeIdName]!;
+      expect(storeId).toBeDefined();
+      expect(storeId.type).toBe("StoreId");
+      expect(storeId.value).toStrictEqual(storeIdExpectedValue);
     });
 
     it("can update", async () => {

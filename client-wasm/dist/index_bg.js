@@ -702,6 +702,58 @@ export class NadaValue {
         }
     }
     /**
+     * Create a new ecdsa public key.
+     *
+     * @param {Uint8Array} value - The value component of the public key in binary (byte array) encoded format
+     * @return {NadaValue} The encoded secret corresponding to the value provided
+     *
+     * @example
+     * const value = NadaValue::new_ecdsa_public_key([0, 12, ..., 12]);
+     */
+    static new_ecdsa_public_key(value) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passArray8ToWasm0(value, wasm.__wbindgen_malloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.nadavalue_new_ecdsa_public_key(retptr, ptr0, len0);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return NadaValue.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Create a store id.
+     *
+     * @param {Uint8Array} value - The value component of the store id in binary (byte array) encoded format
+     * @return {NadaValue} The encoded secret corresponding to the value provided
+     *
+     * @example
+     * const value = NadaValue::new_store_id([0, 12, ..., 12]);
+     */
+    static new_store_id(value) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passArray8ToWasm0(value, wasm.__wbindgen_malloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.nadavalue_new_store_id(retptr, ptr0, len0);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return NadaValue.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
      * Convert this value into a byte array.
      *
      * This is only valid for secret blob values.

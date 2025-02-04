@@ -21,6 +21,16 @@ const byteArray = Uint8Array.from([
   136, 145, 98, 150, 152, 122, 50, 91, 141, 227, 182, 233, 8, 245, 72, 38,
 ]);
 
+const pubKey = Uint8Array.from([
+  186, 236, 247, 198, 7, 225, 204, 147, 116, 47, 207, 45, 149, 49, 212, 168,
+  136, 145, 98, 150, 152, 122, 50, 91, 141, 227, 182, 233, 8, 245, 72, 38,
+  56
+]);
+
+const storeId = Uint8Array.from([
+  186, 236, 247, 198, 7, 225, 204, 147, 116, 47, 207, 45, 149, 49, 212, 168,
+]);
+
 const digestMessage = "A deep message with a deep number: 42";
 
 const data = [
@@ -83,6 +93,18 @@ const data = [
     name: "j",
     value: byteArray,
     nadaValue: NadaValue.new_ecdsa_signature(byteArray, byteArray),
+  },
+  {
+    type: "EcdsaPublicKey",
+    name: "k",
+    value: pubKey,
+    nadaValue: NadaValue.new_ecdsa_public_key(pubKey),
+  },
+  {
+    type: "StoreId",
+    name: "l",
+    value: storeId,
+    nadaValue: NadaValue.new_store_id(storeId),
   },
 ];
 
