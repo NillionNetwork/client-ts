@@ -134,6 +134,14 @@ export const EncryptedNadaValueRecord = z.discriminatedUnion("type", [
     r: z.instanceof(Uint8Array),
     sigma: z.instanceof(Uint8Array),
   }),
+  z.object({
+    type: z.literal("EcdsaPublicKey"),
+    publicKey: z.instanceof(Uint8Array),
+  }),
+  z.object({
+    type: z.literal("StoreId"),
+    storeId: z.instanceof(Uint8Array),
+  }),
 ]);
 export type EncryptedNadaValueRecord = z.infer<typeof EncryptedNadaValueRecord>;
 export const EncryptedNadaValuesRecord = z.record(
