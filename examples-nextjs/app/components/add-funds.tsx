@@ -13,7 +13,7 @@ export const AddFunds: FC = () => {
     result = mutation.error.message;
   }
 
-  const args = { amount: BigInt(10) };
+  const args = { amount: BigInt(100000) };
 
   return (
     <div>
