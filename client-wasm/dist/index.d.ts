@@ -167,6 +167,26 @@ export class NadaValue {
    */
   static new_ecdsa_signature(r: Uint8Array, s: Uint8Array): NadaValue;
   /**
+   * Create a new ecdsa public key.
+   *
+   * @param {Uint8Array} value - The value component of the public key in binary (byte array) encoded format
+   * @return {NadaValue} The encoded secret corresponding to the value provided
+   *
+   * @example
+   * const value = NadaValue::new_ecdsa_public_key([0, 12, ..., 12]);
+   */
+  static new_ecdsa_public_key(value: Uint8Array): NadaValue;
+  /**
+   * Create a store id.
+   *
+   * @param {Uint8Array} value - The value component of the store id in binary (byte array) encoded format
+   * @return {NadaValue} The encoded secret corresponding to the value provided
+   *
+   * @example
+   * const value = NadaValue::new_store_id([0, 12, ..., 12]);
+   */
+  static new_store_id(value: Uint8Array): NadaValue;
+  /**
    * Convert this value into a byte array.
    *
    * This is only valid for secret blob values.
