@@ -86,7 +86,7 @@ jobs:
       - env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         if: steps.check-version.outputs.local_version_is_higher == 'true'
-        run: pnpm --filter "@nillion/${{ matrix.pkg.package-name }}" publish --tag ${{ steps.check-version.outputs.tag }}
+        run: pnpm --filter "@nillion/${{ matrix.pkg.package-name }}" publish --tag ${{ steps.check-version.outputs.tag }} --no-git-checks
 
       - name: Create GH Release
         id: create-release
