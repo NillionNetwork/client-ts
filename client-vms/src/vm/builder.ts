@@ -1,5 +1,4 @@
 import { type Client, createClient } from "@connectrpc/connect";
-import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import type { OfflineSigner } from "@cosmjs/proto-signing";
 import { SecretMasker } from "@nillion/client-wasm";
 import { Effect as E, pipe } from "effect";
@@ -16,7 +15,7 @@ import { PaymentClientBuilder, PaymentMode } from "#/payment";
 import { PartyId, UserId } from "#/types";
 import { OfflineSignerSchema } from "#/types/grpc";
 import { assertIsDefined, unwrapExceptionCause } from "#/util";
-import { VmClient, VmClientConfig } from "#/vm/client";
+import { createGrpcTransport, VmClient, VmClientConfig } from "#/vm/client";
 
 export const VmClientBuilderConfig = z.object({
   bootnodeUrl: z.string().url("Invalid bootnode url"),
@@ -152,25 +151,23 @@ export class VmClientBuilder {
     const id = PartyId.from(leaderClusterInfo.identity.contents);
     const leader = {
       id,
-      transport: createGrpcWebTransport({
-        baseUrl: leaderClusterInfo.grpcEndpoint,
-        useBinaryFormat: true,
-        interceptors: [createAuthInterceptor(tokenAuthManager, id)],
-      }),
+      transport: await createGrpcTransport(leaderClusterInfo.grpcEndpoint, [
+        createAuthInterceptor(tokenAuthManager, id),
+      ]),
     };
 
-    const nodes = cluster.members.map((node) => {
-      assertIsDefined(node.identity?.contents, "node.identity.contents");
-      const id = PartyId.from(node.identity?.contents);
-      return {
-        id,
-        transport: createGrpcWebTransport({
-          baseUrl: node.grpcEndpoint,
-          useBinaryFormat: true,
-          interceptors: [createAuthInterceptor(tokenAuthManager, id)],
-        }),
-      };
-    });
+    const nodes = await Promise.all(
+      cluster.members.map(async (node) => {
+        assertIsDefined(node.identity?.contents, "node.identity.contents");
+        const id = PartyId.from(node.identity?.contents);
+        return {
+          id,
+          transport: await createGrpcTransport(node.grpcEndpoint, [
+            createAuthInterceptor(tokenAuthManager, id),
+          ]),
+        };
+      }),
+    );
 
     let masker: SecretMasker;
     const polynomialDegree = BigInt(cluster.polynomialDegree);
@@ -222,15 +219,13 @@ export class VmClientBuilder {
   }
 }
 
-function createMembershipClient(
+async function createMembershipClient(
   bootnodeUrl: string,
-): Client<typeof Membership> {
-  return createClient(
-    Membership,
-    createGrpcWebTransport({
-      baseUrl: bootnodeUrl,
-      useBinaryFormat: true,
-    }),
+): Promise<Client<typeof Membership>> {
+  return pipe(
+    E.tryPromise(() => createGrpcTransport(bootnodeUrl, [])),
+    E.andThen((transport) => createClient(Membership, transport)),
+    E.runPromise,
   );
 }
 
@@ -242,8 +237,13 @@ function createMembershipClient(
  */
 export const fetchClusterDetails = (bootnodeUrl: string): Promise<Cluster> => {
   return pipe(
-    E.tryPromise(() => createMembershipClient(bootnodeUrl).cluster({})),
+    E.tryPromise(() => createMembershipClient(bootnodeUrl)),
+    E.andThen((client) => client.cluster({})),
     E.catchAll(unwrapExceptionCause),
+    E.tapBoth({
+      onFailure: (e) => E.sync(() => Log("Values delete failed: %O", e)),
+      onSuccess: (id) => E.sync(() => Log(`Values deleted: ${id}`)),
+    }),
     E.runPromise,
   );
 };
@@ -256,7 +256,8 @@ export const fetchClusterDetails = (bootnodeUrl: string): Promise<Cluster> => {
  */
 export const fetchNodeVersion = (bootnodeUrl: string): Promise<NodeVersion> => {
   return pipe(
-    E.tryPromise(() => createMembershipClient(bootnodeUrl).nodeVersion({})),
+    E.tryPromise(() => createMembershipClient(bootnodeUrl)),
+    E.andThen((client) => client.nodeVersion({})),
     E.catchAll(unwrapExceptionCause),
     E.runPromise,
   );

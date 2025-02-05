@@ -14,6 +14,7 @@ import {
   StoreValuesBuilder,
   UpdatePermissionsBuilder,
 } from "./operation";
+import type { Interceptor, Transport } from "@connectrpc/connect";
 
 /**
  * Configuration for communicating with a Nillion network node.
@@ -339,4 +340,26 @@ export class VmClient {
   retrieveComputeResult(): RetrieveComputeResultBuilder {
     return RetrieveComputeResultBuilder.init(this);
   }
+}
+
+export async function createGrpcTransport(
+  bootnodeUrl: string,
+  interceptors: Interceptor[],
+): Promise<Transport> {
+  if (typeof process !== "undefined" && process.versions?.node) {
+    return import("@connectrpc/connect-node").then((module) => {
+      return module.createGrpcWebTransport({
+        baseUrl: bootnodeUrl,
+        httpVersion: "1.1",
+        interceptors: interceptors,
+      });
+    });
+  }
+  return import("@connectrpc/connect-web").then((module) => {
+    return module.createGrpcWebTransport({
+      baseUrl: bootnodeUrl,
+      useBinaryFormat: true,
+      interceptors: interceptors,
+    });
+  });
 }

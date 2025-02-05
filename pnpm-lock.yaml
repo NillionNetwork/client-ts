@@ -93,9 +93,12 @@ importers:
       '@connectrpc/connect':
         specifier: ^2.0.0
         version: 2.0.0(@bufbuild/protobuf@2.2.2)
+      '@connectrpc/connect-node':
+        specifier: ^2.0.0
+        version: 2.0.1(@bufbuild/protobuf@2.2.2)(@connectrpc/connect@2.0.0(@bufbuild/protobuf@2.2.2))
       '@connectrpc/connect-web':
         specifier: ^2.0.0
-        version: 2.0.0(@bufbuild/protobuf@2.2.2)(@connectrpc/connect@2.0.0(@bufbuild/protobuf@2.2.2))
+        version: 2.0.1(@bufbuild/protobuf@2.2.2)(@connectrpc/connect@2.0.0(@bufbuild/protobuf@2.2.2))
       '@cosmjs/proto-signing':
         specifier: ^0.32.4
         version: 0.32.4
@@ -424,11 +427,18 @@ packages:
   '@confio/ics23@0.6.8':
     resolution: {integrity: sha512-wB6uo+3A50m0sW/EWcU64xpV/8wShZ6bMTa7pF8eYsTrSkQA7oLUIJcs/wb8g4y2Oyq701BaGiO6n/ak5WXO1w==}
 
-  '@connectrpc/connect-web@2.0.0':
-    resolution: {integrity: sha512-oeCxqHXLXlWJdmcvp9L3scgAuK+FjNSn+twyhUxc8yvDbTumnt5Io+LnBzSYxAdUdYqTw5yHfTSCJ4hj0QID0g==}
+  '@connectrpc/connect-node@2.0.1':
+    resolution: {integrity: sha512-jXE9vMZ71aZnIXPDBqedwQyT/nN5pYs6pI8BScvvxJEKPJNAuwxltdJ2u0RpPaqox/dEW+ipzAN7kjYQIy3NHg==}
+    engines: {node: '>=18.14.1'}
     peerDependencies:
       '@bufbuild/protobuf': ^2.2.0
-      '@connectrpc/connect': 2.0.0
+      '@connectrpc/connect': 2.0.1
+
+  '@connectrpc/connect-web@2.0.1':
+    resolution: {integrity: sha512-FmUR9TyuHu/3efr9cYZcqqAccgsswLSm3PQBXGuya5h57AjQWROW6ejL6Fg0d+A9EwsxRmJktefmFszXUMlU9Q==}
+    peerDependencies:
+      '@bufbuild/protobuf': ^2.2.0
+      '@connectrpc/connect': 2.0.1
 
   '@connectrpc/connect@2.0.0':
     resolution: {integrity: sha512-Usm8jgaaULANJU8vVnhWssSA6nrZ4DJEAbkNtXSoZay2YD5fDyMukCxu8NEhCvFzfHvrhxhcjttvgpyhOM7xAQ==}
@@ -2693,7 +2703,12 @@ snapshots:
       '@noble/hashes': 1.7.1
       protobufjs: 6.11.4
 
-  '@connectrpc/connect-web@2.0.0(@bufbuild/protobuf@2.2.2)(@connectrpc/connect@2.0.0(@bufbuild/protobuf@2.2.2))':
+  '@connectrpc/connect-node@2.0.1(@bufbuild/protobuf@2.2.2)(@connectrpc/connect@2.0.0(@bufbuild/protobuf@2.2.2))':
+    dependencies:
+      '@bufbuild/protobuf': 2.2.2
+      '@connectrpc/connect': 2.0.0(@bufbuild/protobuf@2.2.2)
+
+  '@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.2)(@connectrpc/connect@2.0.0(@bufbuild/protobuf@2.2.2))':
     dependencies:
       '@bufbuild/protobuf': 2.2.2
       '@connectrpc/connect': 2.0.0(@bufbuild/protobuf@2.2.2)
