@@ -24,6 +24,7 @@
     "@bufbuild/protobuf": "^2.2.2",
     "@connectrpc/connect": "^2.0.0",
     "@connectrpc/connect-web": "^2.0.0",
+    "@connectrpc/connect-node": "^2.0.0",
     "@cosmjs/proto-signing": "^0.32.4",
     "@cosmjs/stargate": "^0.32.4",
     "@nillion/client-wasm": "workspace:^",
@@ -48,6 +49,9 @@
     "vite-plugin-wasm": "^3.3.0",
     "vite-tsconfig-paths": "^5.1.2",
     "vitest": "^2.1.4"
+  },
+  "browser": {
+    "@connectrpc/connect-node": false
   },
   "files": ["dist"]
 }
