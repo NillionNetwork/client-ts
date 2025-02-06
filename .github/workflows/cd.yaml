@@ -52,8 +52,6 @@ jobs:
         with:
           toolchain: nightly-2024-07-01
           target: wasm32-unknown-unknown
-      - uses: jdx/mise-action@v2
-        if: matrix.pkg.package-name == 'client-wasm' && steps.check-version.outputs.local_version_is_higher == 'true'
 
       - uses: actions/setup-node@v4
         if: steps.check-version.outputs.local_version_is_higher == 'true'
@@ -65,11 +63,6 @@ jobs:
         if: steps.check-version.outputs.local_version_is_higher == 'true'
       - run: pnpm install
         if: steps.check-version.outputs.local_version_is_higher == 'true'
-
-      - name: Build client-wasm
-        if: matrix.pkg.package-name == 'client-wasm' && steps.check-version.outputs.local_version_is_higher == 'true'
-        run: |
-          pnpm --filter "@nillion/client-wasm" build
 
       - name: Build client-vms
         if: matrix.pkg.package-name == 'client-vms' && steps.check-version.outputs.local_version_is_higher == 'true'
