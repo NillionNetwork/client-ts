@@ -3,12 +3,14 @@ import type { PartyShares } from "@nillion/client-wasm";
 import {
   EcdsaMessageDigestSchema,
   EcdsaPrivateKeyShareSchema,
+  EcdsaPublicKeySchema,
   EcdsaSignatureShareSchema,
   type NamedValue,
   NamedValueSchema,
   PublicIntegerSchema,
   ShamirShareSchema,
   ShamirSharesBlobSchema,
+  StoreIdSchema,
   type Value,
   ValueSchema,
 } from "#/gen-proto/nillion/values/v1/value_pb";
@@ -116,6 +118,24 @@ function nadaValueToProto(nadaValue: EncryptedNadaValueRecord): Value {
           }),
         },
       });
+    case "EcdsaPublicKey":
+      return create(ValueSchema, {
+        value: {
+          case: "ecdsaPublicKey",
+          value: create(EcdsaPublicKeySchema, {
+            publicKey: nadaValue.publicKey,
+          }),
+        },
+      });
+    case "StoreId":
+      return create(ValueSchema, {
+        value: {
+          case: "storeId",
+          value: create(StoreIdSchema, {
+            storeId: nadaValue.storeId,
+          }),
+        },
+      });
   }
 }
 
@@ -169,6 +189,16 @@ function nadaValueFromProto(
         type: "EcdsaSignature",
         r: value.value.value.r,
         sigma: value.value.value.sigma,
+      };
+    case "ecdsaPublicKey":
+      return {
+        type: "EcdsaPublicKey",
+        publicKey: value.value.value.publicKey,
+      };
+    case "storeId":
+      return {
+        type: "StoreId",
+        storeId: value.value.value.storeId,
       };
   }
 }

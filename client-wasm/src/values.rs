@@ -5,6 +5,7 @@ use nillion_client_core::{
     generic_ec::{curves::Secp256k1, serde::CurveName, NonZero, Point, Scalar, SecretScalar},
     key_share::{DirtyCoreKeyShare, DirtyKeyInfo, Validate},
     privatekey::{EcdsaPrivateKey, EcdsaPrivateKeyShare},
+    publickey::EcdsaPublicKeyArray,
     signature,
     signature::EcdsaSignatureShare,
     values::{BigInt, BigUint, BlobPrimitiveType, Clear, Encoded, EncodedModularNumber, Encrypted, PartyJar},
@@ -167,6 +168,34 @@ impl NadaValue {
         Ok(Self(nillion_client_core::values::NadaValue::new_ecdsa_signature(signature::EcdsaSignature { r, s })))
     }
 
+    /// Create a new ecdsa public key.
+    ///
+    /// @param {Uint8Array} value - The value component of the public key in binary (byte array) encoded format
+    /// @return {NadaValue} The encoded secret corresponding to the value provided
+    ///
+    /// @example
+    /// const value = NadaValue::new_ecdsa_public_key([0, 12, ..., 12]);
+    #[wasm_bindgen(skip_jsdoc)]
+    pub fn new_ecdsa_public_key(value: Vec<u8>) -> JsResult<NadaValue> {
+        let array: [u8; 33] =
+            value.try_into().map_err(|_| ValueError::new_err("Public key must be exactly 33 bytes long"))?;
+        Ok(Self(nillion_client_core::values::NadaValue::new_ecdsa_public_key::<EcdsaPublicKeyArray>(array.into())))
+    }
+
+    /// Create a store id.
+    ///
+    /// @param {Uint8Array} value - The value component of the store id in binary (byte array) encoded format
+    /// @return {NadaValue} The encoded secret corresponding to the value provided
+    ///
+    /// @example
+    /// const value = NadaValue::new_store_id([0, 12, ..., 12]);
+    #[wasm_bindgen(skip_jsdoc)]
+    pub fn new_store_id(value: Vec<u8>) -> JsResult<NadaValue> {
+        let array: [u8; 16] =
+            value.try_into().map_err(|_| ValueError::new_err("Store id must be exactly 16 bytes long"))?;
+        Ok(Self(nillion_client_core::values::NadaValue::new_store_id(array)))
+    }
+
     /// Convert this value into a byte array.
     ///
     /// This is only valid for secret blob values.
@@ -182,6 +211,8 @@ impl NadaValue {
             nillion_client_core::values::NadaValue::SecretBlob(value) => Ok(value.to_vec()),
             nillion_client_core::values::NadaValue::EcdsaPrivateKey(value) => Ok(value.clone().to_bytes()),
             nillion_client_core::values::NadaValue::EcdsaDigestMessage(value) => Ok(value.into()),
+            nillion_client_core::values::NadaValue::EcdsaPublicKey(public_key) => Ok(public_key.0.into()),
+            nillion_client_core::values::NadaValue::StoreId(store_id) => Ok(store_id.into()),
             _ => Err(JsError::new("value does not contain a byte array")),
         }
     }
@@ -246,6 +277,8 @@ impl NadaValue {
             EcdsaPrivateKey(_) => "EcdsaPrivateKey",
             EcdsaDigestMessage(_) => "EcdsaDigestMessage",
             EcdsaSignature(_) => "EcdsaSignature",
+            EcdsaPublicKey(_) => "EcdsaPublicKey",
+            StoreId(_) => "StoreId",
             _ => Err(JsError::new(&format!("Unsupported type {:?}", self.0)))?,
         };
         Ok(type_str.into())
@@ -318,7 +351,9 @@ impl NadaValues {
             let js_value = match value {
                 nillion_client_core::values::NadaValue::SecretBlob(_)
                 | nillion_client_core::values::NadaValue::EcdsaPrivateKey(_)
-                | nillion_client_core::values::NadaValue::EcdsaDigestMessage(_) => {
+                | nillion_client_core::values::NadaValue::EcdsaDigestMessage(_)
+                | nillion_client_core::values::NadaValue::EcdsaPublicKey(_)
+                | nillion_client_core::values::NadaValue::StoreId(_) => {
                     let byte_array = wrapped.to_byte_array()?;
                     let uint8_array = to_byte_array(&byte_array);
                     JsValue::from(uint8_array)
@@ -610,7 +645,16 @@ impl EncryptedNadaValues {
                     js_sys::Reflect::set(&inner_obj, &JsValue::from("sigma"), &js_sigma)
                         .map_err(|_| JsError::new("Failed to set sigma"))?;
                 }
-
+                CoreNadaValue::EcdsaPublicKey(public_key) => {
+                    let js_public_key = JsValue::from(to_byte_array(&public_key.0));
+                    js_sys::Reflect::set(&inner_obj, &JsValue::from("publicKey"), &js_public_key)
+                        .map_err(|_| JsError::new("Failed to set publicKey"))?;
+                }
+                CoreNadaValue::StoreId(store_id) => {
+                    let js_store_id = JsValue::from(to_byte_array(store_id));
+                    js_sys::Reflect::set(&inner_obj, &JsValue::from("storeId"), &js_store_id)
+                        .map_err(|_| JsError::new("Failed to set value"))?;
+                }
                 CoreNadaValue::SecretInteger(_)
                 | CoreNadaValue::SecretUnsignedInteger(_)
                 | CoreNadaValue::SecretBoolean(_)
@@ -771,6 +815,24 @@ impl EncryptedNadaValues {
                                     .map_err(|_| JsError::new("ecdsa scalar sigma is invalid"))?,
                             })
                         }
+                        "EcdsaPublicKey" => {
+                            let js_public_key = js_sys::Reflect::get(&value, &JsValue::from("publicKey"))
+                                .map_err(|_| JsError::new("Failed publicKey not found"))?;
+                            let public_key: [u8; 33] = Uint8Array::from(js_public_key)
+                                .to_vec()
+                                .try_into()
+                                .map_err(|_| JsError::new("ecdsa public key must be 33 bytes"))?;
+                            CoreNadaValue::new_ecdsa_public_key::<EcdsaPublicKeyArray>(public_key.into())
+                        }
+                        "StoreId" => {
+                            let js_store_id = js_sys::Reflect::get(&value, &JsValue::from("storeId"))
+                                .map_err(|_| JsError::new("Failed storeId not found"))?;
+                            let store_id: [u8; 16] = Uint8Array::from(js_store_id)
+                                .to_vec()
+                                .try_into()
+                                .map_err(|_| JsError::new("store id must be 16 bytes"))?;
+                            CoreNadaValue::new_store_id(store_id)
+                        }
                         _ => Err(JsError::new(&format!("Unsupported type {:?}", nada_type_name)))?,
                     };
                     nada_values.insert(name, nada_value);
@@ -911,6 +973,8 @@ mod test {
         values.insert("secret_unsigned_integer".into(), &NadaValue::new_secret_unsigned_integer("42")?);
         values.insert("secret_boolean".into(), &NadaValue::new_secret_boolean(true)?);
         values.insert("secret_blob".into(), &NadaValue::new_secret_blob(vec![1, 2, 3]));
+        values.insert("public_key".into(), &NadaValue::new_ecdsa_public_key(vec![1; 33])?);
+        values.insert("store_id".into(), &NadaValue::new_store_id(vec![1; 16])?);
 
         let masker = make_masker();
         let values = masker.mask(values.clone())?.into_iter().next().unwrap().shares;
