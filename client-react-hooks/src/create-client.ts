@@ -9,6 +9,20 @@ export type TestnetOptions = {
   seed: string;
   keplr: Keplr;
   paymentMode?: PaymentMode;
+  config?: TestnetConfig;
+};
+
+export type TestnetConfig = {
+  bootnodeUrl: string;
+  chainUrl: string;
+  chainId: string;
+};
+
+const TestnetDefaultConfig: TestnetConfig = {
+  bootnodeUrl:
+    "https://node-1.nilvm-testnet-1.nillion-network.testnet.nillion.network:14311",
+  chainUrl: "http://rpc.testnet.nilchain-rpc-proxy.nilogy.xyz",
+  chainId: "nillion-chain-testnet-1",
 };
 
 export type DevnetOptions = {
@@ -16,11 +30,18 @@ export type DevnetOptions = {
   seed?: string;
   signer?: Keplr | OfflineSigner;
   paymentMode?: PaymentMode;
+  config?: DevnetConfig;
 };
 
-type Options = DevnetOptions | TestnetOptions;
+export type DevnetConfig = {
+  bootnodeUrl: string;
+  chainUrl: string;
+  chainId: string;
+  seed: string;
+  nilchainPrivateKey0: string;
+};
 
-const DevnetConfig = {
+const DevnetDefaultConfig: DevnetConfig = {
   bootnodeUrl: "http://127.0.0.1:43207",
   chainUrl: "http://127.0.0.1:48102",
   chainId: "nillion-chain-devnet",
@@ -29,48 +50,53 @@ const DevnetConfig = {
     "9a975f567428d054f2bf3092812e6c42f901ce07d9711bc77ee2cd81101f42c5",
 };
 
-const TestnetConfig = {
-  bootnodeUrl: "https://node-1.photon2.nillion-network.nilogy.xyz:14311/",
-  chainUrl: "http://rpc.testnet.nilchain-rpc-proxy.nilogy.xyz",
-  chainId: "nillion-chain-testnet-1",
-};
+type Options = DevnetOptions | TestnetOptions;
 
 export async function createClient(options: Options) {
   const builder = new VmClientBuilder(options.paymentMode);
   switch (options.network.toLowerCase()) {
     case "devnet": {
-      const config = options as DevnetOptions;
+      const network = options as DevnetOptions;
+      let config = DevnetDefaultConfig;
+      if (network.config !== undefined) {
+        config = network.config;
+      }
 
       let signer: OfflineSigner;
 
-      if (config.signer) {
-        if ("getOfflineSigner" in config.signer) {
-          signer = config.signer.getOfflineSigner(DevnetConfig.chainId);
+      if (network.signer) {
+        if ("getOfflineSigner" in network.signer) {
+          signer = network.signer.getOfflineSigner(config.chainId);
         } else {
-          signer = config.signer;
+          signer = network.signer;
         }
       } else {
-        signer = await createSignerFromKey(DevnetConfig.nilchainPrivateKey0);
+        signer = await createSignerFromKey(config.nilchainPrivateKey0);
       }
 
-      const seed = config.seed ? config.seed : DevnetConfig.seed;
+      const seed = network.seed ? network.seed : config.seed;
 
       builder
         .seed(seed)
-        .bootnodeUrl(DevnetConfig.bootnodeUrl)
-        .chainUrl(DevnetConfig.chainUrl)
+        .bootnodeUrl(config.bootnodeUrl)
+        .chainUrl(config.chainUrl)
         .signer(signer);
 
       break;
     }
     case "testnet": {
-      const config = options as TestnetOptions;
-      const signer = config.keplr.getOfflineSigner(TestnetConfig.chainId);
+      const network = options as TestnetOptions;
+      let config = TestnetDefaultConfig;
+      if (network.config !== undefined) {
+        config = network.config;
+      }
+
+      const signer = network.keplr.getOfflineSigner(config.chainId);
 
       builder
-        .seed(config.seed)
-        .bootnodeUrl(TestnetConfig.bootnodeUrl)
-        .chainUrl(TestnetConfig.chainUrl)
+        .seed(network.seed)
+        .bootnodeUrl(config.bootnodeUrl)
+        .chainUrl(config.chainUrl)
         .signer(signer);
 
       break;
