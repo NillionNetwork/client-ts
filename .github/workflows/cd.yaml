@@ -56,7 +56,7 @@ jobs:
         if: matrix.pkg.package-name == 'client-wasm' && steps.check-version.outputs.local_version_is_higher == 'true'
 
       - uses: actions/setup-node@v4
-        if: matrix.pkg.package-name != 'client-wasm' && steps.check-version.outputs.local_version_is_higher == 'true'
+        if: steps.check-version.outputs.local_version_is_higher == 'true'
         with:
           node-version: "23.0"
           registry-url: "https://registry.npmjs.org"
