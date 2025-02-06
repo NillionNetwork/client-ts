@@ -2,7 +2,7 @@
 
 import {
   NillionProvider,
-  createClient,
+  ClientBuilder,
   getKeplr,
 } from "@nillion/client-react-hooks";
 import type { VmClient } from "@nillion/client-vms";
@@ -29,11 +29,10 @@ export default function Home() {
 
   useEffect(() => {
     const init = async () => {
-      const client = await createClient({
-        network: "testnet",
-        seed: "foobarbaz",
-        keplr: await getKeplr(),
-      });
+      const client = await ClientBuilder.testnet(
+        "foobarbaz",
+        await getKeplr(),
+      ).build();
       setClient(client);
     };
     void init();
