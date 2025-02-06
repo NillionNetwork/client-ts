@@ -64,11 +64,17 @@ jobs:
       - run: pnpm install
         if: steps.check-version.outputs.local_version_is_higher == 'true'
 
+      - name: Build client-wasm
+        if: matrix.pkg.package-name == 'client-wasm' && steps.check-version.outputs.local_version_is_higher == 'true'
+        run: |
+          npm pack --filter ./client-wasm
+
       - name: Build client-vms
         if: matrix.pkg.package-name == 'client-vms' && steps.check-version.outputs.local_version_is_higher == 'true'
         run: |
           pnpm build:proto
           pnpm --filter "@nillion/client-vms" build
+          npm pack --filter ./client-vms
 
       - name: Build client-react-hooks
         if: matrix.pkg.package-name == 'client-react-hooks' && steps.check-version.outputs.local_version_is_higher == 'true'
@@ -76,6 +82,7 @@ jobs:
           pnpm build:proto
           pnpm --filter "@nillion/client-vms" build
           pnpm --filter "@nillion/client-react-hooks" build
+          npm pack --filter ./client-react-hooks
 
       - env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -91,9 +98,9 @@ jobs:
           [[ "${{ steps.check-version.outputs.tag }}" == "next" ]] && PRERELEASE="-p" || PRERELEASE=""
           gh release create '${{ matrix.pkg.package-name }}-v${{ steps.check-version.outputs.local_version }}' --generate-notes $PRERELEASE --title "${{ matrix.pkg.package-name }}-v${{ steps.check-version.outputs.local_version }}"
 
-#      - name: Upload artifact to GH Release
-#        if: steps.check-version.outputs.local_version_is_higher == 'true'
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        run: >-
-#          gh release upload '${{ matrix.pkg.package-name }}-v${{ steps.check-version.outputs.local_version }}' dist/${{ matrix.pkg.package-name }}/**
+      - name: Upload artifact to GH Release
+        if: steps.check-version.outputs.local_version_is_higher == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          gh release upload '${{ matrix.pkg.package-name }}-v${{ steps.check-version.outputs.local_version }}' *.tgz
