@@ -21,7 +21,7 @@ export type TestnetConfig = {
 const TestnetDefaultConfig: TestnetConfig = {
   bootnodeUrl:
     "https://node-1.nilvm-testnet-1.nillion-network.testnet.nillion.network:14311",
-  chainUrl: "http://rpc.testnet.nilchain-rpc-proxy.nilogy.xyz",
+  chainUrl: "https://rpc.testnet.nilchain-rpc-proxy.nilogy.xyz",
   chainId: "nillion-chain-testnet-1",
 };
 
