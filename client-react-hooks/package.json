@@ -2,7 +2,7 @@
   "name": "@nillion/client-react-hooks",
   "license": "MIT",
   "author": "devsupport@nillion.com",
-  "version": "0.3.0-rc.3",
+  "version": "0.3.1",
   "homepage": "https://nillion.pub/client-ts",
   "repository": {
     "type": "git",

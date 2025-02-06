@@ -1,6 +1,6 @@
 {
   "name": "@nillion/client-wasm",
-  "version": "0.3.0-rc.6",
+  "version": "0.3.1",
   "type": "module",
   "exports": {
     ".": {
