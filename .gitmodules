@@ -1,0 +1,3 @@
+[submodule "nilvm"]
+	path = nilvm
+	url = git@github.com:NillionNetwork/nilvm.git
