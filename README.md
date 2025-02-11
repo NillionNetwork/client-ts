@@ -33,6 +33,13 @@ yarn add @nillion/client-wasm @nillion/client-vms @nillion/client-react-hooks
 - 💻 [Code examples](./client-vms/tests/) - See the TypeScript client in action
 - ⚛️ [React Hooks](./client-react-hooks/) - Learn how to use our React hooks
 
+### Build docs from source tree
+
+Clone this repo, and from the repo root run:
+```shell
+pnpm -F client-vms docs
+```
+
 ## Packages
 
 - `@nillion/client-react-hooks` - React hooks built on `@nillion/client-vms` and `@tanstack/react-query`
