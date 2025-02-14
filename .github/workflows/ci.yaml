@@ -21,17 +21,8 @@ jobs:
     needs: check
     runs-on: ubuntu-latest
     steps:
-      - name: Generate nillion repo app token
-        id: generate-token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.NILLION_GITHUB_ACTIONS_PUBLIC_APP_ID }}
-          owner: NillionNetwork
-          private-key: ${{ secrets.NILLION_GITHUB_ACTIONS_PUBLIC_APP_PRIVATE_KEY }}
-          repositories: nillion
       - uses: actions/checkout@v4
         with:
-          token: ${{ steps.generate-token.outputs.token }}
           submodules: 'recursive'
       - name: Install rustup
         uses: dtolnay/rust-toolchain@master
@@ -51,17 +42,8 @@ jobs:
     needs: check
     runs-on: ubuntu-latest
     steps:
-      - name: Generate nillion repo app token
-        id: generate-token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.NILLION_GITHUB_ACTIONS_PUBLIC_APP_ID }}
-          owner: NillionNetwork
-          private-key: ${{ secrets.NILLION_GITHUB_ACTIONS_PUBLIC_APP_PRIVATE_KEY }}
-          repositories: nillion
       - uses: actions/checkout@v4
         with:
-          token: ${{ steps.generate-token.outputs.token }}
           submodules: 'recursive'
       - uses: actions/setup-node@v4
         with:

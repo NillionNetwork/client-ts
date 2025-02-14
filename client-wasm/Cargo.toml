@@ -11,7 +11,7 @@ getrandom = { version = "0.2", features = ["js"] }
 wasm-bindgen = "0.2.92"
 js-sys = "0.3"
 
-nillion-client-core = { path = "../nillion/libs/client-core" }
+nillion-client-core = { path = "../nilvm/libs/client-core" }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
