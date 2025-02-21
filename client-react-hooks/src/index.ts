@@ -1,5 +1,5 @@
 export { NillionProvider } from "./nillion-provider";
-export { createClient } from "./create-client";
+export { ClientBuilder } from "./create-client";
 export { getKeplr } from "./keplr";
 export { useNilAccountBalance } from "./use-nil-account-balance";
 export { useNilAddFunds } from "./use-nil-add-funds";
