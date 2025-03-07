@@ -1,5 +1,5 @@
-import { type EcdsaSignature, NadaValue } from "@nillion/client-wasm";
-import { secp256k1 } from "@noble/curves/secp256k1";
+import { type EddsaSignature, NadaValue } from "@nillion/client-wasm";
+import { ed25519 } from "@noble/curves/ed25519";
 import { sha256 } from "@noble/hashes/sha2";
 import { beforeAll, describe, expect, it } from "vitest";
 import { createSignerFromKey } from "#/payment";
@@ -11,27 +11,31 @@ import {
 import { UpdatePermissionsBuilder, type VmClient, VmClientBuilder } from "#/vm";
 import { Env, PrivateKeyPerSuite } from "./helpers";
 
-describe("Signature", () => {
+// This is ignored because NadaValue::new_eddsa_private_key fails for random private keys. This should be fixed
+// in nilvm side
+describe.skip("Eddsa Signature", () => {
   // Program id
-  const tecdsaProgramId = "builtin/tecdsa_sign";
+  const teddsaProgramId = "builtin/teddsa_sign";
   // Input store name
-  const tecdsaKeyName = "tecdsa_private_key";
-  const tecdsaDigestName = "tecdsa_digest_message";
-  const tecdsaSignatureName = "tecdsa_signature";
+  const teddsaKeyName = "teddsa_private_key";
+  const teddsaDigestName = "teddsa_digest_message";
+  const teddsaSignatureName = "teddsa_signature";
   // Party names
-  const tecdsaKeyParty = "tecdsa_key_party";
-  const tecdsaDigestParty = "tecdsa_digest_message_party";
-  const tecdsaOutputParty = "tecdsa_output_party";
+  const teddsaKeyParty = "teddsa_key_party";
+  const teddsaDigestParty = "teddsa_digest_message_party";
+  const teddsaOutputParty = "teddsa_output_party";
 
-  const privateKey: Uint8Array = secp256k1.utils.randomPrivateKey();
-  const publicKey: Uint8Array = secp256k1.getPublicKey(privateKey);
+  const privateKey: Uint8Array = ed25519.utils.randomPrivateKey();
+  const publicKey: Uint8Array = ed25519.getPublicKey(privateKey);
 
   let digestMessage: Uint8Array;
 
   let client: VmClient;
 
   beforeAll(async () => {
-    const signer = await createSignerFromKey(PrivateKeyPerSuite.Signatures);
+    const signer = await createSignerFromKey(
+      PrivateKeyPerSuite.EddsaSignatures,
+    );
     digestMessage = sha256("A deep message with a deep number: 42");
 
     client = await new VmClientBuilder()
@@ -47,7 +51,7 @@ describe("Signature", () => {
     privateKeyStoreId = await client
       .storeValues()
       .ttl(1)
-      .value(tecdsaKeyName, NadaValue.new_ecdsa_private_key(privateKey))
+      .value(teddsaKeyName, NadaValue.new_eddsa_private_key(privateKey))
       .build()
       .invoke();
     expect(privateKeyStoreId).toHaveLength(36);
@@ -56,7 +60,7 @@ describe("Signature", () => {
   it("update private key permissions", async () => {
     const permissions = UpdatePermissionsBuilder.init(client)
       .valuesId(privateKeyStoreId)
-      .grantCompute(client.id, tecdsaProgramId)
+      .grantCompute(client.id, teddsaProgramId)
       .build();
     await permissions.invoke();
   });
@@ -68,24 +72,21 @@ describe("Signature", () => {
       .build()
       .invoke();
 
-    const values = data[tecdsaKeyName]!;
+    const values = data[teddsaKeyName]!;
     expect(values).toBeDefined();
-    expect(values.type).toBe("EcdsaPrivateKey");
+    expect(values.type).toBe("EddsaPrivateKey");
     expect(values.value).toEqual(privateKey);
   });
 
   let digestMessageStoreId: Uuid;
   it("store digest message", async () => {
     const permissions = ValuesPermissionsBuilder.defaultOwner(client.id)
-      .grantCompute(client.id, tecdsaProgramId)
+      .grantCompute(client.id, teddsaProgramId)
       .build();
     digestMessageStoreId = await client
       .storeValues()
       .ttl(1)
-      .value(
-        tecdsaDigestName,
-        NadaValue.new_ecdsa_digest_message(digestMessage),
-      )
+      .value(teddsaDigestName, NadaValue.new_eddsa_message(digestMessage))
       .permissions(permissions)
       .build()
       .invoke();
@@ -99,9 +100,9 @@ describe("Signature", () => {
       .build()
       .invoke();
 
-    const values = data[tecdsaDigestName]!;
+    const values = data[teddsaDigestName]!;
     expect(values).toBeDefined();
-    expect(values.type).toBe("EcdsaDigestMessage");
+    expect(values.type).toBe("EddsaDigestMessage");
     expect(values.value).toEqual(digestMessage);
   });
 
@@ -109,10 +110,10 @@ describe("Signature", () => {
   it("sign message", async () => {
     computeResultId = await client
       .invokeCompute()
-      .program(tecdsaProgramId)
-      .inputParty(tecdsaKeyParty, client.id)
-      .inputParty(tecdsaDigestParty, client.id)
-      .outputParty(tecdsaOutputParty, [client.id])
+      .program(teddsaProgramId)
+      .inputParty(teddsaKeyParty, client.id)
+      .inputParty(teddsaDigestParty, client.id)
+      .outputParty(teddsaOutputParty, [client.id])
       .valueIds(privateKeyStoreId, digestMessageStoreId)
       .build()
       .invoke();
@@ -127,23 +128,14 @@ describe("Signature", () => {
       .build()
       .invoke();
 
-    const values = computeResult[tecdsaSignatureName]!;
+    const values = computeResult[teddsaSignatureName]!;
     expect(values).toBeDefined();
   });
 
-  it("ecdsa verify", async () => {
-    const signature = computeResult[tecdsaSignatureName]
-      ?.value as EcdsaSignature;
-    const r = toBigInt(signature.r());
-    const s = toBigInt(signature.s());
-    expect(secp256k1.verify({ r: r, s: s }, digestMessage, publicKey)).true;
+  it("eddsa verify", async () => {
+    const signature = computeResult[teddsaSignatureName]
+      ?.value as EddsaSignature;
+    expect(ed25519.verify(signature.signature(), digestMessage, publicKey))
+      .true;
   });
 });
-
-function toBigInt(bytes: Uint8Array) {
-  let ret = 0n;
-  for (const value of bytes.values()) {
-    ret = (ret << 8n) + BigInt(value);
-  }
-  return ret;
-}

@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file nillion/values/v1/value.proto.
  */
 export const file_nillion_values_v1_value: GenFile = /*@__PURE__*/
-  fileDesc("Ch1uaWxsaW9uL3ZhbHVlcy92MS92YWx1ZS5wcm90bxIXbmlsbGlvbi52YWx1ZXMudjEudmFsdWUiSQoKTmFtZWRWYWx1ZRIMCgRuYW1lGAEgASgJEi0KBXZhbHVlGAIgASgLMh4ubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuVmFsdWUizgcKBVZhbHVlEkAKDnB1YmxpY19ib29sZWFuGAEgASgLMiYubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuUHVibGljSW50ZWdlckgAEkAKDnB1YmxpY19pbnRlZ2VyGAIgASgLMiYubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuUHVibGljSW50ZWdlckgAEkkKF3B1YmxpY191bnNpZ25lZF9pbnRlZ2VyGAMgASgLMiYubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuUHVibGljSW50ZWdlckgAEkQKFHNoYW1pcl9zaGFyZV9ib29sZWFuGAQgASgLMiQubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuU2hhbWlyU2hhcmVIABJEChRzaGFtaXJfc2hhcmVfaW50ZWdlchgFIAEoCzIkLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLlNoYW1pclNoYXJlSAASTQodc2hhbWlyX3NoYXJlX3Vuc2lnbmVkX2ludGVnZXIYBiABKAsyJC5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5TaGFtaXJTaGFyZUgAEi8KBWFycmF5GAcgASgLMh4ubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuQXJyYXlIABIvCgV0dXBsZRgIIAEoCzIeLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLlR1cGxlSAASRwoSc2hhbWlyX3NoYXJlc19ibG9iGAkgASgLMikubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuU2hhbWlyU2hhcmVzQmxvYkgAElAKF2VjZHNhX3ByaXZhdGVfa2V5X3NoYXJlGAogASgLMi0ubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuRWNkc2FQcml2YXRlS2V5U2hhcmVIABJNChVlY2RzYV9zaWduYXR1cmVfc2hhcmUYCyABKAsyLC5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5FY2RzYVNpZ25hdHVyZVNoYXJlSAASSwoUZWNkc2FfbWVzc2FnZV9kaWdlc3QYDCABKAsyKy5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5FY2RzYU1lc3NhZ2VEaWdlc3RIABJDChBlY2RzYV9wdWJsaWNfa2V5GA0gASgLMicubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuRWNkc2FQdWJsaWNLZXlIABI0CghzdG9yZV9pZBgOIAEoCzIgLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLlN0b3JlSWRIAEIHCgV2YWx1ZSIeCg1QdWJsaWNJbnRlZ2VyEg0KBXZhbHVlGAEgASgMIhwKC1NoYW1pclNoYXJlEg0KBXZhbHVlGAEgASgMIm8KBUFycmF5Ei4KBnZhbHVlcxgBIAMoCzIeLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLlZhbHVlEjYKCmlubmVyX3R5cGUYAiABKAsyIi5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5WYWx1ZVR5cGUiZAoFVHVwbGUSLAoEbGVmdBgBIAEoCzIeLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLlZhbHVlEi0KBXJpZ2h0GAIgASgLMh4ubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuVmFsdWUiXgoURWNkc2FQcml2YXRlS2V5U2hhcmUSCQoBaRgBIAEoDRIJCgF4GAIgASgMEhkKEXNoYXJlZF9wdWJsaWNfa2V5GAMgASgMEhUKDXB1YmxpY19zaGFyZXMYBCADKAwiLwoTRWNkc2FTaWduYXR1cmVTaGFyZRIJCgFyGAEgASgMEg0KBXNpZ21hGAIgASgMIiQKEkVjZHNhTWVzc2FnZURpZ2VzdBIOCgZkaWdlc3QYASABKAwiJAoORWNkc2FQdWJsaWNLZXkSEgoKcHVibGljX2tleRgBIAEoDCIbCgdTdG9yZUlkEhAKCHN0b3JlX2lkGAEgASgMIl8KEFNoYW1pclNoYXJlc0Jsb2ISNAoGc2hhcmVzGAEgAygLMiQubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuU2hhbWlyU2hhcmUSFQoNb3JpZ2luYWxfc2l6ZRgCIAEoBCLfBQoJVmFsdWVUeXBlEjAKDnB1YmxpY19pbnRlZ2VyGAEgASgLMhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5SAASOQoXcHVibGljX3Vuc2lnbmVkX2ludGVnZXIYAiABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABIwCg5wdWJsaWNfYm9vbGVhbhgDIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEjYKFHNoYW1pcl9zaGFyZV9pbnRlZ2VyGAQgASgLMhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5SAASPwodc2hhbWlyX3NoYXJlX3Vuc2lnbmVkX2ludGVnZXIYBSABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABI2ChRzaGFtaXJfc2hhcmVfYm9vbGVhbhgGIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEjMKBWFycmF5GAcgASgLMiIubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuQXJyYXlUeXBlSAASMwoFdHVwbGUYCCABKAsyIi5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5UdXBsZVR5cGVIABI5ChdlY2RzYV9wcml2YXRlX2tleV9zaGFyZRgJIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEjYKFGVjZHNhX21lc3NhZ2VfZGlnZXN0GAogASgLMhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5SAASNwoVZWNkc2Ffc2lnbmF0dXJlX3NoYXJlGAsgASgLMhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5SAASMgoQZWNkc2FfcHVibGljX2tleRgMIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEioKCHN0b3JlX2lkGA0gASgLMhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5SABCDAoKdmFsdWVfdHlwZSJRCglBcnJheVR5cGUSNgoKaW5uZXJfdHlwZRgBIAEoCzIiLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLlZhbHVlVHlwZRIMCgRzaXplGAIgASgEInAKCVR1cGxlVHlwZRIwCgRsZWZ0GAEgASgLMiIubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuVmFsdWVUeXBlEjEKBXJpZ2h0GAIgASgLMiIubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuVmFsdWVUeXBlQqkBChtjb20ubmlsbGlvbi52YWx1ZXMudjEudmFsdWVCClZhbHVlUHJvdG9QAaICBE5WVlaqAhdOaWxsaW9uLlZhbHVlcy5WMS5WYWx1ZcoCF05pbGxpb25cVmFsdWVzXFYxXFZhbHVl4gIjTmlsbGlvblxWYWx1ZXNcVjFcVmFsdWVcR1BCTWV0YWRhdGHqAhpOaWxsaW9uOjpWYWx1ZXM6OlYxOjpWYWx1ZWIGcHJvdG8z", [file_google_protobuf_empty]);
+  fileDesc("Ch1uaWxsaW9uL3ZhbHVlcy92MS92YWx1ZS5wcm90bxIXbmlsbGlvbi52YWx1ZXMudjEudmFsdWUiSQoKTmFtZWRWYWx1ZRIMCgRuYW1lGAEgASgJEi0KBXZhbHVlGAIgASgLMh4ubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuVmFsdWUi6QkKBVZhbHVlEkAKDnB1YmxpY19ib29sZWFuGAEgASgLMiYubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuUHVibGljSW50ZWdlckgAEkAKDnB1YmxpY19pbnRlZ2VyGAIgASgLMiYubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuUHVibGljSW50ZWdlckgAEkkKF3B1YmxpY191bnNpZ25lZF9pbnRlZ2VyGAMgASgLMiYubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuUHVibGljSW50ZWdlckgAEkQKFHNoYW1pcl9zaGFyZV9ib29sZWFuGAQgASgLMiQubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuU2hhbWlyU2hhcmVIABJEChRzaGFtaXJfc2hhcmVfaW50ZWdlchgFIAEoCzIkLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLlNoYW1pclNoYXJlSAASTQodc2hhbWlyX3NoYXJlX3Vuc2lnbmVkX2ludGVnZXIYBiABKAsyJC5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5TaGFtaXJTaGFyZUgAEi8KBWFycmF5GAcgASgLMh4ubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuQXJyYXlIABIvCgV0dXBsZRgIIAEoCzIeLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLlR1cGxlSAASRwoSc2hhbWlyX3NoYXJlc19ibG9iGAkgASgLMikubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuU2hhbWlyU2hhcmVzQmxvYkgAElAKF2VjZHNhX3ByaXZhdGVfa2V5X3NoYXJlGAogASgLMi0ubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuRWNkc2FQcml2YXRlS2V5U2hhcmVIABJNChVlY2RzYV9zaWduYXR1cmVfc2hhcmUYCyABKAsyLC5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5FY2RzYVNpZ25hdHVyZVNoYXJlSAASSwoUZWNkc2FfbWVzc2FnZV9kaWdlc3QYDCABKAsyKy5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5FY2RzYU1lc3NhZ2VEaWdlc3RIABJDChBlY2RzYV9wdWJsaWNfa2V5GA0gASgLMicubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuRWNkc2FQdWJsaWNLZXlIABI0CghzdG9yZV9pZBgOIAEoCzIgLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLlN0b3JlSWRIABJQChdlZGRzYV9wcml2YXRlX2tleV9zaGFyZRgPIAEoCzItLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLkVkZHNhUHJpdmF0ZUtleVNoYXJlSAASQgoPZWRkc2Ffc2lnbmF0dXJlGBAgASgLMicubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuRWRkc2FTaWduYXR1cmVIABI+Cg1lZGRzYV9tZXNzYWdlGBEgASgLMiUubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuRWRkc2FNZXNzYWdlSAASQwoQZWRkc2FfcHVibGljX2tleRgSIAEoCzInLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLkVkZHNhUHVibGljS2V5SABCBwoFdmFsdWUiHgoNUHVibGljSW50ZWdlchINCgV2YWx1ZRgBIAEoDCIcCgtTaGFtaXJTaGFyZRINCgV2YWx1ZRgBIAEoDCJvCgVBcnJheRIuCgZ2YWx1ZXMYASADKAsyHi5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5WYWx1ZRI2Cgppbm5lcl90eXBlGAIgASgLMiIubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuVmFsdWVUeXBlImQKBVR1cGxlEiwKBGxlZnQYASABKAsyHi5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5WYWx1ZRItCgVyaWdodBgCIAEoCzIeLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLlZhbHVlIl4KFEVjZHNhUHJpdmF0ZUtleVNoYXJlEgkKAWkYASABKA0SCQoBeBgCIAEoDBIZChFzaGFyZWRfcHVibGljX2tleRgDIAEoDBIVCg1wdWJsaWNfc2hhcmVzGAQgAygMIi8KE0VjZHNhU2lnbmF0dXJlU2hhcmUSCQoBchgBIAEoDBINCgVzaWdtYRgCIAEoDCIkChJFY2RzYU1lc3NhZ2VEaWdlc3QSDgoGZGlnZXN0GAEgASgMIiQKDkVjZHNhUHVibGljS2V5EhIKCnB1YmxpY19rZXkYASABKAwiGwoHU3RvcmVJZBIQCghzdG9yZV9pZBgBIAEoDCJeChRFZGRzYVByaXZhdGVLZXlTaGFyZRIJCgFpGAEgASgNEgkKAXgYAiABKAwSGQoRc2hhcmVkX3B1YmxpY19rZXkYAyABKAwSFQoNcHVibGljX3NoYXJlcxgEIAMoDCIjCg5FZGRzYVNpZ25hdHVyZRIRCglzaWduYXR1cmUYASABKAwiHwoMRWRkc2FNZXNzYWdlEg8KB21lc3NhZ2UYASABKAwiJAoORWRkc2FQdWJsaWNLZXkSEgoKcHVibGljX2tleRgBIAEoDCJfChBTaGFtaXJTaGFyZXNCbG9iEjQKBnNoYXJlcxgBIAMoCzIkLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLlNoYW1pclNoYXJlEhUKDW9yaWdpbmFsX3NpemUYAiABKAQisgcKCVZhbHVlVHlwZRIwCg5wdWJsaWNfaW50ZWdlchgBIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEjkKF3B1YmxpY191bnNpZ25lZF9pbnRlZ2VyGAIgASgLMhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5SAASMAoOcHVibGljX2Jvb2xlYW4YAyABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABI2ChRzaGFtaXJfc2hhcmVfaW50ZWdlchgEIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEj8KHXNoYW1pcl9zaGFyZV91bnNpZ25lZF9pbnRlZ2VyGAUgASgLMhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5SAASNgoUc2hhbWlyX3NoYXJlX2Jvb2xlYW4YBiABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABIzCgVhcnJheRgHIAEoCzIiLm5pbGxpb24udmFsdWVzLnYxLnZhbHVlLkFycmF5VHlwZUgAEjMKBXR1cGxlGAggASgLMiIubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuVHVwbGVUeXBlSAASOQoXZWNkc2FfcHJpdmF0ZV9rZXlfc2hhcmUYCSABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABI2ChRlY2RzYV9tZXNzYWdlX2RpZ2VzdBgKIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEjcKFWVjZHNhX3NpZ25hdHVyZV9zaGFyZRgLIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEjIKEGVjZHNhX3B1YmxpY19rZXkYDCABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABIqCghzdG9yZV9pZBgNIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEjkKF2VkZHNhX3ByaXZhdGVfa2V5X3NoYXJlGA4gASgLMhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5SAASMQoPZWRkc2Ffc2lnbmF0dXJlGA8gASgLMhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5SAASLwoNZWRkc2FfbWVzc2FnZRgQIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEjIKEGVkZHNhX3B1YmxpY19rZXkYESABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIAEIMCgp2YWx1ZV90eXBlIlEKCUFycmF5VHlwZRI2Cgppbm5lcl90eXBlGAEgASgLMiIubmlsbGlvbi52YWx1ZXMudjEudmFsdWUuVmFsdWVUeXBlEgwKBHNpemUYAiABKAQicAoJVHVwbGVUeXBlEjAKBGxlZnQYASABKAsyIi5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5WYWx1ZVR5cGUSMQoFcmlnaHQYAiABKAsyIi5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZS5WYWx1ZVR5cGVCqQEKG2NvbS5uaWxsaW9uLnZhbHVlcy52MS52YWx1ZUIKVmFsdWVQcm90b1ABogIETlZWVqoCF05pbGxpb24uVmFsdWVzLlYxLlZhbHVlygIXTmlsbGlvblxWYWx1ZXNcVjFcVmFsdWXiAiNOaWxsaW9uXFZhbHVlc1xWMVxWYWx1ZVxHUEJNZXRhZGF0YeoCGk5pbGxpb246OlZhbHVlczo6VjE6OlZhbHVlYgZwcm90bzM", [file_google_protobuf_empty]);
 
 /**
  * A named value.
@@ -163,6 +163,38 @@ export type Value = Message<"nillion.values.v1.value.Value"> & {
      */
     value: StoreId;
     case: "storeId";
+  } | {
+    /**
+     * An Eddsa private key share.
+     *
+     * @generated from field: nillion.values.v1.value.EddsaPrivateKeyShare eddsa_private_key_share = 15;
+     */
+    value: EddsaPrivateKeyShare;
+    case: "eddsaPrivateKeyShare";
+  } | {
+    /**
+     * An Eddsa signature.
+     *
+     * @generated from field: nillion.values.v1.value.EddsaSignature eddsa_signature = 16;
+     */
+    value: EddsaSignature;
+    case: "eddsaSignature";
+  } | {
+    /**
+     * An Eddsa message.
+     *
+     * @generated from field: nillion.values.v1.value.EddsaMessage eddsa_message = 17;
+     */
+    value: EddsaMessage;
+    case: "eddsaMessage";
+  } | {
+    /**
+     * An Eddsa public key.
+     *
+     * @generated from field: nillion.values.v1.value.EddsaPublicKey eddsa_public_key = 18;
+     */
+    value: EddsaPublicKey;
+    case: "eddsaPublicKey";
   } | { case: undefined; value?: undefined };
 };
 
@@ -407,6 +439,111 @@ export const StoreIdSchema: GenMessage<StoreId> = /*@__PURE__*/
   messageDesc(file_nillion_values_v1_value, 10);
 
 /**
+ * An Eddsa private key share.
+ *
+ * @generated from message nillion.values.v1.value.EddsaPrivateKeyShare
+ */
+export type EddsaPrivateKeyShare = Message<"nillion.values.v1.value.EddsaPrivateKeyShare"> & {
+  /**
+   * Index of local party in key generation protocol.
+   *
+   * @generated from field: uint32 i = 1;
+   */
+  i: number;
+
+  /**
+   * The secret share x.
+   *
+   * @generated from field: bytes x = 2;
+   */
+  x: Uint8Array;
+
+  /**
+   * Public key corresponding to shared secret key, in compressed form.
+   *
+   * @generated from field: bytes shared_public_key = 3;
+   */
+  sharedPublicKey: Uint8Array;
+
+  /**
+   * Public shares of all signers sharing the key, in compressed form.
+   *
+   * @generated from field: repeated bytes public_shares = 4;
+   */
+  publicShares: Uint8Array[];
+};
+
+/**
+ * Describes the message nillion.values.v1.value.EddsaPrivateKeyShare.
+ * Use `create(EddsaPrivateKeyShareSchema)` to create a new message.
+ */
+export const EddsaPrivateKeyShareSchema: GenMessage<EddsaPrivateKeyShare> = /*@__PURE__*/
+  messageDesc(file_nillion_values_v1_value, 11);
+
+/**
+ * An Eddsa signature.
+ *
+ * @generated from message nillion.values.v1.value.EddsaSignature
+ */
+export type EddsaSignature = Message<"nillion.values.v1.value.EddsaSignature"> & {
+  /**
+   * The signature.
+   *
+   * @generated from field: bytes signature = 1;
+   */
+  signature: Uint8Array;
+};
+
+/**
+ * Describes the message nillion.values.v1.value.EddsaSignature.
+ * Use `create(EddsaSignatureSchema)` to create a new message.
+ */
+export const EddsaSignatureSchema: GenMessage<EddsaSignature> = /*@__PURE__*/
+  messageDesc(file_nillion_values_v1_value, 12);
+
+/**
+ * An Eddsa message.
+ *
+ * @generated from message nillion.values.v1.value.EddsaMessage
+ */
+export type EddsaMessage = Message<"nillion.values.v1.value.EddsaMessage"> & {
+  /**
+   * The message.
+   *
+   * @generated from field: bytes message = 1;
+   */
+  message: Uint8Array;
+};
+
+/**
+ * Describes the message nillion.values.v1.value.EddsaMessage.
+ * Use `create(EddsaMessageSchema)` to create a new message.
+ */
+export const EddsaMessageSchema: GenMessage<EddsaMessage> = /*@__PURE__*/
+  messageDesc(file_nillion_values_v1_value, 13);
+
+/**
+ * An Eddsa public key.
+ *
+ * @generated from message nillion.values.v1.value.EddsaPublicKey
+ */
+export type EddsaPublicKey = Message<"nillion.values.v1.value.EddsaPublicKey"> & {
+  /**
+   * The public key.
+   *
+   * @generated from field: bytes public_key = 1;
+   */
+  publicKey: Uint8Array;
+};
+
+/**
+ * Describes the message nillion.values.v1.value.EddsaPublicKey.
+ * Use `create(EddsaPublicKeySchema)` to create a new message.
+ */
+export const EddsaPublicKeySchema: GenMessage<EddsaPublicKey> = /*@__PURE__*/
+  messageDesc(file_nillion_values_v1_value, 14);
+
+/**
  * Shamir shares of a blob.
  *
  * @generated from message nillion.values.v1.value.ShamirSharesBlob
@@ -432,7 +569,7 @@ export type ShamirSharesBlob = Message<"nillion.values.v1.value.ShamirSharesBlob
  * Use `create(ShamirSharesBlobSchema)` to create a new message.
  */
 export const ShamirSharesBlobSchema: GenMessage<ShamirSharesBlob> = /*@__PURE__*/
-  messageDesc(file_nillion_values_v1_value, 11);
+  messageDesc(file_nillion_values_v1_value, 15);
 
 /**
  * A type of a value.
@@ -547,6 +684,38 @@ export type ValueType = Message<"nillion.values.v1.value.ValueType"> & {
      */
     value: Empty;
     case: "storeId";
+  } | {
+    /**
+     * An Eddsa private key share.
+     *
+     * @generated from field: google.protobuf.Empty eddsa_private_key_share = 14;
+     */
+    value: Empty;
+    case: "eddsaPrivateKeyShare";
+  } | {
+    /**
+     * An Eddsa signature.
+     *
+     * @generated from field: google.protobuf.Empty eddsa_signature = 15;
+     */
+    value: Empty;
+    case: "eddsaSignature";
+  } | {
+    /**
+     * An Eddsa message.
+     *
+     * @generated from field: google.protobuf.Empty eddsa_message = 16;
+     */
+    value: Empty;
+    case: "eddsaMessage";
+  } | {
+    /**
+     * An Eddsa public key.
+     *
+     * @generated from field: google.protobuf.Empty eddsa_public_key = 17;
+     */
+    value: Empty;
+    case: "eddsaPublicKey";
   } | { case: undefined; value?: undefined };
 };
 
@@ -555,7 +724,7 @@ export type ValueType = Message<"nillion.values.v1.value.ValueType"> & {
  * Use `create(ValueTypeSchema)` to create a new message.
  */
 export const ValueTypeSchema: GenMessage<ValueType> = /*@__PURE__*/
-  messageDesc(file_nillion_values_v1_value, 12);
+  messageDesc(file_nillion_values_v1_value, 16);
 
 /**
  * An array.
@@ -583,7 +752,7 @@ export type ArrayType = Message<"nillion.values.v1.value.ArrayType"> & {
  * Use `create(ArrayTypeSchema)` to create a new message.
  */
 export const ArrayTypeSchema: GenMessage<ArrayType> = /*@__PURE__*/
-  messageDesc(file_nillion_values_v1_value, 13);
+  messageDesc(file_nillion_values_v1_value, 17);
 
 /**
  * A tuple.
@@ -611,5 +780,5 @@ export type TupleType = Message<"nillion.values.v1.value.TupleType"> & {
  * Use `create(TupleTypeSchema)` to create a new message.
  */
 export const TupleTypeSchema: GenMessage<TupleType> = /*@__PURE__*/
-  messageDesc(file_nillion_values_v1_value, 14);
+  messageDesc(file_nillion_values_v1_value, 18);
 

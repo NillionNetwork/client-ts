@@ -2,9 +2,9 @@
 use crate::errors::{JsResult, ValueError};
 use js_sys::{Array, Object, Uint8Array};
 use nillion_client_core::{
-    generic_ec::{curves::Secp256k1, serde::CurveName, NonZero, Point, Scalar, SecretScalar},
+    generic_ec::{curves::Secp256k1, serde::CurveName, Curve, NonZero, Point, Scalar, SecretScalar},
     key_share::{DirtyCoreKeyShare, DirtyKeyInfo, Validate},
-    privatekey::{EcdsaPrivateKey, EcdsaPrivateKeyShare},
+    privatekey::{ThresholdPrivateKey, ThresholdPrivateKeyShare},
     publickey::EcdsaPublicKeyArray,
     signature,
     signature::EcdsaSignatureShare,
@@ -132,7 +132,7 @@ impl NadaValue {
     /// const value = NadaValue.new_ecdsa_private_key([1,0,1,222,21,...]);
     #[wasm_bindgen(skip_jsdoc)]
     pub fn new_ecdsa_private_key(value: Vec<u8>) -> JsResult<NadaValue> {
-        let private_key = EcdsaPrivateKey::from_bytes(&value)
+        let private_key = ThresholdPrivateKey::from_be_bytes(&value)
             .map_err(|e| ValueError::new_err(&format!("Invalid ecdsa private key: {e}")))?;
         let secret = nillion_client_core::values::NadaValue::new_ecdsa_private_key(private_key);
         Ok(Self(secret))
@@ -182,6 +182,62 @@ impl NadaValue {
         Ok(Self(nillion_client_core::values::NadaValue::new_ecdsa_public_key::<EcdsaPublicKeyArray>(array.into())))
     }
 
+    /// Create a new eddsa private key
+    ///
+    /// @param {Uint8Array} value - The ecdsa private key in binary (byte array) encoded format
+    /// @return {NadaValue} The encoded secret corresponding to the value provided
+    ///
+    /// @example
+    /// const value = NadaValue.new_eddsa_private_key([1,0,1,222,21,...]);
+    #[wasm_bindgen(skip_jsdoc)]
+    pub fn new_eddsa_private_key(value: Vec<u8>) -> JsResult<NadaValue> {
+        let private_key = ThresholdPrivateKey::from_le_bytes(&value)
+            .map_err(|e| ValueError::new_err(&format!("Invalid eddsa private key: {e}")))?;
+        let secret = nillion_client_core::values::NadaValue::new_eddsa_private_key(private_key);
+        Ok(Self(secret))
+    }
+
+    /// Create a new eddsa message.
+    ///
+    /// @param {Uint8Array} value - The eddsa digest message in binary (byte array) encoded format
+    /// @return {NadaValue} The encoded secret corresponding to the value provided
+    ///
+    /// @example
+    /// const value = NadaValue.new_eddsa_message([1,0,1,222,21,...]);
+    #[wasm_bindgen(skip_jsdoc)]
+    pub fn new_eddsa_message(value: Vec<u8>) -> JsResult<NadaValue> {
+        Ok(Self(nillion_client_core::values::NadaValue::new_eddsa_message(value)))
+    }
+
+    /// Create a new eddsa signature.
+    ///
+    /// @param {Uint8Array} r - The r component of the signature in binary (byte array) encoded format
+    /// @param {Uint8Array} z - The z component of the signature in binary (byte array) encoded format
+    /// @return {NadaValue} The encoded secret corresponding to the value provided
+    ///
+    /// @example
+    /// const value = NadaValue::new_eddsa_signature(EddsaSignature { r, z });
+    #[wasm_bindgen(skip_jsdoc)]
+    pub fn new_eddsa_signature(r: Vec<u8>, z: Vec<u8>) -> JsResult<NadaValue> {
+        let signature = signature::EddsaSignature::from_components_bytes(&r, &z)
+            .map_err(|e| ValueError::new_err(&format!("Invalid eddsa signature: {e}")))?;
+        Ok(Self(nillion_client_core::values::NadaValue::new_eddsa_signature(signature)))
+    }
+
+    /// Create a new eddsa public key.
+    ///
+    /// @param {Uint8Array} value - The value component of the public key in binary (byte array) encoded format
+    /// @return {NadaValue} The encoded secret corresponding to the value provided
+    ///
+    /// @example
+    /// const value = NadaValue::new_eddsa_public_key([0, 12, ..., 12]);
+    #[wasm_bindgen(skip_jsdoc)]
+    pub fn new_eddsa_public_key(value: Vec<u8>) -> JsResult<NadaValue> {
+        let array: [u8; 32] =
+            value.try_into().map_err(|_| ValueError::new_err("Public key must be exactly 32 bytes long"))?;
+        Ok(Self(nillion_client_core::values::NadaValue::new_eddsa_public_key(array)))
+    }
+
     /// Create a store id.
     ///
     /// @param {Uint8Array} value - The value component of the store id in binary (byte array) encoded format
@@ -208,10 +264,13 @@ impl NadaValue {
     #[wasm_bindgen(skip_jsdoc)]
     pub fn to_byte_array(&self) -> Result<Vec<u8>, JsError> {
         match &self.0 {
-            nillion_client_core::values::NadaValue::SecretBlob(value) => Ok(value.to_vec()),
-            nillion_client_core::values::NadaValue::EcdsaPrivateKey(value) => Ok(value.clone().to_bytes()),
-            nillion_client_core::values::NadaValue::EcdsaDigestMessage(value) => Ok(value.into()),
-            nillion_client_core::values::NadaValue::EcdsaPublicKey(public_key) => Ok(public_key.0.into()),
+            nillion_client_core::values::NadaValue::SecretBlob(v) => Ok(v.to_vec()),
+            nillion_client_core::values::NadaValue::EcdsaPrivateKey(v) => Ok(v.clone().to_be_bytes()),
+            nillion_client_core::values::NadaValue::EcdsaDigestMessage(v) => Ok(v.into()),
+            nillion_client_core::values::NadaValue::EcdsaPublicKey(v) => Ok(v.0.into()),
+            nillion_client_core::values::NadaValue::EddsaPrivateKey(v) => Ok(v.clone().to_le_bytes()),
+            nillion_client_core::values::NadaValue::EddsaPublicKey(v) => Ok(v.into()),
+            nillion_client_core::values::NadaValue::EddsaMessage(v) => Ok(v.to_vec()),
             nillion_client_core::values::NadaValue::StoreId(store_id) => Ok(store_id.into()),
             _ => Err(JsError::new("value does not contain a byte array")),
         }
@@ -221,7 +280,7 @@ impl NadaValue {
     ///
     /// This is only valid for EcdsaSignature.
     /// @return {Uint8Array} the byte array contained in this value.
-    /// @throws {Error} if the value is not a secret blob.
+    /// @throws {Error} if the value is not a ecdsa signature
     ///
     /// @example
     /// const value = NadaValue.new_ecdsa_signature([1,0,1,222,21], [1,0,1,222,21]);
@@ -235,6 +294,26 @@ impl NadaValue {
             Ok(EcdsaSignature::new(r, s))
         } else {
             Err(JsError::new("value is not a ecdsa signature"))
+        }
+    }
+
+    /// Convert this NadaValue into an EddsaSignature.
+    ///
+    /// This is only valid for EddsaSignature.
+    /// @return {Uint8Array} the byte array contained in this value.
+    /// @throws {Error} if the value is not a eddsa signature
+    ///
+    /// @example
+    /// const value = NadaValue.new_eddsa_signature([1,0,1,222,21], [1,0,1,222,21]);
+    /// const signature = value.to_eddsa_signature();
+    #[wasm_bindgen(skip_jsdoc)]
+    pub fn to_eddsa_signature(&self) -> Result<EddsaSignature, JsError> {
+        if let nillion_client_core::values::NadaValue::EddsaSignature(signature) = &self.0 {
+            let r = signature.signature.r.to_bytes().as_bytes().to_vec();
+            let z = signature.signature.z.to_le_bytes().to_vec();
+            Ok(EddsaSignature::new(r, z))
+        } else {
+            Err(JsError::new("value is not a eddsa signature"))
         }
     }
 
@@ -278,6 +357,10 @@ impl NadaValue {
             EcdsaDigestMessage(_) => "EcdsaDigestMessage",
             EcdsaSignature(_) => "EcdsaSignature",
             EcdsaPublicKey(_) => "EcdsaPublicKey",
+            EddsaPrivateKey(_) => "EddsaPrivateKey",
+            EddsaMessage(_) => "EddsaMessage",
+            EddsaSignature(_) => "EddsaSignature",
+            EddsaPublicKey(_) => "EddsaPublicKey",
             StoreId(_) => "StoreId",
             _ => Err(JsError::new(&format!("Unsupported type {:?}", self.0)))?,
         };
@@ -353,6 +436,9 @@ impl NadaValues {
                 | nillion_client_core::values::NadaValue::EcdsaPrivateKey(_)
                 | nillion_client_core::values::NadaValue::EcdsaDigestMessage(_)
                 | nillion_client_core::values::NadaValue::EcdsaPublicKey(_)
+                | nillion_client_core::values::NadaValue::EddsaPrivateKey(_)
+                | nillion_client_core::values::NadaValue::EddsaMessage(_)
+                | nillion_client_core::values::NadaValue::EddsaPublicKey(_)
                 | nillion_client_core::values::NadaValue::StoreId(_) => {
                     let byte_array = wrapped.to_byte_array()?;
                     let uint8_array = to_byte_array(&byte_array);
@@ -360,6 +446,9 @@ impl NadaValues {
                 }
                 nillion_client_core::values::NadaValue::EcdsaSignature(_) => {
                     JsValue::from(wrapped.to_ecdsa_signature()?)
+                }
+                nillion_client_core::values::NadaValue::EddsaSignature(_) => {
+                    JsValue::from(wrapped.to_eddsa_signature()?)
                 }
                 _ => JsValue::from(wrapped.to_integer()?),
             };
@@ -400,6 +489,42 @@ impl EcdsaSignature {
     /// Access s component of the signature
     pub fn s(&self) -> Uint8Array {
         to_byte_array(&self.s)
+    }
+}
+
+/// A eddsa signature
+#[wasm_bindgen(inspectable)]
+#[derive(Clone)]
+pub struct EddsaSignature {
+    /// r component of the signature in binary format
+    r: Vec<u8>,
+    /// z component of the signature in binary format
+    z: Vec<u8>,
+}
+
+#[wasm_bindgen]
+impl EddsaSignature {
+    /// Construct a new instance the components.
+    #[wasm_bindgen(constructor)]
+    pub fn new(r: Vec<u8>, z: Vec<u8>) -> Self {
+        Self { r, z }
+    }
+
+    /// Access r component of the signature
+    pub fn r(&self) -> Uint8Array {
+        to_byte_array(&self.r)
+    }
+
+    /// Access z component of the signature
+    pub fn z(&self) -> Uint8Array {
+        to_byte_array(&self.z)
+    }
+
+    /// Access value of the signature
+    pub fn signature(&self) -> Uint8Array {
+        let mut signature = self.r.clone();
+        signature.append(&mut self.z.clone());
+        to_byte_array(&signature)
     }
 }
 
@@ -602,32 +727,7 @@ impl EncryptedNadaValues {
                         .map_err(|_| JsError::new("Failed to set originalSize"))?;
                 }
                 CoreNadaValue::EcdsaPrivateKey(value) => {
-                    let value = value.as_inner();
-                    // i
-                    js_sys::Reflect::set(&inner_obj, &JsValue::from("i"), &JsValue::from(value.i.to_string()))
-                        .map_err(|_| JsError::new("Failed to set i"))?;
-                    // x
-                    let x = value.x.clone().into_inner().as_ref().to_le_bytes();
-                    let js_x = JsValue::from(to_byte_array(&x));
-                    js_sys::Reflect::set(&inner_obj, &JsValue::from("x"), &js_x)
-                        .map_err(|_| JsError::new("Failed to set x"))?;
-                    // shared_public_key
-                    let shared_public_key = value.key_info.shared_public_key.to_bytes(true).to_vec();
-                    let js_shared_public_key = JsValue::from(to_byte_array(&shared_public_key));
-                    js_sys::Reflect::set(&inner_obj, &JsValue::from("sharedPublicKey"), &js_shared_public_key)
-                        .map_err(|_| JsError::new("Failed to set sharedPublicKey"))?;
-                    // public_shares
-                    let js_public_shares = value
-                        .key_info
-                        .public_shares
-                        .iter()
-                        .map(|s| {
-                            let share = s.to_bytes(true).to_vec();
-                            JsValue::from(to_byte_array(&share))
-                        })
-                        .collect::<Array>();
-                    js_sys::Reflect::set(&inner_obj, &JsValue::from("publicShares"), &js_public_shares)
-                        .map_err(|_| JsError::new("Failed to set publicShares"))?;
+                    Self::private_key_to_json(&inner_obj, value)?;
                 }
                 CoreNadaValue::EcdsaDigestMessage(value) => {
                     let js_value = JsValue::from(to_byte_array(value));
@@ -645,8 +745,27 @@ impl EncryptedNadaValues {
                     js_sys::Reflect::set(&inner_obj, &JsValue::from("sigma"), &js_sigma)
                         .map_err(|_| JsError::new("Failed to set sigma"))?;
                 }
-                CoreNadaValue::EcdsaPublicKey(public_key) => {
-                    let js_public_key = JsValue::from(to_byte_array(&public_key.0));
+                CoreNadaValue::EcdsaPublicKey(value) => {
+                    let js_public_key = JsValue::from(to_byte_array(&value.0));
+                    js_sys::Reflect::set(&inner_obj, &JsValue::from("publicKey"), &js_public_key)
+                        .map_err(|_| JsError::new("Failed to set publicKey"))?;
+                }
+                CoreNadaValue::EddsaPrivateKey(value) => {
+                    Self::private_key_to_json(&inner_obj, value)?;
+                }
+                CoreNadaValue::EddsaMessage(value) => {
+                    let js_value = JsValue::from(to_byte_array(value));
+                    js_sys::Reflect::set(&inner_obj, &JsValue::from("message"), &js_value)
+                        .map_err(|_| JsError::new("Failed to set message"))?;
+                }
+                CoreNadaValue::EddsaSignature(value) => {
+                    let signature = value.to_bytes();
+                    let js_signature = JsValue::from(to_byte_array(&signature));
+                    js_sys::Reflect::set(&inner_obj, &JsValue::from("signature"), &js_signature)
+                        .map_err(|_| JsError::new("Failed to set signature"))?;
+                }
+                CoreNadaValue::EddsaPublicKey(value) => {
+                    let js_public_key = JsValue::from(to_byte_array(value));
                     js_sys::Reflect::set(&inner_obj, &JsValue::from("publicKey"), &js_public_key)
                         .map_err(|_| JsError::new("Failed to set publicKey"))?;
                 }
@@ -670,6 +789,35 @@ impl EncryptedNadaValues {
                 .map_err(|e| JsError::new(&format!("Failed to set property: {:?}", e)))?;
         }
         Ok(JsValue::from(js_obj))
+    }
+
+    fn private_key_to_json<T: Curve>(obj: &Object, private_key: &ThresholdPrivateKeyShare<T>) -> JsResult<()> {
+        let private_key = private_key.as_inner();
+        // i
+        js_sys::Reflect::set(obj, &JsValue::from("i"), &JsValue::from(private_key.i.to_string()))
+            .map_err(|_| JsError::new("Failed to set i"))?;
+        // x
+        let x = private_key.x.clone().into_inner().as_ref().to_le_bytes();
+        let js_x = JsValue::from(to_byte_array(&x));
+        js_sys::Reflect::set(obj, &JsValue::from("x"), &js_x).map_err(|_| JsError::new("Failed to set x"))?;
+        // shared_public_key
+        let shared_public_key = private_key.key_info.shared_public_key.to_bytes(true).to_vec();
+        let js_shared_public_key = JsValue::from(to_byte_array(&shared_public_key));
+        js_sys::Reflect::set(obj, &JsValue::from("sharedPublicKey"), &js_shared_public_key)
+            .map_err(|_| JsError::new("Failed to set sharedPublicKey"))?;
+        // public_shares
+        let js_public_shares = private_key
+            .key_info
+            .public_shares
+            .iter()
+            .map(|s| {
+                let share = s.to_bytes(true).to_vec();
+                JsValue::from(to_byte_array(&share))
+            })
+            .collect::<Array>();
+        js_sys::Reflect::set(obj, &JsValue::from("publicShares"), &js_public_shares)
+            .map_err(|_| JsError::new("Failed to set publicShares"))?;
+        Ok(())
     }
 
     /// Convert a JS object into a EncryptedNadaValues
@@ -759,38 +907,7 @@ impl EncryptedNadaValues {
                                 .map_err(|_| JsError::new("Invalid blob original size"))?;
                             CoreNadaValue::new_secret_blob(BlobPrimitiveType { value: shares, unencoded_size })
                         }
-                        "EcdsaPrivateKey" => {
-                            // i
-                            let js_i = js_sys::Reflect::get(&value, &JsValue::from("i"))
-                                .map_err(|_| JsError::new("Failed i not found"))?
-                                .as_string()
-                                .unwrap_or_default();
-                            let i = u16::from_str(&js_i).map_err(|_| JsError::new("Invalid Ecdsa i"))?;
-                            // x
-                            let js_x = js_sys::Reflect::get(&value, &JsValue::from("x"))
-                                .map_err(|_| JsError::new("Failed x not found"))?;
-                            let x = non_zero_secret_scalar_from_js_value(js_x)?;
-                            // key_info
-                            let js_shared_public_key = js_sys::Reflect::get(&value, &JsValue::from("sharedPublicKey"))
-                                .map_err(|_| JsError::new("Failed sharedPublicKey not found"))?;
-                            let js_public_shares = js_sys::Reflect::get(&value, &JsValue::from("publicShares"))
-                                .map_err(|_| JsError::new("Failed publicShares not found"))?;
-                            let key_info = DirtyKeyInfo {
-                                curve: CurveName::new(),
-                                shared_public_key: non_zero_point_from_js_value(js_shared_public_key)?,
-                                public_shares: Array::from(&js_public_shares)
-                                    .to_vec()
-                                    .into_iter()
-                                    .map(non_zero_point_from_js_value)
-                                    .collect::<Result<_, _>>()?,
-                                vss_setup: None,
-                            };
-
-                            let share = DirtyCoreKeyShare { i, key_info, x }
-                                .validate()
-                                .map_err(|e| JsError::new(&format!("invalid ecdsa private key: {e:?}")))?;
-                            CoreNadaValue::new_ecdsa_private_key(EcdsaPrivateKeyShare::new(share))
-                        }
+                        "EcdsaPrivateKey" => CoreNadaValue::new_ecdsa_private_key(Self::json_to_private_key(&value)?),
                         "EcdsaDigestMessage" => {
                             let js_digest = js_sys::Reflect::get(&value, &JsValue::from("digest"))
                                 .map_err(|_| JsError::new("Failed digest not found"))?;
@@ -824,6 +941,30 @@ impl EncryptedNadaValues {
                                 .map_err(|_| JsError::new("ecdsa public key must be 33 bytes"))?;
                             CoreNadaValue::new_ecdsa_public_key::<EcdsaPublicKeyArray>(public_key.into())
                         }
+                        "EddsaPrivateKey" => CoreNadaValue::new_eddsa_private_key(Self::json_to_private_key(&value)?),
+                        "EddsaMessage" => {
+                            let js_message = js_sys::Reflect::get(&value, &JsValue::from("message"))
+                                .map_err(|_| JsError::new("Failed eddsa messge not found"))?;
+                            let message = Uint8Array::from(js_message).to_vec();
+                            CoreNadaValue::new_eddsa_message(message)
+                        }
+                        "EddsaSignature" => {
+                            let js_signature = js_sys::Reflect::get(&value, &JsValue::from("signature"))
+                                .map_err(|_| JsError::new("Failed signature not found"))?;
+                            let signature = Uint8Array::from(js_signature).to_vec();
+
+                            let signature = signature::EddsaSignature::from_bytes(&signature)?;
+                            CoreNadaValue::new_eddsa_signature(signature)
+                        }
+                        "EddsaPublicKey" => {
+                            let js_public_key = js_sys::Reflect::get(&value, &JsValue::from("publicKey"))
+                                .map_err(|_| JsError::new("Failed publicKey not found"))?;
+                            let public_key: [u8; 32] = Uint8Array::from(js_public_key)
+                                .to_vec()
+                                .try_into()
+                                .map_err(|_| JsError::new("eddsa public key must be 32 bytes"))?;
+                            CoreNadaValue::new_eddsa_public_key(public_key)
+                        }
                         "StoreId" => {
                             let js_store_id = js_sys::Reflect::get(&value, &JsValue::from("storeId"))
                                 .map_err(|_| JsError::new("Failed storeId not found"))?;
@@ -845,16 +986,48 @@ impl EncryptedNadaValues {
         }
         Ok(EncryptedNadaValues(nada_values))
     }
+
+    fn json_to_private_key<T: Curve>(value: &JsValue) -> JsResult<ThresholdPrivateKeyShare<T>> {
+        // i
+        let js_i = js_sys::Reflect::get(value, &JsValue::from("i"))
+            .map_err(|_| JsError::new("Failed i not found"))?
+            .as_string()
+            .unwrap_or_default();
+        let i = u16::from_str(&js_i).map_err(|_| JsError::new("Invalid Ecdsa i"))?;
+        // x
+        let js_x = js_sys::Reflect::get(value, &JsValue::from("x")).map_err(|_| JsError::new("Failed x not found"))?;
+        let x = non_zero_secret_scalar_from_js_value(js_x)?;
+        // key_info
+        let js_shared_public_key = js_sys::Reflect::get(value, &JsValue::from("sharedPublicKey"))
+            .map_err(|_| JsError::new("Failed sharedPublicKey not found"))?;
+        let js_public_shares = js_sys::Reflect::get(value, &JsValue::from("publicShares"))
+            .map_err(|_| JsError::new("Failed publicShares not found"))?;
+        let key_info = DirtyKeyInfo {
+            curve: CurveName::new(),
+            shared_public_key: non_zero_point_from_js_value(js_shared_public_key)?,
+            public_shares: Array::from(&js_public_shares)
+                .to_vec()
+                .into_iter()
+                .map(non_zero_point_from_js_value)
+                .collect::<Result<_, _>>()?,
+            vss_setup: None,
+        };
+
+        let share = DirtyCoreKeyShare { i, key_info, x }
+            .validate()
+            .map_err(|e| JsError::new(&format!("invalid ecdsa private key: {e:?}")))?;
+        Ok(ThresholdPrivateKeyShare::new(share))
+    }
 }
 
-fn non_zero_point_from_js_value(js_value: JsValue) -> JsResult<NonZero<Point<Secp256k1>>> {
+fn non_zero_point_from_js_value<T: Curve>(js_value: JsValue) -> JsResult<NonZero<Point<T>>> {
     let bytes = Uint8Array::from(js_value).to_vec();
     let point =
         Point::from_bytes(&bytes).map_err(|_| JsError::new("Invalid ecdsa private key point: invalid bytes"))?;
     NonZero::from_point(point).ok_or(JsError::new("Invalid ecdsa private key point: point is zero"))
 }
 
-fn non_zero_secret_scalar_from_js_value(js_value: JsValue) -> JsResult<NonZero<SecretScalar<Secp256k1>>> {
+fn non_zero_secret_scalar_from_js_value<T: Curve>(js_value: JsValue) -> JsResult<NonZero<SecretScalar<T>>> {
     let bytes = Uint8Array::from(js_value).to_vec();
     let scalar = SecretScalar::from_le_bytes(&bytes)
         .map_err(|_| JsError::new("Invalid ecdsa private key secret scalar: invalid bytes"))?;
@@ -973,7 +1146,26 @@ mod test {
         values.insert("secret_unsigned_integer".into(), &NadaValue::new_secret_unsigned_integer("42")?);
         values.insert("secret_boolean".into(), &NadaValue::new_secret_boolean(true)?);
         values.insert("secret_blob".into(), &NadaValue::new_secret_blob(vec![1, 2, 3]));
-        values.insert("public_key".into(), &NadaValue::new_ecdsa_public_key(vec![1; 33])?);
+        values.insert("ecdsa_private_key".into(), &NadaValue::new_ecdsa_private_key(vec![1; 32])?);
+        values.insert("ecdsa_message".into(), &NadaValue::new_ecdsa_digest_message(vec![1; 32])?);
+        values.insert("ecdsa_public_key".into(), &NadaValue::new_ecdsa_public_key(vec![1; 33])?);
+        values.insert("ecdsa_signature".into(), &NadaValue::new_ecdsa_signature(vec![1; 32], vec![1; 32])?);
+        values.insert("eddsa_private_key".into(), &NadaValue::new_eddsa_private_key(vec![1; 32])?);
+        values.insert("eddsa_message".into(), &NadaValue::new_eddsa_message(vec![1; 32])?);
+        values.insert("eddsa_public_key".into(), &NadaValue::new_eddsa_public_key(vec![1; 32])?);
+        values.insert(
+            "eddsa_signature".into(),
+            &NadaValue::new_eddsa_signature(
+                vec![
+                    228, 118, 63, 53, 138, 161, 20, 164, 93, 86, 233, 11, 211, 204, 186, 63, 255, 174, 220, 173, 222,
+                    58, 64, 79, 108, 173, 130, 1, 134, 44, 244, 104,
+                ],
+                vec![
+                    137, 73, 233, 168, 34, 64, 148, 185, 177, 91, 184, 21, 246, 82, 65, 207, 83, 158, 44, 181, 199, 94,
+                    83, 178, 88, 238, 210, 220, 10, 49, 154, 1,
+                ],
+            )?,
+        );
         values.insert("store_id".into(), &NadaValue::new_store_id(vec![1; 16])?);
 
         let masker = make_masker();
