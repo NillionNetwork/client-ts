@@ -1,3 +1,4 @@
+import type { Interceptor, Transport } from "@connectrpc/connect";
 import { SecretMasker } from "@nillion/client-wasm";
 import { z } from "zod";
 import { PaymentClient } from "#/payment";
@@ -14,7 +15,6 @@ import {
   StoreValuesBuilder,
   UpdatePermissionsBuilder,
 } from "./operation";
-import type { Interceptor, Transport } from "@connectrpc/connect";
 
 /**
  * Configuration for communicating with a Nillion network node.

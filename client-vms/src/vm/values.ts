@@ -5,6 +5,10 @@ import {
   EcdsaPrivateKeyShareSchema,
   EcdsaPublicKeySchema,
   EcdsaSignatureShareSchema,
+  EddsaMessageSchema,
+  EddsaPrivateKeyShareSchema,
+  EddsaPublicKeySchema,
+  EddsaSignatureSchema,
   type NamedValue,
   NamedValueSchema,
   PublicIntegerSchema,
@@ -56,13 +60,6 @@ function nadaValueToProto(nadaValue: EncryptedNadaValueRecord): Value {
           value: create(PublicIntegerSchema, { value: nadaValue.value }),
         },
       });
-    case "EcdsaDigestMessage":
-      return create(ValueSchema, {
-        value: {
-          case: "ecdsaMessageDigest",
-          value: create(EcdsaMessageDigestSchema, { digest: nadaValue.digest }),
-        },
-      });
     case "SecretBlob":
       return create(ValueSchema, {
         value: {
@@ -108,6 +105,13 @@ function nadaValueToProto(nadaValue: EncryptedNadaValueRecord): Value {
           }),
         },
       });
+    case "EcdsaDigestMessage":
+      return create(ValueSchema, {
+        value: {
+          case: "ecdsaMessageDigest",
+          value: create(EcdsaMessageDigestSchema, { digest: nadaValue.digest }),
+        },
+      });
     case "EcdsaSignature":
       return create(ValueSchema, {
         value: {
@@ -115,6 +119,43 @@ function nadaValueToProto(nadaValue: EncryptedNadaValueRecord): Value {
           value: create(EcdsaSignatureShareSchema, {
             r: nadaValue.r,
             sigma: nadaValue.sigma,
+          }),
+        },
+      });
+    case "EddsaPublicKey":
+      return create(ValueSchema, {
+        value: {
+          case: "eddsaPublicKey",
+          value: create(EddsaPublicKeySchema, {
+            publicKey: nadaValue.publicKey,
+          }),
+        },
+      });
+    case "EddsaPrivateKey":
+      return create(ValueSchema, {
+        value: {
+          case: "eddsaPrivateKeyShare",
+          value: create(EddsaPrivateKeyShareSchema, {
+            i: Number.parseInt(nadaValue.i),
+            x: nadaValue.x,
+            sharedPublicKey: nadaValue.sharedPublicKey,
+            publicShares: nadaValue.publicShares,
+          }),
+        },
+      });
+    case "EddsaMessage":
+      return create(ValueSchema, {
+        value: {
+          case: "eddsaMessage",
+          value: create(EddsaMessageSchema, { message: nadaValue.message }),
+        },
+      });
+    case "EddsaSignature":
+      return create(ValueSchema, {
+        value: {
+          case: "eddsaSignature",
+          value: create(EddsaSignatureSchema, {
+            signature: nadaValue.signature,
           }),
         },
       });
@@ -159,8 +200,6 @@ function nadaValueFromProto(
       return { type: "UnsignedInteger", value: value.value.value.value };
     case "publicBoolean":
       return { type: "Boolean", value: value.value.value.value };
-    case "ecdsaMessageDigest":
-      return { type: "EcdsaDigestMessage", digest: value.value.value.digest };
     case "shamirSharesBlob":
       return {
         type: "SecretBlob",
@@ -176,6 +215,8 @@ function nadaValueFromProto(
       };
     case "shamirShareBoolean":
       return { type: "ShamirShareBoolean", value: value.value.value.value };
+    case "ecdsaMessageDigest":
+      return { type: "EcdsaDigestMessage", digest: value.value.value.digest };
     case "ecdsaPrivateKeyShare":
       return {
         type: "EcdsaPrivateKey",
@@ -193,6 +234,26 @@ function nadaValueFromProto(
     case "ecdsaPublicKey":
       return {
         type: "EcdsaPublicKey",
+        publicKey: value.value.value.publicKey,
+      };
+    case "eddsaMessage":
+      return { type: "EddsaMessage", message: value.value.value.message };
+    case "eddsaPrivateKeyShare":
+      return {
+        type: "EddsaPrivateKey",
+        i: value.value.value.i.toString(),
+        x: value.value.value.x,
+        sharedPublicKey: value.value.value.sharedPublicKey,
+        publicShares: value.value.value.publicShares,
+      };
+    case "eddsaSignature":
+      return {
+        type: "EddsaSignature",
+        signature: value.value.value.signature,
+      };
+    case "eddsaPublicKey":
+      return {
+        type: "EddsaPublicKey",
         publicKey: value.value.value.publicKey,
       };
     case "storeId":

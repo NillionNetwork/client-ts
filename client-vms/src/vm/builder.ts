@@ -15,7 +15,7 @@ import { PaymentClientBuilder, PaymentMode } from "#/payment";
 import { PartyId, UserId } from "#/types";
 import { OfflineSignerSchema } from "#/types/grpc";
 import { assertIsDefined, unwrapExceptionCause } from "#/util";
-import { createGrpcTransport, VmClient, VmClientConfig } from "#/vm/client";
+import { VmClient, VmClientConfig, createGrpcTransport } from "#/vm/client";
 
 export const VmClientBuilderConfig = z.object({
   bootnodeUrl: z.string().url("Invalid bootnode url"),

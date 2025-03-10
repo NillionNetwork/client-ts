@@ -1,5 +1,9 @@
 import { type Timestamp, timestampDate } from "@bufbuild/protobuf/wkt";
-import { EcdsaSignature, PartyId as WasmPartyId } from "@nillion/client-wasm";
+import {
+  EcdsaSignature,
+  EddsaSignature,
+  PartyId as WasmPartyId,
+} from "@nillion/client-wasm";
 import { z } from "zod";
 import type {
   PriceQuoteRequest,
@@ -89,6 +93,7 @@ export const NadaValuesRecord = z.record(
       z.string(),
       z.instanceof(Uint8Array),
       z.instanceof(EcdsaSignature),
+      z.instanceof(EddsaSignature),
     ]),
   }),
 );
@@ -136,6 +141,25 @@ export const EncryptedNadaValueRecord = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("EcdsaPublicKey"),
+    publicKey: z.instanceof(Uint8Array),
+  }),
+  z.object({
+    type: z.literal("EddsaMessage"),
+    message: z.instanceof(Uint8Array),
+  }),
+  z.object({
+    type: z.literal("EddsaPrivateKey"),
+    i: z.string(),
+    x: z.instanceof(Uint8Array),
+    sharedPublicKey: z.instanceof(Uint8Array),
+    publicShares: z.array(z.instanceof(Uint8Array)),
+  }),
+  z.object({
+    type: z.literal("EddsaSignature"),
+    signature: z.instanceof(Uint8Array),
+  }),
+  z.object({
+    type: z.literal("EddsaPublicKey"),
     publicKey: z.instanceof(Uint8Array),
   }),
   z.object({

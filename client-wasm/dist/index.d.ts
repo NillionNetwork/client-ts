@@ -26,6 +26,36 @@ export class EcdsaSignature {
    */
   s(): Uint8Array;
 }
+/**
+ * A eddsa signature
+ */
+export class EddsaSignature {
+/**
+** Return copy of self without private attributes.
+*/
+  toJSON(): Object;
+/**
+* Return stringified version of self.
+*/
+  toString(): string;
+  free(): void;
+  /**
+   * Construct a new instance the components.
+   */
+  constructor(r: Uint8Array, z: Uint8Array);
+  /**
+   * Access r component of the signature
+   */
+  r(): Uint8Array;
+  /**
+   * Access z component of the signature
+   */
+  z(): Uint8Array;
+  /**
+   * Access value of the signature
+   */
+  signature(): Uint8Array;
+}
 export class EncodedModulo {
   private constructor();
   free(): void;
@@ -177,6 +207,47 @@ export class NadaValue {
    */
   static new_ecdsa_public_key(value: Uint8Array): NadaValue;
   /**
+   * Create a new eddsa private key
+   *
+   * @param {Uint8Array} value - The ecdsa private key in binary (byte array) encoded format
+   * @return {NadaValue} The encoded secret corresponding to the value provided
+   *
+   * @example
+   * const value = NadaValue.new_eddsa_private_key([1,0,1,222,21,...]);
+   */
+  static new_eddsa_private_key(value: Uint8Array): NadaValue;
+  /**
+   * Create a new eddsa message.
+   *
+   * @param {Uint8Array} value - The eddsa digest message in binary (byte array) encoded format
+   * @return {NadaValue} The encoded secret corresponding to the value provided
+   *
+   * @example
+   * const value = NadaValue.new_eddsa_message([1,0,1,222,21,...]);
+   */
+  static new_eddsa_message(value: Uint8Array): NadaValue;
+  /**
+   * Create a new eddsa signature.
+   *
+   * @param {Uint8Array} r - The r component of the signature in binary (byte array) encoded format
+   * @param {Uint8Array} z - The z component of the signature in binary (byte array) encoded format
+   * @return {NadaValue} The encoded secret corresponding to the value provided
+   *
+   * @example
+   * const value = NadaValue::new_eddsa_signature(EddsaSignature { r, z });
+   */
+  static new_eddsa_signature(r: Uint8Array, z: Uint8Array): NadaValue;
+  /**
+   * Create a new eddsa public key.
+   *
+   * @param {Uint8Array} value - The value component of the public key in binary (byte array) encoded format
+   * @return {NadaValue} The encoded secret corresponding to the value provided
+   *
+   * @example
+   * const value = NadaValue::new_eddsa_public_key([0, 12, ..., 12]);
+   */
+  static new_eddsa_public_key(value: Uint8Array): NadaValue;
+  /**
    * Create a store id.
    *
    * @param {Uint8Array} value - The value component of the store id in binary (byte array) encoded format
@@ -203,13 +274,25 @@ export class NadaValue {
    *
    * This is only valid for EcdsaSignature.
    * @return {Uint8Array} the byte array contained in this value.
-   * @throws {Error} if the value is not a secret blob.
+   * @throws {Error} if the value is not a ecdsa signature
    *
    * @example
    * const value = NadaValue.new_ecdsa_signature([1,0,1,222,21], [1,0,1,222,21]);
    * const signature = value.to_ecdsa_signature();
    */
   to_ecdsa_signature(): EcdsaSignature;
+  /**
+   * Convert this NadaValue into an EddsaSignature.
+   *
+   * This is only valid for EddsaSignature.
+   * @return {Uint8Array} the byte array contained in this value.
+   * @throws {Error} if the value is not a eddsa signature
+   *
+   * @example
+   * const value = NadaValue.new_eddsa_signature([1,0,1,222,21], [1,0,1,222,21]);
+   * const signature = value.to_eddsa_signature();
+   */
+  to_eddsa_signature(): EddsaSignature;
   /**
    * Convert this value into a string representation of the underlying numeric value.
    *
