@@ -196,6 +196,12 @@ export class VmClientBuilder {
       }
     }
 
+    if (
+      !leaderClusterInfo.publicKeys ||
+      !leaderClusterInfo.publicKeys.authentication
+    )
+      throw new Error("Leader public key not in cluster details");
+
     const user_id = UserId.from(tokenAuthManager.publicKey);
     const payer = await new PaymentClientBuilder()
       .chainUrl(chainUrl)
@@ -203,6 +209,7 @@ export class VmClientBuilder {
       .id(user_id)
       .signer(signer)
       .leader(leader.transport)
+      .leaderPublicKey(leaderClusterInfo.publicKeys?.authentication)
       .build();
 
     const config = VmClientConfig.parse({

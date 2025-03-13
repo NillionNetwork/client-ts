@@ -7,6 +7,7 @@ import { randomBytes } from "@noble/hashes/utils";
 import { Effect as E, pipe } from "effect";
 import { UnknownException } from "effect/Cause";
 import { z } from "zod";
+import type { PublicKey } from "#/gen-proto/nillion/auth/v1/public_key_pb";
 import {
   type MsgPayFor,
   MsgPayForSchema,
@@ -51,6 +52,7 @@ export const PaymentClientConfig = z.object({
   ),
   leader: GrpcClient,
   paymentMode: z.nativeEnum(PaymentMode),
+  leaderPublicKey: z.custom<PublicKey>(),
 });
 
 export type PaymentClientConfig = z.infer<typeof PaymentClientConfig>;
@@ -60,12 +62,14 @@ export class PaymentClient {
   private readonly chain: SigningStargateClient;
   private readonly leader: Client<typeof Payments>;
   private readonly paymentMode: PaymentMode;
+  private readonly leaderPublicKey: PublicKey;
 
   constructor(private readonly config: PaymentClientConfig) {
     this.address = config.address;
     this.chain = config.chain;
     this.leader = config.leader as Client<typeof Payments>;
     this.paymentMode = config.paymentMode;
+    this.leaderPublicKey = config.leaderPublicKey;
   }
 
   get id(): UserId {
@@ -213,6 +217,7 @@ export class PaymentClient {
       create(AddFundsPayloadSchema, {
         recipient: this.id.toProto(),
         nonce: randomBytes(32),
+        leaderPublicKey: this.leaderPublicKey,
       }),
     );
     return pipe(
