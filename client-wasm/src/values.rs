@@ -1106,10 +1106,17 @@ mod test {
     #[wasm_bindgen_test]
     fn mask_unmask() -> Result<(), JsValue> {
         let mut values = NadaValues::new()?;
-        values.insert("a".into(), &NadaValue::new_secret_integer("42")?);
-        values.insert("b".into(), &NadaValue::new_secret_blob(vec![1, 2, 3]));
-        values.insert("c".into(), &NadaValue::new_secret_unsigned_integer("1337")?);
-        values.insert("d".into(), &NadaValue::new_secret_boolean(true)?);
+        values.insert("secret_integer".into(), &NadaValue::new_secret_integer("42")?);
+        values.insert("secret_blob".into(), &NadaValue::new_secret_blob(vec![1, 2, 3]));
+        values.insert("secret_unsigned_integer".into(), &NadaValue::new_secret_unsigned_integer("1337")?);
+        values.insert("secret_boolean".into(), &NadaValue::new_secret_boolean(true)?);
+        values.insert(
+            "eddsa_private_key".into(),
+            &NadaValue::new_eddsa_private_key(vec![
+                67, 125, 56, 30, 209, 152, 89, 230, 27, 85, 136, 128, 43, 116, 85, 113, 124, 43, 197, 3, 29, 148, 6,
+                50, 169, 92, 97, 171, 152, 26, 90, 3,
+            ])?,
+        );
 
         let masker = make_masker();
         let masked_values = masker.mask(values.clone())?;
@@ -1138,6 +1145,11 @@ mod test {
 
     #[wasm_bindgen_test]
     fn encrypted_nada_values_from_js_object() -> Result<(), JsValue> {
+        let eddsa_private_key = vec![
+            67, 125, 56, 30, 209, 152, 89, 230, 27, 85, 136, 128, 43, 116, 85, 113, 124, 43, 197, 3, 29, 148, 6, 50,
+            169, 92, 97, 171, 152, 26, 90, 3,
+        ];
+
         let mut values = NadaValues::new()?;
         values.insert("integer".into(), &NadaValue::new_public_integer("42")?);
         values.insert("unsigned_integer".into(), &NadaValue::new_public_unsigned_integer("42")?);
@@ -1150,7 +1162,7 @@ mod test {
         values.insert("ecdsa_message".into(), &NadaValue::new_ecdsa_digest_message(vec![1; 32])?);
         values.insert("ecdsa_public_key".into(), &NadaValue::new_ecdsa_public_key(vec![1; 33])?);
         values.insert("ecdsa_signature".into(), &NadaValue::new_ecdsa_signature(vec![1; 32], vec![1; 32])?);
-        values.insert("eddsa_private_key".into(), &NadaValue::new_eddsa_private_key(vec![1; 32])?);
+        values.insert("eddsa_private_key".into(), &NadaValue::new_eddsa_private_key(eddsa_private_key)?);
         values.insert("eddsa_message".into(), &NadaValue::new_eddsa_message(vec![1; 32])?);
         values.insert("eddsa_public_key".into(), &NadaValue::new_eddsa_public_key(vec![1; 32])?);
         values.insert(
@@ -1169,12 +1181,15 @@ mod test {
         values.insert("store_id".into(), &NadaValue::new_store_id(vec![1; 16])?);
 
         let masker = make_masker();
-        let values = masker.mask(values.clone())?.into_iter().next().unwrap().shares;
-        let js_object = values.to_js_object()?;
+        let party_shares = masker.mask(values.clone())?;
+
+        let masked_values = party_shares.iter().next().unwrap().shares.clone();
+        let js_object = masked_values.to_js_object()?;
         let from_values = EncryptedNadaValues::from_js_object(&js_object, masker.modulo())?;
+        assert_eq!(masked_values, from_values);
 
-        assert_eq!(values, from_values);
-
+        let unmasked_values = masker.unmask(party_shares)?;
+        assert_eq!(values, unmasked_values);
         Ok(())
     }
 }

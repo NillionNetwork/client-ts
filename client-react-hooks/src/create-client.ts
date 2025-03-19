@@ -1,6 +1,6 @@
 import type { OfflineSigner } from "@cosmjs/proto-signing";
 import type { Keplr } from "@keplr-wallet/types";
-import { VmClientBuilder, type VmClient } from "@nillion/client-vms";
+import { type VmClient, VmClientBuilder } from "@nillion/client-vms";
 import { createSignerFromKey } from "@nillion/client-vms";
 import type { PaymentMode } from "@nillion/client-vms";
 

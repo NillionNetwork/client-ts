@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  NillionProvider,
   ClientBuilder,
+  NillionProvider,
   getKeplr,
 } from "@nillion/client-react-hooks";
 import type { VmClient } from "@nillion/client-vms";
