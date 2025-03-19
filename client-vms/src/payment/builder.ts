@@ -2,6 +2,7 @@ import { createClient } from "@connectrpc/connect";
 import { type OfflineSigner, Registry } from "@cosmjs/proto-signing";
 import { GasPrice, SigningStargateClient } from "@cosmjs/stargate";
 import { z } from "zod";
+import type { PublicKey } from "#/gen-proto/nillion/auth/v1/public_key_pb";
 import { Payments } from "#/gen-proto/nillion/payments/v1/service_pb";
 import { UserId } from "#/types";
 import { GrpcTransport, OfflineSignerSchema } from "#/types/grpc";
@@ -23,6 +24,7 @@ export class PaymentClientBuilder {
   private _transport?: GrpcTransport;
   private _id?: UserId;
   private _paymentMode?: PaymentMode;
+  private _leaderPublicKey?: PublicKey;
 
   chainUrl(url: string): this {
     this._chainUrl = url;
@@ -49,6 +51,11 @@ export class PaymentClientBuilder {
     return this;
   }
 
+  leaderPublicKey(publicKey: PublicKey): this {
+    this._leaderPublicKey = publicKey;
+    return this;
+  }
+
   async build(): Promise<PaymentClient> {
     const { signer, chainUrl, transport, id, paymentMode } =
       PaymentClientBuilderConfig.parse({
@@ -57,6 +64,7 @@ export class PaymentClientBuilder {
         transport: this._transport,
         id: this._id,
         paymentMode: this._paymentMode,
+        leaderPublicKey: this._leaderPublicKey,
       });
 
     const registry = new Registry();
