@@ -10,25 +10,25 @@ export const getKeplr = async (): Promise<Keplr> => {
     return window.keplr;
   }
 
-  if (document.readyState === "complete" && window.keplr) {
-    return window.keplr;
+  if (document.readyState === "complete") {
+    if (window.keplr) {
+      return window.keplr;
+    }
+    return Promise.reject(new Error("Failed to find keplr"));
   }
 
-  return new Promise((resolve) => {
-    const documentStateChange = (event: Event) => {
-      if (
-        event.target &&
-        (event.target as Document).readyState === "complete"
-      ) {
+  return new Promise((resolve, reject) => {
+    const onReadyStateChange = () => {
+      if (document.readyState === "complete") {
+        document.removeEventListener("readystatechange", onReadyStateChange);
         if (window.keplr) {
           resolve(window.keplr);
-          document.removeEventListener("readystatechange", documentStateChange);
         } else {
-          throw new Error("Failed to find keplr");
+          reject(new Error("Failed to find keplr"));
         }
       }
     };
 
-    document.addEventListener("readystatechange", documentStateChange);
+    document.addEventListener("readystatechange", onReadyStateChange);
   });
 };
