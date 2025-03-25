@@ -1,4 +1,5 @@
 import { type EddsaSignature, NadaValue } from "@nillion/client-wasm";
+import { mod } from "@noble/curves/abstract/modular";
 import { ed25519 } from "@noble/curves/ed25519";
 import { sha256 } from "@noble/hashes/sha2";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -11,24 +12,64 @@ import {
 import { UpdatePermissionsBuilder, type VmClient, VmClientBuilder } from "#/vm";
 import { Env, PrivateKeyPerSuite } from "./helpers";
 
-// This is ignored because NadaValue::new_eddsa_private_key fails for random private keys. This should be fixed
-// in nilvm side
-describe.skip("Eddsa Signature", () => {
+type EddsaKeyPair = {
+  privateKey: Uint8Array;
+  publicKey: Uint8Array;
+};
+
+/**
+ * Generates a random EdDSA (Ed25519) key pair, consisting of a private key (scalar) and a public key.
+ * The private key is generated using a random 32-byte seed, which is then processed and reduced modulo the order of the curve (L) to ensure it is within the valid scalar range.
+ * The public key is derived by multiplying the base point of the curve by the valid private scalar.
+ *
+ * This function ensures that the generated private key is valid according to the Ed25519 curve, and that the corresponding public key can be used for cryptographic operations.
+ *
+ * @returns {EddsaKeyPair} An object containing the `publicKey` (the public key as a compressed byte array) and the `privateKey` (the private key as a Uint8Array).
+ */
+function generateRandomEddsaKeyPair(): EddsaKeyPair {
+  const seed = ed25519.utils.randomPrivateKey();
+  let num = BigInt(`0x${Buffer.from(seed).toString("hex")}`);
+
+  // Apply modulus with L (the order of the Ed25519 curve) to ensure the scalar is valid
+  num = mod(num, ed25519.CURVE.n);
+
+  const privateKeyBuffer = Buffer.alloc(32);
+  // Split the BigInt into four 64-bit chunks and store them in the private key buffer
+  privateKeyBuffer.writeBigUInt64LE(num & BigInt("0xFFFFFFFFFFFFFFFF"), 0);
+  privateKeyBuffer.writeBigUInt64LE(
+    (num >> BigInt(64)) & BigInt("0xFFFFFFFFFFFFFFFF"),
+    8,
+  );
+  privateKeyBuffer.writeBigUInt64LE(
+    (num >> BigInt(128)) & BigInt("0xFFFFFFFFFFFFFFFF"),
+    16,
+  );
+  privateKeyBuffer.writeBigUInt64LE(
+    (num >> BigInt(192)) & BigInt("0xFFFFFFFFFFFFFFFF"),
+    24,
+  );
+
+  return {
+    publicKey: ed25519.ExtendedPoint.BASE.multiply(num).toRawBytes(true),
+    privateKey: new Uint8Array(privateKeyBuffer),
+  };
+}
+
+describe("Eddsa Signature", () => {
   // Program id
   const teddsaProgramId = "builtin/teddsa_sign";
   // Input store name
   const teddsaKeyName = "teddsa_private_key";
-  const teddsaDigestName = "teddsa_digest_message";
+  const teddsaMessageName = "teddsa_message";
   const teddsaSignatureName = "teddsa_signature";
   // Party names
   const teddsaKeyParty = "teddsa_key_party";
-  const teddsaDigestParty = "teddsa_digest_message_party";
+  const teddsaMessageParty = "teddsa_message_party";
   const teddsaOutputParty = "teddsa_output_party";
 
-  const privateKey: Uint8Array = ed25519.utils.randomPrivateKey();
-  const publicKey: Uint8Array = ed25519.getPublicKey(privateKey);
+  const { privateKey, publicKey } = generateRandomEddsaKeyPair();
 
-  let digestMessage: Uint8Array;
+  let message: Uint8Array;
 
   let client: VmClient;
 
@@ -36,7 +77,7 @@ describe.skip("Eddsa Signature", () => {
     const signer = await createSignerFromKey(
       PrivateKeyPerSuite.EddsaSignatures,
     );
-    digestMessage = sha256("A deep message with a deep number: 42");
+    message = sha256("A deep message with a deep number: 42");
 
     client = await new VmClientBuilder()
       .seed("tests")
@@ -86,7 +127,7 @@ describe.skip("Eddsa Signature", () => {
     digestMessageStoreId = await client
       .storeValues()
       .ttl(1)
-      .value(teddsaDigestName, NadaValue.new_eddsa_message(digestMessage))
+      .value(teddsaMessageName, NadaValue.new_eddsa_message(message))
       .permissions(permissions)
       .build()
       .invoke();
@@ -100,10 +141,10 @@ describe.skip("Eddsa Signature", () => {
       .build()
       .invoke();
 
-    const values = data[teddsaDigestName]!;
+    const values = data[teddsaMessageName]!;
     expect(values).toBeDefined();
-    expect(values.type).toBe("EddsaDigestMessage");
-    expect(values.value).toEqual(digestMessage);
+    expect(values.type).toBe("EddsaMessage");
+    expect(values.value).toEqual(message);
   });
 
   let computeResultId: Uuid;
@@ -112,7 +153,7 @@ describe.skip("Eddsa Signature", () => {
       .invokeCompute()
       .program(teddsaProgramId)
       .inputParty(teddsaKeyParty, client.id)
-      .inputParty(teddsaDigestParty, client.id)
+      .inputParty(teddsaMessageParty, client.id)
       .outputParty(teddsaOutputParty, [client.id])
       .valueIds(privateKeyStoreId, digestMessageStoreId)
       .build()
@@ -135,7 +176,6 @@ describe.skip("Eddsa Signature", () => {
   it("eddsa verify", async () => {
     const signature = computeResult[teddsaSignatureName]
       ?.value as EddsaSignature;
-    expect(ed25519.verify(signature.signature(), digestMessage, publicKey))
-      .true;
+    expect(ed25519.verify(signature.signature(), message, publicKey)).true;
   });
 });
